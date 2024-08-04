@@ -1,0 +1,159 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="main">
+    <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">Pages</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Register</li>
+            </ol>
+        </div><!-- End .container -->
+    </nav><!-- End .breadcrumb-nav -->
+
+    <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('{% static 'assets/images/backgrounds/login-bg.jpg' %}')">
+        <div class="container">
+            <div class="form-box">
+                <div class="form-tab">
+                    <ul class="nav nav-pills nav-fill" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'user_side:sign-in' %}">Sign In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="true">Register</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="register" role="tabpanel" aria-labelledby="register-tab">
+                            {% block warning_box %}
+                                <style>
+                                    /* Add some styling to the form error container */
+                                    .form-error {
+                                        background-color: #f8d7da; /* Light red background */
+                                        border: 1px solid #f5c6cb; /* Red border */
+                                        color: #721c24; /* Dark red text color */
+                                        padding: 18px;
+                                        border-radius: 5px;
+                                        margin-bottom: 20px;
+                                        animation: fadeIn 0.5s ease-in-out; /* Fade-in animation */
+                                    }
+                                    
+                                    /* fade-in animation */
+                                    @keyframes fadeIn {
+                                        from {
+                                            opacity: 0;
+                                        }
+                                        to {
+                                            opacity: 1;
+                                        }
+                                    }
+                                    
+                                    /*Style the error list */
+                                    .form-error ul {
+                                        margin: 0;
+                                        padding: 0;
+                                        list-style-type: none;
+                                    }
+                                    
+                                    .form-error li {
+                                        margin-bottom: 5px;
+                                    }
+                                </style>
+                            {% endblock %}
+                            <!-- to show the non-field error ,down below... -->
+                            {% if form.non_field_errors %}
+                            <div class="form-error">
+                                <strong>Please correct the following errors:</strong>
+                                <ul>
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                            <!-- to show the field error down below... -->
+                            {% if form.errors %}
+                            <div class="form-error">
+                                <strong>Please correct the following errors:</strong>
+                                <ul>
+                                    {% for field in form %}
+                                        {% if field.errors %}
+                                            <li>{{ field.label }} : {{ field.errors }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                            
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="username">Username *</label>
+                                    {{ form.username }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email *</label>
+                                    {{ form.email }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password *</label>
+                                    {{ form.password1 }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirm-password">Confirm Password *</label>
+                                    {{ form.password2 }}
+                                </div>
+                                <div class="form-footer">
+                                    <button type="submit" class="btn btn-outline-primary-2">
+                                        <span>SIGN UP</span>
+                                        <i class="icon-long-arrow-right"></i>
+                                    </button>
+
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="register-policy" required>
+                                        <label class="custom-control-label" for="register-policy">I agree to the <a href="#">privacy policy</a> *</label>
+                                    </div><!-- End .custom-checkbox -->
+                                </div><!-- End .form-footer -->
+                            </form>
+
+                            <div class="form-choice">
+                                <p class="text-center">or sign up with</p>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <a href="#" class="btn btn-login btn-g">
+                                            <i class="icon-google"></i>
+                                            Sign Up With Google
+                                        </a>
+                                    </div><!-- End .col-6 -->
+                                    <div class="col-sm-6">
+                                        <a href="#" class="btn btn-login btn-f">
+                                            <i class="icon-facebook-f"></i>
+                                            Sign Up With Facebook
+                                        </a>
+                                    </div><!-- End .col-6 -->
+                                </div><!-- End .row -->
+                            </div><!-- End .form-choice -->
+                        </div><!-- End .tab-pane -->
+                    </div><!-- End .tab-content -->
+                </div><!-- End .form-tab -->
+            </div><!-- End .form-box -->
+        </div><!-- End .container -->
+    </div><!-- End .login-page section-bg -->
+</main><!-- End .main -->
+
+<!-- Plugins JS File -->
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.hoverIntent.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.waypoints.min.js' %}"></script>
+<script src="{% static 'assets/js/superfish.min.js' %}"></script>
+<script src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
+<!-- Main JS File -->
+<script src="{% static 'assets/js/main.js' %}"></script>
+</body>
+
+</html>
+
+{% endblock content %}
