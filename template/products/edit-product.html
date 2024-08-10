@@ -1,0 +1,172 @@
+{% include 'partials/side-bar-admin.html' %}
+
+{% load static %}
+
+<!doctype html>
+<html class="no-js " lang="en">
+
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<meta name="description" content="Responsive Bootstrap 4 and web Application ui kit.">
+
+<title>Edit-products-admin-side</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<!-- Favicon-->
+<link rel="stylesheet" href="{% static 'admin/plugins/bootstrap/css/bootstrap.min.css' %}">
+<!-- Bootstrap Material Datetime Picker Css -->
+<link href="{% static 'admin/plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css' %}" rel="stylesheet" />
+<!-- Bootstrap Select Css -->
+<link href="{% static 'admin/plugins/bootstrap-select/css/bootstrap-select.css' %}" rel="stylesheet" />
+<!-- Custom Css -->
+<link  rel="stylesheet" href="{% static 'admin/css/style.min.css' %}">
+</head>
+
+<body class="theme-blush">
+
+<!-- Page Loader -->
+<div class="page-loader-wrapper">
+    <div class="loader">
+        <div class="m-t-30"><img class="zmdi-hc-spin" src="{% static 'admin/images/loader.svg' %}" width="48" height="48" alt="Aero"></div>
+        <p>Please wait...</p>
+    </div>
+</div>
+
+<!-- Overlay For Sidebars -->
+<div class="overlay"></div>
+
+<!-- Main Search -->
+
+
+
+<!-- body content starts -->
+<section class="content">
+    <div class="body_scroll">
+        <div class="block-header">
+            <div class="row">
+                <div class="col-lg-7 col-md-6 col-sm-12">
+                    <h2>Edit Product</h2>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.html"><i class="zmdi zmdi-home"></i> Home</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:void(0);">Categories</a></li>
+                        <li class="breadcrumb-item active">Edit Product</li>
+                    </ul>
+                </div>
+              
+            </div>
+        </div>
+    <form action="" method="post">
+        <div class="text-right">
+            <div class="icon col-xl ">
+                <a href="{% url 'products:add-product' %}" class="btn btn-primary" style="background-color: #0c7ce6; border-color: #0c7ce6; margin-bottom: 25px;">
+                    <i class="zmdi zmdi-hc-fw"></i>
+                    <span>Save Changes</span>
+                </a>
+                <a href="{% url 'products:add-product' %}" class="btn btn-primary" style="background-color: #cf0916cd; border-color: #a70404; margin-bottom: 25px;">
+                    <i class="zmdi zmdi-hc-fw"></i>
+                    <span>Discard Changes</span>
+                </a>
+            </div>
+        </div>
+        
+        
+        <div class="container-fluid">
+ 
+            <!-- Input -->
+            <div class="row clearfix">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="card">
+                        <div class="body">
+                            <div class="form-group">
+                                <label for="name">Product Name:</label>
+                                <input type="text" id="name" name="name" class="form-control" placeholder="Enter product name" required>
+                            </div>
+        
+                            <div class="form-group">
+                                <label for="description">Description:</label>
+                                <textarea id="description" name="description" class="form-control" placeholder="Enter product description" rows="4" required></textarea>
+                            </div>
+        
+                            <div class="form-group">
+                                <label for="price">Price:</label>
+                                <input type="number" step="0.00" id="price" name="price" class="form-control" placeholder="Enter product price" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- input 2 -->
+            <div class="row clearfix">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="card">
+                        <div class="body">
+                            <div class="form-group">
+                                <label for="price">Stock Quantity:</label>
+                                <input type="number" step="0.00" id="price" name="stock" class="form-control" placeholder="Enter Stock Quantity" required>
+                            </div>
+                            <div class="card">
+                                <div class="header">
+                                    <h2>Default</h2>
+                                </div>
+                                <div class="body">
+                                    <input type="file" class="dropify">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- input 3 -->
+            <div class="row clearfix">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="card">
+                        <div class="body">
+                            <div class="form-group">
+                                <label for="category">Category:</label>
+                                <select id="category" name="category" class="form-control" required>
+                                    <option value="">Select a category</option>
+                                    <!-- Populate options dynamically -->
+                                    <option value="1">Category 1</option>
+                                    <option value="2">Category 2</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="subcategory">Subcategory:</label>
+                                <select id="subcategory" name="subcategory" class="form-control">
+                                    <option value="">Select a subcategory</option>
+                                    <!-- Populate options dynamically -->
+                                    <option value="1">Subcategory 1</option>
+                                    <option value="2">Subcategory 2</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="key_specification">Key Specification:</label>
+                                <textarea id="key_specification" name="key_specification" class="form-control" placeholder="Enter key specifications (optional)" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+</section>
+
+<!-- Jquery Core Js --> 
+<script src="{% static 'admin/bundles/libscripts.bundle.js' %}"></script> <!-- Lib Scripts Plugin Js --> 
+<script src="{% static 'admin/bundles/vendorscripts.bundle.js' %}"></script> <!-- Lib Scripts Plugin Js --> 
+
+<script src="{% static 'admin/plugins/momentjs/moment.js' %}"></script> <!-- Moment Plugin Js --> 
+<!-- Bootstrap Material Datetime Picker Plugin Js -->
+<script src="{% static 'admin/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js' %}"></script> 
+
+<script src="{% static 'admin/bundles/mainscripts.bundle.js' %}"></script><!-- Custom Js --> 
+<script src="{% static 'admin/js/pages/forms/basic-form-elements.js' %}"></script>
+</body>
+
+
+</html>

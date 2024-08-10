@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/skins/skin-demo-20.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/demos/demo-20.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -644,14 +645,22 @@
         {% endfor %}
         {% endif %}
      -->
-     {% if messages %}
-     {% for message in messages %}
+        {% if messages %}
+        {% for message in messages %}
          <div class="alert alert-{{ message.tags }} dynamic-message" style="margin-top:11px; display: flex; width: 100%;">
              {{ message }}
          </div>
-     {% endfor %}
-     {% endif %}
- 
+        {% endfor %}
+        {% endif %}
+ <script>
+    // sweat alert,downbelow
+     setTimeout(() => {
+         $(".alert").fadeOut(500, function() {
+             $(this).remove(); // This removes the alert from the DOM
+         });
+     }, 3000);
+ </script>
+
  {% block warning_box %}
      <style>
          /* Base styles for all messages */
@@ -1029,7 +1038,7 @@
 </div><!-- End .mobile-menu-wrapper -->
 </div><!-- End .mobile-menu-container -->
 <!-- Plugins JS File -->
-<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.min.js' %}"></scrip>
 <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'assets/js/jquery.hoverIntent.min.js' %}"></script>
 <script src="{% static 'assets/js/jquery.waypoints.min.js' %}"></script>

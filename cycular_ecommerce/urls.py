@@ -23,9 +23,16 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('core.urls')),
     path('user/',include('user_side.urls')),
+    path('seller/',include('admin_side.urls')),
+    path('products/',include('products.urls')),
     path('social-auth/',include('social_django.urls',namespace='social')),  # Social authentication URLs
 ]
 
 if settings.DEBUG:
     urlpatterns +=static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
     urlpatterns +=static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+# {{ product.image.url }} use this to load the images in the template.
+

@@ -1,0 +1,31 @@
+{% load static %}
+<!-- Left Sidebar -->
+<aside id="leftsidebar" class="sidebar">
+    <div class="navbar-brand">
+        <button class="btn-menu ls-toggle-btn" type="button"><i class="zmdi zmdi-menu"></i></button>
+        <a href="index.html"><img src="{% static 'admin/images/logo.svg' %}" width="25" alt="Aero"><span class="m-l-10">Aero</span></a>
+    </div>
+    <div class="menu">
+        <ul class="list">
+            <li>
+                <div class="user-info">
+                    <a class="image" href="profile.html"><img src="{% static 'admin/images/profile_av.jpg' %}" alt="User"></a>
+                    <div class="detail">
+                        <h4>Admin</h4>
+                        <small>Hello Admin</small>                        
+                    </div>
+                </div>
+            </li>
+            <li><a href="{% url 'admin_side:seller-home' %}" ><i class="zmdi zmdi-shopping-cart"></i><span>Dashboard</span></a>
+            <li><a href="{% url 'admin_side:user-management' %}" ><i class="zmdi zmdi-shopping-cart"></i><span>Customers</span></a>
+            <li><a href="{% url 'products:category-management' %}" ><i class="zmdi zmdi-shopping-cart"></i><span>Categories</span></a>
+            <li><a href="javascript:void(0);" ><i class="zmdi zmdi-shopping-cart"></i><span>Orders</span></a>
+            <li><a href="javascript:void(0);" ><i class="zmdi zmdi-shopping-cart"></i><span>Banners</span></a>
+            <li><a href="javascript:void(0);" ><i class="zmdi zmdi-shopping-cart"></i><span>Coupens</span></a>
+            <li><a href="javascript:void(0);" ><i class="zmdi zmdi-shopping-cart"></i><span>Discounts</span></a>
+            <li><a href="{% url 'admin_side:seller-logout' %}" ><i class="zmdi zmdi-shopping-cart"></i><span>Logout</span></a>
+            </li>
+        </ul>
+    </div>
+</aside>
+    

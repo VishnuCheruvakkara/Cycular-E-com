@@ -1,0 +1,16 @@
+<!-- base_breadcrumb.html -->
+<nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
+    <div class="container">
+        <ol class="breadcrumb">
+                {% for page in breadcrumb_pages %}
+                    <li class="breadcrumb-item {% if page.active %}active{% endif %}" aria-current="{% if page.active %}page{% endif %}">
+                        {% if not page.active %}
+                            <a href="{{ page.url }}">{{ page.name }}</a>
+                        {% else %}
+                            {{ page.name }}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+        </ol>
+    </div><!-- End .container -->
+</nav><!-- End .breadcrumb-nav -->

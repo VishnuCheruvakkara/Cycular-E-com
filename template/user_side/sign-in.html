@@ -13,7 +13,7 @@
         </div><!-- End .container -->
     </nav><!-- End .breadcrumb-nav -->
    
-        <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('{% static 'assets/images/backgrounds/login-bg.jpg' %}')">
+        <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('{% static 'assets/images/cycle-sign-in-up - Copy.jpg' %}')">
             <div class="form-box">
                 <div class="form-tab">
                     <ul class="nav nav-pills nav-fill" role="tablist">
@@ -27,7 +27,7 @@
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="signin" role="tabpanel" aria-labelledby="signin-tab">
                             <form action="" method="POST">
-                                {% csrf_token %}
+                            {% csrf_token %}
                                 <div class="form-group">
                                     <label for="signin-email">Email address *</label>
                                     <input type="email" class="form-control"  name="signin-email" required>
@@ -50,17 +50,11 @@
 
                             <div class="form-choice">
                                 <p class="text-center">or sign in with</p>
-                                <div class="row">
+                                <div class="row justify-content-center">
                                     <div class="col-sm-6 social-container ">
                                         <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-login btn-g">
                                             <i class="icon-google"></i>
                                             Login With Google
-                                        </a>
-                                    </div><!-- End .col-6 -->
-                                    <div class="col-sm-6">
-                                        <a href="#" class="btn btn-login btn-f">
-                                            <i class="icon-facebook-f"></i>
-                                            Login With Facebook
                                         </a>
                                     </div><!-- End .col-6 -->
                                 </div><!-- End .row -->

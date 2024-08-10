@@ -6,20 +6,21 @@
     <div class="container mt-5">
         <h1 class="text-center">Enter OTP</h1>
         <form id="otp-form" action="" method="POST">
+            {% csrf_token %}
             <div class="form-group">
                 <div class="otp-inputs d-flex justify-content-center">
-                    <input type="number" class="form-control otp-input" name="otp1" maxlength="1" required>
-                    <input type="number" class="form-control otp-input" name="otp2" maxlength="1" required>
-                    <input type="number" class="form-control otp-input" name="otp3" maxlength="1" required>
-                    <input type="number" class="form-control otp-input" name="otp4" maxlength="1" required>
-                    <input type="number" class="form-control otp-input" name="otp5" maxlength="1" required>
-                    <input type="number" class="form-control otp-input" name="otp6" maxlength="1" required>
+                    <input type="text" class="form-control otp-input" name="otp1" maxlength="1" required>
+                    <input type="text" class="form-control otp-input" name="otp2" maxlength="1" required>
+                    <input type="text" class="form-control otp-input" name="otp3" maxlength="1" required>
+                    <input type="text" class="form-control otp-input" name="otp4" maxlength="1" required>
+                    <input type="text" class="form-control otp-input" name="otp5" maxlength="1" required>
+                    <input type="text" class="form-control otp-input" name="otp6" maxlength="1" required>
                 </div>
             </div>
             <div class="form-footer d-flex flex-column align-items-center justify-content-center text-center">
                 <div id="timer" class="timer mb-3">Time left: <span id="countdown">05:00</span></div>
                 <button type="submit" class="btn btn-primary mb-3">Verify OTP</button>
-                <a href="#" id="resend-otp" class="btn btn-link">Resend OTP</a>
+                <a href="{% url 'user_side:resend-otp' %}" id="resend-otp" class="btn btn-link">Resend OTP</a>
             </div>
             
         </form>

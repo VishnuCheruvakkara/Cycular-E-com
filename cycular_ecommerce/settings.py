@@ -9,26 +9,31 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import environ
 import os
 from pathlib import Path
-
-from decouple import config
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Initialize environment variables
+env=environ.Env(
+    DEBUG=(bool,False)
+)
+# Reading .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY=config('SECRET_KEY')
-
+SECRET_KEY=env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG',cast=bool,default=False)
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS',default=[])
 
 
 # Application definition
@@ -41,15 +46,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    
     #app for google validation
     'social_django',
-    
     #Custom app  
     'core',  
     'user_side',
-    
+    'admin_side',
+    'products',
 ]
 
 MIDDLEWARE = [
@@ -89,14 +92,7 @@ WSGI_APPLICATION = 'cycular_ecommerce.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cycular_data_base',   #PostgreSQL database name
-        'USER': 'postgres',   #PostgreSQL username
-        'HOST': 'localhost',  # Your database host (use 'localhost' if it's on the same machine)
-        'PORT': '5432',   
-        'PASSWORD':'Ana@123'
-    }
+   'default': env.db()
 }
 
 
@@ -139,7 +135,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT =os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS=[
-    os.path.join(BASE_DIR/"static")
+    os.path.join(BASE_DIR,"static"),
 ]
 
 MEDIA_URL='/media/'
@@ -171,20 +167,19 @@ LOGOUT_URL= 'user_side:sign-out'
 LOGIN_REDIRECT_URL='core:index'
 LOGOUT_REDIRECT_URL='user_side:sign-in'
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
-
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
 #Email-backend configuration...
 
 # settings.py
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'case13586@gmail.com'  # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = 'bjez vmtm kisx nnlm'  # Replace with your Gmail app password
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_USE_TLS =env.bool('EMAIL_USE_TLS',default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER') # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # Replace with your Gmail app password
 
 # Ensure session cookies are only sent over HTTPS
 SESSION_COOKIE_SECURE = True
@@ -197,3 +192,25 @@ SESSION_COOKIE_SAMESITE = 'Lax'  # or 'Strict'
 
 # Ensure CSRF cookies are secure as well
 CSRF_COOKIE_SECURE = True
+
+SESSION_COOKIE_AGE = 86400  # 24 hour : session time 
+
+# security for the session key stored in the cliet/browser side.
+INSTALLED_APPS += ['django_cryptography']
+
+#Social_auth_pipeline for user merging in django
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.social_auth.associate_by_email', 
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+    'user_side.pipeline.merge_accounts',  #Custom function here
+)
+
+

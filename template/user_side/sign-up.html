@@ -1,19 +1,12 @@
 {% extends 'partials/base.html' %}
-{% load static %}
 
+{% load static %}
 {% block content %}
 <main class="main">
-    <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
-        <div class="container">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Pages</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Register</li>
-            </ol>
-        </div><!-- End .container -->
-    </nav><!-- End .breadcrumb-nav -->
-
-    <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('{% static 'assets/images/backgrounds/login-bg.jpg' %}')">
+    {% block brud_crumbs %}
+    {% include 'partials/bread-crumbs.html' %}
+    {% endblock %}
+    <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('{% static 'assets/images/cycle-sign-in-up - Copy.jpg' %}')">
         <div class="container">
             <div class="form-box">
                 <div class="form-tab">
@@ -120,17 +113,11 @@
 
                             <div class="form-choice">
                                 <p class="text-center">or sign up with</p>
-                                <div class="row">
+                                <div class="row justify-content-center">
                                     <div class="col-sm-6">
-                                        <a href="#" class="btn btn-login btn-g">
+                                        <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-login btn-g">
                                             <i class="icon-google"></i>
                                             Sign Up With Google
-                                        </a>
-                                    </div><!-- End .col-6 -->
-                                    <div class="col-sm-6">
-                                        <a href="#" class="btn btn-login btn-f">
-                                            <i class="icon-facebook-f"></i>
-                                            Sign Up With Facebook
                                         </a>
                                     </div><!-- End .col-6 -->
                                 </div><!-- End .row -->

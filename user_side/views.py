@@ -1,14 +1,22 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from .forms import UserRegisterForm
+from django.contrib.auth import get_user_model
 from django.contrib.auth import login,authenticate,logout
+from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.conf import settings
 import random
 from django.core.mail import send_mail
-from datetime import datetime
-# Create your views here.
+from django.utils import timezone
+from datetime import timedelta,datetime
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 
-User=settings.AUTH_USER_MODEL
+
+User = get_user_model()
+# Create your views here.
 
 
 ############################  home page ###################################
@@ -17,49 +25,55 @@ def home_page(request):
     return render(request,'core/index.html')
 
 ###########################  user sign-up  #####################################
+import uuid
 
+def generate_unique_session_key():
+    return str(uuid.uuid4())
+
+@never_cache
 def register_view(request):
+
+    breadcrumbs_pages=[
+        {'name':'Home','url':'core/index.html'},
+        {'name':'Sign-up','url':'','active':True}
+    ]
+
     if request.method=='POST':
         form=UserRegisterForm(request.POST)
         if form.is_valid(): #check the all validation condition for the submitted data
             email=form.cleaned_data.get('email')
             username=form.cleaned_data.get('username')
 
-            existing_user=User.objects.filter(email=email).first()
+            session_key=generate_unique_session_key()
 
-            if existing_user:
-                if existing_user.is_active:
-                    form.add_error('email','This email is already registered and verified. Please log in.')
-                else:
-                    otp=generate_otp()
-                    existing_user.otp=otp
-                    existing_user.otp_created_at=datetime.now()
-                    new_user.save()
-                    send_otp_email(existing_user.email,otp)
-                    request.session['user_id']=existing_user.id
-                    return redirect('user_side:otp')
-                
-            else:
-                new_user=form.save(commit=False)
-                new_user.is_active=False
-                otp=generate_otp()
-                new_user.otp=otp
-                new_user.otp_created_at=datetime.now()
-                new_user.save()
-                send_otp_email(new_user.email,otp)
-                request.session['user_id']=new_user.id
-                return redirect('user_side:otp')
+            otp = generate_otp()
+            otp_created_at = timezone.now()
+            password=form.cleaned_data.get('password')
+            hashed_password=make_password(password)
             
+            request.session[session_key]={
+                'otp':otp,
+                'otp_created_at':otp_created_at.isoformat(),
+                'email':email,
+                'username':username,
+                'password':hashed_password,
+            }
+            send_otp_email(email,otp,username)
+            request.session['user_registration_data']=session_key
+            messages.success(request, 'OTP has been sent to your email.')
+            return redirect('user_side:otp')
+        
     else : 
         form=UserRegisterForm()
-
     context={
-        'form':form
+        'form':form,
+        'breadcrumb_pages': breadcrumbs_pages,
     }
+   
     return render(request,"user_side/sign-up.html",context)
 
 ###########################  login section #############################################
-
+@never_cache
 def login_view(request):
     if request.user.is_authenticated:
         messages.warning(request, "Hello, you are already logged in.")
@@ -91,8 +105,12 @@ def logout_view(request):
 
 ###########################  otp page section  #########################################
 
-def otp_view(request,user_id):
-    user=get_object_or_404(User,id=user_id)
+def otp_view(request):
+    session_key=request.session.get('user_registration_data')
+
+    if (not session_key) or (session_key not in request.session):
+        messages.error(request, 'No data found. Please sign-up again.')
+        return redirect('user_side:sign-up')
 
     if request.method=='POST':
         otp1=request.POST.get('otp1','0')
@@ -101,47 +119,91 @@ def otp_view(request,user_id):
         otp4=request.POST.get('otp4','0')
         otp5=request.POST.get('otp5','0')
         otp6=request.POST.get('otp6','0')
-
         entered_otp=f"{otp1}{otp2}{otp3}{otp4}{otp5}{otp6}"
         
-        #check wheather the eneterd otp is iteger or not.
-        try:
-            entered_otp=int(entered_otp)
-        except ValueError:
-            messages.error(request,"Invalid OTP format. Please enter a numeric OTP.")
-            return render(request,"user_side/otp.html",{'user_id':user_id})
+        session_data=request.session.get(session_key)
+        if not session_data:
+            messages.error(request,'No data found. Please sign-up again.')
+            return redirect('user_side:sign-up')
+        
+        stored_otp=session_data.get('otp')
+        otp_created_at=datetime.fromisoformat(session_data.get('otp_created_at'))
 
-        #validate the enterd otp based on the otp that generated in the backend ,
-        #it is equal or not downbelow.
-        if str(user.otp) != str(entered_otp):
-            messages.error(request,'Invalid OTP. Please check and try again.')
-            return render(request,"user_side/otp.html",{'user_id':user_id})
+        if timezone.now() - otp_created_at > timedelta(seconds=OTP_EXPIRY_SECONDS):
+            messages.error(request,'OTP has expired, Please checkout the resend OTP.')
+            return redirect('user_side:otp')
 
-        #check the time is expired or not 
-        if ((datetime.now()-user.otp_created_at).total_seconds() > OTP_EXPIRY_SECONDS):
-            messages.error(request,"OTP expired. Please enter resend OTP.")
-            return render(request,"user_side/otp.html",{"user_id" : user_id})
-        #if both the above condition is true then.
-        user.is_verified=True
-        user.is_avtive=True
-        user.save()
-        messages.success(request,"OTP verified successfully. Your account is now activated.")
-        return redirect('core:index')
-    
-    return render(request,'user_side/otp.html',{'user_id':user_id})
+        if entered_otp == stored_otp:
+            email=session_data.get('email')
+            username=session_data.get('username')
+            password=session_data.get('password')
+
+           
+            user=User.objects.create_user(username=username,email=email,password=password)
+            if user is not None:
+                backend = 'django.contrib.auth.backends.ModelBackend'
+                login(request,user,backend=backend)
+                del request.session[session_key]
+                del request.session['user_registration_data']
+                messages.success(request,'OTP Registration was successful.  you are now logged in.')
+                return redirect('core:index')
+            else:
+                messages.error(request,'User creation failed. Please try again.')
+                return redirect('user_side:sign-in')
+        else:
+            messages.error(request,'Invalid OTP : Entered otp is not match, check-otu resend OTP.')
+
+    return render(request,'user_side/otp.html')
 
 ###########################   generating otp   ########################################
 
-OTP_EXPIRY_SECONDS=60
+OTP_EXPIRY_SECONDS=300
 
 def generate_otp():
     return str(random.randint(100000,999999))
 
 ###########################   send otp to user email   ########################################
 
-def send_otp_email(email,otp):
+def send_otp_email(email,otp,username):
     subject = "Your OTP for Sign-Up"
-    message=f"Your OTP for signing up is {otp}. Please do not share this with anyone."
+    message=f"Dear {username},\n\nThank you for registering with Cycular! Your One-Time Password (OTP) to complete the sign-up process is {otp}. Please keep this code confidential and do not share it with anyone.\n\nIf you did not request this code, please disregard this message.\n\nBest regards,\nThe Cycular Team"
     email_form=settings.EMAIL_HOST_USER
     recipient_list=[email]
     send_mail(subject,message,email_form,recipient_list)
+
+###########################   resend E-mail   ########################################
+
+@require_POST
+def resend_otp(request):
+    session_key = request.session.get('user_registration_data')
+    if not session_key or session_key not in request.session:
+        return JsonResponse({'status': 'error', 'message': 'No data found. Please sign-up again.'})
+    
+    session_data = request.session.get(session_key)
+    if not session_data:
+        return JsonResponse({'status': 'error', 'message': 'No data found. Please sign-up again.'})
+    
+    email = session_data.get('email')
+    username=session_data.get('username')
+    new_otp = generate_otp()
+    send_otp_email(email, new_otp,username)
+    
+    session_data['otp'] = new_otp
+    session_data['otp_created_at'] = timezone.now().isoformat()
+    request.session[session_key] = session_data
+    request.session.modified = True
+    
+    return JsonResponse({'status': 'success', 'message': 'New OTP sent successfully.'})
+
+###############################  to handle the user status through admin page  ##########################
+
+@login_required
+def toggle_user_status(request,user_id):
+    if request.method == 'GET':
+        user=get_object_or_404(User,id=user_id)
+        user.is_active=not user.is_active #toogle logic
+        user.save()
+        status='active' if user.is_active else 'blocked'
+        return JsonResponse({'status':status})
+    return JsonResponse({'error':'Invalid request'},status=400)
+
