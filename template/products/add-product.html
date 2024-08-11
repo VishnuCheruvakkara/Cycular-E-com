@@ -2,138 +2,87 @@
 
 {% load static %}
 
+<!DOCTYPE html>
+<html lang="en">
 
-<!doctype html>
-<html class="no-js " lang="en">
 
-
+<!-- form-basic-inputs23:59-->
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=Edge">
-<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-<meta name="description" content="Responsive Bootstrap 4 and web Application ui kit.">
-
-<title>Admin-add-page</title>
-<link rel="icon" href="favicon.ico" type="image/x-icon">
-<!-- Favicon-->
-<link rel="stylesheet" href="{% static 'admin/plugins/bootstrap/css/bootstrap.min.css' %}">
-<!-- Bootstrap Material Datetime Picker Css -->
-<link href="{% static 'admin/plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css' %}" rel="stylesheet" />
-<!-- Bootstrap Select Css -->
-<link href="{% static 'admin/plugins/bootstrap-select/css/bootstrap-select.css' %}" rel="stylesheet" />
-<!-- Custom Css -->
-<link  rel="stylesheet" href="{% static 'admin/css/style.min.css' %}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
+    <title>Preclinic - Medical & Hospital - Bootstrap 4 Admin Template</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+    <!--[if lt IE 9]>
+		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
+		<script src="{% static 'admin/js/respond.min.js' %}"></script>
+	<![endif]-->
 </head>
 
-<body class="theme-blush">
-
-<!-- Page Loader -->
-<div class="page-loader-wrapper">
-    <div class="loader">
-        <div class="m-t-30"><img class="zmdi-hc-spin" src="{% static 'admin/images/loader.svg' %}" width="48" height="48" alt="Aero"></div>
-        <p>Please wait...</p>
-    </div>
-</div>
-
-<!-- Overlay For Sidebars -->
-<div class="overlay"></div>
-
-<!-- Main Search -->
-<div id="search">
-    <button id="close" type="button" class="close btn btn-primary btn-icon btn-icon-mini btn-round">x</button>
-    <form>
-        <input type="search" value="" placeholder="Search..." />
-        <button type="submit" class="btn btn-primary">Search</button>
-    </form>
-</div>
-
-<!-- main needed -->
-
-<section class="content">
-    <div class="body_scroll">
-        <div class="block-header">
-            <div class="row">
-                <div class="col-lg-7 col-md-6 col-sm-12">
-                    <h2>Basic Form Elements</h2>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html"><i class="zmdi zmdi-home"></i> Aero</a></li>
-                        <li class="breadcrumb-item"><a href="javascript:void(0);">Forms</a></li>
-                        <li class="breadcrumb-item active">Basic Form</li>
-                    </ul>
+<body>
+    {% block sidebar %}
+    {% include 'partials/side-bar-admin.html' %}
+    {% endblock %}
+        <div class="page-wrapper">
+            <div class="content">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#">Products</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Accessories</li>
+                    </ol>
+                </nav>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="page-title">Add New-Products</h4>
+                    </div>
                 </div>
-                <div class="col-lg-5 col-md-6 col-sm-12">                
-                    <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>                                
-                </div>
-            </div>
-        </div>
-        
-        <div class="container-fluid">
-            <!-- Input -->
-            <div class="row clearfix">
-                <div class="col-lg-12 col-md-12 col-sm-12">
-                   
-                    <div class="card">
-                        <div class="body">
-                            <div class="row clearfix">
-                                <div class="col-sm-12">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card-box">
+                            <h4 class="card-title">Basic Inputs</h4>
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <button type="submit" class="btn btn-primary">Save Product</button>
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_appointment">
+                                    <i class="fa fa-trash-o m-r-5"></i> Discard Changes
+                                </button>
+                            </form>
 
-
-                                    <form action="" method="post" enctype="multipart/form-data">
-                                        
-                                        <!-- Rendering the ProductForm fields -->
-                                        <div class="form-group">
-                                            <label for="{{ form.name.id_for_label }}">Product Name</label>
-                                            {{ form.name }}
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                            <label for="{{ form.description.id_for_label }}">Description</label>
-                                            {{ form.description }}
-                                        </div>
-                                    
-                                        <div class="form-group">
-                                            <label for="{{ form.price.id_for_label }}">Price</label>
-                                            {{ form.price }}
-                                        </div>
-                                    
-                                        <div class="form-group">
-                                            <label for="{{ form.category.id_for_label }}">Category</label>
-                                            {{ form.category }}
-                                        </div>
-                                    
-                                        <div class="form-group">
-                                            <label for="{{ form.brand.id_for_label }}">Brand</label>
-                                            {{ form.brand }}
-                                        </div>
-                                    
-                                        <div class="form-group">
-                                            <label for="{{ form.key_specification.id_for_label }}">Key Specification</label>
-                                            {{ form.key_specification }}
-                                        </div>
-                                        
-                                        <button type="submit" class="btn btn-primary">Save Product</button>
-                                    </form>        
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </div>
     </div>
-</section>
-<!---->
-<!-- Jquery Core Js --> 
-<script src="{% static 'admin/bundles/libscripts.bundle.js' %}"></script> <!-- Lib Scripts Plugin Js --> 
-<script src="{% static 'admin/bundles/vendorscripts.bundle.js' %}"></script> <!-- Lib Scripts Plugin Js --> 
+    <!-- delete modal -->
+    <div id="delete_appointment" class="modal fade delete-modal" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
+                    <h3>Are you sure want to Discard this product before save ?</h3>
+                    <div class="m-t-20">
+                        <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
+                        <a href="{% url 'products:category-management' %}" class="btn btn-danger">Discard</a>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
 
-<script src="{% static 'admin/plugins/momentjs/moment.js' %}"></script> <!-- Moment Plugin Js --> 
-<!-- Bootstrap Material Datetime Picker Plugin Js -->
-<script src="{% static 'admin/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js' %}"></script> 
-
-<script src="{% static 'admin/bundles/mainscripts.bundle.js' %}"></script><!-- Custom Js --> 
-<script src="{% static 'admin/js/pages/forms/basic-form-elements.js' %}"></script>
-
-
+    <div class="sidebar-overlay" data-reff=""></div>
+    <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'admin/js/popper.min.js' %}"></script>
+    <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+    <script src="{% static 'admin/js/app.js' %}"></script>
 </body>
+
+
+<!-- form-basic-inputs23:59-->
 </html>

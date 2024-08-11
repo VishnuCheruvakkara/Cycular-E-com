@@ -1,202 +1,135 @@
-{% include 'partials/side-bar-admin.html' %}
 {% load static %}
 
-<!doctype html>
-<html class="no-js " lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
 
+<!-- appointments23:19-->
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=Edge">
-<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-<meta name="description" content="Responsive Bootstrap 4 and web Application ui kit.">
-
-<title>:: Aero Bootstrap4 Admin :: Ticket List</title>
-<!-- Favicon-->
-<link rel="icon" href="favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="{% static 'admin/plugins/bootstrap/css/bootstrap.min.css' %}">
-<!-- Custom Css -->
-<link rel="stylesheet" href="{% static 'admin/css/style.min.css' %}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
+    <title>User-management </title>
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+    <!--[if lt IE 9]>
+		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
+		<script src="{% static 'admin/js/respond.min.js' %}"></script>
+	<![endif]-->
 </head>
 
-<body class="theme-blush">
-
-<!-- Page Loader -->
-<div class="page-loader-wrapper">
-    <div class="loader">
-        <div class="m-t-30"><img class="zmdi-hc-spin" src="{% static 'admin/images/loader.svg' %}" width="48" height="48" alt="Aero"></div>
-        <p>Please wait...</p>
-    </div>
-</div>
-
-
-
-
-
-
-<!-- Overlay For Sidebars -->
-<div class="overlay"></div>
-
-<!-- Main Search -->
-<div id="search">
-    <button id="close" type="button" class="close btn btn-primary btn-icon btn-icon-mini btn-round">x</button>
-    <form>
-        <input type="search" value="" placeholder="Search..." />
-        <button type="submit" class="btn btn-primary">Search</button>
-    </form>
-</div>
-<!-- Main Content -->
-<section class="content">
-    <div class="body_scroll">
-        <div class="block-header">
-            <div class="row">
-                <div class="col-lg-7 col-md-6 col-sm-12">
-                    <h2>Customers</h2>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html"><i class="zmdi zmdi-home"></i> Home</a></li>
-                        <li class="breadcrumb-item">Customers</li>
-                    </ul>
-                    <button class="btn btn-primary btn-icon mobile_menu" type="button"><i class="zmdi zmdi-sort-amount-desc"></i></button>
+<body>
+{% block sidebar %}
+{% include 'partials/side-bar-admin.html' %}
+{% endblock %}
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#">Products</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Accessories</li>
+                    </ol>
+                </nav>
+                <div class="row">
+                    <div class="col-12">
+                        <h4 class="page-title">Joined-Customer</h4>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="container-fluid">
-            <!-- table starts here  -->
-            <div class="row clearfix">
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    <div class="card project_list">
+                    <div class="row filter-row">
+                        
+                        <div class="col-sm-6 col-md-3">
+                            <div class="form-group form-focus">
+                                <label class="focus-label">Employee Name</label>
+                                <input type="text" class="form-control floating">
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-6 col-md-3">
+                            <a href="#" class="btn btn-success btn-block"> Search </a>
+                        </div>
+                    </div>
+                    
+            
+                <div class="row">
+                    <div class="col-12">
                         <div class="table-responsive">
-                            <table class="table table-hover c_table">
+                            <table class="table table-striped custom-table">
                                 <thead>
                                     <tr>
-                                        <th> Sl.no.</th>
-                                        <th>Customer Name</th>
-                                        <th>Email Adress</th>
-                                        <th>Date</th>
-                                        <th>Time</th>
+                                        <th>Sl.No</th>
+                                        <th>User-Name</th>
+                                        <th>Email</th>
+                                        <th>Joined Date</th>
+                                        <th>Joined time</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for customer in customers %}
+                                    {% for user in customers %}
                                     <tr>
-                                        <td><strong>{{ forloop.counter }}</strong></td>
-                                        <td>{{customer.username}}</td>
-                                        <td>{{customer.email}}</td>
-                                        <td>{{customer.date_joined|date:"d-m-Y"}}</td>
-                                        <td>{{customer.date_joined|date:"H:i:s"}}</td>
+                                        <td>{{ forloop.counter }}</td>
                                         <td>
-                                            <button class="btn status-btn" data-id="1" data-status="active">
-                                                {% if user.is_active %}
-                                                    Block User
-                                                {% else %}
-                                                    Activate User
-                                                {% endif %}
-                                            </button>
+                                            <img width="28" height="28" src="{% static 'admin/img/user.jpg' %}" class="rounded-circle m-r-5" alt="">
+                                            {{ user.username }}
+                                        </td>
+                                        <td>{{ user.age }}</td>
+                                        <td>{{ user.date_joined|date:"d-m-Y" }}</td>
+                                        <td>{{ user.last_login|time:"H:i:s" }}</td>
+                                        <td>
+                                            <span class="custom-badge status-{{ user.is_active|yesno:'green,red' }}">
+                                                {{ user.is_active|yesno:'Active,Inactive' }}
+                                            </span>
                                         </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
-                        <ul class="pagination pagination-primary mt-4">
-                            <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
-                            <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
-                            <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
-                            <li class="page-item"><a class="page-link" href="javascript:void(0);">4</a></li>
-                            <li class="page-item"><a class="page-link" href="javascript:void(0);">5</a></li>
-                        </ul>
+                        <div class="d-flex justify-content-end">
+                            <ul class="pagination pagination-sm">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item active">
+                                    <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
-
-<!-- Jquery Core Js --> 
-<script src="{% static 'admin/bundles/libscripts.bundle.js' %}"></script> <!-- Lib Scripts Plugin Js --> 
-<script src="{% static 'admin/bundles/vendorscripts.bundle.js' %}"></script> <!-- Lib Scripts Plugin Js --> 
-
-<script src="{% static 'admin/bundles/sparkline.bundle.js' %}"></script>
-<script src="{% static 'admin/bundles/mainscripts.bundle.js' %}"></script>
-<script src="{% static 'admin/js/pages/charts/sparkline.js' %}"></script>
+</div>
+    <div class="sidebar-overlay" data-reff=""></div>
+    <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'admin/js/popper.min.js' %}"></script>
+    <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+    <script src="{% static 'admin/js/select2.min.js' %}"></script>
+    <script src="{% static 'admin/js/app.js' %}"></script>
+	<script>
+            $(function () {
+                $('#datetimepicker3').datetimepicker({
+                    format: 'LT'
+                });
+				$('#datetimepicker4').datetimepicker({
+                    format: 'LT'
+                });
+            });
+     </script>
 </body>
 
 
+<!-- appointments23:20-->
 </html>
-
-
-{% block style %}
-    <style>
-        .status-btn {
-            padding: 5px 10px;
-            border: none;
-            color: white;
-            cursor: pointer;
-        }
-
-        .status-btn.active {
-            background-color: #04be5b;
-        }
-
-        .status-btn.blocked {
-            background-color: #ee2558;
-        }
-    </style>
-{% endblock %}
-
-{% block script %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.toggle-status-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const userId = this.dataset.userId;  // Retrieve user ID from the data attribute of the button
-
-            fetch(`/toggle-user-status/${userId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')  // Ensure CSRF token is included
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else if (response.status === 404) {
-                    throw new Error('User not found');
-                }
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    const newStatus = data.new_status;
-                    // Update the UI based on the new status
-                    button.textContent = newStatus === 'active' ? 'Block User' : 'Activate User';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Optionally display an error message to the user
-            });
-        });
-    });
-});
-
-// Function to get the CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-</script>
-
-{% endblock %}

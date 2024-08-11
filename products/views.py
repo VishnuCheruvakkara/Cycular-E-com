@@ -2,12 +2,14 @@ from django.shortcuts import render,redirect
 from .forms import ProductForm
 from django.contrib import messages
 from django.conf import settings
+from .models import Product
 # Create your views here.
 
 ###################### Category Management page #################################
 
 def CategoryManagement(request):
-    return render(request,'products/category-management.html')
+    products=Product.objects.all()
+    return render(request,'products/category-management.html',{'products':products})
 
 ###################### Add product page #################################
 
@@ -30,3 +32,4 @@ def AddProduct(request):
 def EditProduct(request):
     return render(request,'products/edit-product.html')
 
+####################### Proudct list show ########################################
