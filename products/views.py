@@ -1,8 +1,9 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from .forms import ProductForm
 from django.contrib import messages
 from django.conf import settings
 from .models import Product
+
 # Create your views here.
 
 ###################### Category Management page #################################
@@ -29,7 +30,24 @@ def AddProduct(request):
 
 ###################### Edit productpage Management page #################################
 
-def EditProduct(request):
-    return render(request,'products/edit-product.html')
+def EditProduct(request,product_id):
+    product=get_object_or_404(Product,id=product_id)
+    if request.method =='POST':
+        form = ProductForm(request.POST,request.FILES,instance=product)
+        if form.is_valid:
+            form.save()
+            return redirect('products:category-management')
+    else:
+        form=ProductForm(instance=product)
+    context={
+        'form':form,
+        'product':product,
+    }
+    return render(request,'products/edit-product.html',context)
 
-####################### Proudct list show ########################################
+####################### delete product ########################################
+
+def DeleteProduct(request,product_id):
+    product=get_object_or_404(Product,id=product_id)
+    product.delete()
+    return redirect('products:category-management')
