@@ -11,7 +11,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
     <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
-    <title>Preclinic - Medical & Hospital - Bootstrap 4 Admin Template</title>
+    <title>Add-Varient-Products</title>
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
@@ -36,21 +36,22 @@
                 </nav>
                 <div class="row">
                     <div class="col-sm-12">
-                        <h4 class="page-title">Add New-Products</h4>
+                        <h4 class="page-title">Add Product Varients</h4>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card-box">
-                            <h4 class="card-title">Please fill in the following details to add a new product:</h4>
+                            <h4 class="card-title">Please fill in the following details to add Varient to the product "{{product.name}}":</h4>
                             <form method="post">
                                 {% csrf_token %}
-                                    {{ form.as_p }}
+                                {{ form.as_p }}
                                 <button type="submit" class="btn btn-primary">Save Product</button>
                                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_appointment">
                                     <i class="fa fa-trash-o m-r-5"></i> Discard Changes
                                 </button>
                             </form>
+                            
                         </div>
                     </div>
                 </div>

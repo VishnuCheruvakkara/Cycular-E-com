@@ -32,7 +32,7 @@ class ProductVariantForm(forms.ModelForm):
     class Meta:
         model = ProductVariant
         fields = [
-            'product',  # Automatically set in the view or admin interface
+          
             'color',
             'size',
             'image1',
@@ -40,6 +40,23 @@ class ProductVariantForm(forms.ModelForm):
             'image3',
         ]
 
-        widgets = {
+    widgets = {
             'product': forms.HiddenInput(),  # Assuming the product is set elsewhere
+            'color': forms.Select(attrs={
+                'class': 'form-control',
+                'placeholder': 'Select a color'
+            }),
+            'size': forms.Select(attrs={
+                'class': 'form-control',
+                'placeholder': 'Select a size'
+            }),
+            'image1': forms.ClearableFileInput(attrs={
+                'class': 'form-control-file'
+            }),
+            'image2': forms.ClearableFileInput(attrs={
+                'class': 'form-control-file'
+            }),
+            'image3': forms.ClearableFileInput(attrs={
+                'class': 'form-control-file'
+            }),
         }

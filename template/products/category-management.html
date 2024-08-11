@@ -19,6 +19,48 @@
 		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
 		<script src="{% static 'admin/js/respond.min.js' %}"></script>
 	<![endif]-->
+    <style>
+        .custom-badge {
+    position: relative;
+    overflow: hidden; /* Ensure ripple effect stays within the button */
+    display: inline-block;
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    }
+
+    .status-green {
+        background-color: #4CAF50; /* Green */
+    }
+
+    .status-blue:hover {
+        background-color:#009efb; /* Darker green on hover */
+        color: white;
+    }
+
+    .ripple-effect {
+        position: relative;
+    }
+
+    .ripple-effect::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.3);
+        pointer-events: none;
+        transform: scale(0);
+        transition: transform 0.4s, opacity 0.2s;
+    }
+
+    .ripple-effect:active::after {
+        transform: scale(4);
+        opacity: 0;
+        transition: 0s;
+    }
+
+    </style>
 </head>
         <div class="page-wrapper">
             <div class="content">
@@ -42,6 +84,7 @@
 										<th>Product Price</th>
 										<th>Product Category</th>
                                         <th>status</th>
+                                        <th>Add Variant</th>
 										<th class="text-right">Action</th>
 									</tr>
 								</thead>
@@ -54,9 +97,14 @@
 										<td>{{product.price}}</td>
                                         <td>{{product.category}}</td>
                                         <td>
-                                            <span class="custom-badge status-{{ user.is_active|yesno:'green,red' }}">
-                                                {{ user.is_active|yesno:'Active,Inactive' }}
+                                            <span class="custom-badge status-{{ product.status|yesno:'green,red' }}">
+                                                {{ product.status|yesno:'Active,Inactive' }}
                                             </span>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'products:product-variant' product.id %}" class="custom-badge status-blue ripple-effect">
+                                                Add 
+                                            </a>
                                         </td>
 										<td class="text-right">
 											<div class="dropdown dropdown-action">

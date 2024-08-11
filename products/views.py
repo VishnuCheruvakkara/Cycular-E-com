@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .forms import ProductForm
+from .forms import ProductForm,ProductVariantForm
 from django.contrib import messages
 from django.conf import settings
 from .models import Product
@@ -51,3 +51,25 @@ def DeleteProduct(request,product_id):
     product=get_object_or_404(Product,id=product_id)
     product.delete()
     return redirect('products:category-management')
+
+####################### add product varient  ########################################
+
+def ProductVariant(request,product_id):
+    product=get_object_or_404(Product,id=product_id)
+
+    if request.method=='POST':
+        form=ProductVariantForm(request.POST,request.FILES)
+        if form.is_valid():
+            variant=form.save(commit=False)
+            variant.product=product
+            variant.save()
+            return redirect('products:category-management')
+    else:
+        form=ProductVariantForm()
+    context={
+        'form':form,
+        'product':product,
+    }
+    return render(request,'products/variant-product.html',context)
+
+

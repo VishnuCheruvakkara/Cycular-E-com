@@ -77,9 +77,9 @@
                                             <img width="28" height="28" src="{% static 'admin/img/user.jpg' %}" class="rounded-circle m-r-5" alt="">
                                             {{ user.username }}
                                         </td>
-                                        <td>{{ user.age }}</td>
+                                        <td>{{ user.email }}</td>
                                         <td>{{ user.date_joined|date:"d-m-Y" }}</td>
-                                        <td>{{ user.last_login|time:"H:i:s" }}</td>
+                                        <td>{{ user.date_joined|time:"H:i:s" }}</td>
                                         <td>
                                             <span class="custom-badge status-{{ user.is_active|yesno:'green,red' }}">
                                                 {{ user.is_active|yesno:'Active,Inactive' }}

@@ -56,6 +56,47 @@ Version      : 1.0
 	1. General
 -----------------------*/
 
+
+.custom-badge {
+    position: relative;
+    overflow: hidden; /* Ensure ripple effect stays within the button */
+    display: inline-block;
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.status-green {
+    background-color: #4CAF50; /* Green */
+}
+
+.status-green:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+.ripple-effect {
+    position: relative;
+}
+
+.ripple-effect::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    transform: scale(0);
+    transition: transform 0.4s, opacity 0.2s;
+}
+
+.ripple-effect:active::after {
+    transform: scale(4);
+    opacity: 0;
+    transition: 0s;
+}
+
+
 @import url('https://fonts.googleapis.com/css?family=Rubik:400,500,700');
 html {
 	height: 100%;
