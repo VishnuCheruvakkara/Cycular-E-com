@@ -1,30 +1,62 @@
+{% block css_in_animation %}
+<style>
+    .alert {
+        transition: opacity 0.5s ease-in-out;
+        opacity: 0;
+    }
+    .alert.show {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
 {% if messages %}
-    <div class="card-box">
-        <h4 class="card-title">Alerts</h4>
-        {% for message in messages %}
-            {% if 'admin' in message.tags %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {% for message in messages %}
+        {% if 'admin' in message.tags %}
+            {% if 'error' in message.tags %}
+                <div class="alert alert-danger alert-dismissible" role="alert">
+            {% elif 'success' in message.tags %}
+                <div class="alert alert-success alert-dismissible" role="alert">
+            {% elif 'warning' in message.tags %}
+                <div class="alert alert-warning alert-dismissible" role="alert">
+            {% elif 'info' in message.tags %}
+                <div class="alert alert-info alert-dismissible" role="alert">
+            {% endif %}
                 <strong>
-                    {% if message.tags == 'success' %}Success!
-                    {% elif message.tags == 'error' or message.tags == 'danger' %}Error!
-                    {% elif message.tags == 'warning' %}Warning!
-                    {% elif message.tags == 'info' %}Note!
+                    {% if 'success' in message.tags %}Success!
+                    {% elif 'error' in message.tags or 'danger' in message.tags %}Error!
+                    {% elif 'warning' in message.tags %}Warning!
+                    {% elif 'info' in message.tags %}Note!
                     {% endif %}
-                </strong> 
+                </strong>
                 {{ message }}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            {% endif %}
-        {% endfor %}
-    </div>
+        {% endif %}
+    {% endfor %}
 {% endif %}
 
 <script>
-    setTimeout(() => {
-        $(".alert").fadeOut(500, function() {
-            $(this).remove(); // This removes the alert from the DOM
-        });
-    }, 3000);
+document.addEventListener('DOMContentLoaded', function() {
+    var alerts = document.querySelectorAll('.alert');
+    
+    alerts.forEach(function(alert) {
+        // Fade in
+        setTimeout(function() {
+            alert.classList.add('show');
+        }, 100);
+
+        // Fade out after 3 seconds
+        setTimeout(function() {
+            alert.classList.remove('show');
+            
+            // Remove the alert from the DOM after fading out
+            alert.addEventListener('transitionend', function() {
+                alert.remove();
+            });
+        }, 3000);
+    });
+});
 </script>
