@@ -145,4 +145,76 @@
             updateButtons();
         }
     });
+
+    // implimentation of : to store images into backend through the feth api 
+    document.getElementById('upload-images').addEventListener('click', () => {
+    const images = document.querySelectorAll('.cropped-images .image-container img');
+    if (images.length > 0) {
+        const formData = new FormData();
+        
+        images.forEach((img, index) => {
+            // Convert image to Blob
+            const dataURL = img.src;
+            const blob = dataURLToBlob(dataURL);
+            formData.append(`image${index + 1}`, blob, `image${index + 1}.png`);
+        });
+
+        fetch('/upload-images/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken') // Add CSRF token if needed
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Images uploaded successfully');
+                // Optionally, clear the image gallery or reset form
+                document.querySelector('.cropped-images').innerHTML = '';
+            } else {
+                alert('Image upload failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    } else {
+        alert('No images to upload');
+    }
+});
+
+// Utility functions
+
+// Convert DataURL to Blob
+function dataURLToBlob(dataURL) {
+    const [header, data] = dataURL.split(',');
+    const mime = header.split(':')[1].split(';')[0];
+    const binary = atob(data);
+    const arrayBuffer = new ArrayBuffer(binary.length);
+    const uintArray = new Uint8Array(arrayBuffer);
+
+    for (let i = 0; i < binary.length; i++) {
+        uintArray[i] = binary.charCodeAt(i);
+    }
+
+    return new Blob([uintArray], { type: mime });
+}
+
+// Get CSRF token from cookies (if CSRF protection is enabled)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 </script>

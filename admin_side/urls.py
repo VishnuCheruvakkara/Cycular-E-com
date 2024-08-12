@@ -8,4 +8,5 @@ urlpatterns=[
     path('seller-login/',views.SellerLogin,name='seller-login'),
     path('seller-logout/',views.SellerLogout,name='seller-logout'),
     path('user-management/',views.UserManagement,name='user-management'),
+  
 ]

@@ -3,6 +3,9 @@ from .forms import ProductForm,ProductVariantForm
 from django.contrib import messages
 from django.conf import settings
 from .models import Product
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.files.storage import default_storage
 
 # Create your views here.
 
@@ -74,3 +77,26 @@ def ProductVariant(request,product_id):
     return render(request,'products/variant-product.html',context)
 
 
+##################  Add product-variant-image to the database ####################################
+
+def UploadImages(request):
+    if request.method=='POST':
+        image1=request.FIELS.get('image1')
+        image2=request.FIELS.get('image2')
+        image3 = request.FILES.get('image3')
+
+        image_paths={}
+        if image1:
+            image_paths['image1'] = default_storage.save('product_variants/images/' + image1.name, image1)
+        if image2:
+            image_paths['image2'] = default_storage.save('product_variants/images/' + image2.name, image2)
+        if image3:
+            image_paths['image3'] = default_storage.save('product_variants/images/' + image3.name, image3)
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Images uploaded successfully.',
+            **image_paths
+        })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)

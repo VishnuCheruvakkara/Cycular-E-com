@@ -58,7 +58,6 @@ class ProductVariantForm(forms.ModelForm):
             'image1',
             'image2',
             'image3',
-            'product',
         ]
         widgets = {
             'product': forms.HiddenInput(),  # Assuming the product is set elsewhere
