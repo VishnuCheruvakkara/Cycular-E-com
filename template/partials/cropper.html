@@ -1,0 +1,105 @@
+<!-- cropper.html -->
+<div class="container">
+    <p>Upload and Crop Image</p>
+    <div id="upload-container">
+        <input type="file" id="inputImage" accept="image/*">
+       
+    </div>
+    <div>
+        <img id="image" src="" alt="" style="max-width: 100%;">
+    </div>
+    <button class="btn" id="cropButton" style="display: none;">Crop Image</button>
+    <p id="addedImagesHeading" class="hidden">Added Images</h3>
+    <div class="cropped-images" id="croppedImagesContainer">
+        <!-- Cropped images will be displayed here -->
+    </div>
+    <div class="alert" id="error-message" style="display: none;">You can only add up to 3 images.</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>
+    let cropper;
+    const image = document.getElementById('image');
+    const inputImage = document.getElementById('inputImage');
+    const croppedImagesContainer = document.getElementById('croppedImagesContainer');
+    const cropButton = document.getElementById('cropButton');
+    const uploadButton = document.getElementById('upload-button');
+    const errorMessage = document.getElementById('error-message');
+    const maxImages = 3;
+
+    function resetCropper() {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        image.src = '';
+        cropButton.style.display = 'none';
+    }
+
+    function updateButtons() {
+        const images = document.querySelectorAll('.cropped-images .image-container');
+        errorMessage.style.display = images.length >= maxImages ? 'block' : 'none';
+        croppedImagesContainer.style.display = images.length === 0 ? 'none' : 'flex';
+        document.getElementById('addedImagesHeading').classList.toggle('hidden', images.length === 0);
+    }
+
+    function addImageToGallery(dataURL) {
+        if (croppedImagesContainer.children.length < maxImages) {
+            const container = document.createElement('div');
+            container.classList.add('image-container');
+            container.innerHTML = `
+                <img src="${dataURL}" alt="Cropped Image" style="max-width: 100%;">
+                <div class="btn-container">
+                    <button class="btn delete-btn">Delete</button>
+                </div>
+            `;
+            croppedImagesContainer.appendChild(container);
+            updateButtons();
+        } else {
+            errorMessage.style.display = 'block';
+        }
+    }
+
+    inputImage.addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                resetCropper();
+                image.src = event.target.result;
+                cropper = new Cropper(image, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 1,
+                    responsive: true,
+                    ready() {
+                        cropButton.style.display = 'inline-block';
+                    }
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    cropButton.addEventListener('click', () => {
+        if (cropper) {
+            const canvas = cropper.getCroppedCanvas();
+            const dataURL = canvas.toDataURL('image/png');
+            addImageToGallery(dataURL);
+            resetCropper();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        croppedImagesContainer.style.display = 'none';
+        errorMessage.style.display = 'none';
+    });
+
+    croppedImagesContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-btn')) {
+            e.target.closest('.image-container').remove();
+            updateButtons();
+        }
+    });
+</script>
