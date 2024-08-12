@@ -1,20 +1,63 @@
 <!-- cropper.html -->
-<div class="container">
-    <p>Upload and Crop Image</p>
-    <div id="upload-container">
-        <input type="file" id="inputImage" accept="image/*">
-       
+
+<style>
+    .image-container {
+        position: relative;
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        padding: 5px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .image-container img {
+        display: block;
+        max-width: 100%;
+        border-radius: 5px;
+    }
+
+    .btn-container {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+    }
+
+    .delete-btn {
+        background-color: rgba(0, 0, 0, 0.6);
+        border: none;
+        padding: 2px 31px;
+        font-size: 12px;
+        border-radius: 5;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top:74px;
+        transition: background-color 0.3s ease;
+    }
+
+    .delete-btn:hover {
+        background-color: #ce2947;
+    }
+</style>
+
+<div class="container"  >
+    <p class="mb-3" style="margin-left: -13px;">Upload and Crop Image : </p>
+    <div id="upload-container text-left" class="mb-4">
+        <input type="file" id="inputImage" accept="image/*" class="d-none">
+        <label for="inputImage" id="upload-button" class="btn btn-primary">Select Image</label>
     </div>
     <div>
-        <img id="image" src="" alt="" style="max-width: 100%;">
+        <img id="image" src="" alt="" style="max-width: 100%;" class="img-fluid rounded">
     </div>
-    <button class="btn" id="cropButton" style="display: none;">Crop Image</button>
-    <p id="addedImagesHeading" class="hidden">Added Images</h3>
+    <button class="btn btn-success mt-3" id="cropButton" style="display: none;">Crop Image</button>
+    <p id="addedImagesHeading" class="hidden mt-4" style="display:none;">Added Images</p>
     <div class="cropped-images" id="croppedImagesContainer">
         <!-- Cropped images will be displayed here -->
     </div>
-    <div class="alert" id="error-message" style="display: none;">You can only add up to 3 images.</div>
+    <div class="alert alert-danger mt-3" id="error-message" style="display: none;">You can only add up to 3 images.</div>
 </div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script>
@@ -50,7 +93,7 @@
             container.innerHTML = `
                 <img src="${dataURL}" alt="Cropped Image" style="max-width: 100%;">
                 <div class="btn-container">
-                    <button class="btn delete-btn">Delete</button>
+                    <button class="btn delete-btn" >Delete</button>
                 </div>
             `;
             croppedImagesContainer.appendChild(container);
