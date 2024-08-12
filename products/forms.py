@@ -23,40 +23,50 @@ class ProductForm(forms.ModelForm):
 
 
 class ProductVariantForm(forms.ModelForm):
-    color = forms.ModelChoiceField(queryset=Color.objects.all(), label='Select Color')
-    size = forms.ModelChoiceField(queryset=Size.objects.all(), label='Select Size')
-    image1 = forms.ImageField(required=False, widget=forms.ClearableFileInput(), label='Image 1')
-    image2 = forms.ImageField(required=False, widget=forms.ClearableFileInput(), label='Image 2')
-    image3 = forms.ImageField(required=False, widget=forms.ClearableFileInput(), label='Image 3')
+    color = forms.ModelChoiceField(
+        queryset=Color.objects.all(),
+        label='Select Color',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    size = forms.ModelChoiceField(
+        queryset=Size.objects.all(),
+        label='Select Size',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    image1 = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        label='Image 1'
+    )
+    image2 = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        label='Image 2'
+    )
+    image3 = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        label='Image 3'
+    )
 
     class Meta:
         model = ProductVariant
         fields = [
-          
+            'product',  # Automatically set in the view or admin interface
             'color',
             'size',
             'image1',
             'image2',
             'image3',
+            'product',
         ]
-
-    widgets = {
+        widgets = {
             'product': forms.HiddenInput(),  # Assuming the product is set elsewhere
-            'color': forms.Select(attrs={
-                'class': 'form-control',
-                'placeholder': 'Select a color'
-            }),
-            'size': forms.Select(attrs={
-                'class': 'form-control',
-                'placeholder': 'Select a size'
-            }),
-            'image1': forms.ClearableFileInput(attrs={
-                'class': 'form-control-file'
-            }),
-            'image2': forms.ClearableFileInput(attrs={
-                'class': 'form-control-file'
-            }),
-            'image3': forms.ClearableFileInput(attrs={
-                'class': 'form-control-file'
-            }),
         }
+
+
+
+
+
+
+

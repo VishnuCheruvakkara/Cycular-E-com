@@ -1,0 +1,30 @@
+{% if messages %}
+    <div class="card-box">
+        <h4 class="card-title">Alerts</h4>
+        {% for message in messages %}
+            {% if 'user' in message.tags %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <strong>
+                    {% if message.tags == 'success' %}Success!
+                    {% elif message.tags == 'error' or message.tags == 'danger' %}Error!
+                    {% elif message.tags == 'warning' %}Warning!
+                    {% elif message.tags == 'info' %}Note!
+                    {% endif %}
+                </strong> 
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
+
+<script>
+    setTimeout(() => {
+        $(".alert").fadeOut(500, function() {
+            $(this).remove(); // This removes the alert from the DOM
+        });
+    }, 3000);
+</script>

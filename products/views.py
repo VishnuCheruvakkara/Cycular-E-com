@@ -67,8 +67,9 @@ def ProductVariant(request,product_id):
     else:
         form=ProductVariantForm()
     context={
-        'form':form,
+        'variant':form,
         'product':product,
+       
     }
     return render(request,'products/variant-product.html',context)
 
