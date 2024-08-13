@@ -37,7 +37,7 @@ class ProductVariantAdmin(admin.ModelAdmin):
     list_filter = ('product', 'size__color')
 
     def get_color(self, obj):
-        return obj.size.color.name
+        return obj.size.color.name if obj.size and obj.size.color else 'No Color'
     get_color.short_description = 'Color'
 
 @admin.register(Review)
