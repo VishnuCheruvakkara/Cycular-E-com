@@ -80,34 +80,5 @@ def ProductVariant(request,product_id):
 ##################  Add product-variant-image to the database ####################################
 
 def UploadImages(request):
-    if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        product = get_object_or_404(Product, id=product_id)
-        
-        image1 = request.FILES.get('image1')
-        image2 = request.FILES.get('image2')
-        image3 = request.FILES.get('image3')
-
-        image_paths = {}
-        if image1:
-            image_paths['image1'] = default_storage.save(f'product_variants/images/{product.id}/{image1.name}', image1)
-        if image2:
-            image_paths['image2'] = default_storage.save(f'product_variants/images/{product.id}/{image2.name}', image2)
-        if image3:
-            image_paths['image3'] = default_storage.save(f'product_variants/images/{product.id}/{image3.name}', image3)
-
-        # Optionally, you could save these images to the ProductVariant model
-        ProductVariant.objects.create(
-            product=product,
-            image1=image_paths.get('image1'),
-            image2=image_paths.get('image2'),
-            image3=image_paths.get('image3')
-        )
-
-        return JsonResponse({
-            'success': True,
-            'message': 'Images uploaded successfully.',
-            **image_paths
-        })
 
     return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)

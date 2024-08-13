@@ -38,7 +38,22 @@ class ProductVariantForm(forms.ModelForm):
         label='Select Size',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
+    image1 = forms.ImageField(
+        label='Image 1',
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
+    )
+    image2 = forms.ImageField(
+        label='Image 2',
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
+    )
+    image3 = forms.ImageField(
+        label='Image 3',
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = ProductVariant
         fields = [
@@ -46,6 +61,9 @@ class ProductVariantForm(forms.ModelForm):
             'color',
             'size',
             'product',  # Include the product field
+            'image1',
+            'image2',
+            'image3',
         ]
         widgets = {
             'product': forms.HiddenInput(),  # keep the product field hidden
