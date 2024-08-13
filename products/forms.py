@@ -23,6 +23,11 @@ class ProductForm(forms.ModelForm):
 
 
 class ProductVariantForm(forms.ModelForm):
+    product_name = forms.CharField(
+        label='Product Name',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+        required=False,
+    )
     color = forms.ModelChoiceField(
         queryset=Color.objects.all(),
         label='Select Color',
@@ -33,39 +38,22 @@ class ProductVariantForm(forms.ModelForm):
         label='Select Size',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    image1 = forms.ImageField(
-        required=False,
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
-        label='Image 1'
-    )
-    image2 = forms.ImageField(
-        required=False,
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
-        label='Image 2'
-    )
-    image3 = forms.ImageField(
-        required=False,
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
-        label='Image 3'
-    )
-
+    
     class Meta:
         model = ProductVariant
         fields = [
-            'product',  # Automatically set in the view or admin interface
+            'product_name',  # The readonly product name field
             'color',
             'size',
-            'image1',
-            'image2',
-            'image3',
+            'product',  # Include the product field
         ]
         widgets = {
-            'product': forms.HiddenInput(),  # Assuming the product is set elsewhere
+            'product': forms.HiddenInput(),  # keep the product field hidden
         }
 
-
-
-
-
-
-
+    def __init__(self, *args, **kwargs):
+        product = kwargs.pop('product', None)
+        super(ProductVariantForm, self).__init__(*args, **kwargs)
+        if product:
+            self.fields['product_name'].initial = product.name
+            self.fields['product'].initial = product.id  # product ID is set correctly
