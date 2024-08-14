@@ -54,10 +54,7 @@ class ProductVariant(models.Model):
     image3 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
 
     def __str__(self):
-        product_name = getattr(self.size.color.product, 'name', 'No Product') if self.size and self.size.color and self.size.color.product else 'No Product'
-        color_name = getattr(self.size.color, 'name', 'No Color') if self.size and self.size.color else 'No Color'
-        size_name = getattr(self.size, 'name', 'No Size') if self.size else 'No Size'
-        return f"{product_name} - {color_name} - {size_name}"
+        return f"{self.size.color.product.name} - {self.size.color.name} - {self.size.name}"
 
 class Review(models.Model):
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)

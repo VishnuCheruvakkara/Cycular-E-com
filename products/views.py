@@ -77,8 +77,6 @@ def ResizeImage(image, max_width=800, max_height=600,filename=None):
     
     return img_file
 
-
-
 ####################### add product varient  ########################################
 
 def ProductVariant(request, product_id):
@@ -107,12 +105,16 @@ def ProductVariant(request, product_id):
                         
                         # Assign the resized image to the variant
                         setattr(variant, f'image{i}', resized_img)
-                    except (ValueError, IndexError, base64.binascii.Error):
+                    except (ValueError, IndexError, base64.binascii.Error) as e:
                         # Handle exceptions or errors in image data processing
+                        messages.error(request, f"Error processing image {i}: {str(e)}",extra_tags='admin')
                         pass
 
             variant.save()
+            messages.success(request, 'Product variant has been successfully created.',extra_tags='admin')
             return redirect('products:category-management')
+        else:
+            messages.error(request, 'There was an error with your form submission. Please check the details and try again.',extra_tags='admin')
     else:
         form = ProductVariantForm(product=product)
 

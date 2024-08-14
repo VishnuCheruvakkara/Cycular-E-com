@@ -64,6 +64,9 @@
 </head>
         <div class="page-wrapper">
             <div class="content">
+                {% block admin-messages%}
+                {% include 'partials/admin-message.html' %}
+                {% endblock %}
                 <div class="row">
                     <div class="col-sm-4 col-3">
                         <h4 class="page-title">Category-Page</h4>
