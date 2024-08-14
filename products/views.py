@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from .forms import ProductForm,ProductVariantForm
 from django.contrib import messages
-from .models import Product
+from .models import Product,ProductVariant
 from django.http import JsonResponse
 import base64
 from django.core.files.base import ContentFile
@@ -81,7 +81,7 @@ def ResizeImage(image, max_width=800, max_height=600,filename=None):
 
 ####################### add product varient  ########################################
 
-def ProductVariant(request, product_id):
+def ProductVariantViews(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
     if request.method == 'POST':
@@ -125,9 +125,17 @@ def ProductVariant(request, product_id):
 
 #################### single priduct page  ###############################
 
-def SingleProduct(request,product_id):
-    single_product=get_object_or_404(Product,id=product_id)
-    context={
-        'single_product':single_product,
+def SingleProduct(request,variant_id):
+    product_variant = get_object_or_404(ProductVariant, id=variant_id)
+    
+    product = product_variant.product
+    
+    product_variants = ProductVariant.objects.filter(product=product)
+    
+    context = {
+        'product': product,  # The main product
+        'product_variant': product_variant,  # The specific variant passed in the URL
+        'product_variants': product_variants,  # All variants of the product for filtering
     }
-    return render(request,'products/product-detail.html',context)
+
+    return render(request,'products/product-detail.html')

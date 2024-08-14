@@ -3,12 +3,15 @@
 {% load static %}
 
 {% block content %}
-
+{% block css %}
+<style>
+    .zoomContainer {
+        z-index: 9999;
+    }
+    </style>
+{% endblock %}
 
 <body>
-    
-
-        
         <main class="main">
             <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
                 <div class="container d-flex align-items-center">
@@ -32,6 +35,8 @@
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
 
+
+            <!-- selected product detail view -->
             <div class="page-content">
                 <div class="container">
                     <div class="product-details-top">
@@ -39,60 +44,59 @@
                             <div class="col-md-6">
                                 <div class="product-gallery product-gallery-vertical">
                                     <div class="row">
+                                      
+                                        <!-- main image -->
                                         <figure class="product-main-image">
-                                            <img id="product-zoom" src="{% static 'assets/images/products/single/1.jpg' %}" data-zoom-image="assets/images/products/single/1-big.jpg" alt="product image">
-
+                                            <!-- Ensure the URL is correct and the image is accessible -->
+                                            <img id="product-zoom" src="{{ product_variant.image1.url }}" data-zoom-image="{{ product_variant.image1.url }}" alt="product image">
+                                            
                                             <a href="#" id="btn-product-gallery" class="btn-product-gallery">
                                                 <i class="icon-arrows"></i>
                                             </a>
                                         </figure><!-- End .product-main-image -->
-
+                                  
                                         <div id="product-zoom-gallery" class="product-image-gallery">
                                             <a class="product-gallery-item active" href="#" data-image="assets/images/products/single/1.jpg" data-zoom-image="assets/images/products/single/1-big.jpg">
-                                                <img src="{% static 'assets/images/products/single/1-small.jpg' %}" alt="product side">
+                                                <img src="{{ product_variant.image1.url }}" alt="product side">
                                             </a>
-
-                                            <a class="product-gallery-item" href="#" data-image="assets/images/products/single/2.jpg" data-zoom-image="assets/images/products/single/2-big.jpg">
-                                                <img src="{% static 'assets/images/products/single/2-small.jpg' %}" alt="product cross">
-                                            </a>
-
                                             <a class="product-gallery-item" href="#" data-image="assets/images/products/single/3.jpg" data-zoom-image="assets/images/products/single/3-big.jpg">
-                                                <img src="{% static 'assets/images/products/single/3-small.jpg' %}" alt="product with model">
+                                                <img src="{{ product_variant.image1.url }}" alt="product with model">
                                             </a>
 
                                             <a class="product-gallery-item" href="#" data-image="assets/images/products/single/4.jpg" data-zoom-image="assets/images/products/single/4-big.jpg">
-                                                <img src="{% static 'assets/images/products/single/4-small.jpg' %}" alt="product back">
+                                                <img src="{{ product_variant.image1.url }}" alt="product back">
                                             </a>
                                         </div><!-- End .product-image-gallery -->
                                     </div><!-- End .row -->
                                 </div><!-- End .product-gallery -->
                             </div><!-- End .col-md-6 -->
 
-                            <div class="col-md-6">
-                                <div class="product-details">
-                                    <h1 class="product-title">Dark yellow lace cut out swing dress</h1><!-- End .product-title -->
+                            <!-- product description -->
+                                <div class="col-md-6">
+                                    <div class="product-details">
+                                        <h1 class="product-title">{{product_variant.product.name}}</h1><!-- End .product-title -->
 
-                                    <div class="ratings-container">
-                                        <div class="ratings">
-                                            <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                                        </div><!-- End .ratings -->
-                                        <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
-                                    </div><!-- End .rating-container -->
+                                        <div class="ratings-container">
+                                            <div class="ratings">
+                                                <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                                            </div><!-- End .ratings -->
+                                            <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
+                                        </div><!-- End .rating-container -->
 
-                                    <div class="product-price">
-                                        $84.00
-                                    </div><!-- End .product-price -->
+                                        <div class="product-price">
+                                            $84.00
+                                        </div><!-- End .product-price -->
 
-                                    <div class="product-content">
-                                        <p>Sed egestas, ante et vulputate volutpat, eros pede semper est, vitae luctus metus libero eu augue. Morbi purus libero, faucibus adipiscing. Sed lectus. </p>
-                                    </div><!-- End .product-content -->
+                                        <div class="product-content">
+                                            <p>Sed egestas, ante et vulputate volutpat, eros pede semper est, vitae luctus metus libero eu augue. Morbi purus libero, faucibus adipiscing. Sed lectus. </p>
+                                        </div><!-- End .product-content -->
 
-                                    <div class="details-filter-row details-row-size">
-                                        <label>Color:</label>
+                                        <div class="details-filter-row details-row-size">
+                                            <label>Color:</label>
 
-                                        <div class="product-nav product-nav-thumbs">
-                                            <a href="#" class="active">
-                                                <img src="{% static 'assets/images/products/single/1-thumb.jpg' %}" alt="product desc">
+                                            <div class="product-nav product-nav-thumbs">
+                                                <a href="#" class="active">
+                                                    <img src="{% static 'assets/images/products/single/1-thumb.jpg' %}" alt="product desc">
                                             </a>
                                             <a href="#">
                                                 <img src="{% static 'assets/images/products/single/2-thumb.jpg' %}" alt="product desc">
@@ -501,10 +505,6 @@
     <!-- Plugins JS File -->
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- ElevateZoom Plugin -->
-    <script src="{% static 'path/to/elevatezoom/jquery.elevatezoom.js' %}"></script>
-
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'assets/js/jquery.hoverIntent.min.js' %}"></script>
@@ -519,14 +519,15 @@
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script>
         $(document).ready(function(){
-            $('.zoom').elevateZoom({
+            $("#product-zoom").elevateZoom({
                 zoomType: "inner",
                 cursor: "crosshair",
                 zoomWindowFadeIn: 500,
-                zoomWindowFadeOut: 500
+                zoomWindowFadeOut: 500,
+                responsive: true
             });
         });
-    </script>
+        </script>
 </body>
 
 

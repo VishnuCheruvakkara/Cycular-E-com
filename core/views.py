@@ -1,4 +1,4 @@
-from django.shortcuts import render,get_object_or_404
+from django.shortcuts import render
 from products.models import ProductVariant
 
 # Create your views here.

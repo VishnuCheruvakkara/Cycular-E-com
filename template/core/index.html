@@ -163,7 +163,7 @@
                                     <span class="product-label label-sale">Sale</span>
                                     <figure class="product-media">
                                         {% if product_variant.image1 %}
-                                        <a href="{% url 'products:single-product' product_variant.product.id %}">
+                                        <a href="{% url 'products:single-product' product_variant.id %}">
                                             <img src="{{ product_variant.image1.url }}" alt="{{ product_variant.product.name }}" class="product-image">
                                         </a>
                                         {% else %}
@@ -175,7 +175,7 @@
                                         <div class="product-cat" style="color:rgb(115, 114, 114)">
                                             From : <span>{{ product_variant.product.brand }}</span>
                                         </div>
-                                        <h3 class="product-title"><a href="{% url 'products:single-product' product_variant.product.id %}">{{ product_variant.product.name }}</a></h3>
+                                        <h3 class="product-title"><a href="{% url 'products:single-product' product_variant.id %}">{{ product_variant.product.name }}</a></h3>
                                         <div class="product-price">
                                             <span class="new-price">₹  {{ product_variant.product.price }}</span>
                                            
