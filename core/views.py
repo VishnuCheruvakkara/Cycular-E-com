@@ -1,6 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
+from products.models import ProductVariant
 
 # Create your views here.
 
-def index(request):
-    return render(request,'core/index.html')
+#######################  user home-side #####################################3
+
+def Index(request):
+    product_variants=ProductVariant.objects.all()
+    context={
+        'product_variants':product_variants,
+    }
+    return render(request,'core/index.html',context)
+
+##################  To show/list products in the user side ####################################
+

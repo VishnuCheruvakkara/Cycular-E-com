@@ -207,3 +207,5 @@ def toggle_user_status(request,user_id):
         return JsonResponse({'status':status})
     return JsonResponse({'error':'Invalid request'},status=400)
 
+
+###################################

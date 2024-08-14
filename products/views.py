@@ -123,8 +123,11 @@ def ProductVariant(request, product_id):
 
     return render(request, 'products/variant-product.html', context)
 
-##################  Add product-variant-image to the database ####################################
+#################### single priduct page  ###############################
 
-def UploadImages(request):
-
-    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+def SingleProduct(request,product_id):
+    single_product=get_object_or_404(Product,id=product_id)
+    context={
+        'single_product':single_product,
+    }
+    return render(request,'products/product-detail.html',context)
