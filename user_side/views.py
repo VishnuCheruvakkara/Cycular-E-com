@@ -45,8 +45,8 @@ def register_view(request):
             username=form.cleaned_data.get('username')
             password=form.cleaned_data.get('password1')
             
-            #checker
-            print(email,password,username)
+            # #checker
+            # print(email,password,username)
 
             session_key=generate_unique_session_key()
 
@@ -61,8 +61,8 @@ def register_view(request):
                 'password':password,
             }
 
-            # checker
-            print("Session data after storing:", request.session[session_key])
+            # # checker
+            # print("Session data after storing:", request.session[session_key])
 
 
             send_otp_email(email,otp,username)
