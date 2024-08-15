@@ -1,8 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm,OTPVerificationForm
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login,authenticate,logout
-from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.conf import settings
 import random
@@ -25,54 +24,49 @@ def home_page(request):
     return render(request,'core/index.html')
 
 ###########################  user sign-up  #####################################
-import uuid
-
-def generate_unique_session_key():
-    return str(uuid.uuid4())
 
 @never_cache
 def register_view(request):
-
-    breadcrumbs_pages=[
-        {'name':'Home','url':'core/index.html'},
-        {'name':'Sign-up','url':'','active':True}
-    ]
-
-    if request.method=='POST':
-        form=UserRegisterForm(request.POST)
-        if form.is_valid(): #check the all validation condition for the submitted data
-            email=form.cleaned_data.get('email')
-            username=form.cleaned_data.get('username')
-
-            session_key=generate_unique_session_key()
-
-            otp = generate_otp()
-            otp_created_at = timezone.now()
-            password=form.cleaned_data.get('password')
-            hashed_password=make_password(password)
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password1')  # Use password1 to avoid confusion
             
-            request.session[session_key]={
-                'otp':otp,
-                'otp_created_at':otp_created_at.isoformat(),
-                'email':email,
-                'username':username,
-                'password':hashed_password,
+            otp = generate_otp()
+            send_otp_email(email, otp, username)
+
+            # Pass the user data and OTP to the next form via hidden fields
+            otp_form = OTPVerificationForm(initial={
+                'email': email,
+                'username': username,
+                'password': password,
+                'otp': otp,
+                'otp_created_at': timezone.now().isoformat(),
+            })
+
+            # Store OTP and timestamp in hidden fields
+            context = {
+                'form': otp_form,
+                'otp': otp,
+                'otp_created_at': timezone.now(),
             }
-            send_otp_email(email,otp,username)
-            request.session['user_registration_data']=session_key
+
             messages.success(request, 'OTP has been sent to your email.')
-            return redirect('user_side:otp')
-        
-    else : 
-        form=UserRegisterForm()
-    context={
-        'form':form,
-        'breadcrumb_pages': breadcrumbs_pages,
+            return render(request, 'user_side/otp.html', context)
+    else:
+        form = UserRegisterForm()
+    
+    context = {
+        'form': form,
     }
-   
-    return render(request,"user_side/sign-up.html",context)
+    return render(request, "user_side/sign-up.html", context)
+
 
 ###########################  login section #############################################
+
+
 @never_cache
 def login_view(request):
     if request.user.is_authenticated:
@@ -82,17 +76,21 @@ def login_view(request):
     if request.method == "POST":
         email = request.POST.get("signin-email")
         password = request.POST.get("signin-password")
-
-        # Authenticate the user
-        user = authenticate(request, email=email, password=password)
+        
+        # Authenticate using email as the username
+        user = authenticate(request, username=email, password=password)
         
         if user is not None:
-            login(request, user)
-            messages.success(request, "You are logged in.")
-            return redirect("core:index")
+            if user.is_verified:
+                login(request, user)
+                messages.success(request, "You are logged in.")
+                return redirect("core:index")
+            else:
+                messages.warning(request, "Your account is not verified. Please check your email for verification instructions or [Resend OTP](url_to_resend_otp).")
         else:
             messages.warning(request, "Invalid email or password. Please try again.")
     
+    # Always return a response, even for GET requests
     return render(request, 'user_side/sign-in.html')
 
 
@@ -100,60 +98,55 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    messages.success(request,"You logged out")
+    messages.success(request,"You logged out")  
     return redirect("user_side:sign-in")
 
 ###########################  otp page section  #########################################
-
+@never_cache
 def otp_view(request):
-    session_key=request.session.get('user_registration_data')
-
-    if (not session_key) or (session_key not in request.session):
-        messages.error(request, 'No data found. Please sign-up again.')
-        return redirect('user_side:sign-up')
-
-    if request.method=='POST':
-        otp1=request.POST.get('otp1','0')
-        otp2=request.POST.get('otp2','0')
-        otp3=request.POST.get('otp3','0')
-        otp4=request.POST.get('otp4','0')
-        otp5=request.POST.get('otp5','0')
-        otp6=request.POST.get('otp6','0')
-        entered_otp=f"{otp1}{otp2}{otp3}{otp4}{otp5}{otp6}"
+    if request.method == 'POST':
+        form = OTPVerificationForm(request.POST)
         
-        session_data=request.session.get(session_key)
-        if not session_data:
-            messages.error(request,'No data found. Please sign-up again.')
-            return redirect('user_side:sign-up')
-        
-        stored_otp=session_data.get('otp')
-        otp_created_at=datetime.fromisoformat(session_data.get('otp_created_at'))
+        if form.is_valid():
+            entered_otp = form.cleaned_data.get('otp')
+            email = form.cleaned_data.get('email')
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            
+            stored_otp = request.POST.get('otp')  # This should be fetched from session or hidden field
+            otp_created_at = request.POST.get('otp_created_at')
 
-        if timezone.now() - otp_created_at > timedelta(seconds=OTP_EXPIRY_SECONDS):
-            messages.error(request,'OTP has expired, Please checkout the resend OTP.')
-            return redirect('user_side:otp')
+            # Validate OTP and timestamp
+            if entered_otp == stored_otp:
+                # Ensure the OTP hasn't expired
+                otp_creation_time = datetime.fromisoformat(otp_created_at)
+                current_time = timezone.now()
 
-        if entered_otp == stored_otp:
-            email=session_data.get('email')
-            username=session_data.get('username')
-            password=session_data.get('password')
+                if current_time - otp_creation_time <= timedelta(seconds=OTP_EXPIRY_SECONDS):
+                    # OTP is valid and within expiry time
+                    user = User.objects.create_user(email=email, username=username, password=password)
+                    user.is_verified = True
+                    user.save()
 
-           
-            user=User.objects.create_user(username=username,email=email,password=password)
-            if user is not None:
-                backend = 'django.contrib.auth.backends.ModelBackend'
-                login(request,user,backend=backend)
-                del request.session[session_key]
-                del request.session['user_registration_data']
-                messages.success(request,'OTP Registration was successful.  you are now logged in.')
-                return redirect('core:index')
+                    backend = 'django.contrib.auth.backends.ModelBackend'
+                    login(request, user, backend=backend)
+
+                    messages.success(request, 'OTP verification successful. You are now logged in.')
+                    return redirect('core:index')
+                else:
+                    messages.error(request, 'OTP has expired. Please request a new one.')
             else:
-                messages.error(request,'User creation failed. Please try again.')
-                return redirect('user_side:sign-in')
+                messages.error(request, 'Invalid OTP. Please try again.')
         else:
-            messages.error(request,'Invalid OTP : Entered otp is not match, check-otu resend OTP.')
+            messages.error(request, 'Form validation failed. Please check your inputs.')
 
-    return render(request,'user_side/otp.html')
+    else:
+        form = OTPVerificationForm()
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'user_side/otp.html', context)
 
 ###########################   generating otp   ########################################
 

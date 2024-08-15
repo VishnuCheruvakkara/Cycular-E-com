@@ -12,4 +12,9 @@ class UserRegisterForm(UserCreationForm):
         model=User
         fields=['username','email']
 
+class OTPVerificationForm(forms.Form):
+    otp = forms.CharField(max_length=6, widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter OTP"}))
+    email = forms.EmailField(widget=forms.HiddenInput())
+    username = forms.CharField(widget=forms.HiddenInput())
+    password = forms.CharField(widget=forms.HiddenInput())
 
