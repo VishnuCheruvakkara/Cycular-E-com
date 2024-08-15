@@ -224,7 +224,6 @@ def send_otp_email(email,otp,username):
 
 ###########################   resend otp   ########################################
 
-
 def resend_otp(request):
     session_key = request.session.get('user_registration_data')
     if not session_key or session_key not in request.session:
