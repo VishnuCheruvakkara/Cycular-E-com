@@ -2,9 +2,45 @@
 {% load static %}
 
 {% block content %}
+
+<head>
+<style>
+    .otp-inputs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        max-width: 360px;
+        margin: 20px auto;
+        
+    }
+    .otp-input {
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        font-size: 24px;
+        border: 2px solid #ced4da;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+        padding:0px;
+    }
+    .otp-input:focus {
+        outline: none;
+        border-color: #1cc0a0;
+    }
+    #demo {
+        text-align: center;
+        font-size: 15px;
+        margin-top: 10px;
+        color: red;
+    }
+</style>
+</head>
+
+<body>
 <main class="main">
     <div class="container mt-5">
-        <h1 class="text-center">Enter OTP</h1>
+        <h3 class="text-center">Enter OTP</h3>
         <form id="otp-form" action="" method="POST">
             {% csrf_token %}
             <div class="form-group">
@@ -17,67 +53,107 @@
                     <input type="text" class="form-control otp-input" name="otp6" maxlength="1" required>
                 </div>
             </div>
+            <input type="hidden" name="email" value="{{ form.email.value }}">
+            <input type="hidden" name="username" value="{{ form.username.value }}">
+            <input type="hidden" name="password" value="{{ form.password.value }}">
+            <input type="hidden" name="stored_otp" value="{{ form.otp.value }}">
+            <input type="hidden" name="otp_created_at" value="{{ form.otp_created_at.value }}">
             <div class="form-footer d-flex flex-column align-items-center justify-content-center text-center">
-                <div id="timer" class="timer mb-3">Time left: <span id="countdown">05:00</span></div>
+                <div class="timer mb-3">Time : <span id="demo"></span></div>
                 <button type="submit" class="btn btn-primary mb-3">Verify OTP</button>
                 <a href="{% url 'user_side:resend-otp' %}" id="resend-otp" class="btn btn-link">Resend OTP</a>
             </div>
-            
         </form>
     </div>
 </main>
-{% endblock content %}
 
-{% block extra_css %}
-<style>
-    .otp-inputs {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        max-width: 360px;
-        margin: 20px auto;
-    }
-    .otp-input {
-        width: 50px;
-        height: 50px;
-        text-align: center;
-        font-size: 24px;
-        border: 2px solid #ced4da;
-        border-radius: 8px; /* Rounded corners */
-        background-color: #f8f9fa;
-        transition: all 0.3s ease;
-    }
-    .otp-input:focus {
-        
-        outline: none;
-    }
-    /* Other styles */
-</style>
-{% endblock extra_css %}
-
-{% block extra_js %}
 <script src="{% static 'assets/js/jquery.min.js' %}"></script>
 <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
 <script>
-// below need to check some prolem 
-    $(document).ready(function() {
-        const otpInputs = document.querySelectorAll('.otp-input');
+  document.addEventListener('DOMContentLoaded', function() {
+    var countdownTime = 60; // 60 seconds
 
-        otpInputs.forEach((input, index) => {
-            input.addEventListener('input', () => {
-                if (input.value.length === 1 && index < otpInputs.length - 1) {
-                    otpInputs[index + 1].focus();
-                }
-            });
+    // Check if there's an existing timer value in sessionStorage
+    if (sessionStorage.getItem('countdownTime')) {
+        countdownTime = parseInt(sessionStorage.getItem('countdownTime'));
+    }
 
-            input.addEventListener('focus', () => {
-                input.classList.add('focused');
-            });
+    function updateCountdown() {
+        var demoElement = document.getElementById("demo");
+        demoElement.innerHTML = countdownTime + " seconds";
 
-            input.addEventListener('blur', () => {
-                input.classList.remove('focused');
-            });
+        if (countdownTime <= 0) {
+            clearInterval(timerInterval);
+            demoElement.innerHTML = "EXPIRED";
+            document.getElementById("resend-otp").style.display = "inline-block";
+            sessionStorage.removeItem('countdownTime'); // Clear sessionStorage when timer expires
+        } else {
+            countdownTime--;
+            sessionStorage.setItem('countdownTime', countdownTime); // Store the remaining time
+        }
+    }
+
+    var timerInterval = setInterval(updateCountdown, 1000);
+
+    // Hide the resend button initially
+    document.getElementById("resend-otp").style.display = "none";
+
+    // Show the resend button when timer expires
+    if (countdownTime <= 0) {
+        document.getElementById("resend-otp").style.display = "inline-block";
+    } else {
+        setTimeout(function() {
+            document.getElementById("resend-otp").style.display = "inline-block";
+        }, countdownTime * 1000);
+    }
+
+    // Handle OTP resend button click
+    document.getElementById("resend-otp").addEventListener("click", function(event) {
+        event.preventDefault(); // Prevent default link behavior
+
+        fetch("{% url 'user_side:resend-otp' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}", // Include CSRF token
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message); // Display success message
+                countdownTime = 60; // Reset countdown time to 60 seconds
+                sessionStorage.setItem('countdownTime', countdownTime); // Update sessionStorage
+                clearInterval(timerInterval); // Clear the previous interval
+                timerInterval = setInterval(updateCountdown, 1000); // Restart the timer
+            } else {
+                alert(data.message); // Display error message
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Automatically move to the next OTP input
+    const otpInputs = document.querySelectorAll('.otp-input');
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', () => {
+            if (input.value.length === 1 && index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
+        });
+
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Backspace' && index > 0 && input.value === '') {
+                otpInputs[index - 1].focus();
+            }
         });
     });
+});
+
 </script>
-{% endblock extra_js %}
+
+  
+</body>
+
+{% endblock content %}

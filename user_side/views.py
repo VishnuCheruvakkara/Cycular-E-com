@@ -43,21 +43,28 @@ def register_view(request):
         if form.is_valid(): #check the all validation condition for the submitted data
             email=form.cleaned_data.get('email')
             username=form.cleaned_data.get('username')
+            password=form.cleaned_data.get('password1')
+            
+            #checker
+            print(email,password,username)
 
             session_key=generate_unique_session_key()
 
             otp = generate_otp()
             otp_created_at = timezone.now()
-            password=form.cleaned_data.get('password')
-            hashed_password=make_password(password)
-            
+           
             request.session[session_key]={
                 'otp':otp,
                 'otp_created_at':otp_created_at.isoformat(),
                 'email':email,
                 'username':username,
-                'password':hashed_password,
+                'password':password,
             }
+
+            # checker
+            print("Session data after storing:", request.session[session_key])
+
+
             send_otp_email(email,otp,username)
             request.session['user_registration_data']=session_key
             messages.success(request, 'OTP has been sent to your email.')
@@ -65,6 +72,7 @@ def register_view(request):
         
     else : 
         form=UserRegisterForm()
+
     context={
         'form':form,
         'breadcrumb_pages': breadcrumbs_pages,
@@ -84,7 +92,7 @@ def login_view(request):
         password = request.POST.get("signin-password")
 
         # Authenticate the user
-        user = authenticate(request, email=email, password=password)
+        user = authenticate(request, username=email, password=password)
         
         if user is not None:
             login(request, user)
@@ -106,6 +114,26 @@ def logout_view(request):
 ###########################  otp page section  #########################################
 
 def otp_view(request):
+
+    #cheker
+
+    # session_key=request.session.get('user_registration_data')
+    # session_data=request.session.get(session_key)
+
+    # # Debugging print statements
+    # print("Session data before retrieving password:", session_data)
+    
+    # # Attempt to retrieve the password from the session data
+    # password = session_data.get('password')
+    # print("Retrieved password:", password)
+
+
+    # email=session_data.get('email')
+    # username=session_data.get('username')
+    # password=session_data.get('password')
+
+    # print(email,username,password)
+
     session_key=request.session.get('user_registration_data')
 
     if (not session_key) or (session_key not in request.session):
@@ -136,10 +164,33 @@ def otp_view(request):
         if entered_otp == stored_otp:
             email=session_data.get('email')
             username=session_data.get('username')
-            password=session_data.get('password')
+            password=request.POST.get('password1')
 
-           
+            # #checker
+                    
+            # # Debugging print statements
+            # print("Session data before retrieving password:", session_data)
+            
+            # # Attempt to retrieve the password from the session data
+            # password = session_data.get('password')
+            # print("Retrieved password:", password)
+
+            # print("Password before creating user:", password)
+
             user=User.objects.create_user(username=username,email=email,password=password)
+                        
+            # # Print the stored password (note: this will be a hashed value, not the raw password)
+            # print("Stored password (hashed):", user.password)
+                     
+            # # Debugging print statements
+            # print("Session data before retrieving password:", session_data)
+            
+            # # Attempt to retrieve the password from the session data
+            # password = session_data.get('password')
+            # print("Retrieved password:", password)
+
+
+            user.save()
             if user is not None:
                 backend = 'django.contrib.auth.backends.ModelBackend'
                 login(request,user,backend=backend)
@@ -157,7 +208,7 @@ def otp_view(request):
 
 ###########################   generating otp   ########################################
 
-OTP_EXPIRY_SECONDS=300
+OTP_EXPIRY_SECONDS=60
 
 def generate_otp():
     return str(random.randint(100000,999999))
@@ -171,41 +222,32 @@ def send_otp_email(email,otp,username):
     recipient_list=[email]
     send_mail(subject,message,email_form,recipient_list)
 
-###########################   resend E-mail   ########################################
+###########################   resend otp   ########################################
 
-@require_POST
+
 def resend_otp(request):
     session_key = request.session.get('user_registration_data')
     if not session_key or session_key not in request.session:
-        return JsonResponse({'status': 'error', 'message': 'No data found. Please sign-up again.'})
+        return redirect('user_side:sign-up')  # Redirect to signup if no session data
     
     session_data = request.session.get(session_key)
     if not session_data:
-        return JsonResponse({'status': 'error', 'message': 'No data found. Please sign-up again.'})
+        return redirect('user_side:sign-up')  # Redirect to signup if session data is empty
     
     email = session_data.get('email')
-    username=session_data.get('username')
+    username = session_data.get('username')
     new_otp = generate_otp()
-    send_otp_email(email, new_otp,username)
+    send_otp_email(email, new_otp, username)
     
     session_data['otp'] = new_otp
     session_data['otp_created_at'] = timezone.now().isoformat()
     request.session[session_key] = session_data
     request.session.modified = True
     
-    return JsonResponse({'status': 'success', 'message': 'New OTP sent successfully.'})
+    # Redirect back to the OTP input page with a success message
+    return redirect('user_side:otp')
 
 ###############################  to handle the user status through admin page  ##########################
-
-@login_required
-def toggle_user_status(request,user_id):
-    if request.method == 'GET':
-        user=get_object_or_404(User,id=user_id)
-        user.is_active=not user.is_active #toogle logic
-        user.save()
-        status='active' if user.is_active else 'blocked'
-        return JsonResponse({'status':status})
-    return JsonResponse({'error':'Invalid request'},status=400)
 
 
 ###################################
