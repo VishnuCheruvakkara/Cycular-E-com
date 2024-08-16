@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .forms import ProductForm,ProductVariantForm
+from .forms import ProductForm,ProductVariantForm,Size
 from django.contrib import messages
 from .models import Product,ProductVariant
 from django.http import JsonResponse
@@ -129,18 +129,19 @@ def ProductVariantViews(request, product_id):
 
 def SingleProduct(request,variant_id):
     product_variant = get_object_or_404(ProductVariant, id=variant_id)
-    
     product = product_variant.product
-    
     product_variants = ProductVariant.objects.filter(product=product)
+    related_products=Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
+    sizes=Size.objects.all()
+
     
     context = {
         'product': product,  # The main product
         'product_variant': product_variant,  # The specific variant passed in the URL
         'product_variants': product_variants,  # All variants of the product for filtering
+        'sizes':sizes,
     }
-
-    return render(request,'products/product-detail.html')
+    return render(request,'products/product-detail.html',context)
 ##################  Product soft-delete  ####################################
   
 def toggle_product_status(request, product_id):
