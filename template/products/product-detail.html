@@ -98,26 +98,26 @@
                                         <div class="product-price" style="padding-bottom:25px;">
                                             ₹ {{product_variant.product.price}}
                                         </div><!-- End .product-price -->
-
+                                       
                                         <div class="details-filter-row details-row-size">
                                             <label>Color:</label>
-
-                                            <div class="product-nav product-nav-thumbs">
+                                            {% for product_variant in product_variants %}
+                                            <div class="product-nav product-nav-thumbs" style="padding-right: 10px;">
                                                 <a href="#" class="active">
-                                                    <img src="{{produt.size.}}" alt="product desc">
+                                                    <img src="{{product_variant.image1.url}}" alt="product desc">
                                                 </a>
-                                        </div><!-- End .product-nav -->
-                                    </div><!-- End .details-filter-row -->
+                                            </div><!-- End .product-nav -->
+                                            {% endfor %}
+                                        </div><!-- End .details-filter-row -->
 
                                     <div class="details-filter-row details-row-size">
                                         <label for="size">Size:</label>
                                         <div class="select-custom">
                                             <select name="size" id="size" class="form-control">
                                                 <option value="#" selected="selected">Select a size</option>
-                                                <option value="s">Small</option>
-                                                <option value="m">Medium</option>
-                                                <option value="l">Large</option>
-                                                <option value="xl">Extra Large</option>
+                                                {% for size in sizes %}
+                                                <option value="{{size.id}}">{{size.name}}</option>
+                                                {% endfor %}
                                             </select>
                                         </div><!-- End .select-custom -->
 
@@ -357,6 +357,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.elevatezoom/3.0.8/jquery.elevateZoom.min.js"></script>
+
 
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
