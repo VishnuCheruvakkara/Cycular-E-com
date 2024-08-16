@@ -9,7 +9,7 @@ urlpatterns=[
     path('sign-out/',views.logout_view,name='sign-out'),
     path('otp/',views.otp_view,name='otp'),
     path('resend-otp/',views.resend_otp,name='resend-otp'),
-    path('toggle-user-status/<int:user_id>/',views.toggle_user_status,name='toggle-user-status'),
+    path('toggle-user-status/',views.toggle_user_status,name='toggle-user-status'),
 
 ]
 

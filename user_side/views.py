@@ -197,13 +197,14 @@ def resend_otp(request):
 
 ###############################  to handle the user status through admin page  ##########################
 
-@login_required
-def toggle_user_status(request,user_id):
-    if request.method == 'GET':
-        user=get_object_or_404(User,id=user_id)
-        user.is_active=not user.is_active #toogle logic
-        user.save()
-        status='active' if user.is_active else 'blocked'
-        return JsonResponse({'status':status})
-    return JsonResponse({'error':'Invalid request'},status=400)
 
+@require_POST
+def toggle_user_status(request):
+    user_id = request.POST.get('user_id')
+    try:
+        user = User.objects.get(id=user_id)
+        user.is_active = not user.is_active
+        user.save()
+        return JsonResponse({'success': True, 'is_active': user.is_active})
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'User not found'})

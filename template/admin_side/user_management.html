@@ -81,9 +81,11 @@
                                         <td>{{ user.date_joined|date:"d-m-Y" }}</td>
                                         <td>{{ user.date_joined|time:"H:i:s" }}</td>
                                         <td>
-                                            <span class="custom-badge status-{{ user.is_active|yesno:'green,red' }}">
-                                                {{ user.is_active|yesno:'Active,Inactive' }}
-                                            </span>
+                                            <button class="btn btn-sm toggle-status" data-user-id="{{ user.id }}" data-is-active="{{ user.is_active }}">
+                                                <span class="custom-badge status-{{ user.is_active|yesno:'green,red' }}">
+                                                    {{ user.is_active|yesno:'Active,Inactive' }}
+                                                </span>
+                                            </button>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -127,6 +129,37 @@
                     format: 'LT'
                 });
             });
+            // Extra added some code 
+            document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.toggle-status').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var userId = this.getAttribute('data-user-id');
+                var isActive = this.getAttribute('data-is-active') === 'True';
+
+                fetch("{% url 'user_side:toggle-user-status' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token if not using @csrf_exempt
+                    },
+                    body: `user_id=${userId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        var statusBadge = this.querySelector('.custom-badge');
+                        this.setAttribute('data-is-active', data.is_active);
+                        statusBadge.classList.toggle('status-green', data.is_active);
+                        statusBadge.classList.toggle('status-red', !data.is_active);
+                        statusBadge.textContent = data.is_active ? 'Active' : 'Inactive';
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    });
      </script>
 </body>
 

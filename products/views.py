@@ -123,8 +123,12 @@ def ProductVariant(request, product_id):
 
     return render(request, 'products/variant-product.html', context)
 
-##################  Add product-variant-image to the database ####################################
-
-def UploadImages(request):
-
-    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+##################  Product soft-delete  ####################################
+  
+def toggle_product_status(request, product_id):
+    if request.method == "POST" and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        product = get_object_or_404(Product, id=product_id)
+        product.status = not product.status
+        product.save()
+        return JsonResponse({'status': product.status, 'message': 'Status updated successfully!'})
+    return JsonResponse({'error': 'Invalid request'}, status=400)

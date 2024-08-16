@@ -59,6 +59,18 @@
         opacity: 0;
         transition: 0s;
     }
+    .custom-badge:focus, 
+    .custom-badge:active {
+    outline: red; /* Remove the focus outline */
+    box-shadow: none; /* Remove any box shadow */
+    border: none; /* Ensure no border is applied */
+    }
+    .status-inactive {
+        color: red;
+    }
+    .status-red {
+        background-color:#f62d51; /* Green */
+    }
 
     </style>
 </head>
@@ -97,10 +109,14 @@
 										<td>{{product.price}}</td>
                                         <td>{{product.category}}</td>
                                         <td>
-                                            <span class="custom-badge status-{{ product.status|yesno:'green,red' }}">
-                                                {{ product.status|yesno:'Active,Inactive' }}
-                                            </span>
+                                            <button 
+                                            class="custom-badge status-{{ product.status|yesno:'green,red' }} ripple-effect"
+                                            onclick="toggleStatus({{ product.id }})">
+                                            {{ product.status|yesno:'Active,Inactive' }}
+                                        </button>
+                                        
                                         </td>
+                                        
                                         <td>
                                             <a href="{% url 'products:product-variant' product.id %}" class="custom-badge status-blue ripple-effect">
                                                 Add 
@@ -157,7 +173,32 @@
                     format: 'LT'
                 });
             });
-     </script>
+
+            function toggleStatus(productId) {
+    fetch(`/products/toggle-status/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',  // Ensure CSRF token is included
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status !== undefined) {
+            const button = document.querySelector(`button[onclick="toggleStatus(${productId})"]`);
+            button.className = data.status ? 'custom-badge status-green ripple-effect' : 'custom-badge status-red ripple-effect';
+            button.textContent = data.status ? 'Active' : 'Inactive';
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+    }
+    </script>
 </body>
 
 
