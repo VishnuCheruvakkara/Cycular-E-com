@@ -145,10 +145,12 @@ def SingleProduct(request,variant_id):
 
 ######################### Get stock from the database #####################
 
-def get_stock(request, size_id):
+def get_stock(request):
+    size_id = request.GET.get('size_id')
     try:
-        size = Size.objects.get(id=size_id)
-        stock_quantity = size.stock
-        return JsonResponse({'stock': stock_quantity})
+        product_size = Size.objects.get(id=size_id)
+        stock = product_size.stock
     except Size.DoesNotExist:
-        return JsonResponse({'stock': 0})
+        stock = 0
+
+    return JsonResponse({'stock': stock})

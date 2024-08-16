@@ -126,18 +126,25 @@
 
 
                                         <div class="details-filter-row details-row-size">
-                                            <label for="size">Size:</label>
+                                            <!-- Label for accessibility -->
+                                            <label for="size-select">Size:</label>
+                                        
                                             <div class="select-custom">
-                                                <select name="size" id="size" class="form-control">
-                                                    <option value="#" selected="selected">Select a size</option>
+                                                <!-- Size Dropdown -->
+                                                <select name="size" id="size-select" class="form-control">
+                                                    <option value="#" selected="selected" disabled>Select a size</option>
                                                     {% for size in sizes %}
                                                     <option value="{{ size.id }}">{{ size.name }}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div><!-- End .select-custom -->
                                         
-                                            <a href="#" class="size-guide"><i class="icon-th-list"></i> Size guide</a>
+                                            <!-- Stock Info Display -->
+                                            <div>
+                                                <p id="stock-info" style="color: red; margin-top: 10px;"></p>
+                                            </div>
                                         </div><!-- End .details-filter-row -->
+                                        
                                         
                                         <div class="details-filter-row details-row-size">
                                             <label for="qty">Qty:</label>
@@ -145,7 +152,7 @@
                                                 <input type="number" id="qty" class="form-control" value="1" min="1" step="1" data-decimals="0" required>
                                                 <span id="stock-info"></span>
                                             </div><!-- End .product-details-quantity -->
-                                        </div><!-- End .details-filter-row -->
+                                        </div>
                                         
 
 
@@ -419,31 +426,33 @@
         });
 
         
+        $(document).ready(function() {
+        $('#size-select').on('change', function() {
+            var sizeId = $(this).val();
 
-
-
-        document.getElementById('size').addEventListener('change', function() {
-            const sizeId = this.value;
             if (sizeId) {
-                fetch(`/get_stock/${sizeId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const stockInfo = document.getElementById('stock-info');
-                        if (data.stock > 0) {
-                            stockInfo.innerHTML = `Available: ${data.stock}`;
-                            document.getElementById('qty').setAttribute('max', data.stock);
-                            document.getElementById('qty').removeAttribute('disabled');
+                $.ajax({
+                    url: '{% url "products:get_stock" %}',
+                    data: {
+                        'size_id': sizeId
+                    },
+                    success: function(response) {
+                        var stock = response.stock;
+                        if (stock > 0) {
+                            $('#stock-info').text('Stock available: ' + stock);
                         } else {
-                            stockInfo.innerHTML = 'Out of Stock';
-                            document.getElementById('qty').setAttribute('max', 0);
-                            document.getElementById('qty').setAttribute('disabled', true);
+                            $('#stock-info').text('Out of stock');
                         }
-                    })
-                    .catch(error => console.error('Error fetching stock:', error));
+                    },
+                    error: function() {
+                        $('#stock-info').text('Error fetching stock information');
+                    }
+                });
             } else {
-                document.getElementById('stock-info').innerHTML = '';
+                $('#stock-info').text('Select a size to see stock availability.');
             }
         });
+    });
   </script>
         
     {% endblock%}
