@@ -46,7 +46,7 @@ def register_view(request):
             password=form.cleaned_data.get('password1')
             
             # #checker
-            # print(email,password,username)
+            print(email,password,username)
 
             session_key=generate_unique_session_key()
 
@@ -117,22 +117,22 @@ def otp_view(request):
 
     #cheker
 
-    # session_key=request.session.get('user_registration_data')
-    # session_data=request.session.get(session_key)
+    session_key=request.session.get('user_registration_data')
+    session_data=request.session.get(session_key)
 
-    # # Debugging print statements
-    # print("Session data before retrieving password:", session_data)
+    # Debugging print statements
+    print("Session data before retrieving password:", session_data)
     
-    # # Attempt to retrieve the password from the session data
-    # password = session_data.get('password')
-    # print("Retrieved password:", password)
+    # Attempt to retrieve the password from the session data
+    password = session_data.get('password')
+    print("Retrieved password:", password)
 
 
-    # email=session_data.get('email')
-    # username=session_data.get('username')
-    # password=session_data.get('password')
+    email=session_data.get('email')
+    username=session_data.get('username')
+    password=session_data.get('password')
 
-    # print(email,username,password)
+    print(email,username,password)
 
     session_key=request.session.get('user_registration_data')
 
@@ -166,28 +166,28 @@ def otp_view(request):
             username=session_data.get('username')
             password=request.POST.get('password1')
 
-            # #checker
+            #checker
                     
-            # # Debugging print statements
-            # print("Session data before retrieving password:", session_data)
+            # Debugging print statements
+            print("Session data before retrieving password:", session_data)
             
-            # # Attempt to retrieve the password from the session data
-            # password = session_data.get('password')
-            # print("Retrieved password:", password)
+            # Attempt to retrieve the password from the session data
+            password = session_data.get('password')
+            print("Retrieved password:", password)
 
-            # print("Password before creating user:", password)
+            print("Password before creating user:", password)
 
             user=User.objects.create_user(username=username,email=email,password=password)
                         
-            # # Print the stored password (note: this will be a hashed value, not the raw password)
-            # print("Stored password (hashed):", user.password)
+            # Print the stored password (note: this will be a hashed value, not the raw password)
+            print("Stored password (hashed):", user.password)
                      
-            # # Debugging print statements
-            # print("Session data before retrieving password:", session_data)
+            # Debugging print statements
+            print("Session data before retrieving password:", session_data)
             
-            # # Attempt to retrieve the password from the session data
-            # password = session_data.get('password')
-            # print("Retrieved password:", password)
+            # Attempt to retrieve the password from the session data
+            password = session_data.get('password')
+            print("Retrieved password:", password)
 
 
             user.save()
@@ -247,6 +247,3 @@ def resend_otp(request):
     return redirect('user_side:otp')
 
 ###############################  to handle the user status through admin page  ##########################
-
-
-###################################
