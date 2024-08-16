@@ -151,3 +151,16 @@ def toggle_product_status(request, product_id):
         product.save()
         return JsonResponse({'status': product.status, 'message': 'Status updated successfully!'})
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+######################### Get stock from the database #####################
+
+def get_stock(request):
+    size_id = request.GET.get('size_id')
+    try:
+        product_size = Size.objects.get(id=size_id)
+        stock = product_size.stock
+    except Size.DoesNotExist:
+        stock = 0
+
+    return JsonResponse({'stock': stock})
