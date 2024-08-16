@@ -10,4 +10,5 @@ urlpatterns=[
     path('delete-product/<int:product_id>',views.DeleteProduct,name='delete-product'),
     path('product-variant/<int:product_id>',views.ProductVariantViews,name='product-variant'),
     path('single-product/<int:variant_id>',views.SingleProduct,name='single-product'),
+    path('get-stock/',views.get_stock, name='get_stock'),
 ]
