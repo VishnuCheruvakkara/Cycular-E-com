@@ -38,19 +38,24 @@ class ProductVariantForm(forms.ModelForm):
         label='Select Size',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    stock = forms.IntegerField(
+        label='Stock Quantity',
+        required=True,  
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
     image1 = forms.ImageField(
         label='Image 1',
-        required=False,
+        required=True,
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
     image2 = forms.ImageField(
         label='Image 2',
-        required=False,
+        required=True,
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
     image3 = forms.ImageField(
         label='Image 3',
-        required=False,
+        required=True,
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
 
@@ -61,6 +66,7 @@ class ProductVariantForm(forms.ModelForm):
             'color',
             'size',
             'product',  # Include the product field
+            'stock', 
             'image1',
             'image2',
             'image3',
