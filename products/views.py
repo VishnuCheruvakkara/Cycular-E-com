@@ -127,15 +127,15 @@ def ProductVariantViews(request, product_id):
 
 def SingleProduct(request,variant_id):
     product_variant = get_object_or_404(ProductVariant, id=variant_id)
-    
     product = product_variant.product
-    
     product_variants = ProductVariant.objects.filter(product=product)
+    related_products=Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
     
     context = {
         'product': product,  # The main product
         'product_variant': product_variant,  # The specific variant passed in the URL
         'product_variants': product_variants,  # All variants of the product for filtering
+        'related_products':related_products,
     }
 
-    return render(request,'products/product-detail.html')
+    return render(request,'products/product-detail.html',context)
