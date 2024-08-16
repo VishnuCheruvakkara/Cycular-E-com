@@ -141,3 +141,14 @@ def SingleProduct(request,variant_id):
     }
 
     return render(request,'products/product-detail.html',context)
+
+
+######################### Get stock from the database #####################
+
+def get_stock(request, size_id):
+    try:
+        size = Size.objects.get(id=size_id)
+        stock_quantity = size.stock
+        return JsonResponse({'stock': stock_quantity})
+    except Size.DoesNotExist:
+        return JsonResponse({'stock': 0})
