@@ -23,6 +23,9 @@
     {% endblock %}
     <div class="page-wrapper">
         <div class="content">
+            {% block admin-messages%}
+            {% include 'partials/admin-message.html' %}
+            {% endblock %}
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">Home</a></li>
@@ -41,6 +44,8 @@
                         <h4 class="card-title">Please fill in the following details to add a Variant to the product "{{ product.name }}":</h4>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
+
+                            {% include 'partials/non-field-error-admin.html' %}
                         
                             <!-- Product Name Field -->
                             <div class="form-group">

@@ -248,5 +248,13 @@ def resend_otp(request):
 
 ###############################  to handle the user status through admin page  ##########################
 
-
-###################################
+@require_POST
+def toggle_user_status(request):
+    user_id = request.POST.get('user_id')
+    try:
+        user = User.objects.get(id=user_id)
+        user.is_active = not user.is_active
+        user.save()
+        return JsonResponse({'success': True, 'is_active': user.is_active})
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'User not found'})

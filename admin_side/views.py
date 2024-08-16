@@ -41,7 +41,7 @@ def SellerLogin(request):
 
 def SellerLogout(request):
     logout(request)
-    messages.success(request, 'You have logged out successfully',extra_tags='adminc')
+    messages.success(request, 'You have logged out successfully',extra_tags='admin')
     return redirect('admin_side:seller-login')
 
 #############################   user management  ########################################################
