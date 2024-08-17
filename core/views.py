@@ -6,7 +6,7 @@ from products.models import ProductVariant
 #######################  user home-side #####################################3
 
 def Index(request):
-    product_variants=ProductVariant.objects.all()
+    product_variants=ProductVariant.objects.filter(product__status=True)
     context={
         'product_variants':product_variants,
     }
