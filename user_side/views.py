@@ -258,3 +258,4 @@ def toggle_user_status(request):
         return JsonResponse({'success': True, 'is_active': user.is_active})
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'User not found'})
+
