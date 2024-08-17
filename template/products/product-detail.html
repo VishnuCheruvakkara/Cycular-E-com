@@ -1,35 +1,23 @@
 {% extends 'partials/base.html' %}
 
 {% load static %}
+
 {% block css%}
 <style>
-
 .product-main-image {
-    position: relative;
-    overflow: hidden; /* Ensures zoomed image doesn't overflow the container */
-}
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .zoomContainer {
+        z-index: 9999;
+    }
 
-.product-image-container {
-    position: relative;
-    width: 100%; /* Adjust based on your design */
-    height: auto; /* Adjust based on your design */
-}
 
-.zoom-image {
-    display: block;
-    width: 100%; /* Adjust based on your design */
-    height: auto; /* Adjust based on your design */
-    transition: transform 0.3s ease; /* Smooth zoom transition */
-}
-
-.product-image-container:hover .zoom-image {
-    transform: scale(1.5); /* Adjust zoom scale as needed */
-    /* Optionally add a transform-origin to control the zoom direction */
-    transform-origin: center; /* Adjust based on where you want the zoom focus */
-}
 
 </style>
 {% endblock %}
+
 {% block content %}
 
 <body>
@@ -71,9 +59,9 @@
                                                  data-zoom-image="{{ product_variant.image1.url }}" 
                                                  alt="product image">
                                             <a href="#" id="btn-product-gallery" class="btn-product-gallery">
-                                              <i class="icon-arrows"></i>
+                                                <i class="icon-arrows"></i>
                                             </a>
-                                          </figure>
+                                        </figure>
                             
                                         <!-- Image gallery -->
                                         <div id="product-zoom-gallery" class="product-image-gallery">
@@ -381,11 +369,10 @@
     
     <!-- Plugins JS File -->
     <!-- jQuery -->
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.elevatezoom/3.0.8/jquery.elevateZoom.min.js"></script>
 
-
+    
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'assets/js/jquery.hoverIntent.min.js' %}"></script>
@@ -403,6 +390,21 @@
        
     {% block js%}
     <script>
+
+    // image zoom functionality
+    $(document).ready(function() {
+        // Initialize zoom
+        $("#product-zoom").ezPlus({
+            zoomType: "inner",
+            cursor: "crosshair",
+            responsive: true,
+            zoomWindowFadeIn: 500,
+            zoomWindowFadeOut: 750
+        });
+
+        // Your existing gallery and size select code here
+    });
+
         document.addEventListener("DOMContentLoaded", function() {
             // Get all gallery items and the main image
             const galleryItems = document.querySelectorAll("#product-zoom-gallery .product-gallery-item");
@@ -424,6 +426,7 @@
                 });
             });
         });
+
 
         
         $(document).ready(function() {
