@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import authenticate,login,logout
 from user_side.models import User 
 from django.contrib import messages
@@ -56,4 +56,8 @@ def UserManagement(request):
 #############################   category management  ########################################################
 
 def UserView(request,user_id):
-    return render(request,'admin_side/user-view.html')
+    user = get_object_or_404(User, id=user_id)
+    context={
+        'user':user
+    }
+    return render(request,'admin_side/user-view.html',context)

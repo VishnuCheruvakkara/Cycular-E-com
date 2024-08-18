@@ -31,12 +31,17 @@
 
 <div class="page-wrapper">
     <div class="content">
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">Products</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Accessories</li>
+            </ol>
+        </nav>
         <div class="row">
             <div class="col-sm-7 col-6">
-                <h4 class="page-title">My Profile</h4>
+                <h4 class="page-title">User Profile</h4>
             </div>
-
-           
         </div>
         <div class="card-box profile-header">
             <div class="row">
@@ -44,7 +49,7 @@
                     <div class="profile-view">
                         <div class="profile-img-wrap">
                             <div class="profile-img">
-                                <a href="#"><img class="avatar" src="{% static 'admin/img/doctor-03.jpg' %}" alt=""></a>
+                                <a href="#"><img class="avatar" src="" alt=""></a>
                             </div>
                         </div>
                         
@@ -52,10 +57,7 @@
                             <div class="row">
                                 <div class="col-md-5">
                                     <div class="profile-info-left">
-                                        <h3 class="user-name m-t-0 mb-0">{{user.username}}</h3>
-                                        <small class="text-muted">Gynecologist</small>
-                                        <div class="staff-id">Employee ID : DR-0001</div>
-                                        <div class="staff-msg"><a href="chat.html" class="btn btn-primary">Send Message</a></div>
+                                        <h3 class="user-name m-t-0 mb-0">Name : {{user.username}}</h3>
                                     </div>
                                 </div>
                                 <div class="col-md-7">
@@ -66,7 +68,7 @@
                                         </li>
                                         <li>
                                             <span class="title">Email:</span>
-                                            <span class="text"><a href="#">cristinagroves@example.com</a></span>
+                                            <span class="text"><a href="#">{{user.email}}</a></span>
                                         </li>
                                         <li>
                                             <span class="title">Birthday:</span>
@@ -79,6 +81,10 @@
                                         <li>
                                             <span class="title">Gender:</span>
                                             <span class="text">Female</span>
+                                        </li>
+                                        <li>
+                                            <span class="title">Status:</span>
+                                            <span class="text">{{ user.is_active|yesno:'Active,Inactive' }}</span>
                                         </li>
                                     </ul>
                                 </div>
