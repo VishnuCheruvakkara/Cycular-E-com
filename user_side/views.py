@@ -157,7 +157,7 @@ def otp_view(request):
 
 ###########################   generating otp   ########################################
 
-OTP_EXPIRY_SECONDS=300
+OTP_EXPIRY_SECONDS=60
 
 def generate_otp():
     return str(random.randint(100000,999999))

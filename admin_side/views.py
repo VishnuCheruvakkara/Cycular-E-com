@@ -1,9 +1,12 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import authenticate,login,logout
 from user_side.models import User 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.urls import reverse
+
 # Create your views here.
 
 #############################   seller home    ########################################################
@@ -50,8 +53,27 @@ def SellerLogout(request):
 def UserManagement(request):
 
     customers=User.objects.filter(is_superuser=False)
-
-    return render(request,'admin_side/user_management.html',{"customers":customers})
+   
+    # Set up pagination.
+    paginator = Paginator(customers, 5)  
+    page = request.GET.get('page')
+    try:
+        customers_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        customers_paginated = paginator.page(1)
+    except EmptyPage:
+        customers_paginated = paginator.page(paginator.num_pages)
+    context={
+        'customers':customers_paginated ,
+        
+    }
+    return render(request,'admin_side/user_management.html',context)
 
 #############################   category management  ########################################################
 
+def UserView(request,user_id):
+    user = get_object_or_404(User, id=user_id)
+    context={
+        'user':user
+    }
+    return render(request,'admin_side/user-view.html',context)
