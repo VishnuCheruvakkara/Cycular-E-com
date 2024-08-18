@@ -14,9 +14,9 @@ from PIL import Image
 
 ###################### Category Management page #################################
 
-def CategoryManagement(request):
+def ProductManagement(request):
     products=Product.objects.filter(status=True)
-    return render(request,'products/category-management.html',{'products':products})
+    return render(request,'products/product-management.html',{'products':products})
 
 ###################### Add product page #################################
 
@@ -26,7 +26,7 @@ def AddProduct(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Product has been successfully added.')
-            return redirect('products:category-management')  # Redirect to a success URL or product list
+            return redirect('products:product-management')  # Redirect to a success URL or product list
         else:
             messages.error(request, 'There were errors in the form. Please correct them and try again.')
     else:
@@ -42,7 +42,7 @@ def EditProduct(request,product_id):
         form = ProductForm(request.POST,request.FILES,instance=product)
         if form.is_valid:
             form.save()
-            return redirect('products:category-management')
+            return redirect('products:product-management')
     else:
         form=ProductForm(instance=product)
     context={
@@ -56,7 +56,7 @@ def EditProduct(request,product_id):
 def DeleteProduct(request,product_id):
     product=get_object_or_404(Product,id=product_id)
     product.delete()
-    return redirect('products:category-management')
+    return redirect('products:product-management')
 
 ####################### image resize function  ########################################
 
@@ -112,7 +112,7 @@ def ProductVariant(request, product_id):
 
             variant.save()
             messages.success(request, 'Product variant has been successfully created.',extra_tags='admin')
-            return redirect('products:category-management')
+            return redirect('products:product-management')
         else:
             messages.error(request, 'There was an error with your form submission. Please check the details and try again.',extra_tags='admin')
     else:

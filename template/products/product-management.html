@@ -79,6 +79,12 @@
                 {% block admin-messages%}
                 {% include 'partials/admin-message.html' %}
                 {% endblock %}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Product Page</li>
+                    </ol>
+                </nav>
                 <div class="row">
                     <div class="col-sm-4 col-3">
                         <h4 class="page-title">Category-Page</h4>
