@@ -4,6 +4,7 @@ from user_side.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # Create your views here.
 
 #############################   seller home    ########################################################
@@ -50,8 +51,20 @@ def SellerLogout(request):
 def UserManagement(request):
 
     customers=User.objects.filter(is_superuser=False)
-
-    return render(request,'admin_side/user_management.html',{"customers":customers})
+    # Set up pagination with 10 customers per page.
+    paginator = Paginator(customers, 5)  
+    page = request.GET.get('page')
+    
+    try:
+        customers_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        customers_paginated = paginator.page(1)
+    except EmptyPage:
+        customers_paginated = paginator.page(paginator.num_pages)
+    context={
+        'customers':customers_paginated ,
+    }
+    return render(request,'admin_side/user_management.html',context)
 
 #############################   category management  ########################################################
 

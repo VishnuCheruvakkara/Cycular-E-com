@@ -113,21 +113,40 @@
                                 </tbody>
                             </table>
                         </div>
+                       
                         <div class="d-flex justify-content-end">
                             <ul class="pagination pagination-sm">
+                                <!-- Previous Page Link -->
+                                {% if customers.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ customers.previous_page_number }}" tabindex="-1">Previous</a>
+                                </li>
+                                {% else %}
                                 <li class="page-item disabled">
                                     <a class="page-link" href="#" tabindex="-1">Previous</a>
                                 </li>
-                                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item active">
-                                    <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
+                                {% endif %}
+                        
+                                <!-- Page Numbers -->
+                                {% for num in customers.paginator.page_range %}
+                                <li class="page-item {% if customers.number == num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                                 </li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                {% endfor %}
+                        
+                                <!-- Next Page Link -->
+                                {% if customers.has_next %}
                                 <li class="page-item">
+                                    <a class="page-link" href="?page={{ customers.next_page_number }}">Next</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
                                     <a class="page-link" href="#">Next</a>
                                 </li>
+                                {% endif %}
                             </ul>
                         </div>
+                        
                     </div>
                 </div>
             </div>
