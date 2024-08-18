@@ -87,7 +87,7 @@
                 </nav>
                 <div class="row">
                     <div class="col-sm-4 col-3">
-                        <h4 class="page-title">Category-Page</h4>
+                        <h4 class="page-title">Product-Page</h4>
                     </div>
                     <div class="col-sm-8 col-9 text-right m-b-20">
                         <a href="{% url 'products:add-product' %}" class="btn btn btn-primary btn-rounded float-right"><i class="fa fa-plus"></i> Add Products</a>
@@ -103,9 +103,9 @@
 										<th>Image</th>
 										<th>Product Name</th>
 										<th>Product Price</th>
-										<th>Product Category</th>
+										
                                         <th>status</th>
-                                        <th>Add Variant</th>
+                                        <th>View</th>
 										<th class="text-right">Action</th>
 									</tr>
 								</thead>
@@ -113,10 +113,10 @@
                                     {% for product in products %}
 									<tr>
                                         <td>{{forloop.counter}}</td>
-										<td><img width="28" height="28" src="{{product.image.url}}" class="rounded-circle m-r-5" alt=""></td>
+										<td><img width="40" height="40" src="{{product.product_variants.first.image1.url }}" class="rounded-circle m-r-5" alt=""></td>
 										<td>{{product.name}}</td>
 										<td>{{product.price}}</td>
-                                        <td>{{product.category}}</td>
+                                    
                                         <td>
                                             <button 
                                             class="custom-badge status-{{ product.status|yesno:'green,red' }} ripple-effect"
@@ -128,7 +128,7 @@
                                         
                                         <td>
                                             <a href="{% url 'products:product-variant' product.id %}" class="custom-badge status-blue ripple-effect">
-                                                Add 
+                                                View
                                             </a>
                                         </td>
 										<td class="text-right">
