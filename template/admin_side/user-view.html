@@ -31,17 +31,20 @@
 
 <div class="page-wrapper">
     <div class="content">
-        <nav>
+          <!-- breadcrumbs -->
+            <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Products</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Accessories</li>
+                <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home'%}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'admin_side:user-management' %}">User Management</a></li>
+                <li class="breadcrumb-item active" aria-current="page">User View</li>
             </ol>
-        </nav>
+            </nav>
         <div class="row">
             <div class="col-sm-7 col-6">
                 <h4 class="page-title">User Profile</h4>
             </div>
+
+           
         </div>
         <div class="card-box profile-header">
             <div class="row">
