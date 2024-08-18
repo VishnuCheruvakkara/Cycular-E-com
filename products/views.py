@@ -15,7 +15,7 @@ from PIL import Image
 ###################### Category Management page #################################
 
 def CategoryManagement(request):
-    products=Product.objects.all()
+    products=Product.objects.filter(status=True)
     return render(request,'products/category-management.html',{'products':products})
 
 ###################### Add product page #################################
