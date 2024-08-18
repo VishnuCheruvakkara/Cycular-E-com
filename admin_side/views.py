@@ -55,3 +55,5 @@ def UserManagement(request):
 
 #############################   category management  ########################################################
 
+def UserView(request,user_id):
+    return render(request,'admin_side/user-view.html')
