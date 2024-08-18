@@ -103,7 +103,6 @@
 										<th>Image</th>
 										<th>Product Name</th>
 										<th>Product Price</th>
-										
                                         <th>status</th>
                                         <th>View</th>
 										<th class="text-right">Action</th>
@@ -116,7 +115,6 @@
 										<td><img width="40" height="40" src="{{product.product_variants.first.image1.url }}" class="rounded-circle m-r-5" alt=""></td>
 										<td>{{product.name}}</td>
 										<td>{{product.price}}</td>
-                                    
                                         <td>
                                             <button 
                                             class="custom-badge status-{{ product.status|yesno:'green,red' }} ripple-effect"

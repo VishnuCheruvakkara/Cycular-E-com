@@ -40,7 +40,7 @@ def EditProduct(request,product_id):
     product=get_object_or_404(Product,id=product_id)
     if request.method =='POST':
         form = ProductForm(request.POST,request.FILES,instance=product)
-        if form.is_valid:
+        if form.is_valid():
             form.save()
             return redirect('products:product-management')
     else:

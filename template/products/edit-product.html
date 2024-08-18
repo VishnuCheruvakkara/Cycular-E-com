@@ -43,7 +43,19 @@
                             <h4 class="card-title">Please Edit the following data of the current product:</h4>
                             <form method="post">
                                 {% csrf_token %}
-                                {{ form.as_p }}
+                                {% for field in form %}
+                                <div class="form-group">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger">
+                                            {% for error in field.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                 {% endfor %}
                                 <button type="submit" class="btn btn-primary">Save Product</button>
                                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_appointment">
                                     <i class="fa fa-trash-o m-r-5"></i> Discard Changes
