@@ -81,13 +81,30 @@
                                         <td>{{ user.date_joined|date:"d-m-Y" }}</td>
                                         <td>{{ user.date_joined|time:"H:i:s" }}</td>
                                         <td>
-                                            <button class="btn btn-sm toggle-status" data-user-id="{{ user.id }}" data-is-active="{{ user.is_active }}">
+                                            <button class="btn btn-sm toggle-status" data-user-id="{{ user.id }}"  data-is-active="{{ user.is_active }}"  data-toggle="modal" data-target="#confirm-modal-{{ user.id }}">
                                                 <span class="custom-badge status-{{ user.is_active|yesno:'green,red' }}">
                                                     {{ user.is_active|yesno:'Active,Inactive' }}
                                                 </span>
                                             </button>
                                         </td>
                                     </tr>
+
+
+                                    <!-- Confirmation Modal -->
+                                    <div id="confirm-modal-{{ user.id }}" class="modal fade delete-modal" role="dialog">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-body text-center">
+                                                <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
+                                                <h3>Are you sure you want to <span style="color:#f62d51">change</span> the <span style="color:#f62d51">status</span> of  user : "{{user.username}}"?</h3>
+                                                <div class="m-t-20">
+                                                    <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
+                                                    <button class="btn btn-danger confirm-toggle-status" data-user-id="{{ user.id }}" data-dismiss="modal">Confirm</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -130,28 +147,38 @@
                 });
             });
             // Extra added some code 
-            document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.toggle-status').forEach(function(button) {
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle confirmation button click in the modal
+        document.querySelectorAll('.confirm-toggle-status').forEach(function(button) {
             button.addEventListener('click', function() {
                 var userId = this.getAttribute('data-user-id');
-                var isActive = this.getAttribute('data-is-active') === 'True';
+                var toggleButton = document.querySelector(`.toggle-status[data-user-id="${userId}"]`);
+                var isActive = toggleButton.getAttribute('data-is-active') === 'True';
 
+                // Toggle the user's status on the server
                 fetch("{% url 'user_side:toggle-user-status' %}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token if not using @csrf_exempt
+                        'X-CSRFToken': '{{ csrf_token }}'
                     },
-                    body: `user_id=${userId}`
+                    body: new URLSearchParams({
+                        'user_id': userId
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        var statusBadge = this.querySelector('.custom-badge');
-                        this.setAttribute('data-is-active', data.is_active);
+                        // Update the status in the UI
+                        var statusBadge = toggleButton.querySelector('.custom-badge');
+                        toggleButton.setAttribute('data-is-active', data.is_active);
                         statusBadge.classList.toggle('status-green', data.is_active);
                         statusBadge.classList.toggle('status-red', !data.is_active);
                         statusBadge.textContent = data.is_active ? 'Active' : 'Inactive';
+                        
+                        // Close the modal
+                        $('#confirm-modal-' + userId).modal('hide');
                     } else {
                         alert('Error: ' + data.error);
                     }
@@ -160,6 +187,7 @@
             });
         });
     });
+
      </script>
 </body>
 
