@@ -102,7 +102,7 @@
                                         <th>Sl.No</th>
 										<th>Image</th>
 										<th>Product Name</th>
-										
+										<th>Product Price</th>
                                         <th>status</th>
                                         <th>View</th>
 										<th class="text-right">Action</th>
@@ -114,16 +114,14 @@
                                         <td>{{forloop.counter}}</td>
 										<td><img width="40" height="40" src="{{product.product_variants.first.image1.url }}" class="rounded-circle m-r-5" alt=""></td>
 										<td>{{product.name}}</td>
-									
+										<td>{{product.price}}</td>
                                         <td>
-                                            <button 
-                                            class="custom-badge status-{{ product.status|yesno:'green,red' }} ripple-effect"
-                                            onclick="openStatusModal({{ product.id }})">
-                                            {{ product.status|yesno:'Active,Inactive' }}
-                                        </button>
-                                        
+                                            <button class="btn btn-sm toggle-status" data-product-id="{{ product.id }}" data-status="{{ product.status }}" data-toggle="modal" data-target="#confirm-modal-{{ product.id }}">
+                                                <span class="custom-badge status-{{ product.status|yesno:'green,red' }}">
+                                                    {{ product.status|yesno:'Active,Inactive' }}
+                                                </span>
+                                            </button>
                                         </td>
-                                        
                                         <td>
                                             <a href="{% url 'products:product-variant' product.id %}" class="custom-badge status-blue ripple-effect">
                                                 View
@@ -154,23 +152,22 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Modal Template -->
-                                    <div id="confirm-status-modal" class="modal fade" role="dialog">
+                                    <!-- Confirmation Modal -->
+                                    <div id="confirm-modal-{{ product.id }}" class="modal fade delete-modal" role="dialog">
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content">
                                                 <div class="modal-body text-center">
                                                     <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
-                                                    <h3>Are you sure you want to <span style="color:#f62d51">change</span> the <span style="color:#f62d51">status</span> of  the product : "{{product}}"?</h3>
+                                                    <h3>Are you sure you want to <span style="color:#f62d51">change</span> the <span style="color:#f62d51">status</span> of product : "{{product.name}}"?</h3>
                                                     <div class="m-t-20">
-                                                        <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                                                        <button id="confirm-status-btn" type="button" class="btn btn-danger">Confirm</button>
+                                                        <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
+                                                        <button class="btn btn-danger confirm-toggle-status" data-product-id="{{ product.id }}" data-dismiss="modal">Confirm</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                   
-                                     
+
                                     {% endfor %}
 								</tbody>
 							</table>
@@ -188,49 +185,41 @@
     <script src="{% static 'admin/js/select2.min.js' %}"></script>
     <script src="{% static 'admin/js/app.js' %}"></script>
 	<script>
-  let productIdToToggle = null;
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.confirm-toggle-status').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var productId = this.getAttribute('data-product-id');
+            var toggleButton = document.querySelector(`.toggle-status[data-product-id="${productId}"]`);
+            var status = toggleButton.getAttribute('data-status') === 'True';
 
-// Function to open the modal and set the product ID
-function openStatusModal(productId) {
-    productIdToToggle = productId;
-    const modalMessage = document.getElementById('modal-message');
-   
-    $('#confirm-status-modal').modal('show');  // Show the modal
-}
-
-// Function to handle the status toggle
-function toggleStatus() {
-    if (productIdToToggle === null) return;  // Exit if no product ID is set
-
-    fetch(`/products/toggle-status/${productIdToToggle}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',  // Ensure CSRF token is included
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: JSON.stringify({})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status !== undefined) {
-            const button = document.querySelector(`button[onclick="openStatusModal(${productIdToToggle})"]`);
-            if (button) {
-                button.className = data.status ? 'custom-badge status-green ripple-effect' : 'custom-badge status-red ripple-effect';
-                button.textContent = data.status ? 'Active' : 'Inactive';
-            }
-            $('#confirm-status-modal').modal('hide');  // Hide the modal
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
+            fetch("{% url 'products:toggle-product-status' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'product_id': productId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var statusBadge = toggleButton.querySelector('.custom-badge');
+                    toggleButton.setAttribute('data-status', data.status);
+                    statusBadge.classList.toggle('status-green', data.status);
+                    statusBadge.classList.toggle('status-red', !data.status);
+                    statusBadge.textContent = data.status ? 'Active' : 'Inactive';
+                    
+                    $('#confirm-modal-' + productId).modal('hide');
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
     });
-}
-
-// Event listener for the confirmation button in the modal
-document.getElementById('confirm-status-btn').addEventListener('click', toggleStatus);
+});
 
     </script>
 </body>

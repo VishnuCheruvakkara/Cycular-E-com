@@ -9,5 +9,5 @@ urlpatterns=[
     path('edit-product/<int:product_id>',views.EditProduct,name='edit-product'),
     path('delete-product/<int:product_id>',views.DeleteProduct,name='delete-product'),
     path('product-variant/<int:product_id>',views.ProductVariant,name='product-variant'),
-    path('toggle-status/<int:product_id>/', views.toggle_product_status, name='toggle-product-status'),
+    path('toggle-product-status/', views.toggle_product_status, name='toggle-product-status'),
 ]

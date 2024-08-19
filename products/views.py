@@ -7,6 +7,7 @@ import base64
 from django.core.files.base import ContentFile
 from io import BytesIO
 from PIL import Image
+from django.views.decorators.http import require_POST
 
 
 
@@ -127,11 +128,14 @@ def ProductVariant(request, product_id):
     return render(request, 'products/variant-product.html', context)
 
 ##################  Product soft-delete  ####################################
-  
-def toggle_product_status(request, product_id):
-    if request.method == "POST" and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        product = get_object_or_404(Product, id=product_id)
+
+@require_POST
+def toggle_product_status(request):
+    product_id = request.POST.get('product_id')
+    try:
+        product = Product.objects.get(id=product_id)
         product.status = not product.status
         product.save()
-        return JsonResponse({'status': product.status, 'message': 'Status updated successfully!'})
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+        return JsonResponse({'success': True, 'status': product.status})
+    except Product.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Product not found'})
