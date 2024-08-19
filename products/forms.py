@@ -45,7 +45,6 @@ class ProductForm(forms.ModelForm):
 
         return cleaned_data
 
-
 class ProductVariantForm(forms.ModelForm):
     product_name = forms.CharField(
         label='Product Name',
@@ -107,74 +106,28 @@ class ProductVariantForm(forms.ModelForm):
         if product:
             self.fields['product_name'].initial = product.name
             self.fields['product'].initial = product.id  # product ID is set correctly
-    #to avoid the unwanted file name types
-    def sanitize_filename(self,filename):
-        sanitized_name = re.sub(r'[^\w\.-]', '_', filename)
-        return slugify(sanitized_name)
-    #validate the mime type
-    def validate_mime_type(self, file):
-        # Initialize the magic object
-        mime = magic.Magic(mime=True)
-        # Get the MIME type of the file
-        mime_type = mime.from_buffer(file.read())
-        # Reset file pointer to beginning after reading
-        file.seek(0)
-
-        # Allow only specific MIME types (e.g., JPEG, PNG, GIF)
-        allowed_mime_types = ['image/jpeg', 'image/png', 'image/gif']
-        if mime_type not in allowed_mime_types:
-            return False, mime_type
-        return True, mime_type
-
 
     def clean(self):
-        cleaned_data=super().clean()
+        cleaned_data = super().clean()
 
         color = cleaned_data.get("color")
         size = cleaned_data.get('size')
         price = cleaned_data.get("price")
-        image1 = cleaned_data.get("image1")
-        image2 = cleaned_data.get("image2")
-        image3 = cleaned_data.get("image3")
+        images = {
+            'image1': cleaned_data.get("image1"),
+            'image2': cleaned_data.get("image2"),
+            'image3': cleaned_data.get("image3"),
+        }
 
         if not color:
-            self.add_error('color','Color is required.')
-      
+            self.add_error('color', 'Color is required.')
+
         if not size:
             self.add_error('size', "Size is required.")
+
         if not price or price <= 0:
             self.add_error('price', "Price is required and must be greater than zero.")
-        if image1:
-            image1.name=self.sanitize_filename(image1.name)
-            if image1.size > 2 * 1024 * 1024:  # Image size should be less than 5 MB
-                self.add_error('image1', "Image 1 should not exceed 2MB.")
-            if not image1.content_type.startswith('image/'):
-                self.add_error('image1', "Image 1 file must be an image.")
 
-            is_valid_mime, mime_type = self.validate_mime_type(image1)
-            if not is_valid_mime:
-                self.add_error('image1', f"Image 1 has an invalid file type: {mime_type}")
-
-        if image2:
-            image2.name = self.sanitize_filename(image2.name)
-            if image2.size > 2 * 1024 * 1024:  # Image size should be less than 5 MB
-                self.add_error('image2', "Image 2 should not exceed 2MB.")
-            if not image2.content_type.startswith('image/'):
-                self.add_error('image2', "Image 2 file must be an image.")
-
-            is_valid_mime, mime_type = self.validate_mime_type(image2)
-            if not is_valid_mime:
-                self.add_error('image2', f"Image 2 has an invalid file type: {mime_type}")
-
-        if image3:
-            image3.name = self.sanitize_filename(image3.name)
-            if image3.size > 2 * 1024 * 1024:  # Image size should be less than 5 MB
-                self.add_error('image3', "Image 3 should not exceed 2MB.")
-            if not image3.content_type.startswith('image/'):
-                self.add_error('image3', "Image 3 file must be an image.")
-
-            is_valid_mime, mime_type = self.validate_mime_type(image3)
-            if not is_valid_mime:
-                self.add_error('image3', f"Image 3 has an invalid file type: {mime_type}")
+       
 
         return cleaned_data

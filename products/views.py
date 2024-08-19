@@ -86,7 +86,7 @@ def ProductVariant(request, product_id):
         form = ProductVariantForm(request.POST, request.FILES, product=product)
         if form.is_valid():
             variant = form.save(commit=False)
-            variant.product = product
+            variant.product = product 
 
             # Process and resize the cropped images
             for i in range(1, 4):
@@ -107,22 +107,24 @@ def ProductVariant(request, product_id):
                         setattr(variant, f'image{i}', resized_img)
                     except (ValueError, IndexError, base64.binascii.Error) as e:
                         # Handle exceptions or errors in image data processing
-                        form.add_error(None, f"Error processing image {i}: {str(e)}")
-                        # Break out of the loop since errors occurred
-                        break
-            
-            if form.errors:  # Check if there are any form errors
-                messages.error(request, 'There were errors in your form submission. Please correct them and try again.', extra_tags='admin')
-                return render(request, 'products/variant-product.html', {'form': form, 'product': product})
+                        messages.error(request, f"Error processing image {i}: {str(e)}",extra_tags='admin')
+                        pass
 
             variant.save()
-            messages.success(request, 'Product variant has been successfully created.', extra_tags='admin')
+            messages.success(request, 'Product variant has been successfully created.',extra_tags='admin')
             return redirect('products:product-management')
-
+        else:
+            messages.error(request, 'There was an error with your form submission. Please check the details and try again.',extra_tags='admin')
     else:
         form = ProductVariantForm(product=product)
 
-    return render(request, 'products/variant-product.html', {'form': form, 'product': product})
+    context = {
+        'form': form,
+        'product': product,
+        'non_field_errors': form.non_field_errors() 
+    }
+
+    return render(request, 'products/variant-product.html', context)
 
 ##################  Product soft-delete  ####################################
   
