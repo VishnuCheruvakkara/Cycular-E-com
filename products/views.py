@@ -107,23 +107,22 @@ def ProductVariant(request, product_id):
                         setattr(variant, f'image{i}', resized_img)
                     except (ValueError, IndexError, base64.binascii.Error) as e:
                         # Handle exceptions or errors in image data processing
-                        messages.error(request, f"Error processing image {i}: {str(e)}",extra_tags='admin')
-                        pass
+                        form.add_error(None, f"Error processing image {i}: {str(e)}")
+                        # Break out of the loop since errors occurred
+                        break
+            
+            if form.errors:  # Check if there are any form errors
+                messages.error(request, 'There were errors in your form submission. Please correct them and try again.', extra_tags='admin')
+                return render(request, 'products/variant-product.html', {'form': form, 'product': product})
 
             variant.save()
-            messages.success(request, 'Product variant has been successfully created.',extra_tags='admin')
+            messages.success(request, 'Product variant has been successfully created.', extra_tags='admin')
             return redirect('products:product-management')
-        else:
-            messages.error(request, 'There was an error with your form submission. Please check the details and try again.',extra_tags='admin')
+
     else:
         form = ProductVariantForm(product=product)
 
-    context = {
-        'form': form,
-        'product': product,
-    }
-
-    return render(request, 'products/variant-product.html', context)
+    return render(request, 'products/variant-product.html', {'form': form, 'product': product})
 
 ##################  Product soft-delete  ####################################
   

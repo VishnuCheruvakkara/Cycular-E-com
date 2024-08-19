@@ -17,7 +17,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'brand', 'category', 'price', 'status', 'created_at', 'updated_at')
+    list_display = ('name', 'brand', 'category' , 'status', 'created_at', 'updated_at')
     list_filter = ('brand', 'category', 'status')
     search_fields = ('name', 'description')
 
@@ -33,7 +33,7 @@ class SizeAdmin(admin.ModelAdmin):
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ('product', 'size', 'get_color', 'image1', 'image2', 'image3')
+    list_display = ('product', 'size', 'get_color' , 'price' , 'image1' , 'image2', 'image3')
     list_filter = ('product', 'size__color')
 
     def get_color(self, obj):

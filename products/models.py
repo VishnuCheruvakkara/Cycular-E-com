@@ -20,7 +20,6 @@ class Category(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, related_name='products', on_delete=models.SET_NULL, null=True)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -49,11 +48,12 @@ class Size(models.Model):
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='product_variants', on_delete=models.CASCADE)
     size = models.ForeignKey(Size, related_name='size_variants', on_delete=models.CASCADE,null=True, blank=True)
-    
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     image1 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image2 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image3 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
+    class Meta:
+        unique_together = ('product', 'size')
 
     def __str__(self):
         return f"{self.size.color.product.name} - {self.size.color.name} - {self.size.name}"

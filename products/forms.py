@@ -9,7 +9,6 @@ class ProductForm(forms.ModelForm):
         fields = [
             'name',
             'description',
-            'price',
             'category',
             'brand',
             'key_specification',
@@ -17,7 +16,6 @@ class ProductForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
             'brand': forms.Select(attrs={'class': 'form-control'}),
             'key_specification': forms.Textarea(attrs={'class': 'form-control'}),
@@ -25,7 +23,6 @@ class ProductForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         name=cleaned_data.get("name")
-        price = cleaned_data.get("price")
         category = cleaned_data.get("category")
         key_specification = cleaned_data.get("key_specification")
          # Validation for the name field
@@ -37,16 +34,9 @@ class ProductForm(forms.ModelForm):
             # Check for unique name in the Product model
             if Product.objects.filter(name=name).exists():
                 self.add_error('name', "A product with this name already exists.")
-        if price:
-            if price <= 0:
-                self.add_error('price', "Price must be a positive number.")
-            if price >=100000:  # Example maximum price
-                self.add_error('price', "Price cannot exceed 1,00,000.")
-           
 
         if not category:
             self.add_error('category', "Category is required.")
-
         if not key_specification:
             self.add_error('key_specification', "Key specification is required.")
         if len(key_specification) < 10:
@@ -72,6 +62,13 @@ class ProductVariantForm(forms.ModelForm):
         label='Select Size',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    price = forms.DecimalField(
+        label='Price',
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        required=True,
+    )
     image1 = forms.ImageField(
         label='Image 1',
         required=False,
@@ -94,6 +91,7 @@ class ProductVariantForm(forms.ModelForm):
             'product_name',  # The readonly product name field
             'color',
             'size',
+            'price',
             'product',  # Include the product field
             'image1',
             'image2',
@@ -134,7 +132,7 @@ class ProductVariantForm(forms.ModelForm):
 
         color = cleaned_data.get("color")
         size = cleaned_data.get('size')
-        price = cleaned_data.get("size")
+        price = cleaned_data.get("price")
         image1 = cleaned_data.get("image1")
         image2 = cleaned_data.get("image2")
         image3 = cleaned_data.get("image3")
@@ -144,7 +142,8 @@ class ProductVariantForm(forms.ModelForm):
       
         if not size:
             self.add_error('size', "Size is required.")
-
+        if not price or price <= 0:
+            self.add_error('price', "Price is required and must be greater than zero.")
         if image1:
             image1.name=self.sanitize_filename(image1.name)
             if image1.size > 2 * 1024 * 1024:  # Image size should be less than 5 MB
