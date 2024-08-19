@@ -102,7 +102,6 @@
                                         <th>Sl.No</th>
 										<th>Image</th>
 										<th>Product Name</th>
-										<th>Product Price</th>
                                         <th>status</th>
                                         <th>View</th>
 										<th class="text-right">Action</th>
@@ -114,7 +113,6 @@
                                         <td>{{forloop.counter}}</td>
 										<td><img width="40" height="40" src="{{product.product_variants.first.image1.url }}" class="rounded-circle m-r-5" alt=""></td>
 										<td>{{product.name}}</td>
-										<td>{{product.price}}</td>
                                         <td>
                                             <button class="btn btn-sm toggle-status" data-product-id="{{ product.id }}" data-status="{{ product.status }}" data-toggle="modal" data-target="#confirm-modal-{{ product.id }}">
                                                 <span class="custom-badge status-{{ product.status|yesno:'green,red' }}">
@@ -123,7 +121,7 @@
                                             </button>
                                         </td>
                                         <td>
-                                            <a href="{% url 'products:product-variant' product.id %}" class="custom-badge status-blue ripple-effect">
+                                            <a href="{% url 'products:product-view' product.id %}" class="custom-badge status-blue ripple-effect">
                                                 View
                                             </a>
                                         </td>

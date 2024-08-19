@@ -139,3 +139,9 @@ def toggle_product_status(request):
         return JsonResponse({'success': True, 'status': product.status})
     except Product.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Product not found'})
+
+##################  Product View  ####################################
+
+def product_view(request,product_id):
+    product=get_object_or_404(Product,id=product_id)
+    return render(request,'products/product-view.html',{'product':product})
