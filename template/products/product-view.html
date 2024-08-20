@@ -27,37 +27,40 @@
 <div class="page-wrapper">
 <div class="content">
 <div class="profile-basic">
+    {% block admin-messages%}
+    {% include 'partials/admin-message.html' %}
+    {% endblock %}
     <div class="row">
         <div class="col-md-5">
             <div class="profile-info-left">
 
-                <h3 class="user-name m-t-0 mb-0">Cristina Groves</h3>
-                <small class="text-muted">Gynecologist</small>
-                <div class="staff-id">Employee ID : DR-0001</div>
-                <div class="staff-msg"><a href="chat.html" class="btn btn-primary">Send Message</a></div>
+                <h3 class="user-name m-t-0 mb-0">{{product.name}}</h3>
+                
+                <div class="staff-msg"><a href="{% url 'products:edit-product' product.id %}" class="btn btn-primary">Edit Product Details</a></div>
             </div>
         </div>
         <div class="col-md-7">
             <ul class="personal-info">
+               
                 <li>
-                    <span class="title">Phone:</span>
-                    <span class="text"><a href="#">770-889-6484</a></span>
+                    <span class="title">Name:</span>
+                    <span class="text"><a href="#">{{product.name}}</a></span>
                 </li>
                 <li>
-                    <span class="title">Email:</span>
-                    <span class="text"><a href="#">cristinagroves@example.com</a></span>
+                    <span class="title">Description:</span>
+                    <span class="text">{{product.description}}</span>
                 </li>
                 <li>
-                    <span class="title">Birthday:</span>
-                    <span class="text">3rd March</span>
+                    <span class="title">Category:</span>
+                    <span class="text">{{product.category}}</span>
                 </li>
                 <li>
-                    <span class="title">Address:</span>
-                    <span class="text">714 Burwell Heights Road, Bridge City, TX, 77611</span>
+                    <span class="title">Brand:</span>
+                    <span class="text">{{product.brand}}</span>
                 </li>
                 <li>
-                    <span class="title">Gender:</span>
-                    <span class="text">Female</span>
+                    <span class="title">Key Specification:</span>
+                    <span class="text">{{product.key_specification}}</span>
                 </li>
             </ul>
         </div>

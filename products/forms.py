@@ -32,7 +32,7 @@ class ProductForm(forms.ModelForm):
             if not name.isalnum():
                 self.add_error('name', "Name should only contain alphabet or number characters only.")
             # Check for unique name in the Product model
-            if Product.objects.filter(name=name).exists():
+            if Product.objects.filter(name=name).exclude(id=self.instance.id).exists():
                 self.add_error('name', "A product with this name already exists.")
 
         if not category:

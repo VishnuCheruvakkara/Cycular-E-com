@@ -43,7 +43,11 @@ def EditProduct(request,product_id):
         form = ProductForm(request.POST,request.FILES,instance=product)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Product updated successfully!')
             return redirect('products:product-management')
+        else:
+            messages.error(request, 'There was an error updating the product. Please check the form for errors.')
+            
     else:
         form=ProductForm(instance=product)
     context={

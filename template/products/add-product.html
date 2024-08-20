@@ -28,6 +28,7 @@
     {% endblock %}
         <div class="page-wrapper">
             <div class="content">
+                
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
@@ -35,6 +36,9 @@
                         <li class="breadcrumb-item active" aria-current="page">Add product</li>
                     </ol>
                 </nav>
+                {% block admin-messages%}
+                {% include 'partials/admin-message.html' %}
+                {% endblock %}
                 <div class="row">
                     <div class="col-sm-12">
                         <h4 class="page-title">Add New-Products</h4>
