@@ -8,6 +8,7 @@ from django.core.files.base import ContentFile
 from io import BytesIO
 from PIL import Image
 from django.views.decorators.http import require_POST
+from .models import Category,Brand
 
 
 
@@ -156,5 +157,31 @@ def product_view(request,product_id):
     }
     return render(request,'products/product-view.html',context)
 
-################## show variant ################################
+################## product category  page ################################
+
+def category_add(request):
+    categories=Category.objects.all()
+    brands=Brand.objects.all()
+    context={
+        'categories':categories,
+        'brands':brands,
+    }
+    return render(request,'products/product-category-management.html',context)
+
+##################### Delete Category ############################
+
+def delete_category(request,category_id):
+    category=get_object_or_404(Category,id=category_id)
+    category.delete()
+    messages.success(request,'Category deleted successfully.',extra_tags='admin')
+    return redirect('products:category-add')
+
+##################### Delete Brand  ##############################
+
+def delete_brand(request,brand_id):
+    brand=get_object_or_404(Brand,id=brand_id)
+    brand.delete()
+    messages.success(request,'Brand deleted successfully.',extra_tags='admin')
+    return redirect('products:category-add')
+
 

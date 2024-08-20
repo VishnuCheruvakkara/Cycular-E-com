@@ -29,7 +29,13 @@
     {% block admin-messages%}
     {% include 'partials/admin-message.html' %}
     {% endblock %}
-
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:product-management' %}">Product Page</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add product</li>
+        </ol>
+    </nav>
     <div class="col-sm-4 col-3">
         <h4 class="page-title" style="margin-left:-15px;">Product View</h4>
     </div>
