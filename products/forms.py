@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product,Color, Size,ProductVariant
+from .models import Product,Color, Size,ProductVariant,Category,Brand
 import re
 from django.utils.text import slugify
 import magic
@@ -134,6 +134,22 @@ class ProductVariantForm(forms.ModelForm):
         if not price or price <= 0:
             self.add_error('price', "Price is required and must be greater than zero.")
 
-       
 
         return cleaned_data
+    
+
+class CategoryForm(forms.ModelForm):
+   
+    description = forms.CharField(
+        max_length=255, 
+        required=False, 
+        widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter category description'})
+    )
+
+    class Meta:
+        model = Category
+        fields = ['name', 'status']  # 'description' is not included here because it's a custom form field, not a model field.
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter category name'}),
+            'status': forms.CheckboxInput(),
+        }

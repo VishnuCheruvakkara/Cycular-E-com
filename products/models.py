@@ -7,12 +7,14 @@ class Brand(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     logo = models.ImageField(upload_to='brands', null=True, blank=True)
+    status = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
 
 class Category(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100,unique=True)
+    status = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -33,6 +35,7 @@ class Product(models.Model):
 class Color(models.Model):
     product = models.ForeignKey(Product, related_name='colors', on_delete=models.CASCADE,null=True)
     name = models.CharField(max_length=50)
+    status = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -41,6 +44,7 @@ class Size(models.Model):
     name = models.CharField(max_length=50)
     stock = models.PositiveIntegerField(default=0)
     color = models.ForeignKey(Color, related_name='sizes', on_delete=models.CASCADE,null=True,blank=True)
+    status = models.BooleanField(default=True)
    
 
     def __str__(self):

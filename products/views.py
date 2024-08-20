@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .forms import ProductForm,ProductVariantForm
+from .forms import ProductForm,ProductVariantForm,CategoryForm
 from django.contrib import messages
 from .models import Product
 from django.http import JsonResponse
@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from io import BytesIO
 from PIL import Image
 from django.views.decorators.http import require_POST
-from .models import Category,Brand
+from .models import Category,Brand,Size,Color
 
 
 
@@ -159,12 +159,16 @@ def product_view(request,product_id):
 
 ################## product category  page ################################
 
-def category_add(request):
+def category_management(request):
     categories=Category.objects.all()
     brands=Brand.objects.all()
+    size=Size.objects.all()
+    color=Color.objects.all()
     context={
         'categories':categories,
         'brands':brands,
+        'sizes':size,
+        'colors':color,
     }
     return render(request,'products/product-category-management.html',context)
 
@@ -184,4 +188,31 @@ def delete_brand(request,brand_id):
     messages.success(request,'Brand deleted successfully.',extra_tags='admin')
     return redirect('products:category-add')
 
+#################### Delete Size ########################
 
+def delete_size(request,size_id):
+    size=get_object_or_404(Size,id=size_id)
+    size.delete()
+    messages.success(request,'Size deleted successfully.',extra_tags='admin')
+    return redirect('products:category-add')
+
+#################### Delete Color ########################
+
+def delete_color(request,color_id):
+    color=get_object_or_404(Color,id=color_id)
+    color.delete()
+    messages.success(request,'Color deleted successfully.',extra_tags='admin')
+    return redirect('products:category-add')
+
+################## category add view through the form ################################
+
+def add_category_view(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('products:add-category')
+    else:
+        new=CategoryForm()
+    print("form is :",new)
+    return render(request,'products/product-category-management.html',{'form':new})
