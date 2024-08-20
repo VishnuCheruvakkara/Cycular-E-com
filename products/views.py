@@ -26,10 +26,10 @@ def AddProduct(request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Product has been successfully added.')
+            messages.success(request, 'Product has been successfully added.',extra_tags='admin')
             return redirect('products:product-management')  # Redirect to a success URL or product list
         else:
-            messages.error(request, 'There were errors in the form. Please correct them and try again.')
+            messages.error(request, 'There were errors in the form. Please correct them and try again.',extra_tags='admin')
     else:
         form = ProductForm()
     return render(request, 'products/add-product.html', {'form': form})
@@ -43,10 +43,10 @@ def EditProduct(request,product_id):
         form = ProductForm(request.POST,request.FILES,instance=product)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Product updated successfully!')
+            messages.success(request, 'Product updated successfully!',extra_tags='admin')
             return redirect('products:product-management')
         else:
-            messages.error(request, 'There was an error updating the product. Please check the form for errors.')
+            messages.error(request, 'There was an error updating the product. Please check the form for errors.',extra_tags='admin')
             
     else:
         form=ProductForm(instance=product)
@@ -117,7 +117,7 @@ def ProductVariant(request, product_id):
 
             variant.save()
             messages.success(request, 'Product variant has been successfully created.',extra_tags='admin')
-            return redirect('products:product-management')
+            return redirect('products:product-view' )
         else:
             messages.error(request, 'There was an error with your form submission. Please check the details and try again.',extra_tags='admin')
     else:
@@ -148,4 +148,12 @@ def toggle_product_status(request):
 
 def product_view(request,product_id):
     product=get_object_or_404(Product,id=product_id)
-    return render(request,'products/product-view.html',{'product':product})
+    product_variants=product.product_variants.all()
+    context={
+        'products':product,
+        'product_variants':product_variants,
+    }
+    return render(request,'products/product-view.html',context)
+
+################## show variant ################################
+

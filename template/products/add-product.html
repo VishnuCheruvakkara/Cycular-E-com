@@ -10,14 +10,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
     <title>Preclinic - Medical & Hospital - Bootstrap 4 Admin Template</title>
-    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
     <!--[if lt IE 9]>
-		<script src="assets/js/html5shiv.min.js"></script>
-		<script src="assets/js/respond.min.js"></script>
+		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
+		<script src="{% static 'admin/js/respond.min.js' %}"></script>
 	<![endif]-->
 </head>
 
@@ -28,7 +28,6 @@
     {% endblock %}
         <div class="page-wrapper">
             <div class="content">
-                
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
@@ -36,9 +35,6 @@
                         <li class="breadcrumb-item active" aria-current="page">Add product</li>
                     </ol>
                 </nav>
-                {% block admin-messages%}
-                {% include 'partials/admin-message.html' %}
-                {% endblock %}
                 <div class="row">
                     <div class="col-sm-12">
                         <h4 class="page-title">Add New-Products</h4>

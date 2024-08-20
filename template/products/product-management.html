@@ -1,4 +1,4 @@
-{% include 'partials/side-bar-admin.html' %}
+
 {% load static %}
 
 <!DOCTYPE html>
@@ -74,6 +74,9 @@
 
     </style>
 </head>
+{% block sidebar %}
+{% include 'partials/side-bar-admin.html' %}
+{% endblock %}
         <div class="page-wrapper">
             <div class="content">
                 {% block admin-messages%}
@@ -183,41 +186,41 @@
     <script src="{% static 'admin/js/select2.min.js' %}"></script>
     <script src="{% static 'admin/js/app.js' %}"></script>
 	<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.confirm-toggle-status').forEach(function(button) {
-        button.addEventListener('click', function() {
-            var productId = this.getAttribute('data-product-id');
-            var toggleButton = document.querySelector(`.toggle-status[data-product-id="${productId}"]`);
-            var status = toggleButton.getAttribute('data-status') === 'True';
+// document.addEventListener('DOMContentLoaded', function() {
+//     document.querySelectorAll('.confirm-toggle-status').forEach(function(button) {
+//         button.addEventListener('click', function() {
+//             var productId = this.getAttribute('data-product-id');
+//             var toggleButton = document.querySelector(`.toggle-status[data-product-id="${productId}"]`);
+//             var status = toggleButton.getAttribute('data-status') === 'True';
 
-            fetch("{% url 'products:toggle-product-status' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: new URLSearchParams({
-                    'product_id': productId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    var statusBadge = toggleButton.querySelector('.custom-badge');
-                    toggleButton.setAttribute('data-status', data.status);
-                    statusBadge.classList.toggle('status-green', data.status);
-                    statusBadge.classList.toggle('status-red', !data.status);
-                    statusBadge.textContent = data.status ? 'Active' : 'Inactive';
+//             fetch("{% url 'products:toggle-product-status' %}", {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/x-www-form-urlencoded',
+//                     'X-CSRFToken': '{{ csrf_token }}'
+//                 },
+//                 body: new URLSearchParams({
+//                     'product_id': productId
+//                 })
+//             })
+//             .then(response => response.json())
+//             .then(data => {
+//                 if (data.success) {
+//                     var statusBadge = toggleButton.querySelector('.custom-badge');
+//                     toggleButton.setAttribute('data-status', data.status);
+//                     statusBadge.classList.toggle('status-green', data.status);
+//                     statusBadge.classList.toggle('status-red', !data.status);
+//                     statusBadge.textContent = data.status ? 'Active' : 'Inactive';
                     
-                    $('#confirm-modal-' + productId).modal('hide');
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    });
-});
+//                     $('#confirm-modal-' + productId).modal('hide');
+//                 } else {
+//                     alert('Error: ' + data.error);
+//                 }
+//             })
+//             .catch(error => console.error('Error:', error));
+//         });
+//     });
+// });
 
     </script>
 </body>
