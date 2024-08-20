@@ -159,18 +159,30 @@ def product_view(request,product_id):
 
 ################## product category  page ################################
 
+
 def category_management(request):
-    categories=Category.objects.all()
-    brands=Brand.objects.all()
-    size=Size.objects.all()
-    color=Color.objects.all()
-    context={
-        'categories':categories,
-        'brands':brands,
-        'sizes':size,
-        'colors':color,
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('products:category-add')  # Redirect to the same page to display the new category
+    else:
+        form = CategoryForm()
+    
+    categories = Category.objects.all()
+    brands = Brand.objects.all()
+    sizes = Size.objects.all()
+    colors = Color.objects.all()
+    
+    context = {
+        'categories': categories,
+        'brands': brands,
+        'sizes': sizes,
+        'colors': colors,
+        'form': form  # Include the form in the context
     }
-    return render(request,'products/product-category-management.html',context)
+    
+    return render(request, 'products/product-category-management.html', context)
 
 ##################### Delete Category ############################
 
@@ -206,13 +218,3 @@ def delete_color(request,color_id):
 
 ################## category add view through the form ################################
 
-def add_category_view(request):
-    if request.method == 'POST':
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('products:add-category')
-    else:
-        new=CategoryForm()
-    print("form is :",new)
-    return render(request,'products/product-category-management.html',{'form':new})

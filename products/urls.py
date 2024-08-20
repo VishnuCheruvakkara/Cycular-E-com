@@ -17,6 +17,6 @@ urlpatterns=[
     path('size-delete/<int:size_id>',views.delete_size,name='size-delete'),
     path('color-delete/<int:color_id>',views.delete_color,name='color-delete'),
 
-    path('add-category/', views.add_category_view, name='add-category'),
+   
   
 ]

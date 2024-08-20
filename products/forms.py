@@ -139,13 +139,6 @@ class ProductVariantForm(forms.ModelForm):
     
 
 class CategoryForm(forms.ModelForm):
-   
-    description = forms.CharField(
-        max_length=255, 
-        required=False, 
-        widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter category description'})
-    )
-
     class Meta:
         model = Category
         fields = ['name', 'status']  # 'description' is not included here because it's a custom form field, not a model field.

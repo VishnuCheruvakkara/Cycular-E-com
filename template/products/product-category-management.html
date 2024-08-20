@@ -17,6 +17,13 @@
 		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
 		<script src="{% static 'admin/js/respond.min.js' %}"></script>
 	<![endif]-->
+    <style>
+        
+    .status-green {
+        pointer-events: none;
+        }
+    
+    </style>
 </head>
 
 <body>
@@ -302,65 +309,31 @@
                 </div>
             </div>
             <!-- modal for add category -->
-            <!-- modal for add category -->
-<div id="addCategoryModal" class="modal fade" role="dialog" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="post" action="">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Save</button>
+            <div id="addCategoryModal" class="modal fade" role="dialog" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="addCategoryModalLabel">Add New Category</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="post" action="">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <div class="d-flex justify-content-end mt-3">
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                    <button type="button" class="btn btn-secondary ml-2" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </form>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
+
         </div>
     </div>
-</div>
-
-{{ form.as_p }}
-<div class="modal">
-    <h2>Add New Category</h2>
-    <form method="post" action="{% url 'products:add-category' %}">
-        {% csrf_token %}
-        {{ form.as_p }}  <!-- Display form fields -->
-        <button type="submit">Save</button>
-        <button type="button" onclick="closeModal()">Close</button>
-    </form>
-</div>
-<div class="modal-body">
-    <p>Form should be below this line:</p>
-    <hr>
-    {% if form %}
-        <form method="post" action="">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Save</button>
-        </form>
-    {% else %}
-        <p>No form available</p>
-    {% endif %}
-
-    <form method="post" action="{% url 'products:add-category' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-    </form>
-</div>
-
-    </div>
-</div>
 
 
 
