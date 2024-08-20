@@ -125,11 +125,12 @@
                     <li>
                         <a href="{% url 'admin_side:user-management' %}"><i class="fa fa-user"></i> <span>Customers</span></a>
                     </li>
-                    <li>
-                        <a href="patients.html"><i class="fa fa-cube"></i> <span>Products</span></a>
-                    </li>
-                    <li>
-                        <a href="{% url 'products:category-management' %}"><i class="fa fa-edit"></i> <span>Categories</span></a>
+                    <li class="submenu">
+                        <a href="#"><i class="fa fa-cube"></i> <span> Products</span> <span class="menu-arrow"></span></a>
+                        <ul style="display: none;">
+                            <li><a href="{% url 'products:product-management' %}">Add Product</a></li>
+                            <li><a href="#">Category Management</a></li>
+                        </ul>
                     </li>
                     <li>
                         <a href="schedule.html"><i class="fa fa-calendar-check-o"></i> <span>Orders</span></a>

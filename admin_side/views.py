@@ -5,14 +5,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.urls import reverse
+
 
 # Create your views here.
 
 #############################   seller home    ########################################################
 
-@never_cache
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def SellerHome(request):
     return render(request,'admin_side/admin_dashboard.html')
 
@@ -70,7 +70,7 @@ def UserManagement(request):
     return render(request,'admin_side/user_management.html',context)
 
 #############################   category management  ########################################################
-
+@login_required(login_url='admin_side:seller-login')
 def UserView(request,user_id):
     user = get_object_or_404(User, id=user_id)
     context={

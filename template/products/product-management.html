@@ -1,4 +1,4 @@
-{% include 'partials/side-bar-admin.html' %}
+
 {% load static %}
 
 <!DOCTYPE html>
@@ -74,14 +74,23 @@
 
     </style>
 </head>
+{% block sidebar %}
+{% include 'partials/side-bar-admin.html' %}
+{% endblock %}
         <div class="page-wrapper">
             <div class="content">
                 {% block admin-messages%}
                 {% include 'partials/admin-message.html' %}
                 {% endblock %}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Product Page</li>
+                    </ol>
+                </nav>
                 <div class="row">
                     <div class="col-sm-4 col-3">
-                        <h4 class="page-title">Category-Page</h4>
+                        <h4 class="page-title">Product-Page</h4>
                     </div>
                     <div class="col-sm-8 col-9 text-right m-b-20">
                         <a href="{% url 'products:add-product' %}" class="btn btn btn-primary btn-rounded float-right"><i class="fa fa-plus"></i> Add Products</a>
@@ -96,10 +105,8 @@
                                         <th>Sl.No</th>
 										<th>Image</th>
 										<th>Product Name</th>
-										<th>Product Price</th>
-										<th>Product Category</th>
                                         <th>status</th>
-                                        <th>Add Variant</th>
+                                        <th>View</th>
 										<th class="text-right">Action</th>
 									</tr>
 								</thead>
@@ -107,22 +114,18 @@
                                     {% for product in products %}
 									<tr>
                                         <td>{{forloop.counter}}</td>
-										<td><img width="28" height="28" src="{{product.image.url}}" class="rounded-circle m-r-5" alt=""></td>
+										<td><img width="40" height="40" src="{{product.product_variants.first.image1.url }}" class="rounded-circle m-r-5" alt=""></td>
 										<td>{{product.name}}</td>
-										<td>{{product.price}}</td>
-                                        <td>{{product.category}}</td>
                                         <td>
-                                            <button 
-                                            class="custom-badge status-{{ product.status|yesno:'green,red' }} ripple-effect"
-                                            onclick="toggleStatus({{ product.id }})">
-                                            {{ product.status|yesno:'Active,Inactive' }}
-                                        </button>
-                                        
+                                            <button class="btn btn-sm toggle-status" data-product-id="{{ product.id }}" data-status="{{ product.status }}" data-toggle="modal" data-target="#confirm-modal-{{ product.id }}">
+                                                <span class="custom-badge status-{{ product.status|yesno:'green,red' }}">
+                                                    {{ product.status|yesno:'Active,Inactive' }}
+                                                </span>
+                                            </button>
                                         </td>
-                                        
                                         <td>
-                                            <a href="{% url 'products:product-variant' product.id %}" class="custom-badge status-blue ripple-effect">
-                                                Add 
+                                            <a href="{% url 'products:product-view' product.id %}" class="custom-badge status-blue ripple-effect">
+                                                View
                                             </a>
                                         </td>
 										<td class="text-right">
@@ -150,6 +153,21 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- Confirmation Modal -->
+                                    <div id="confirm-modal-{{ product.id }}" class="modal fade delete-modal" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body text-center">
+                                                    <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
+                                                    <h3>Are you sure you want to <span style="color:#f62d51">change</span> the <span style="color:#f62d51">status</span> of product : "{{product.name}}"?</h3>
+                                                    <div class="m-t-20">
+                                                        <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
+                                                        <button class="btn btn-danger confirm-toggle-status" data-product-id="{{ product.id }}" data-dismiss="modal">Confirm</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     {% endfor %}
 								</tbody>
@@ -168,39 +186,42 @@
     <script src="{% static 'admin/js/select2.min.js' %}"></script>
     <script src="{% static 'admin/js/app.js' %}"></script>
 	<script>
-            $(function () {
-                $('#datetimepicker3').datetimepicker({
-                    format: 'LT'
-                });
-				$('#datetimepicker4').datetimepicker({
-                    format: 'LT'
-                });
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.confirm-toggle-status').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var productId = this.getAttribute('data-product-id');
+            var toggleButton = document.querySelector(`.toggle-status[data-product-id="${productId}"]`);
+            var status = toggleButton.getAttribute('data-status') === 'True';
 
-            function toggleStatus(productId) {
-    fetch(`/products/toggle-status/${productId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',  // Ensure CSRF token is included
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: JSON.stringify({})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status !== undefined) {
-            const button = document.querySelector(`button[onclick="toggleStatus(${productId})"]`);
-            button.className = data.status ? 'custom-badge status-green ripple-effect' : 'custom-badge status-red ripple-effect';
-            button.textContent = data.status ? 'Active' : 'Inactive';
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
+            fetch("{% url 'products:toggle-product-status' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'product_id': productId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var statusBadge = toggleButton.querySelector('.custom-badge');
+                    toggleButton.setAttribute('data-status', data.status);
+                    statusBadge.classList.toggle('status-green', data.status);
+                    statusBadge.classList.toggle('status-red', !data.status);
+                    statusBadge.textContent = data.status ? 'Active' : 'Inactive';
+                    
+                    $('#confirm-modal-' + productId).modal('hide');
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
     });
-    }
+});
+
     </script>
 </body>
 

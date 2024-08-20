@@ -25,13 +25,17 @@
     {% endblock %}
         <div class="page-wrapper">
             <div class="content">
+               
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
                         <li class="breadcrumb-item"><a href="#">Products</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Accessories</li>
                     </ol>
                 </nav>
+                {% block admin-messages%}
+                {% include 'partials/admin-message.html' %}
+                {% endblock %}
                 <div class="row">
                     <div class="col-sm-12">
                         <h4 class="page-title">Edit Current-Products</h4>
@@ -43,7 +47,19 @@
                             <h4 class="card-title">Please Edit the following data of the current product:</h4>
                             <form method="post">
                                 {% csrf_token %}
-                                {{ form.as_p }}
+                                {% for field in form %}
+                                <div class="form-group">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger">
+                                            {% for error in field.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                 {% endfor %}
                                 <button type="submit" class="btn btn-primary">Save Product</button>
                                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_appointment">
                                     <i class="fa fa-trash-o m-r-5"></i> Discard Changes
@@ -65,7 +81,7 @@
                     <h3>Are you sure want to Discard this product before save ?</h3>
                     <div class="m-t-20">
                         <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
-                        <a href="{% url 'products:category-management' %}" class="btn btn-danger">Discard</a>
+                        <a href="{% url 'products:product-management' %}" class="btn btn-danger">Discard</a>
                     </div>                    
                 </div>
             </div>

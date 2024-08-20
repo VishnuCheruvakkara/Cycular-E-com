@@ -1,0 +1,174 @@
+
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- appointments23:19-->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
+    <title>Category-page</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+</head>
+
+<body>
+    {% block sidebar %}
+    {% include 'partials/side-bar-admin.html' %}
+    {% endblock %}
+
+<div class="page-wrapper">
+<div class="content">
+
+    {% block admin-messages%}
+    {% include 'partials/admin-message.html' %}
+    {% endblock %}
+
+    <div class="col-sm-4 col-3">
+        <h4 class="page-title" style="margin-left:-15px;">Product View</h4>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            <div class="profile-info-left">
+
+                <h3 class="user-name m-t-0 mb-0">{{product.name}}</h3>
+                
+                <div class="staff-msg"><a href="{% url 'products:edit-product' product.id %}" class="btn btn-primary">Edit Product Details</a></div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <ul class="personal-info">
+               
+                <li>
+                    <span class="title">Name:</span>
+                    <span class="text"><a href="#">{{product.name}}</a></span>
+                </li>
+                <li>
+                    <span class="title">Description:</span>
+                    <span class="text">{{product.description}}</span>
+                </li>
+                <li>
+                    <span class="title">Category:</span>
+                    <span class="text">{{product.category}}</span>
+                </li>
+                <li>
+                    <span class="title">Brand:</span>
+                    <span class="text">{{product.brand}}</span>
+                </li>
+                <li>
+                    <span class="title">Key Specification:</span>
+                    <span class="text">{{product.key_specification}}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- show varaint section -->
+    <div class="row" style="margin-top: 60px;">
+        <div class="col-sm-4 col-3">
+            <h4 class="page-title">Available Variants</h4>
+        </div>
+        <div class="col-sm-8 col-9 text-right m-b-20">
+            <a href="{% url 'products:product-variant' product.id %}" class="btn btn btn-primary btn-rounded float-right"><i class="fa fa-plus"></i> Add Variants</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped custom-table">
+                    <thead>
+                        <tr>
+                            <th>Sl.No</th>
+                            <th>Image</th>
+                            <th>Color</th>
+                            <th>Size</th>
+                            <th>status</th>
+                            <th>View</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for variant in product_variants %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td><img width="40" height="40" src="{{product.product_variants.first.image1.url }}" class="rounded-circle m-r-5" alt=""></td>
+                            <td>{{variant.size.color}}</td>
+                            <td>{{variant.size}}</td>
+                            <td>
+                                <button class="btn btn-sm toggle-status" data-product-id="{{ product.id }}" data-status="{{ product.status }}" data-toggle="modal" data-target="#confirm-modal-{{ product.id }}">
+                                    <span class="custom-badge status-{{ product.status|yesno:'green,red' }}">
+                                        {{ product.status|yesno:'Active,Inactive' }}
+                                    </span>
+                                </button>
+                            </td>
+                            <td>
+                                <a href="{% url 'products:product-view' product.id %}" class="custom-badge status-blue ripple-effect">
+                                    View
+                                </a>
+                            </td>
+                            <td class="text-right">
+                                <div class="dropdown dropdown-action">
+                                    <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="{% url 'products:edit-product' product.id %}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_appointment_{{product.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- model deletion -->
+                        <div id="delete_appointment_{{product.id}}" class="modal fade delete-modal" role="dialog">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-body text-center">
+                                        <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
+                                        <h3>Are you sure want to delete this product permenently?</h3>
+                                        <div class="m-t-20"> 
+                                            <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
+                                            <a href="{% url 'products:delete-product' product.id %}" class="btn btn-danger">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Confirmation Modal -->
+                        <div id="confirm-modal-{{ product.id }}" class="modal fade delete-modal" role="dialog">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-body text-center">
+                                        <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
+                                        <h3>Are you sure you want to <span style="color:#f62d51">change</span> the <span style="color:#f62d51">status</span> of product : "{{product.name}}"?</h3>
+                                        <div class="m-t-20">
+                                            <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
+                                            <button class="btn btn-danger confirm-toggle-status" data-product-id="{{ product.id }}" data-dismiss="modal">Confirm</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<div class="sidebar-overlay" data-reff=""></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'admin/js/popper.min.js' %}"></script>
+<script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+<script src="{% static 'admin/js/app.js' %}"></script>
+</body>
+

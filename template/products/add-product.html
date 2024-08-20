@@ -6,7 +6,7 @@
 <html lang="en">
 
 
-<!-- form-basic-inputs23:59-->
+<!-- profile22:59-->
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
@@ -15,12 +15,12 @@
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.css">
     <!--[if lt IE 9]>
 		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
 		<script src="{% static 'admin/js/respond.min.js' %}"></script>
 	<![endif]-->
 </head>
+
 
 <body>
     {% block sidebar %}
@@ -30,9 +30,9 @@
             <div class="content">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Products</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Accessories</li>
+                        <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'products:product-management' %}">Products Page</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Add product</li>
                     </ol>
                 </nav>
                 <div class="row">
@@ -43,10 +43,24 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card-box">
-                            <h4 class="card-title">Please fill in the following details to add a new product:</h4>
+                            <h4 class="card-title">Please fill in the following details to add a new product :</h4>
                             <form method="post">
                                 {% csrf_token %}
-                                    {{ form.as_p }}
+
+                                {% for field in form %}
+                                <div class="form-group">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger">
+                                            {% for error in field.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+
                                 <button type="submit" class="btn btn-primary">Save Product</button>
                                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_appointment">
                                     <i class="fa fa-trash-o m-r-5"></i> Discard Changes
@@ -68,7 +82,7 @@
                     <h3>Are you sure want to Discard this product before save ?</h3>
                     <div class="m-t-20">
                         <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
-                        <a href="{% url 'products:category-management' %}" class="btn btn-danger">Discard</a>
+                        <a href="{% url 'products:product-management' %}" class="btn btn-danger">Discard</a>
                     </div>                    
                 </div>
             </div>

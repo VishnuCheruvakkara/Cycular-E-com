@@ -23,16 +23,16 @@
     {% endblock %}
     <div class="page-wrapper">
         <div class="content">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'products:product-view' product.id %}">Products View</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Add Products</li>
+                </ol>
+            </nav>
             {% block admin-messages%}
             {% include 'partials/admin-message.html' %}
             {% endblock %}
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item"><a href="#">Products</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Accessories</li>
-                </ol>
-            </nav>
             <div class="row">
                 <div class="col-sm-12">
                     <h4 class="page-title">Add Product Variants</h4>
@@ -41,28 +41,53 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card-box">
-                        <h4 class="card-title">Please fill in the following details to add a Variant to the product "{{ product.name }}":</h4>
+                        <h4 class="card-title">Please fill in the following details to add a Variant to the product "<span style="color:#f62d51;">{{ product.name }}</span>":</h4>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-
-                            {% include 'partials/non-field-error-admin.html' %}
-                        
+                  
                             <!-- Product Name Field -->
                             <div class="form-group">
                                 <label for="id_product_name">Product Name</label>
                                 {{ form.product_name }}
+                               
                             </div>
                         
                             <!-- Color Field -->
                             <div class="form-group">
                                 <label for="id_color">Select Color</label>
                                 {{ form.color }}
+                                {% if form.color.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.color.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                             </div>
                         
                             <!-- Size Field -->
                             <div class="form-group">
                                 <label for="id_size">Select Size</label>
                                 {{ form.size }}
+                                {% if form.size.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.size.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                             <!-- Price Field -->
+                             <div class="form-group">
+                                <label for="id_price">Select Price</label>
+                                {{ form.price }}
+                                {% if form.price.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.price.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                             </div>
                           <!-- Stock Field -->
                             <div class="form-group">
@@ -73,6 +98,13 @@
                             <div class="form-group">
                                 <label for="id_image1">Image 1</label>
                                 {{ form.image1 }}
+                                {% if form.image1.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.image1.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                                 <img id="image1-preview" style="max-width: 100%; display: none;">
                                 <button type="button" id="image1-crop-button" class="btn btn-secondary" style="display: none;">Crop Image 1</button>
                                 <div id="image1-cropped-image" class="cropped-images"></div>
@@ -85,6 +117,13 @@
                             <div class="form-group">
                                 <label for="id_image2">Image 2</label>
                                 {{ form.image2 }}
+                                {% if form.image2.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.image2.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                                 <img id="image2-preview" style="max-width: 100%; display: none;">
                                 <button type="button" id="image2-crop-button" class="btn btn-secondary" style="display: none;">Crop Image 2</button>
                                 <div id="image2-cropped-image" class="cropped-images"></div>
@@ -97,6 +136,13 @@
                             <div class="form-group">
                                 <label for="id_image3">Image 3</label>
                                 {{ form.image3 }}
+                                {% if form.image3.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.image3.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                                 <img id="image3-preview" style="max-width: 100%; display: none;">
                                 <button type="button" id="image3-crop-button" class="btn btn-secondary" style="display: none;">Crop Image 3</button>
                                 <div id="image3-cropped-image" class="cropped-images"></div>
@@ -127,7 +173,7 @@
                     <h3>Are you sure you want to discard changes to product: <span style="color: #f62d51;">"{{ product.name }}"</span> before saving?</h3>
                     <div class="m-t-20">
                         <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
-                        <a href="{% url 'products:category-management' %}" class="btn btn-danger">Discard</a>
+                        <a href="{% url 'products:product-management' %}" class="btn btn-danger">Discard</a>
                     </div>                    
                 </div>
             </div>
