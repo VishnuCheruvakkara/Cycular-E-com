@@ -57,7 +57,7 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-8 col-9 text-left m-b-20">
-                        <a href="#" class="btn btn-primary btn-rounded" data-toggle="modal" data-target="#addCategoryModal">
+                        <a href="{% url 'products:add-category' %}" class="btn btn-primary btn-rounded" >
                             <i class="fa fa-plus"></i> Add Category
                         </a>
                     </div>                    
@@ -308,30 +308,7 @@
                     </div>
                 </div>
             </div>
-            <!-- modal for add category -->
-            <div id="addCategoryModal" class="modal fade" role="dialog" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="addCategoryModalLabel">Add New Category</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form method="post" action="">
-                                {% csrf_token %}
-                                {{ form.as_p }}
-                                <div class="d-flex justify-content-end mt-3">
-                                    <button type="submit" class="btn btn-primary">Save</button>
-                                    <button type="button" class="btn btn-secondary ml-2" data-dismiss="modal">Cancel</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+    
         </div>
     </div>
 

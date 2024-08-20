@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- departments23:21-->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
+    <title>Preclinic - Medical & Hospital - Bootstrap 4 Admin Template</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/dataTables.bootstrap4.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+    <!--[if lt IE 9]>
+		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
+		<script src="{% static 'admin/js/respond.min.js' %}"></script>
+	<![endif]-->
+   
+</head>
+
+<body>
+    <div class="main-wrapper">
+        {% block sidebar %}
+        {% include 'partials/side-bar-admin.html' %}
+        {% endblock %}
+    
+
+        <div class="page-wrapper">
+           
+            <div class="content">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Category Management</li>
+                    </ol>
+                </nav>
+                
+                <div class="col-sm-5 col-5">
+                    <h4 class="page-title" style="margin-left: -15px;"><b>Category Management</b></h4>
+                </div>
+
+               <div class="row" style="margin-top: 50px;">
+                    <div class="col-sm-4 col-3">
+                        <h4 class="page-title">Category List</h4>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="sidebar-overlay" data-reff=""></div>
+    <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'admin/js/popper.min.js' %}"></script>
+    <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'admin/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'admin/js/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+    <script src="{% static 'admin/js/app.js' %}"></script>
+    <script>
+
+
+
+$(document).ready(function() {
+    if ($.fn.DataTable.isDataTable('#department-table')) {
+        $('#department-table').DataTable().destroy();
+    }
+    $('#department-table').DataTable({
+        "paging": false,
+        "info": false,
+        "searching": false
+    });
+});
+
+    </script>
+</body>
+
+
+
+<!-- departments23:21-->
+</html>

@@ -216,5 +216,8 @@ def delete_color(request,color_id):
     messages.success(request,'Color deleted successfully.',extra_tags='admin')
     return redirect('products:category-add')
 
-################## category add view through the form ################################
+################## add category ################################
 
+def add_category(request):
+
+    return render(request,'products/add-category.html')
