@@ -139,6 +139,11 @@ class ProductVariantForm(forms.ModelForm):
     
 
 class CategoryForm(forms.ModelForm):
+    status = forms.BooleanField(
+        required=False,
+        label='Check Status : ',
+    )
+    
     class Meta:
         model = Category
         fields = ['name', 'status']  # 'description' is not included here because it's a custom form field, not a model field.
@@ -146,3 +151,21 @@ class CategoryForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter category name'}),
             'status': forms.CheckboxInput(),
         }
+   
+    def clean(self):
+        cleaned_data = super().clean()
+        name = cleaned_data.get('name')
+
+        # Check if name is too short
+        if name and len(name) < 3:
+            self.add_error('name', 'Name must be at least 3 characters long.')
+
+        # Check if name contains only letters and numbers
+        if name and not re.match(r'^[a-zA-Z0-9]*$', name):
+            self.add_error('name', 'Name can only contain letters and numbers.')
+
+        # Check if name consists of only numbers
+        if name and re.match(r'^\d+$', name):
+            self.add_error('name', 'Name cannot consist of only numbers. It must include letters.')
+
+        return cleaned_data

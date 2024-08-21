@@ -37,6 +37,9 @@
                         <li class="breadcrumb-item active" aria-current="page">{{heading}}</li>
                     </ol>
                 </nav>
+                {% block admin-messages %}
+                {% include 'partials/admin-message.html' %}
+                {% endblock %}
                <div class="row" >
                     <div class="col-sm-4 col-3">
                         <h4 class="page-title">{{heading}}</h4>
@@ -44,12 +47,27 @@
                 </div>
                 <form method="post" action="">
                     {% csrf_token %}
-                    {{ form.as_p }}  <!-- Renders the form fields -->
+                    
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger">
+                                    {% for error in field.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
                     <div class="d-flex justify-content-end mt-3">
                         <button type="submit" class="btn btn-primary">Save</button>
                         <a href="{% url 'products:category-add' %}" class="btn btn-secondary ml-2" data-dismiss="modal">Cancel</a>
-
                     </div>
+                </form>
+                
             </div>
         </div>
     </div>

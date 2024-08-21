@@ -228,6 +228,7 @@ def add_category(request):
             return redirect('products:category-add')
         else:
             messages.error(request,'Please correct the error,try again!',extra_tags='admin')
+           
     else:
         form = CategoryForm()
     context={
