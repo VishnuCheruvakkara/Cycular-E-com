@@ -18,6 +18,7 @@ urlpatterns=[
     path('color-delete/<int:color_id>',views.delete_color,name='color-delete'),
     
     path('add-category/',views.add_category,name='add-category'),
+    path('edit-category/<int:category_id>',views.edit_category,name='edit-category'),
 
 
    

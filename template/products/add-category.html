@@ -33,22 +33,23 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Category Management</li>
+                        <li class="breadcrumb-item"><a href="{% url 'products:category-add' %}">Category Management</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{heading}}</li>
                     </ol>
                 </nav>
-                
-                <div class="col-sm-5 col-5">
-                    <h4 class="page-title" style="margin-left: -15px;"><b>Category Management</b></h4>
-                </div>
-
-               <div class="row" style="margin-top: 50px;">
+               <div class="row" >
                     <div class="col-sm-4 col-3">
-                        <h4 class="page-title">Category List</h4>
+                        <h4 class="page-title">{{heading}}</h4>
                     </div>
                 </div>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {{ form.as_p }}  <!-- Renders the form fields -->
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a href="{% url 'products:category-add' %}" class="btn btn-secondary ml-2" data-dismiss="modal">Cancel</a>
 
-
-
+                    </div>
             </div>
         </div>
     </div>

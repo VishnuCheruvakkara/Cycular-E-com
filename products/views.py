@@ -219,5 +219,42 @@ def delete_color(request,color_id):
 ################## add category ################################
 
 def add_category(request):
+    heading="Add-Category"
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Product added successfully!',extra_tags='admin')
+            return redirect('products:category-add')
+        else:
+            messages.error(request,'Please correct the error,try again!',extra_tags='admin')
+    else:
+        form = CategoryForm()
+    context={
+        'form':form,
+        'heading':heading,
+    }
+    return render(request,'products/add-category.html',context)
 
-    return render(request,'products/add-category.html')
+################## edit category ################################
+
+def edit_category(request,category_id):
+    category=get_object_or_404(Category,id=category_id)
+    heading="Edit-Category"
+    if request.method == 'POST':
+        form = CategoryForm(request.POST,instance=category)
+      
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Category updated successfully!',extra_tags='admin')
+            return redirect('products:category-add')
+        else:
+            messages.error(request,'Please correct the error, try again!',extra_tags='admin')
+    else:
+        form=CategoryForm(instance=category)
+
+    context={
+        'form':form,
+        'heading':heading,
+    }
+    return render(request,'products/add-category.html',context)
