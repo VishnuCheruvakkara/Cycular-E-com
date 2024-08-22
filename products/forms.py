@@ -3,6 +3,8 @@ from .models import Product,Color, Size,ProductVariant,Category,Brand
 import re
 from django.utils.text import slugify
 import magic
+
+#####################  product form  ###################
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
@@ -25,16 +27,20 @@ class ProductForm(forms.ModelForm):
         name=cleaned_data.get("name")
         category = cleaned_data.get("category")
         key_specification = cleaned_data.get("key_specification")
+        description=cleaned_data.get("description")
          # Validation for the name field
         if name:
             if len(name) < 3:
                 self.add_error('name', "Name must be at least 3 characters long.")
-            if not name.isalnum():
-                self.add_error('name', "Name should only contain alphabet or number characters only.")
+            if not re.match(r'^[a-zA-Z]', name):
+                self.add_error('name', "Name must start with a letter.")
+            if name and not re.match(r'^[a-zA-Z0-9\-\(\)](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', name):
+                self.add_error('name', 'Name can only contain letters, numbers, hyphens, brackets, and a single space between words.')
             # Check for unique name in the Product model
             if Product.objects.filter(name=name).exclude(id=self.instance.id).exists():
                 self.add_error('name', "A product with this name already exists.")
-
+        if description and not re.match(r'^[a-zA-Z0-9\-\(\)](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', description):
+                self.add_error('description', 'Description can only contain letters, numbers, hyphens, brackets, and a single space between words.')
         if not category:
             self.add_error('category', "Category is required.")
         if not key_specification:
@@ -42,9 +48,12 @@ class ProductForm(forms.ModelForm):
         if len(key_specification) < 10:
             self.add_error('key_specification', "Key specification must be at least 10 characters long.")
         # Additional custom validations can go here
+        if key_specification and not re.match(r'^[a-zA-Z0-9\-\(\)](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', key_specification):
+                self.add_error('key_specification', 'Key specifications can only contain letters, numbers, hyphens, brackets, and a single space between words.')
 
         return cleaned_data
-
+    
+################### product variant form  ##########################
 class ProductVariantForm(forms.ModelForm):
     product_name = forms.CharField(
         label='Product Name',
@@ -137,6 +146,7 @@ class ProductVariantForm(forms.ModelForm):
 
         return cleaned_data
     
+#####################  Category form #######################
 
 class CategoryForm(forms.ModelForm):
     status = forms.BooleanField(
@@ -159,7 +169,92 @@ class CategoryForm(forms.ModelForm):
         # Check if name is too short
         if name and len(name) < 3:
             self.add_error('name', 'Name must be at least 3 characters long.')
+        if not re.match(r'^[a-zA-Z]', name):
+                self.add_error('name', "Name must start with a letter.")
+        # Check if name contains only letters and numbers
+        if name and not re.match(r'^[a-zA-Z0-9() \-]*$', name):
+            self.add_error('name', 'Name can only contain letters,spaces,bracket and numbers.')
 
+        # Check if name consists of only numbers
+        if name and re.match(r'^\d+$', name):
+            self.add_error('name', 'Name cannot consist of only numbers. It must include letters.')
+
+        return cleaned_data
+ 
+
+######################### Brand Form #############################
+
+class BrandForm(forms.ModelForm):
+    class Meta:
+        model = Brand
+        fields = ['name', 'description', 'status']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter brand name'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Type description',
+                'rows': 4,
+                'cols': 40
+            }),
+            'status': forms.CheckboxInput(attrs={
+                'class': 'form'
+            }),
+        }
+    def clean(self):
+        cleaned_data = super().clean()
+        name = cleaned_data.get("name")
+        description=cleaned_data.get("description")
+        
+        # Non-field validation for 'name' field
+        if name and len(name) < 3:
+            self.add_error(None, "Brand name must be at least 3 characters long.")
+        if not re.match(r'^[a-zA-Z]', name):
+                self.add_error('name', "Name must start with a letter.")
+        # Check if name contains only letters and numbers
+        if name and not re.match(r'^[a-zA-Z0-9\s-]*$', name):
+            self.add_error('name', 'Name can only contain letters, numbers, spaces, and hyphens.')
+
+        # Check if name consists of only numbers
+        if name and re.match(r'^\d+$', name):
+            self.add_error('name', 'Name cannot consist of only numbers. It must include letters.')
+
+        if description:
+            # Ensure description is not too short
+            if len(description) < 10:
+                self.add_error('description', 'Description is too short. Please provide more details.')
+        
+        if re.match(r'^\d+$', description):
+            self.add_error('description', 'Description cannot consist of only numbers. It must include letters.')
+
+        return cleaned_data
+
+######################### Color Form #############################
+class ColorForm(forms.ModelForm):
+    class Meta:
+        model = Color
+        fields = ['name', 'status']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter color name'
+            }),
+            'status': forms.CheckboxInput(attrs={
+                'class': 'form'
+            }),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        name = cleaned_data.get("name")
+        
+        # Non-field validation for 'name' field
+        if name and len(name) < 3:
+            self.add_error(None, "Color name must be at least 3 characters long.")
+        if not re.match(r'^[a-zA-Z]', name):
+                self.add_error('name', "Name must start with a letter.")
         # Check if name contains only letters and numbers
         if name and not re.match(r'^[a-zA-Z0-9]*$', name):
             self.add_error('name', 'Name can only contain letters and numbers.')
@@ -168,4 +263,41 @@ class CategoryForm(forms.ModelForm):
         if name and re.match(r'^\d+$', name):
             self.add_error('name', 'Name cannot consist of only numbers. It must include letters.')
 
-        return cleaned_data
+        return cleaned_data  
+
+    
+######################### Size Form #############################
+
+class SizeForm(forms.ModelForm):
+    class Meta:
+        model = Size
+        fields = ['name', 'status']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter size name'
+            }),
+            'status': forms.CheckboxInput(attrs={
+                'class': 'form',
+            }),
+        }
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        name = cleaned_data.get("name")
+
+        
+        # Non-field validation for 'name' field
+        if name and len(name) < 3:
+            self.add_error(None, "Color name must be at least 3 characters long.")
+        if not re.match(r'^[a-zA-Z]', name):
+                self.add_error('name', "Name must start with a letter.")
+        # Check if name contains only letters and numbers
+        if name and not re.match(r'^[a-zA-Z0-9() ]*$', name):
+            self.add_error('name', 'Name can only contain letters, numbers, spaces and brackets.')
+
+        # Check if name consists of only numbers
+        if name and re.match(r'^\d+$', name):
+            self.add_error('name', 'Name cannot consist of only numbers. It must include letters.')
+
+        return cleaned_data  # Corrected this line

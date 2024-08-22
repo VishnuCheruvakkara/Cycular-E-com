@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .forms import ProductForm,ProductVariantForm,CategoryForm
+from .forms import ProductForm,ProductVariantForm,CategoryForm,BrandForm,SizeForm,ColorForm
 from django.contrib import messages
-from .models import Product
+from .models import Product,ProductVariant
 from django.http import JsonResponse
 import base64
 from django.core.files.base import ContentFile
@@ -9,16 +9,30 @@ from io import BytesIO
 from PIL import Image
 from django.views.decorators.http import require_POST
 from .models import Category,Brand,Size,Color
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 
 # Create your views here.
 
-###################### Category Management page #################################
+###################### Product Management page #################################
 
 def ProductManagement(request):
     products=Product.objects.all()
-    return render(request,'products/product-management.html',{'products':products})
+
+    # Set up pagination.
+    paginator = Paginator(products, 5)  
+    page = request.GET.get('page')
+    try:
+        products_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        products_paginated = paginator.page(1)
+    except EmptyPage:
+        products_paginated = paginator.page(paginator.num_pages)
+    context={
+        'products':products_paginated,
+    }
+    return render(request,'products/product-management.html',context)
 
 ###################### Add product page #################################
 
@@ -86,7 +100,7 @@ def ResizeImage(image, max_width=800, max_height=600,filename=None):
 
 ####################### add product varient  ########################################
 
-def ProductVariant(request, product_id):
+def Product_variant(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
     if request.method == 'POST':
@@ -151,9 +165,19 @@ def toggle_product_status(request):
 def product_view(request,product_id):
     product=get_object_or_404(Product,id=product_id)
     product_variants=product.product_variants.all()
+                                                                   
+    # Set up pagination.
+    paginator = Paginator(product_variants, 5)  
+    page = request.GET.get('page')
+    try:
+        products_variants_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        products_variants_paginated = paginator.page(1)
+    except EmptyPage:
+        products_variants_paginated = paginator.page(paginator.num_pages)
     context={
         'product':product,
-        'product_variants':product_variants,
+        'product_variants':products_variants_paginated,
     }
     return render(request,'products/product-view.html',context)
 
@@ -259,3 +283,164 @@ def edit_category(request,category_id):
         'heading':heading,
     }
     return render(request,'products/add-category.html',context)
+
+
+############################ add-brand ##################################
+
+def add_brand(request):
+    heading="Add-Brand"
+    if request.method == 'POST':
+        form = BrandForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Brand added successfully!',extra_tags='admin')
+            return redirect('products:category-add')
+        else:
+            messages.error(request,'Please correct the error,try again!',extra_tags='admin')
+           
+    else:
+        form = BrandForm()
+    context={
+        'form':form,
+        'heading':heading,
+    }
+    return render(request,'products/add-brand.html',context)
+
+############################ edit-brand #################################
+
+def edit_brand(request,brand_id):
+    brand=get_object_or_404(Brand,id=brand_id)
+    heading="Edit-Brand"
+    if request.method == 'POST':
+        form = BrandForm(request.POST,instance=brand)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Brand updated successfully!',extra_tags='admin')
+            return redirect('products:category-add')
+        else:
+            messages.error(request,'Please correct the error, try again!',extra_tags='admin')
+    else:
+        form=BrandForm(instance=brand)
+
+    context={
+        'form':form,
+        'heading':heading,
+    }
+    return render(request,'products/add-brand.html',context)
+
+
+
+############################ add-size ##################################
+
+def add_size(request):
+    heading="Add-Size"
+    if request.method == 'POST':
+        form = SizeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Size added successfully!',extra_tags='admin')
+            return redirect('products:category-add')
+        else:
+            messages.error(request,'Please correct the error,try again!',extra_tags='admin')
+           
+    else:
+        form = SizeForm()
+    context={
+        'form':form,
+        'heading':heading,
+    }
+    return render(request,'products/add-size.html',context)
+
+############################ edit-size #################################
+
+def edit_size(request,size_id):
+    size=get_object_or_404(Size,id=size_id)
+    heading="Edit-Size"
+    if request.method == 'POST':
+        form = SizeForm(request.POST,instance=size)
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Size updated successfully!',extra_tags='admin')
+            return redirect('products:category-add')
+        else:
+            messages.error(request,'Please correct the error, try again!',extra_tags='admin')
+    else:
+        form=SizeForm(instance=size)
+
+    context={
+        'form':form,
+        'heading':heading,
+    }
+    return render(request,'products/add-size.html',context)
+
+
+
+############################ add-color ##################################
+
+def add_color(request):
+    heading="Add-Color"
+    if request.method == 'POST':
+        form = ColorForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Color added successfully!',extra_tags='admin')
+            return redirect('products:category-add')
+        else:
+            messages.error(request,'Please correct the error,try again!',extra_tags='admin')
+           
+    else:
+        form = ColorForm()
+    context={
+        'form':form,
+        'heading':heading,
+    }
+    return render(request,'products/add-color.html',context)
+
+############################ edit-color #################################
+
+def edit_color(request,color_id):
+    color=get_object_or_404(Color,id=color_id)
+    heading="Edit-Color"
+    if request.method == 'POST':
+        form = ColorForm(request.POST,instance=color)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Color updated successfully!',extra_tags='admin')
+            return redirect('products:category-add')
+        else:
+            messages.error(request,'Please correct the error, try again!',extra_tags='admin')
+    else:
+        form=ColorForm(instance=color)
+
+    context={
+        'form':form,
+        'heading':heading,
+    }
+    return render(request,'products/add-color.html',context)
+
+####################### delete product variant ########################################
+
+def delete_product_variant(request,variant_id):
+    variant=get_object_or_404(ProductVariant,id=variant_id)
+    variant.delete()
+    messages.success(request, 'Selected Product Variant was successfully deleted.',extra_tags='admin}')
+    return redirect('products:product-view')
+
+
+####################### edit variant  ################################
+
+def edit_variant(request,variant_id):
+    variant=get_object_or_404(ProductVariant,variant_id)
+    if request.method=='POST':
+        form = ProductVariantForm(request.POST,request.FILES,instance=variant)
+        if form.is_valid():
+            form.save()
+            return redirect('products:product-view',variant_id=variant.id)
+    else:
+        form = ProductVariantForm(instance=variant)
+    context={
+        'form':form,
+    }
+    return render(request,'products/edit-variant.html',context)

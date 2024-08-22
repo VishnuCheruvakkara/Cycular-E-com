@@ -6,7 +6,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class Brand(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
-    logo = models.ImageField(upload_to='brands', null=True, blank=True)
     status = models.BooleanField(default=True)
 
     def __str__(self):
@@ -42,7 +41,7 @@ class Color(models.Model):
 
 class Size(models.Model):
     name = models.CharField(max_length=50)
-    stock = models.PositiveIntegerField(default=0)
+    stock = models.PositiveIntegerField(default=True)
     color = models.ForeignKey(Color, related_name='sizes', on_delete=models.CASCADE,null=True,blank=True)
     status = models.BooleanField(default=True)
    

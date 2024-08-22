@@ -1,0 +1,271 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
+    <title>Add Variant Products</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+    <!--[if lt IE 9]>
+        <script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
+        <script src="{% static 'admin/js/respond.min.js' %}"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+</head>
+<body>
+    {% block sidebar %}
+    {% include 'partials/side-bar-admin.html' %}
+    {% endblock %}
+    <div class="page-wrapper">
+        <div class="content">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'products:product-view' product.id %}">Products View</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Add Products</li>
+                </ol>
+            </nav>
+            {% block admin-messages%}
+            {% include 'partials/admin-message.html' %}
+            {% endblock %}
+            <div class="row">
+                <div class="col-sm-12">
+                    <h4 class="page-title">Add Product Variants</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card-box">
+                        <h4 class="card-title">Please fill in the following details to add a Variant to the product "<span style="color:#f62d51;">{{ product.name }}</span>":</h4>
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                  
+                            <!-- Product Name Field -->
+                            <div class="form-group">
+                                <label for="id_product_name">Product Name</label>
+                                {{ form.product_name }}
+                               
+                            </div>
+                        
+                            <!-- Color Field -->
+                            <div class="form-group">
+                                <label for="id_color">Select Color</label>
+                                {{ form.color }}
+                                {% if form.color.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.color.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            </div>
+                        
+                            <!-- Size Field -->
+                            <div class="form-group">
+                                <label for="id_size">Select Size</label>
+                                {{ form.size }}
+                                {% if form.size.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.size.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                             <!-- Price Field -->
+                             <div class="form-group">
+                                <label for="id_price">Select Price</label>
+                                {{ form.price }}
+                                {% if form.price.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.price.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                          <!-- Stock Field -->
+                            <div class="form-group">
+                                <label for="id_stock">Stock</label>
+                                {{ form.stock }}
+                            </div>
+                            <!-- Image Upload Section for Image 1 -->
+                            <div class="form-group">
+                                <label for="id_image1">Image 1</label>
+                                {{ form.image1 }}
+                                {% if form.image1.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.image1.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <img id="image1-preview" style="max-width: 100%; display: none;">
+                                <button type="button" id="image1-crop-button" class="btn btn-secondary" style="display: none;">Crop Image 1</button>
+                                <div id="image1-cropped-image" class="cropped-images"></div>
+                            </div>
+                        
+                            <!-- Hidden field to store base64 cropped image data for Image 1 -->
+                            <input type="hidden" id="image1-cropped-data" name="image1_cropped_data">
+                        
+                            <!-- Image Upload Section for Image 2 -->
+                            <div class="form-group">
+                                <label for="id_image2">Image 2</label>
+                                {{ form.image2 }}
+                                {% if form.image2.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.image2.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <img id="image2-preview" style="max-width: 100%; display: none;">
+                                <button type="button" id="image2-crop-button" class="btn btn-secondary" style="display: none;">Crop Image 2</button>
+                                <div id="image2-cropped-image" class="cropped-images"></div>
+                            </div>
+                        
+                            <!-- Hidden field to store base64 cropped image data for Image 2 -->
+                            <input type="hidden" id="image2-cropped-data" name="image2_cropped_data">
+                        
+                            <!-- Image Upload Section for Image 3 -->
+                            <div class="form-group">
+                                <label for="id_image3">Image 3</label>
+                                {{ form.image3 }}
+                                {% if form.image3.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.image3.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <img id="image3-preview" style="max-width: 100%; display: none;">
+                                <button type="button" id="image3-crop-button" class="btn btn-secondary" style="display: none;">Crop Image 3</button>
+                                <div id="image3-cropped-image" class="cropped-images"></div>
+                            </div>
+                        
+                            <!-- Hidden field to store base64 cropped image data for Image 3 -->
+                            <input type="hidden" id="image3-cropped-data" name="image3_cropped_data">
+                        
+                            <!-- Hidden Product Field -->
+                            {{ form.product }}
+                        
+                            <button type="submit" class="btn btn-primary">Save Product Variant</button>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_appointment">
+                                <i class="fa fa-trash-o m-r-5"></i> Discard Changes
+                            </button>
+                        </form>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- delete modal -->
+    <div id="delete_appointment" class="modal fade delete-modal" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
+                    <h3>Are you sure you want to discard changes to product: <span style="color: #f62d51;">"{{ product.name }}"</span> before saving?</h3>
+                    <div class="m-t-20">
+                        <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
+                        <a href="{% url 'products:product-management' %}" class="btn btn-danger">Discard</a>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" data-reff=""></div>
+    <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'admin/js/popper.min.js' %}"></script>
+    <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+    <script src="{% static 'admin/js/app.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+    <!-- Hidden fields for storing the base64 image data -->
+<input type="hidden" id="image1-cropped-data" name="image1_cropped_data">
+<input type="hidden" id="image2-cropped-data" name="image2_cropped_data">
+<input type="hidden" id="image3-cropped-data" name="image3_cropped_data">
+
+<!-- JavaScript part -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentCropper = null;
+
+        function setupCropper(inputId, previewId, cropButtonId, croppedImageContainerId, hiddenFieldId) {
+            const fileInput = document.getElementById(inputId);
+            const previewImg = document.getElementById(previewId);
+            const cropButton = document.getElementById(cropButtonId);
+            const croppedImageContainer = document.getElementById(croppedImageContainerId);
+            const hiddenField = document.getElementById(hiddenFieldId);
+
+            fileInput.addEventListener('change', function(event) {
+                const files = event.target.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    const reader = new FileReader();
+
+                    reader.onload = function(event) {
+                        previewImg.src = event.target.result;
+                        previewImg.style.display = 'block';
+
+                        if (currentCropper) {
+                            currentCropper.destroy();
+                        }
+
+                        currentCropper = new Cropper(previewImg, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 1,
+                        });
+
+                        cropButton.style.display = 'block';
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            cropButton.addEventListener('click', function() {
+                if (currentCropper) {
+                    const croppedCanvas = currentCropper.getCroppedCanvas();
+                    const croppedImageURL = croppedCanvas.toDataURL();
+
+                    // Save the cropped image data to the hidden field
+                    hiddenField.value = croppedImageURL;
+
+                    const imgElement = document.createElement('img');
+                    imgElement.src = croppedImageURL;
+                    imgElement.style.maxWidth = '100px';
+                    imgElement.style.maxHeight = '100px';
+
+                    croppedImageContainer.innerHTML = ''; // Clear previous cropped images
+                    croppedImageContainer.appendChild(imgElement);
+
+                    previewImg.style.display = 'none'; // Hide preview image
+                    cropButton.style.display = 'none'; // Hide crop button
+
+                    // Clean up Cropper instance
+                    if (currentCropper) {
+                        currentCropper.destroy();
+                        currentCropper = null;
+                    }
+                }
+            });
+        }
+
+        // Setup cropper for each image input
+        setupCropper('id_image1', 'image1-preview', 'image1-crop-button', 'image1-cropped-image', 'image1-cropped-data');
+        setupCropper('id_image2', 'image2-preview', 'image2-crop-button', 'image2-cropped-image', 'image2-cropped-data');
+        setupCropper('id_image3', 'image3-preview', 'image3-crop-button', 'image3-cropped-image', 'image3-cropped-data');
+    });
+</script>
+
+</body>
+</html>

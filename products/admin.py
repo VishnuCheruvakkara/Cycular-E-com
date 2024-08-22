@@ -9,7 +9,7 @@ from .models import Brand, Category, Product, Color, Size, ProductVariant, Revie
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'logo')
+    list_display = ('name', 'description')
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):

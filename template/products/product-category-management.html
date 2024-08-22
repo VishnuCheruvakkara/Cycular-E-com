@@ -48,7 +48,73 @@
                 <div class="col-sm-5 col-5">
                     <h4 class="page-title" style="margin-left: -15px;"><b>Category Management</b></h4>
                 </div>
-
+                
+              <!-- for brand section -->
+              <div class="row" style="margin-top: 50px;">
+                <div class="col-sm-4 col-3">
+                    <h4 class="page-title">Brand List</h4>
+                </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-8 col-9 text-right m-b-20">
+                        <a href="{% url 'products:add-brand' %}" class="btn btn btn-primary btn-rounded float-left"><i class="fa fa-plus"></i> Add Brand</a>
+                    </div>
+                    <div class="col-md-12">
+                        
+                        <div  class="table-responsive">
+                            
+                            <table class="table table-striped custom-table" class="datatable" style="width: 50%;">
+                                <thead>
+                                    <tr>
+                                        <th>Sl.No.</th>
+                                        <th style="min-width:200px;">Brand Name</th>
+                                        <th style="text-align: center;">Status</th>
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for brand in brands %}
+                                    <tr>
+                                        <td>{{forloop.counter}}</td>
+                                        <td>{{brand.name}}</td>
+                                        <td style="text-align: center;">
+                                            <button class="btn btn-sm toggle-status" data-product-id="{{ brand.id }}" data-status="{{ brand.status }}" data-toggle="modal" data-target="#confirm-modal-{{ brand.id }}">
+                                                <span class="custom-badge status-{{ brand.status|yesno:'green,red' }}">
+                                                    {{ brand.status|yesno:'Active,Inactive' }}
+                                                </span>
+                                            </button>
+                                        </td>
+                                        <td class="text-right">
+                                            <div class="dropdown dropdown-action">
+                                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-right">
+                                                    <a class="dropdown-item" href="{% url 'products:edit-brand' brand.id  %}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_brand_{{brand.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- modal for brand deletion confirmation -->
+                                    <div id="delete_brand_{{brand.id}}" class="modal fade delete-modal" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body text-center">
+                                                    <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
+                                                    <h3>Are you sure want to delete the brand: "{{brand.name}}" permenently?</h3>
+                                                    <div class="m-t-20"> 
+                                                        <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
+                                                        <a href="{% url 'products:brand-delete' brand.id %}" class="btn btn-danger">Delete</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- for category section -->
                <div class="row" style="margin-top: 50px;">
                     <div class="col-sm-4 col-3">
                         <h4 class="page-title">Category List</h4>
@@ -116,139 +182,6 @@
 						</div>
                     </div>
                 </div>
-              <!-- for brand section -->
-                <div class="row" style="margin-top: 50px;">
-                    <div class="col-sm-4 col-3">
-                        <h4 class="page-title">Brand List</h4>
-                    </div>
-                  
-                </div>
-                <div class="row">
-                    <div class="col-sm-8 col-9 text-right m-b-20">
-                        <a href="{% url 'products:add-product' %}" class="btn btn btn-primary btn-rounded float-left"><i class="fa fa-plus"></i> Add Brand</a>
-                    </div>
-                    <div class="col-md-12">
-                        
-						<div  class="table-responsive">
-                            
-                            <table class="table table-striped custom-table" class="datatable" style="width: 50%;">
-                                <thead>
-                                    <tr>
-                                        <th>Sl.No.</th>
-                                        <th style="min-width:200px;">Brand Name</th>
-                                        <th style="text-align: center;">Status</th>
-                                        <th class="text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for brand in brands %}
-                                    <tr>
-                                        <td>{{forloop.counter}}</td>
-                                        <td>{{brand.name}}</td>
-                                        <td style="text-align: center;">
-                                            <button class="btn btn-sm toggle-status" data-product-id="{{ brand.id }}" data-status="{{ brand.status }}" data-toggle="modal" data-target="#confirm-modal-{{ brand.id }}">
-                                                <span class="custom-badge status-{{ brand.status|yesno:'green,red' }}">
-                                                    {{ brand.status|yesno:'Active,Inactive' }}
-                                                </span>
-                                            </button>
-                                        </td>
-                                        <td class="text-right">
-                                            <div class="dropdown dropdown-action">
-                                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="edit-employee.html"><i class="fa fa-pencil m-r-5"></i> Edit</a>
-                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_brand_{{brand.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- modal for brand deletion confirmation -->
-                                    <div id="delete_brand_{{brand.id}}" class="modal fade delete-modal" role="dialog">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-body text-center">
-                                                    <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
-                                                    <h3>Are you sure want to delete the brand: "{{brand.name}}" permenently?</h3>
-                                                    <div class="m-t-20"> 
-                                                        <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
-                                                        <a href="{% url 'products:brand-delete' brand.id %}" class="btn btn-danger">Delete</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-						</div>
-                    </div>
-                </div>
-                <!-- for size section -->
-                <div class="row" style="margin-top: 50px;">
-                    <div class="col-sm-4 col-3">
-                        <h4 class="page-title">Size list</h4>
-                    </div>
-                  
-                </div>
-                <div class="row">
-                    <div class="col-sm-8 col-9 text-right m-b-20">
-                        <a href="{% url 'products:add-product' %}" class="btn btn btn-primary btn-rounded float-left"><i class="fa fa-plus"></i> Add Size-list</a>
-                    </div>
-                    <div class="col-md-12">
-                        
-						<div  class="table-responsive">
-                            
-                            <table class="table table-striped custom-table" class="datatable" style="width: 50%;">
-                                <thead>
-                                    <tr>
-                                        <th>Sl.No.</th>
-                                        <th style="min-width:200px;">Size Name</th>
-                                        <th style="text-align: center;">Status</th>
-                                        <th class="text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for size in sizes %}
-                                    <tr>
-                                        <td>{{forloop.counter}}</td>
-                                        <td>{{size.name}}</td>
-                                        <td style="text-align: center;">
-                                            <button class="btn btn-sm toggle-status" data-product-id="{{ size.id }}" data-status="{{ size.status }}" data-toggle="modal" data-target="#confirm-modal-{{ size.id }}">
-                                                <span class="custom-badge status-{{ size.status|yesno:'green,red' }}">
-                                                    {{ size.status|yesno:'Active,Inactive' }}
-                                                </span>
-                                            </button>
-                                        </td>
-                                        <td class="text-right">
-                                            <div class="dropdown dropdown-action">
-                                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="edit-employee.html"><i class="fa fa-pencil m-r-5"></i> Edit</a>
-                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_size_{{size.id}}" ><i class="fa fa-trash-o m-r-5"></i> Delete</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- size deletion confirmation modal -->
-                                    <div id="delete_size_{{size.id}}" class="modal fade delete-modal" role="dialog">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-body text-center">
-                                                    <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
-                                                    <h3>Are you sure want to delete the size : "{{size.name}}" permenently?</h3>
-                                                    <div class="m-t-20"> 
-                                                        <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
-                                                        <a href="{% url 'products:size-delete' size.id %}" class="btn btn-danger">Delete</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-						</div>
-                    </div>
-                </div>
                 <!-- for color section -->
                 <div class="row" style="margin-top: 50px;">
                     <div class="col-sm-4 col-3">
@@ -258,7 +191,7 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-8 col-9 text-right m-b-20">
-                        <a href="{% url 'products:add-product' %}" class="btn btn btn-primary btn-rounded float-left"><i class="fa fa-plus"></i> Add Color</a>
+                        <a href="{% url 'products:add-color' %}" class="btn btn btn-primary btn-rounded float-left"><i class="fa fa-plus"></i> Add Color</a>
                     </div>
                     <div class="col-md-12">
                         
@@ -289,7 +222,7 @@
                                             <div class="dropdown dropdown-action">
                                                 <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
                                                 <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="edit-employee.html"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                                    <a class="dropdown-item" href="{% url 'products:edit-color' color.id %}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
                                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_color_{{color.id}}" ><i class="fa fa-trash-o m-r-5"></i> Delete</a>
                                                 </div>
                                             </div>
@@ -315,6 +248,74 @@
 						</div>
                     </div>
                 </div>
+                 <!-- for size section -->
+                 <div class="row" style="margin-top: 50px;">
+                    <div class="col-sm-4 col-3">
+                        <h4 class="page-title">Size list</h4>
+                    </div>
+                  
+                </div>
+                <div class="row">
+                    <div class="col-sm-8 col-9 text-right m-b-20">
+                        <a href="{% url 'products:add-size' %}" class="btn btn btn-primary btn-rounded float-left"><i class="fa fa-plus"></i> Add Size</a>
+                    </div>
+                    <div class="col-md-12">
+                        
+						<div  class="table-responsive">
+                            
+                            <table class="table table-striped custom-table" class="datatable" style="width: 50%;">
+                                <thead>
+                                    <tr>
+                                        <th>Sl.No.</th>
+                                        <th style="min-width:200px;">Size Name</th>
+                                        <th style="text-align: center;">Status</th>
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for size in sizes %}
+                                    <tr>
+                                        <td>{{forloop.counter}}</td>
+                                        <td>{{size.name}}</td>
+                                        <td style="text-align: center;">
+                                            <button class="btn btn-sm toggle-status" data-product-id="{{ size.id }}" data-status="{{ size.status }}" data-toggle="modal" data-target="#confirm-modal-{{ size.id }}">
+                                                <span class="custom-badge status-{{ size.status|yesno:'green,red' }}">
+                                                    {{ size.status|yesno:'Active,Inactive' }}
+                                                </span>
+                                            </button>
+                                        </td>
+                                        <td class="text-right">
+                                            <div class="dropdown dropdown-action">
+                                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-right">
+                                                    <a class="dropdown-item" href="{% url 'products:edit-size' size.id %}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_size_{{size.id}}" ><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- size deletion confirmation modal -->
+                                    <div id="delete_size_{{size.id}}" class="modal fade delete-modal" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body text-center">
+                                                    <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
+                                                    <h3>Are you sure want to delete the size : "{{size.name}}" permenently?</h3>
+                                                    <div class="m-t-20"> 
+                                                        <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
+                                                        <a href="{% url 'products:size-delete' size.id %}" class="btn btn-danger">Delete</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+						</div>
+                    </div>
+                </div>
+
             </div>
     
         </div>
