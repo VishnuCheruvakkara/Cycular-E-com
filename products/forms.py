@@ -147,7 +147,7 @@ class ProductVariantForm(forms.ModelForm):
 
         if not price or price <= 0:
             self.add_error('price', "Price is required and must be greater than zero.")
-
+        
 
         return cleaned_data
     

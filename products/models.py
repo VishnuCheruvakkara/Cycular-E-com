@@ -56,6 +56,7 @@ class ProductVariant(models.Model):
     image1 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image2 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image3 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
+    status= models.BooleanField(default=True)
     class Meta:
         unique_together = ('product', 'size')
 
