@@ -8,7 +8,7 @@ urlpatterns=[
     path('add-product/',views.AddProduct,name='add-product'),
     path('edit-product/<int:product_id>',views.EditProduct,name='edit-product'),
     path('delete-product/<int:product_id>',views.DeleteProduct,name='delete-product'),
-    path('product-variant/<int:product_id>',views.Product_variant,name='product-variant'),
+    path('product-variant/<int:product_id>',views.product_variant,name='product-variant'),
     path('toggle-product-status/', views.toggle_product_status, name='toggle-product-status'),
     path('product-view/<int:product_id>',views.product_view,name='product-view'),
     path('category-add/',views.category_management,name='category-add'),
@@ -35,4 +35,7 @@ urlpatterns=[
     path('delete-product-variant/<int:variant_id>',views.delete_product_variant,name='delete-product-variant'),
     path('edit-variant/<int:variant_id>',views.edit_variant,name='edit-variant'),
     path('product-variant-data-view/<int:variant_id>',views.product_variant_data,name='product_variant_data_view'),
+
+    path('api/update-variant-status/<int:variant_id>/', views.update_variant_status, name='update-variant-status'),
+
 ]

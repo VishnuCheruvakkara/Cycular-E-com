@@ -120,6 +120,7 @@ class ProductVariantForm(forms.ModelForm):
         super(ProductVariantForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.size:
             size_instance = self.instance.size
+            # to show the existing data in the product variant
             self.fields['color'].initial = size_instance.color
             self.fields['size'].initial = size_instance
             self.fields['stock'].initial = size_instance.stock
@@ -147,31 +148,40 @@ class ProductVariantForm(forms.ModelForm):
 
         if not price or price <= 0:
             self.add_error('price', "Price is required and must be greater than zero.")
-        
 
+       
         return cleaned_data
     
     def save(self, commit=True):
-        # Get the cleaned data
         cleaned_data = self.cleaned_data
         color = cleaned_data.get('color')
         size = cleaned_data.get('size')
         stock = cleaned_data.get('stock')
 
-        # Update the stock in the related Size model
-        if size and stock is not None:
-            size.stock = stock
-            size.color=color
-            size.save()
+        # Ensure that the ProductVariant is created based on its own properties
+        if color and size:
+            # Instead of updating an existing Size, create a new Size instance if needed
+            # Here, you're focusing on the ProductVariant
+            if not self.instance.pk:
+                # If the ProductVariant is new, create a new Size instance
+                new_size = Size.objects.create(name=size.name, stock=stock, color=color)
+                self.instance.size = new_size
+            else:
+                # If updating an existing ProductVariant, just update the size and color
+                self.instance.size.stock = stock
+                self.instance.size.color = color
+                self.instance.size.save()
 
-        # Save the ProductVariant with the correct color reference
-        
+        # Set the color directly on the ProductVariant if needed
+        self.instance.color = color
+
+        # Save the ProductVariant
         return super(ProductVariantForm, self).save(commit=commit)
 
     
 #####################  Category form #######################
 
-class CategoryForm(forms.ModelForm):
+class CategoryForm(forms.ModelForm): 
     status = forms.BooleanField(
         required=False,
         label='Check Status : ',
@@ -255,6 +265,7 @@ class BrandForm(forms.ModelForm):
         return cleaned_data
 
 ######################### Color Form #############################
+
 class ColorForm(forms.ModelForm):
     class Meta:
         model = Color

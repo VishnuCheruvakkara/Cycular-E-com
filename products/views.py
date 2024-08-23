@@ -10,7 +10,8 @@ from PIL import Image
 from django.views.decorators.http import require_POST
 from .models import Category,Brand,Size,Color
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 # Create your views here.
@@ -100,7 +101,7 @@ def ResizeImage(image, max_width=800, max_height=600,filename=None):
 
 ####################### add product varient  ########################################
 
-def Product_variant(request, product_id):
+def product_variant(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
     if request.method == 'POST':
@@ -329,8 +330,6 @@ def edit_brand(request,brand_id):
     }
     return render(request,'products/add-brand.html',context)
 
-
-
 ############################ add-size ##################################
 
 def add_size(request):
@@ -471,3 +470,29 @@ def product_variant_data(request,variant_id):
         'product':variant.product
     }
     return render(request,'products/product-variant-data-view.html',context)
+
+##################### view for the prodcut variant staus change using fetch #########################
+
+@csrf_exempt
+def update_variant_status(request, variant_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_status = data.get('status')
+
+            if new_status not in ['Active', 'Inactive']:
+                return JsonResponse({'success': False, 'error': 'Invalid status value'})
+
+            variant = ProductVariant.objects.get(id=variant_id)
+            variant.status = new_status
+            variant.save()
+
+            return JsonResponse({'success': True})
+        except ProductVariant.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Variant not found'})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Invalid JSON'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})

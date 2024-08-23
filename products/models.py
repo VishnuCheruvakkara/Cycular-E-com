@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+
 class Brand(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
@@ -45,6 +46,8 @@ class Size(models.Model):
     color = models.ForeignKey(Color, related_name='sizes', on_delete=models.CASCADE,null=True,blank=True)
     status = models.BooleanField(default=True)
    
+    class Meta:
+        unique_together = ['name', 'color']
 
     def __str__(self):
         return self.name
@@ -57,11 +60,10 @@ class ProductVariant(models.Model):
     image2 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image3 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     status= models.BooleanField(default=True)
-    class Meta:
-        unique_together = ('product', 'size')
-
+   
     def __str__(self):
         return f"{self.size.color.product.name} - {self.size.color.name} - {self.size.name}"
+    
 
 class Review(models.Model):
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)

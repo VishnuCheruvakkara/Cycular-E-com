@@ -105,7 +105,7 @@
                             <td>{{variant.size.color}}</td>
                             <td>{{variant.size}}</td>
                             <td>
-                                <button class="btn btn-sm toggle-status" data-product-id="{{ variant.id }}" data-status="{{ variant.status }}" data-toggle="modal" data-target="#confirm-modal-{{ variant.id }}">
+                                <button class="btn btn-sm toggle-status" data-variant-id="{{ variant.id }}" data-status="{{ variant.status }}" data-toggle="modal" data-target="#confirm-modal-{{ variant.id }}">
                                     <span class="custom-badge status-{{ variant.status|yesno:'green,red' }}">
                                         {{ variant.status|yesno:'Active,Inactive' }}
                                     </span>
@@ -142,15 +142,21 @@
                             </div>
                         </div>
                         <!-- Confirmation Modal -->
+                        
                         <div id="confirm-modal-{{ variant.id }}" class="modal fade delete-modal" role="dialog">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-body text-center">
                                         <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
-                                        <h3>Are you sure you want to change the <span style="color:#f62d51">status</span> of this product variant </h3>
+                                        <h3>Are you sure you want to change the <span style="color:#f62d51">status</span> of this product variant?</h3>
                                         <div class="m-t-20">
                                             <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
-                                            <button class="btn btn-danger confirm-toggle-status" data-product-id="{{ product.id }}" data-dismiss="modal">Confirm</button>
+                                            <button class="btn btn-danger confirm-toggle-status" 
+                                                    data-variant-id="{{ variant.id }}"
+                                                    data-status="{{ variant.status }}"
+                                                    data-dismiss="modal">
+                                                Confirm
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -205,5 +211,57 @@
 <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
 <script src="{% static 'admin/js/app.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Attach event listener to all confirm buttons
+    document.querySelectorAll('.confirm-toggle-status').forEach(button => {
+        button.addEventListener('click', function() {
+            const variantId = this.getAttribute('data-variant-id');
+            const currentStatus = this.getAttribute('data-status');
+            const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+    
+            fetch(`/api/update-variant-status/${variantId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is correctly retrieved
+                },
+                body: JSON.stringify({status: newStatus})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the UI accordingly
+                    const badge = document.querySelector(`.toggle-status[data-variant-id="${variantId}"] .custom-badge`);
+                    badge.innerText = newStatus;
+                    badge.classList.replace(currentStatus === 'Active' ? 'green' : 'red', newStatus === 'Active' ? 'green' : 'red');
+                } else {
+                    console.error('Failed to update status:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+
+    // Function to get the CSRF token from the cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+});
+
+</script>
+    
 </body>
 
