@@ -424,23 +424,50 @@ def edit_color(request,color_id):
 
 def delete_product_variant(request,variant_id):
     variant=get_object_or_404(ProductVariant,id=variant_id)
+    product_id=variant.product.id
     variant.delete()
     messages.success(request, 'Selected Product Variant was successfully deleted.',extra_tags='admin}')
-    return redirect('products:product-view')
+    return redirect('products:product-view',product_id=product_id)
 
 
 ####################### edit variant  ################################
 
 def edit_variant(request,variant_id):
-    variant=get_object_or_404(ProductVariant,variant_id)
+    variant=get_object_or_404(ProductVariant,id=variant_id)
+    product = variant.product 
+    product_id=product.id
     if request.method=='POST':
         form = ProductVariantForm(request.POST,request.FILES,instance=variant)
         if form.is_valid():
             form.save()
-            return redirect('products:product-view',variant_id=variant.id)
+            return redirect('products:product-view',product_id=product_id)
     else:
-        form = ProductVariantForm(instance=variant)
+        form = ProductVariantForm(instance=variant,product=product)
     context={
         'form':form,
+        'product_id':product_id,
+        'product':product
     }
     return render(request,'products/edit-variant.html',context)
+
+######################## single product view  #########################
+
+def single_product_view(request,product_id):
+    product=get_object_or_404(Product,id=product_id)
+    product_variants=product.product_variants.all()
+                                                                   
+    context={
+        'product':product,
+        'product_variants':product_variants,
+    }
+    return render(request,'products/product-detail.html')
+
+########################### product-variant-data-view #######################
+
+def product_variant_data(request,variant_id):
+    variant=get_object_or_404(ProductVariant,id=variant_id)
+    context={
+        'variant':variant,
+        'product':variant.product
+    }
+    return render(request,'products/product-variant-data-view.html',context)

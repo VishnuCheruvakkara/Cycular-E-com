@@ -25,15 +25,11 @@
 
 <div class="page-wrapper">
 <div class="content">
-
-    {% block admin-messages%}
-    {% include 'partials/admin-message.html' %}
-    {% endblock %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'products:product-management' %}">Product Page</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Add product</li>
+            <li class="breadcrumb-item active" aria-current="page">Product View</li>
         </ol>
     </nav>
     <div class="col-sm-4 col-3">
@@ -83,7 +79,9 @@
             <a href="{% url 'products:product-variant' product.id %}" class="btn btn btn-primary btn-rounded float-right"><i class="fa fa-plus"></i> Add Variants</a>
         </div>
     </div>
-
+    {% block admin-messages%}
+    {% include 'partials/admin-message.html' %}
+    {% endblock %}
     <div class="row">
         <div class="col-md-12">
             <div class="table-responsive">
@@ -114,7 +112,7 @@
                                 </button>
                             </td>
                             <td>
-                                <a href="" class="custom-badge status-blue ripple-effect">
+                                <a href="{% url 'products:product_variant_data_view' variant.id %}" class="custom-badge status-blue ripple-effect">
                                     View
                                 </a>
                             </td>
@@ -129,7 +127,7 @@
                             </td>
                         </tr>
                         <!-- model deletion -->
-                        <div id="delete_appointment_{{product.id}}" class="modal fade delete-modal" role="dialog">
+                        <div id="delete_appointment_{{variant.id}}" class="modal fade delete-modal" role="dialog">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-body text-center">

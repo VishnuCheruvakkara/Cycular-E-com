@@ -26,8 +26,9 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'products:product-management' %}">Product Page</a></li>
                     <li class="breadcrumb-item"><a href="{% url 'products:product-view' product.id %}">Products View</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Add Products</li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Products</li>
                 </ol>
             </nav>
             {% block admin-messages%}
@@ -35,13 +36,13 @@
             {% endblock %}
             <div class="row">
                 <div class="col-sm-12">
-                    <h4 class="page-title">Add Product Variants</h4>
+                    <h4 class="page-title">Edit Product Variants</h4>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card-box">
-                        <h4 class="card-title">Please fill in the following details to add a Variant to the product "<span style="color:#f62d51;">{{ product.name }}</span>":</h4>
+                        <h4 class="card-title">Edit the variant of the product "<span style="color:#f62d51;">{{ product.name }}</span>" down-below.</h4>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                   

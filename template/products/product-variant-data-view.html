@@ -1,0 +1,100 @@
+
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- appointments23:19-->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
+    <title>Category-page</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+</head>
+
+<body>
+    {% block sidebar %}
+    {% include 'partials/side-bar-admin.html' %}
+    {% endblock %}
+
+<div class="page-wrapper">
+<div class="content">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:product-management' %}">Product Page</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:product-view' product.id %}">Products View</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Product Variant View</li>
+        </ol>
+    </nav>
+    <div class="col-sm-4 col-3">
+        <h4 class="page-title" style="margin-left:-15px;">Product Variant View</h4>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            <div class="profile-info-left">
+
+                <h3 class="user-name m-t-0 mb-0">{{product.name}}</h3>
+                
+                <div class="staff-msg"><a href="{% url 'products:edit-variant' variant.id %}" class="btn btn-primary">Edit Variant Details</a></div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <ul class="personal-info">
+               
+                <li>
+                    <span class="title">Name:</span>
+                    <span class="text"><a href="#">{{product.name}}</a></span>
+                </li>
+                <li>
+                    <span class="title">Color:</span>
+                    <span class="text">{{variant.size.color}}</span>
+                </li>
+                <li>
+                    <span class="title">Size:</span>
+                    <span class="text">{{variant.size}}</span>
+                </li>
+                <li>
+                    <span class="title">Price:</span>
+                    <span class="text">{{variant.price}}</span>
+                </li>
+                <li>
+                    <span class="title">Stock:</span>
+                    <span class="text">{{variant.size.stock}}</span>
+                </li>
+                <li>
+                    <span class="title">Images:</span>
+                    <div class="text">
+                        {% if variant.image1 %}
+                            <img src="{{ variant.image1.url }}" alt="Image 1" style="width:55px; height: auto;">
+                        {% endif %}
+                        {% if variant.image2 %}
+                            <img src="{{ variant.image2.url }}" alt="Image 2" style="width: 55px; height: auto;">
+                        {% endif %}
+                        {% if variant.image3 %}
+                            <img src="{{ variant.image3.url }}" alt="Image 3" style="width: 55px; height: auto;">
+                        {% endif %}
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<div class="sidebar-overlay" data-reff=""></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'admin/js/popper.min.js' %}"></script>
+<script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+<script src="{% static 'admin/js/app.js' %}"></script>
+</body>
+

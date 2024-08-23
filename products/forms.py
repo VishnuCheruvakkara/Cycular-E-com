@@ -118,6 +118,11 @@ class ProductVariantForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         product = kwargs.pop('product', None)
         super(ProductVariantForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.size:
+            size_instance = self.instance.size
+            self.fields['color'].initial = size_instance.color
+            self.fields['size'].initial = size_instance
+            self.fields['stock'].initial = size_instance.stock
         if product:
             self.fields['product_name'].initial = product.name
             self.fields['product'].initial = product.id  # product ID is set correctly
@@ -145,6 +150,24 @@ class ProductVariantForm(forms.ModelForm):
 
 
         return cleaned_data
+    
+    def save(self, commit=True):
+        # Get the cleaned data
+        cleaned_data = self.cleaned_data
+        color = cleaned_data.get('color')
+        size = cleaned_data.get('size')
+        stock = cleaned_data.get('stock')
+
+        # Update the stock in the related Size model
+        if size and stock is not None:
+            size.stock = stock
+            size.color=color
+            size.save()
+
+        # Save the ProductVariant with the correct color reference
+        
+        return super(ProductVariantForm, self).save(commit=commit)
+
     
 #####################  Category form #######################
 
