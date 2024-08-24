@@ -16,6 +16,13 @@
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+    <style>
+        
+        .status-green {
+            pointer-events: none;
+            }
+        
+    </style>
 </head>
 
 <body>
@@ -105,15 +112,11 @@
                             <td>{{variant.size.color}}</td>
                             <td>{{variant.size}}</td>
                             <td style="text-align: center;">
-                                <button class="btn btn-sm toggle-status" 
-                                data-variant-id="{{ variant.id }}" 
-                                data-status="{{ variant.status }}" 
-                                data-toggle="modal" 
-                                data-target="#confirm-modal-{{ variant.id }}">
-                            <span class="custom-badge status-{{ variant.status|yesno:'green,red' }}">
-                                {{ variant.status|yesno:'Active,Inactive' }}
-                            </span>
-                                 </button>
+                                <button class="btn btn-sm">
+                                    <span class="custom-badge status-{{ variant.status|yesno:'green,red' }}">
+                                        {{ variant.status|yesno:'Active,Inactive' }}
+                                    </span>
+                                </button>
                             </td>
                             <td style="text-align: center;">
                                 <a href="{% url 'products:product_variant_data_view' variant.id %}" class="custom-badge status-blue ripple-effect">
@@ -145,26 +148,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Confirmation Modal -->
-                        <div id="confirm-modal-{{ variant.id }}" class="modal fade delete-modal" role="dialog">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-body text-center">
-                                        <img src="{% static 'admin/img/sent.png' %}" alt="" width="50" height="46">
-                                        <h3>Are you sure you want to change the <span style="color:#f62d51">status</span> of this product variant?</h3>
-                                        <div class="m-t-20">
-                                            <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
-                                            <button class="btn btn-danger confirm-toggle-status" 
-                                                    data-variant-id="{{ variant.id }}"
-                                                    data-status="{{ variant.status }}"
-                                                    data-dismiss="modal">
-                                                Confirm
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                       
                         
                         {% endfor %}
                     </tbody>
@@ -215,60 +199,6 @@
 <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
 <script src="{% static 'admin/js/app.js' %}"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
-    if (csrfTokenElement) {
-        const csrfToken = csrfTokenElement.value;
-
-        document.querySelectorAll('.confirm-toggle-status').forEach(button => {
-            button.addEventListener('click', function() {
-                const variantId = this.getAttribute('data-variant-id');
-                const currentStatus = this.getAttribute('data-status') === 'True';
-                const newStatus = !currentStatus;
-
-                console.log(`Toggling status for variant ${variantId}. Current: ${currentStatus}, New: ${newStatus}`);
-
-                fetch(`/toggle-status/${variantId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken,
-                    },
-                    body: JSON.stringify({ status: newStatus })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Update the UI based on the new status
-                        console.log(`Status updated: ${data.status}`);
-                        const statusButton = document.querySelector(`.toggle-status[data-variant-id='${variantId}']`);
-                        statusButton.setAttribute('data-status', data.status);
-                        const badge = statusButton.querySelector('.custom-badge');
-                        badge.className = `custom-badge status-${data.status ? 'green' : 'red'}`;
-                        badge.textContent = data.status ? 'Active' : 'Inactive';
-                    } else {
-                        console.error('Failed to update status:', data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error.message || error);
-                });
-            });
-        });
-    } else {
-        console.error('CSRF token not found');
-    }
-});
-
-
-
-</script>
 
 </body>
 

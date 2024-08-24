@@ -503,7 +503,7 @@ def product_variant_data(request,variant_id):
 
 ##################### view for the prodcut variant staus change using fetch #########################
 
-def toggle_status(request, variant_id):
+def toggle_variant_status(request, variant_id):
     if request.method == 'POST':
         variant = get_object_or_404(ProductVariant, id=variant_id)
         print(f'Original Status: {variant.status}')  # Debug

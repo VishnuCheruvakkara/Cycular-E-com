@@ -36,5 +36,5 @@ urlpatterns=[
     path('edit-variant/<int:variant_id>',views.edit_variant,name='edit-variant'),
     path('product-variant-data-view/<int:variant_id>',views.product_variant_data,name='product_variant_data_view'),
 
-    path('toggle-status/<int:variant_id>/',views.toggle_status, name='toggle_status'),
+    path('toggle-variant-status/<int:variant_id>/',views.toggle_variant_status, name='toggle-variant-status'),
 ]
