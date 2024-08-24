@@ -62,7 +62,7 @@ class ProductVariant(models.Model):
     status= models.BooleanField(default=True)
    
     def __str__(self):
-        return f"{self.size.color.product.name} - {self.size.color.name} - {self.size.name}"
+        return f"{self.size.color.name} - {self.size.name}"
     
 
 class Review(models.Model):

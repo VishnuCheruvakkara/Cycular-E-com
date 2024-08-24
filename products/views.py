@@ -176,7 +176,7 @@ def product_view(request,product_id):
         products_variants_paginated = paginator.page(1)
     except EmptyPage:
         products_variants_paginated = paginator.page(paginator.num_pages)
-    context={
+    context={      
         'product':product,
         'product_variants':products_variants_paginated,
     }
@@ -431,23 +431,53 @@ def delete_product_variant(request,variant_id):
 
 ####################### edit variant  ################################
 
-def edit_variant(request,variant_id):
-    variant=get_object_or_404(ProductVariant,id=variant_id)
+
+def edit_variant(request, variant_id):
+    variant = get_object_or_404(ProductVariant, id=variant_id)
     product = variant.product 
-    product_id=product.id
-    if request.method=='POST':
-        form = ProductVariantForm(request.POST,request.FILES,instance=variant)
+    product_id = product.id
+    
+    if request.method == 'POST':
+        form = ProductVariantForm(request.POST, request.FILES, instance=variant)
+        
         if form.is_valid():
-            form.save()
-            return redirect('products:product-view',product_id=product_id)
+            # Handling the cropped images
+            image1_cropped_data = request.POST.get('image1_cropped_data')
+            image2_cropped_data = request.POST.get('image2_cropped_data')
+            image3_cropped_data = request.POST.get('image3_cropped_data')
+            
+            if image1_cropped_data:
+                format, imgstr = image1_cropped_data.split(';base64,')
+                ext = format.split('/')[-1]
+                image1_file = ContentFile(base64.b64decode(imgstr), name=f'{variant.product}_image1.{ext}')
+                variant.image1 = image1_file
+
+            if image2_cropped_data:
+                format, imgstr = image2_cropped_data.split(';base64,')
+                ext = format.split('/')[-1]
+                image2_file = ContentFile(base64.b64decode(imgstr), name=f'{variant.product}_image2.{ext}')
+                variant.image2 = image2_file
+
+            if image3_cropped_data:
+                format, imgstr = image3_cropped_data.split(';base64,')
+                ext = format.split('/')[-1]
+                image3_file = ContentFile(base64.b64decode(imgstr), name=f'{variant.product}_image3.{ext}')
+                variant.image3 = image3_file
+
+            variant.save()
+            messages.success(request, 'Product Variant was edited successfully.', extra_tags='admin')
+            return redirect('products:product-view', product_id=product_id)
+        else:
+            messages.error(request, 'Please correct the following error!', extra_tags='admin')
     else:
-        form = ProductVariantForm(instance=variant,product=product)
-    context={
-        'form':form,
-        'product_id':product_id,
-        'product':product
+        form = ProductVariantForm(instance=variant, product=product)
+
+    context = {
+        'form': form,
+        'product_id': product_id,
+        'product': product
     }
-    return render(request,'products/edit-variant.html',context)
+    return render(request, 'products/edit-variant.html', context)
 
 ######################## single product view  #########################
 
@@ -459,7 +489,7 @@ def single_product_view(request,product_id):
         'product':product,
         'product_variants':product_variants,
     }
-    return render(request,'products/product-detail.html')
+    return render(request,'products/product-detail.html',context)
 
 ########################### product-variant-data-view #######################
 
@@ -473,26 +503,12 @@ def product_variant_data(request,variant_id):
 
 ##################### view for the prodcut variant staus change using fetch #########################
 
-@csrf_exempt
-def update_variant_status(request, variant_id):
+def toggle_status(request, variant_id):
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            new_status = data.get('status')
-
-            if new_status not in ['Active', 'Inactive']:
-                return JsonResponse({'success': False, 'error': 'Invalid status value'})
-
-            variant = ProductVariant.objects.get(id=variant_id)
-            variant.status = new_status
-            variant.save()
-
-            return JsonResponse({'success': True})
-        except ProductVariant.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Variant not found'})
-        except json.JSONDecodeError:
-            return JsonResponse({'success': False, 'error': 'Invalid JSON'})
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+        variant = get_object_or_404(ProductVariant, id=variant_id)
+        print(f'Original Status: {variant.status}')  # Debug
+        variant.status = not variant.status  # Toggle the status
+        variant.save()
+        print(f'New Status: {variant.status}')  # Debug
+        return JsonResponse({'success': True, 'status': variant.status})
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)

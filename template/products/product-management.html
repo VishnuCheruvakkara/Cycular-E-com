@@ -105,8 +105,8 @@
                                         <th>Sl.No</th>
 										<th>Image</th>
 										<th>Product Name</th>
-                                        <th>status</th>
-                                        <th>View</th>
+                                        <th style="text-align: center;">status</th>
+                                        <th style="text-align: center;">View</th>
 										<th class="text-right">Action</th>
 									</tr>
 								</thead>
@@ -116,14 +116,14 @@
                                         <td>{{forloop.counter}}</td>
 										<td><img width="40" height="40" src="{{product.product_variants.first.image1.url }}" class="rounded-circle m-r-5" alt=""></td>
 										<td>{{product.name}}</td>
-                                        <td>
+                                        <td style="text-align: center;">
                                             <button class="btn btn-sm toggle-status" data-product-id="{{ product.id }}" data-status="{{ product.status }}" data-toggle="modal" data-target="#confirm-modal-{{ product.id }}">
                                                 <span class="custom-badge status-{{ product.status|yesno:'green,red' }}">
                                                     {{ product.status|yesno:'Active,Inactive' }}
                                                 </span>
                                             </button>
                                         </td>
-                                        <td>
+                                        <td style="text-align: center;">
                                             <a href="{% url 'products:product-view' product.id %}" class="custom-badge status-blue ripple-effect">
                                                 View
                                             </a>
@@ -218,42 +218,41 @@
     <script src="{% static 'admin/js/select2.min.js' %}"></script>
     <script src="{% static 'admin/js/app.js' %}"></script>
 	<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.confirm-toggle-status').forEach(function(button) {
-        button.addEventListener('click', function() {
-            var productId = this.getAttribute('data-product-id');
-            var toggleButton = document.querySelector(`.toggle-status[data-product-id="${productId}"]`);
-            var status = toggleButton.getAttribute('data-status') === 'True';
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.confirm-toggle-status').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var productId = this.getAttribute('data-product-id');
+                var toggleButton = document.querySelector(`.toggle-status[data-product-id="${productId}"]`);
+                var status = toggleButton.getAttribute('data-status') === 'True';
 
-            fetch("{% url 'products:toggle-product-status' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: new URLSearchParams({
-                    'product_id': productId
+                fetch("{% url 'products:toggle-product-status' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: new URLSearchParams({
+                        'product_id': productId
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    var statusBadge = toggleButton.querySelector('.custom-badge');
-                    toggleButton.setAttribute('data-status', data.status);
-                    statusBadge.classList.toggle('status-green', data.status);
-                    statusBadge.classList.toggle('status-red', !data.status);
-                    statusBadge.textContent = data.status ? 'Active' : 'Inactive';
-                    
-                    $('#confirm-modal-' + productId).modal('hide');
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        var statusBadge = toggleButton.querySelector('.custom-badge');
+                        toggleButton.setAttribute('data-status', data.status);
+                        statusBadge.classList.toggle('status-green', data.status);
+                        statusBadge.classList.toggle('status-red', !data.status);
+                        statusBadge.textContent = data.status ? 'Active' : 'Inactive';
+                        
+                        $('#confirm-modal-' + productId).modal('hide');
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
         });
     });
-});
-
     </script>
 </body>
 
