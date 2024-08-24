@@ -101,7 +101,6 @@ class ProductVariantForm(forms.ModelForm):
     status = forms.BooleanField(
         label='Active',
         required=False,
-        initial=True,
         widget=forms.CheckboxInput(attrs={'class': 'form'})
     )
 
@@ -126,6 +125,8 @@ class ProductVariantForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         product = kwargs.pop('product', None)
         super(ProductVariantForm, self).__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields['status'].initial = True
         if self.instance and self.instance.size:
             size_instance = self.instance.size
             # to show the existing data in the product variant
@@ -151,6 +152,8 @@ class ProductVariantForm(forms.ModelForm):
             'image3': cleaned_data.get("image3"),
         }
 
+       
+
         if not color:
             self.add_error('color', 'Color is required.')
 
@@ -161,34 +164,51 @@ class ProductVariantForm(forms.ModelForm):
             self.add_error('price', "Price is required and must be greater than zero.")
         if not stock or stock <=0:
             self.add_error('stock',"Stock is required and must be greater that zero.")
-        max_size_mb = 2  # Maximum size in MB
-        for image_field in ['image1', 'image2', 'image3']:
-            image = cleaned_data.get(image_field)
-            if image:
-                if image.size > max_size_mb * 1024 * 1024:  # Convert MB to bytes
-                    self.add_error(image_field, f"The size of {image_field} should not exceed {max_size_mb}MB.")
        
+        max_size_mb = 2  # Maximum size in MB
+
+        # for image_field in ['image1', 'image2', 'image3']:
+        #     image = cleaned_data.get(image_field)
+            
+        #     if not image:
+        #         self.add_error(image_field, f"{image_field.replace('image', 'Image ')} is required.")
+        #         print(f"{image_field} is missing.")
+        #     else:
+        #         if image.size > max_size_mb * 1024 * 1024:  # Convert MB to bytes
+        #             self.add_error(image_field, f"The size of {image_field.replace('image', 'Image ')} should not exceed {max_size_mb} MB.")
+        #             print(f"{image_field} is too large: {image.size} bytes.")
+        #         else:
+        #             print(f"{image_field} is within size limits: {image.size} bytes.")
+                
         return cleaned_data
     
     def save(self, commit=True):
-        cleaned_data = self.cleaned_data
-        color = cleaned_data.get('color')
-        size = cleaned_data.get('size')
-        stock = cleaned_data.get('stock')
+        # Create the ProductVariant instance but don't save yet
+        product_variant = super(ProductVariantForm, self).save(commit=False)
 
+        # Access cleaned data from the form
+        size = self.cleaned_data.get('size')
+        color = self.cleaned_data.get('color')
+        stock = self.cleaned_data.get('stock')
+
+        # Ensure the Size instance is linked to the correct color
         if size:
-            # Update existing Size instance with new color and stock
-            size_instance = Size.objects.get(id=size.id)  # Ensure this retrieves the correct Size instance
-            size_instance.color = color
-            size_instance.stock = stock
-            size_instance.save()
+            if color and size.color != color:
+                size.color = color
+            if stock is not None and size.stock != stock:
+                size.stock = stock
+            size.save()  # Save changes to Size
 
-        # Save the ProductVariant instance
-        product_variant = super(ProductVariantForm, self).save(commit=commit)
+        # Set the size on the ProductVariant instance
+        product_variant.size = size
+
+        if commit:
+            product_variant.save()  # Save ProductVariant to the database
+
         return product_variant
-      
 
-    
+
+            
 #####################  Category form #######################
 
 class CategoryForm(forms.ModelForm): 
@@ -209,7 +229,7 @@ class CategoryForm(forms.ModelForm):
         cleaned_data = super().clean()
         name = cleaned_data.get('name')
 
-        # Check if name is too short
+        # Check if name is too short    
         if name and len(name) < 3:
             self.add_error('name', 'Name must be at least 3 characters long.')
         if not re.match(r'^[a-zA-Z]', name):
@@ -255,7 +275,7 @@ class BrandForm(forms.ModelForm):
         if name and len(name) < 3:
             self.add_error(None, "Brand name must be at least 3 characters long.")
         if not re.match(r'^[a-zA-Z]', name):
-                self.add_error('name', "Name must start with a letter.")
+            self.add_error('name', "Name must start with a letter.")
         # Check if name contains only letters and numbers
         if name and not re.match(r'^[a-zA-Z0-9\s-]*$', name):
             self.add_error('name', 'Name can only contain letters, numbers, spaces, and hyphens.')

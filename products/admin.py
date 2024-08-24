@@ -23,8 +23,9 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Color)
 class ColorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'product')
-    list_filter = ('product',)
+    list_display = ('name',)
+    list_filter = ()
+
 
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):

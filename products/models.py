@@ -33,7 +33,6 @@ class Product(models.Model):
         return self.name
 
 class Color(models.Model):
-    product = models.ForeignKey(Product, related_name='colors', on_delete=models.CASCADE,null=True)
     name = models.CharField(max_length=50)
     status = models.BooleanField(default=True)
 

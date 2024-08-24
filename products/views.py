@@ -10,8 +10,7 @@ from PIL import Image
 from django.views.decorators.http import require_POST
 from .models import Category,Brand,Size,Color
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.decorators.csrf import csrf_exempt
-import json
+
 
 
 # Create your views here.
@@ -441,6 +440,25 @@ def edit_variant(request, variant_id):
         form = ProductVariantForm(request.POST, request.FILES, instance=variant)
         
         if form.is_valid():
+            # Save the ProductVariant instance but do not commit to the database yet
+            product_variant = form.save(commit=False)
+
+            # Access cleaned data from the form
+            size = form.cleaned_data.get('size')
+            color = form.cleaned_data.get('color')
+            stock = form.cleaned_data.get('stock')
+
+            # Update the Size instance with the new stock and color values
+            if size:
+                size.stock = stock
+                if color:
+                    size.color = color
+                size.save()
+
+            # Set the size on the ProductVariant instance
+            product_variant.size = size
+
+
             # Handling the cropped images
             image1_cropped_data = request.POST.get('image1_cropped_data')
             image2_cropped_data = request.POST.get('image2_cropped_data')
