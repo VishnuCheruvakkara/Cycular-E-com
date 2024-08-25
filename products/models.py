@@ -52,6 +52,9 @@ class ProductVariant(models.Model):
     image3 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     status = models.BooleanField(default=True)
 
+    class Meta:
+        unique_together = ['size','product']
+
     def __str__(self):
         return f"{self.size.name} - {self.product.name}"  # Updated __str__ method
 

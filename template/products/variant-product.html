@@ -52,18 +52,6 @@
                                
                             </div>
                         
-                            <!-- Color Field -->
-                            <div class="form-group">
-                                <label for="id_color">Select Color</label>
-                                {{ form.color }}
-                                {% if form.color.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.color.errors %}
-                                        <p>{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            </div>
                         
                             <!-- Size Field -->
                             <div class="form-group">

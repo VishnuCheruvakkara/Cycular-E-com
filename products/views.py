@@ -109,6 +109,8 @@ def product_variant(request, product_id):
             variant = form.save(commit=False)
             variant.product = product 
 
+          
+
             # Process and resize the cropped images
             for i in range(1, 4):
                 cropped_data = request.POST.get(f'image{i}_cropped_data')
@@ -196,13 +198,12 @@ def category_management(request):
     categories = Category.objects.all()
     brands = Brand.objects.all()
     sizes = Size.objects.all()
-    colors = Color.objects.all()
+   
     
     context = {
         'categories': categories,
         'brands': brands,
-        'sizes': sizes,
-        'colors': colors,
+        'sizes':sizes,
         'form': form  # Include the form in the context
     }
     
@@ -230,14 +231,6 @@ def delete_size(request,size_id):
     size=get_object_or_404(Size,id=size_id)
     size.delete()
     messages.success(request,'Size deleted successfully.',extra_tags='admin')
-    return redirect('products:category-add')
-
-#################### Delete Color ########################
-
-def delete_color(request,color_id):
-    color=get_object_or_404(Color,id=color_id)
-    color.delete()
-    messages.success(request,'Color deleted successfully.',extra_tags='admin')
     return redirect('products:category-add')
 
 ################## add category ################################

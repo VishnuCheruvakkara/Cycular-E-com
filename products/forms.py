@@ -146,10 +146,7 @@ class ProductVariantForm(forms.ModelForm):
             'image3': cleaned_data.get("image3"),
         }
 
-       
-
-      
-
+    
         if not size:
             self.add_error('size', "Size is required.")
 
@@ -160,19 +157,24 @@ class ProductVariantForm(forms.ModelForm):
        
         max_size_mb = 2  # Maximum size in MB
 
-        # for image_field in ['image1', 'image2', 'image3']:
-        #     image = cleaned_data.get(image_field)
+        for image_field in ['image1', 'image2', 'image3']:
+            image = cleaned_data.get(image_field)
             
-        #     if not image:
-        #         self.add_error(image_field, f"{image_field.replace('image', 'Image ')} is required.")
-        #         print(f"{image_field} is missing.")
-        #     else:
-        #         if image.size > max_size_mb * 1024 * 1024:  # Convert MB to bytes
-        #             self.add_error(image_field, f"The size of {image_field.replace('image', 'Image ')} should not exceed {max_size_mb} MB.")
-        #             print(f"{image_field} is too large: {image.size} bytes.")
-        #         else:
-        #             print(f"{image_field} is within size limits: {image.size} bytes.")
-                
+            if not image:
+                self.add_error(image_field, f"{image_field.replace('image', 'Image ')} is required.")
+                print(f"{image_field} is missing.")
+            else:
+                if image.size > max_size_mb * 1024 * 1024:  # Convert MB to bytes
+                    self.add_error(image_field, f"The size of {image_field.replace('image', 'Image ')} should not exceed {max_size_mb} MB.")
+                    print(f"{image_field} is too large: {image.size} bytes.")
+                else:
+                    print(f"{image_field} is within size limits: {image.size} bytes.")
+        if size:
+            # Check if there's another variant with the same size
+            if ProductVariant.objects.filter(size=size).exclude(pk=self.instance.pk).exists():
+                # Add an error to the 'size' field
+                self.add_error('size', 'The selected size already exists.')
+        
         return cleaned_data
     
   
