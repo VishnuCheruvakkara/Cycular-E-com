@@ -3,7 +3,6 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-
 class Brand(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
@@ -13,7 +12,7 @@ class Brand(models.Model):
         return self.name
 
 class Category(models.Model):
-    name = models.CharField(max_length=100,unique=True)
+    name = models.CharField(max_length=100, unique=True)
     status = models.BooleanField(default=True)
 
     def __str__(self):
@@ -32,31 +31,29 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-
-
 class Size(models.Model):
     name = models.CharField(max_length=50)
     stock = models.PositiveIntegerField(default=True)
     status = models.BooleanField(default=True)
-   
+
+    # Removed 'color' reference and unique_together constraint
     class Meta:
-        unique_together = ['name', 'color']
+        unique_together = ['name']
 
     def __str__(self):
         return self.name
 
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='product_variants', on_delete=models.CASCADE)
-    size = models.ForeignKey(Size, related_name='size_variants', on_delete=models.CASCADE,null=True, blank=True)
+    size = models.ForeignKey(Size, related_name='size_variants', on_delete=models.CASCADE, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     image1 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image2 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image3 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
-    status= models.BooleanField(default=True)
-   
+    status = models.BooleanField(default=True)
+
     def __str__(self):
-        return f"{self.size.color.name} - {self.size.name}"
-    
+        return f"{self.size.name} - {self.product.name}"  # Updated __str__ method
 
 class Review(models.Model):
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)

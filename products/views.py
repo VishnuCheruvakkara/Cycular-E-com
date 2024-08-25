@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .forms import ProductForm,ProductVariantForm,CategoryForm,BrandForm,SizeForm,ColorForm
+from .forms import ProductForm,ProductVariantForm,CategoryForm,BrandForm,SizeForm
 from django.contrib import messages
 from .models import Product,ProductVariant
 from django.http import JsonResponse
@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from io import BytesIO
 from PIL import Image
 from django.views.decorators.http import require_POST
-from .models import Category,Brand,Size,Color
+from .models import Category,Brand,Size
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
@@ -371,52 +371,6 @@ def edit_size(request,size_id):
         'heading':heading,
     }
     return render(request,'products/add-size.html',context)
-
-
-
-############################ add-color ##################################
-
-def add_color(request):
-    heading="Add-Color"
-    if request.method == 'POST':
-        form = ColorForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request,'Color added successfully!',extra_tags='admin')
-            return redirect('products:category-add')
-        else:
-            messages.error(request,'Please correct the error,try again!',extra_tags='admin')
-           
-    else:
-        form = ColorForm()
-    context={
-        'form':form,
-        'heading':heading,
-    }
-    return render(request,'products/add-color.html',context)
-
-############################ edit-color #################################
-
-def edit_color(request,color_id):
-    color=get_object_or_404(Color,id=color_id)
-    heading="Edit-Color"
-    if request.method == 'POST':
-        form = ColorForm(request.POST,instance=color)
-
-        if form.is_valid():
-            form.save()
-            messages.success(request,'Color updated successfully!',extra_tags='admin')
-            return redirect('products:category-add')
-        else:
-            messages.error(request,'Please correct the error, try again!',extra_tags='admin')
-    else:
-        form=ColorForm(instance=color)
-
-    context={
-        'form':form,
-        'heading':heading,
-    }
-    return render(request,'products/add-color.html',context)
 
 ####################### delete product variant ########################################
 

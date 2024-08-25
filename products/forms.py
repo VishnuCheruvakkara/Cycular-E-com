@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product,Color, Size,ProductVariant,Category,Brand
+from .models import Product,Size,ProductVariant,Category,Brand
 import re
 from django.utils.text import slugify
 import magic
@@ -60,11 +60,6 @@ class ProductVariantForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
         required=False,
     )
-    color = forms.ModelChoiceField(
-        queryset=Color.objects.all(),
-        label='Select Color',
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
     size = forms.ModelChoiceField(
         queryset=Size.objects.all(),
         label='Select Size',
@@ -108,7 +103,6 @@ class ProductVariantForm(forms.ModelForm):
         model = ProductVariant
         fields = [
             'product_name',  # The readonly product name field
-            'color',
             'size',
             'price',
             'product',  # Include the product field
@@ -130,7 +124,7 @@ class ProductVariantForm(forms.ModelForm):
         if self.instance and self.instance.size:
             size_instance = self.instance.size
             # to show the existing data in the product variant
-            self.fields['color'].initial = size_instance.color
+         
             self.fields['size'].initial = size_instance
             self.fields['stock'].initial = size_instance.stock
         if product:
@@ -142,7 +136,7 @@ class ProductVariantForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        color = cleaned_data.get("color")
+     
         size = cleaned_data.get('size')
         price = cleaned_data.get("price")
         stock=cleaned_data.get("stock")
@@ -154,8 +148,7 @@ class ProductVariantForm(forms.ModelForm):
 
        
 
-        if not color:
-            self.add_error('color', 'Color is required.')
+      
 
         if not size:
             self.add_error('size', "Size is required.")
@@ -270,41 +263,6 @@ class BrandForm(forms.ModelForm):
             self.add_error('description', 'Description cannot consist of only numbers. It must include letters.')
 
         return cleaned_data
-
-######################### Color Form #############################
-
-class ColorForm(forms.ModelForm):
-    class Meta:
-        model = Color
-        fields = ['name', 'status']
-        widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter color name'
-            }),
-            'status': forms.CheckboxInput(attrs={
-                'class': 'form'
-            }),
-        }
-
-    def clean(self):
-        cleaned_data = super().clean()
-        name = cleaned_data.get("name")
-        
-        # Non-field validation for 'name' field
-        if name and len(name) < 3:
-            self.add_error(None, "Color name must be at least 3 characters long.")
-        if not re.match(r'^[a-zA-Z]', name):
-                self.add_error('name', "Name must start with a letter.")
-        # Check if name contains only letters and numbers
-        if name and not re.match(r'^[a-zA-Z0-9]*$', name):
-            self.add_error('name', 'Name can only contain letters and numbers.')
-
-        # Check if name consists of only numbers
-        if name and re.match(r'^\d+$', name):
-            self.add_error('name', 'Name cannot consist of only numbers. It must include letters.')
-
-        return cleaned_data  
 
     
 ######################### Size Form #############################

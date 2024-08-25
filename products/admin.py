@@ -1,11 +1,5 @@
 from django.contrib import admin
-
-# Register your models here.
-
-from .models import Brand, Color, Size, Category, Product, ProductVariant, Review
-
-from django.contrib import admin
-from .models import Brand, Category, Product, Color, Size, ProductVariant, Review
+from .models import Brand, Category, Product, Size, ProductVariant, Review
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
@@ -17,28 +11,23 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'brand', 'category' , 'status', 'created_at', 'updated_at')
+    list_display = ('name', 'brand', 'category', 'status', 'created_at', 'updated_at')
     list_filter = ('brand', 'category', 'status')
     search_fields = ('name', 'description')
 
-@admin.register(Color)
-class ColorAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    list_filter = ()
-
-
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'color', 'stock')
-    list_filter = ('color',)
+    list_display = ('name', 'stock')
+    # Removed color-related fields and filters
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ('product', 'size', 'get_color' , 'price' , 'image1' , 'image2', 'image3')
-    list_filter = ('product', 'size__color')
+    list_display = ('product', 'size', 'price', 'image1', 'image2', 'image3')
+    list_filter = ('product', 'size')  # Removed color-related filter
 
     def get_color(self, obj):
-        return obj.size.color.name if obj.size and obj.size.color else 'No Color'
+        # Removed as color field no longer exists
+        return 'No Color'
     get_color.short_description = 'Color'
 
 @admin.register(Review)
