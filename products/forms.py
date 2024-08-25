@@ -182,30 +182,7 @@ class ProductVariantForm(forms.ModelForm):
                 
         return cleaned_data
     
-    def save(self, commit=True):
-        # Create the ProductVariant instance but don't save yet
-        product_variant = super(ProductVariantForm, self).save(commit=False)
-
-        # Access cleaned data from the form
-        size = self.cleaned_data.get('size')
-        color = self.cleaned_data.get('color')
-        stock = self.cleaned_data.get('stock')
-
-        # Ensure the Size instance is linked to the correct color
-        if size:
-            if color and size.color != color:
-                size.color = color
-            if stock is not None and size.stock != stock:
-                size.stock = stock
-            size.save()  # Save changes to Size
-
-        # Set the size on the ProductVariant instance
-        product_variant.size = size
-
-        if commit:
-            product_variant.save()  # Save ProductVariant to the database
-
-        return product_variant
+  
 
 
             
