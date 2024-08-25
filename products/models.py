@@ -32,17 +32,11 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-class Color(models.Model):
-    name = models.CharField(max_length=50)
-    status = models.BooleanField(default=True)
 
-    def __str__(self):
-        return self.name
 
 class Size(models.Model):
     name = models.CharField(max_length=50)
     stock = models.PositiveIntegerField(default=True)
-    color = models.ForeignKey(Color, related_name='sizes', on_delete=models.CASCADE,null=True,blank=True)
     status = models.BooleanField(default=True)
    
     class Meta:

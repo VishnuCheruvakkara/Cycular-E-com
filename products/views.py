@@ -499,15 +499,12 @@ def edit_variant(request, variant_id):
 
 ######################## single product view  #########################
 
-def single_product_view(request,product_id):
-    product=get_object_or_404(Product,id=product_id)
-    product_variants=product.product_variants.all()
-                                                                   
+def single_product_view(request, variant_id):
+    variant=get_object_or_404(ProductVariant,id=variant_id)
     context={
-        'product':product,
-        'product_variants':product_variants,
+        'variant':variant,
     }
-    return render(request,'products/product-detail.html',context)
+    return render(request, 'products/single-product.html',context)
 
 ########################### product-variant-data-view #######################
 
