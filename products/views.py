@@ -387,25 +387,7 @@ def edit_variant(request, variant_id):
         form = ProductVariantForm(request.POST, request.FILES, instance=variant)
         
         if form.is_valid():
-            # Save the ProductVariant instance but do not commit to the database yet
-            product_variant = form.save(commit=False)
-
-            # Access cleaned data from the form
-            size = form.cleaned_data.get('size')
-            color = form.cleaned_data.get('color')
-            stock = form.cleaned_data.get('stock')
-
-            # Update the Size instance with the new stock and color values
-            if size:
-                size.stock = stock
-                if color:
-                    size.color = color
-                size.save()
-
-            # Set the size on the ProductVariant instance
-            product_variant.size = size
-
-
+          
             # Handling the cropped images
             image1_cropped_data = request.POST.get('image1_cropped_data')
             image2_cropped_data = request.POST.get('image2_cropped_data')
@@ -448,8 +430,10 @@ def edit_variant(request, variant_id):
 
 def single_product_view(request, variant_id):
     variant=get_object_or_404(ProductVariant,id=variant_id)
+    sizes=Size.objects.all()
     context={
         'variant':variant,
+        'sizes':sizes,
     }
     return render(request, 'products/single-product.html',context)
 
@@ -463,14 +447,19 @@ def product_variant_data(request,variant_id):
     }
     return render(request,'products/product-variant-data-view.html',context)
 
-##################### view for the prodcut variant staus change using fetch #########################
+#####################  product stock count  by size using ajax  #########################
 
-def toggle_variant_status(request, variant_id):
-    if request.method == 'POST':
-        variant = get_object_or_404(ProductVariant, id=variant_id)
-        print(f'Original Status: {variant.status}')  # Debug
-        variant.status = not variant.status  # Toggle the status
-        variant.save()
-        print(f'New Status: {variant.status}')  # Debug
-        return JsonResponse({'success': True, 'status': variant.status})
-    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+def get_size_stock(request):
+    size_id = request.GET.get('size_id')
+    product_id = request.GET.get('product_id')  # Assuming you need product_id to find the relevant ProductVariant
+
+    if size_id and product_id:
+        try:
+            # Retrieve the ProductVariant based on size_id and product_id
+            variant = ProductVariant.objects.get(size_id=size_id, product_id=product_id)
+            stock = variant.stock
+            return JsonResponse({'stock': stock})
+        except ProductVariant.DoesNotExist:
+            return JsonResponse({'stock': 0})
+    return JsonResponse({'stock': 0})

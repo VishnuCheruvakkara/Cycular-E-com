@@ -126,7 +126,7 @@ class ProductVariantForm(forms.ModelForm):
             # to show the existing data in the product variant
          
             self.fields['size'].initial = size_instance
-            self.fields['stock'].initial = size_instance.stock
+           
         if product:
             self.fields['product_name'].initial = product.name
             self.fields['product'].initial = product.id  # product ID is set correctly
@@ -169,11 +169,7 @@ class ProductVariantForm(forms.ModelForm):
                     print(f"{image_field} is too large: {image.size} bytes.")
                 else:
                     print(f"{image_field} is within size limits: {image.size} bytes.")
-        if size:
-            # Check if there's another variant with the same size
-            if ProductVariant.objects.filter(size=size).exclude(pk=self.instance.pk).exists():
-                # Add an error to the 'size' field
-                self.add_error('size', 'The selected size already exists.')
+       
         
         return cleaned_data
     

@@ -33,7 +33,6 @@ class Product(models.Model):
 
 class Size(models.Model):
     name = models.CharField(max_length=50)
-    stock = models.PositiveIntegerField(default=True)
     status = models.BooleanField(default=True)
 
     # Removed 'color' reference and unique_together constraint
@@ -46,6 +45,7 @@ class Size(models.Model):
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='product_variants', on_delete=models.CASCADE)
     size = models.ForeignKey(Size, related_name='size_variants', on_delete=models.CASCADE, null=True, blank=True)
+    stock = models.PositiveIntegerField(default=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     image1 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image2 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)

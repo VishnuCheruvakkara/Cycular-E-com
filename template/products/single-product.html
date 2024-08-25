@@ -660,16 +660,18 @@
                                         <label for="size">Size:</label>
                                         <div class="select-custom">
                                             <select name="size" id="size" class="form-control">
-                                                <option value="#" selected="selected">Select a size</option>
-                                                <option value="s">Small</option>
-                                                <option value="m">Medium</option>
-                                                <option value="l">Large</option>
-                                                <option value="xl">Extra Large</option>
+                                                <option value="" selected="selected">Select a size</option>
+                                                {% for size in sizes %}
+                                                    <option value="{{ size.id }}">{{ size.name }}</option>
+                                                {% endfor %}
                                             </select>
                                         </div><!-- End .select-custom -->
-
-                                        <a href="#" class="size-guide"><i class="icon-th-list"></i>size guide</a>
+                                    
+                                        <!-- This is where the stock information will be displayed -->
+                                        <a href="#" id="size-guide" class="size-guide"><i class="icon-th-list"></i><span>size guide</span></a>
                                     </div><!-- End .details-filter-row -->
+
+
 
                                     <div class="details-filter-row details-row-size">
                                         <label for="qty">Qty:</label>
@@ -1434,20 +1436,22 @@
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script>
         $(document).ready(function () {
-            $("#product-zoom").ezPlug({
-                zoomType: "inner",          // Zooms inside the image container
-                cursor: "crosshair",        // Change cursor to crosshair
-                easing: false,              // Disable easing for immediate zoom
-             
-                scrollZoom: true,           // Allow zooming with the mouse scroll
-                zoomLevel: 2,               // Increase zoom level (you can adjust this value for more zoom)
-                responsive: true,           // Make sure the zoom is responsive
-                borderSize: 0,              // Remove border size
-                lensBorderSize: 0,          // Remove lens border size
-                lensSize: 5000,              // Size of the zoom lens (adjust as needed)
-                zoomLens: true,             // Enable the zoom lens for more control
-                lensOpacity: 0.5            // Set lens opacity (optional)
-            });
+        $("#product-zoom").ezPlug({
+            zoomType: "lens",               // Zooms inside the image container
+            cursor: "crosshair",            // Change cursor to crosshair
+            easing: false,                  // Disable easing for immediate zoom
+            scrollZoom: true,               // Allow zooming with the mouse scroll
+            zoomLevel: 2,                   // Increase zoom level (you can adjust this value for more zoom)
+            responsive: true,               // Make sure the zoom is responsive
+            borderSize: 0,                  // Remove border size
+            lensBorderSize: 0,              // Remove lens border size
+            lensSize: 150,                  // Adjust lens size (diameter of the circle)
+            zoomLens: true,                 // Enable the zoom lens for more control
+            lensOpacity: 0.5,               // Set lens opacity (optional)
+            lensShape: "round",             // Set the shape of the lens to round
+            lensColor: "#000",              // Optional: Set the color of the lens for a better visual effect
+        });
+
     
             // Swap images when thumbnails are clicked
             $("#product-zoom-gallery a").on('click', function (e) {
@@ -1456,6 +1460,34 @@
                 ez.swapImage($(this).data('image'), $(this).data('zoom-image'));
             });
         });
+
+
+        $(document).ready(function () {
+            $("#size").change(function () {
+                var sizeId = $(this).val();
+                var productId = $("#product-id").val();  // Assuming you have a hidden field or other way to get product ID
+
+                $.ajax({
+                    url: "{% url 'products:get-size-stock' %}",
+                    data: {
+                        'size_id': sizeId,
+                        'product_id': productId
+                    },
+                    success: function (data) {
+                        if (data.stock > 0) {
+                            $('.size-guide').text('Stock available: ' + data.stock);
+                        } else {
+                            $('.size-guide').text('Out of stock');
+                        }
+                    },
+                    error: function () {
+                        $('.size-guide').text('Error fetching stock');
+                    }
+                });
+            });
+        });
+
+
     </script>
     
     

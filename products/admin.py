@@ -17,12 +17,12 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'stock')
+    list_display = ('name','status')
     # Removed color-related fields and filters
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ('product', 'size', 'price', 'image1', 'image2', 'image3')
+    list_display = ('product', 'size', 'price', 'image1', 'image2', 'image3','stock')
     list_filter = ('product', 'size')  # Removed color-related filter
 
     def get_color(self, obj):
