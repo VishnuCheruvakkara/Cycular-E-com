@@ -429,6 +429,7 @@ def edit_variant(request, variant_id):
 ######################## single product view  #########################
 
 def single_product_view(request, variant_id):
+    
     variant=get_object_or_404(ProductVariant,id=variant_id)
     sizes=Size.objects.all()
     context={
@@ -450,16 +451,3 @@ def product_variant_data(request,variant_id):
 #####################  product stock count  by size using ajax  #########################
 
 
-def get_size_stock(request):
-    size_id = request.GET.get('size_id')
-    product_id = request.GET.get('product_id')  # Assuming you need product_id to find the relevant ProductVariant
-
-    if size_id and product_id:
-        try:
-            # Retrieve the ProductVariant based on size_id and product_id
-            variant = ProductVariant.objects.get(size_id=size_id, product_id=product_id)
-            stock = variant.stock
-            return JsonResponse({'stock': stock})
-        except ProductVariant.DoesNotExist:
-            return JsonResponse({'stock': 0})
-    return JsonResponse({'stock': 0})

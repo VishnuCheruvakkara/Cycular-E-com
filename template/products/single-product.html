@@ -662,6 +662,7 @@
                                             <select name="size" id="size" class="form-control">
                                                 <option value="" selected="selected">Select a size</option>
                                                 {% for size in sizes %}
+                                                
                                                     <option value="{{ size.id }}">{{ size.name }}</option>
                                                 {% endfor %}
                                             </select>
@@ -1462,31 +1463,7 @@
         });
 
 
-        $(document).ready(function () {
-            $("#size").change(function () {
-                var sizeId = $(this).val();
-                var productId = $("#product-id").val();  // Assuming you have a hidden field or other way to get product ID
-
-                $.ajax({
-                    url: "{% url 'products:get-size-stock' %}",
-                    data: {
-                        'size_id': sizeId,
-                        'product_id': productId
-                    },
-                    success: function (data) {
-                        if (data.stock > 0) {
-                            $('.size-guide').text('Stock available: ' + data.stock);
-                        } else {
-                            $('.size-guide').text('Out of stock');
-                        }
-                    },
-                    error: function () {
-                        $('.size-guide').text('Error fetching stock');
-                    }
-                });
-            });
-        });
-
+       
 
     </script>
     

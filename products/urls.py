@@ -38,6 +38,4 @@ urlpatterns=[
    
 
 
-    #  product stock count  by size using ajax 
-     path('get-size-stock/',views.get_size_stock, name='get-size-stock'),
 ]
