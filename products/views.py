@@ -429,12 +429,15 @@ def edit_variant(request, variant_id):
 ######################## single product view  #########################
 
 def single_product_view(request, variant_id):
-    
     variant=get_object_or_404(ProductVariant,id=variant_id)
-    sizes=Size.objects.all()
+    available_sizes = ProductVariant.objects.filter(product=variant.product).values_list('size__name', flat=True).distinct()
+    product=variant.product
+    related_variants = ProductVariant.objects.filter( product__category=product.category).exclude(id=variant.id)[:5]
+    print( related_variants)
     context={
         'variant':variant,
-        'sizes':sizes,
+        'available_sizes': available_sizes,
+        'related_variants': related_variants,
     }
     return render(request, 'products/single-product.html',context)
 
@@ -444,7 +447,8 @@ def product_variant_data(request,variant_id):
     variant=get_object_or_404(ProductVariant,id=variant_id)
     context={
         'variant':variant,
-        'product':variant.product
+        'product':variant.product,
+       
     }
     return render(request,'products/product-variant-data-view.html',context)
 
