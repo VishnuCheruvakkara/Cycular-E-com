@@ -455,3 +455,14 @@ def product_variant_data(request,variant_id):
 #####################  product stock count  by size using ajax  #########################
 
 
+def get_variant_stock(request):
+    if request.is_ajax():
+        size_id = request.GET.get('size_id')
+        product_id = request.GET.get('product_id')
+        variant = get_object_or_404(ProductVariant, size__id=size_id, product__id=product_id)
+        data = {
+            'stock': variant.stock,
+        }
+        return JsonResponse(data)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
