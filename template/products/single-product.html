@@ -656,7 +656,22 @@
                                     </div><!-- End .product-content -->
 
 
+                                    <div class="details-filter-row details-row-size">
+                                        <label for="size">Size:</label>
+                                        <div class="select-custom">
+                                            <select name="size" id="size" class="form-control">
+                                                <option value="" selected="selected">Select a size</option>
+                                              
+                                                
+                                                {% for size in available_sizes %}
+                                                    <a href=""></a><option value="{{ size.id }}">{{ size }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div><!-- End .select-custom -->
                                     
+                                        <!-- This is where the stock information will be displayed -->
+                                        <a href="#" id="size-guide" class="size-guide"><i class="icon-th-list"></i><span>size guid</span></a>
+                                    </div><!-- End .details-filter-row -->
 
 
 
