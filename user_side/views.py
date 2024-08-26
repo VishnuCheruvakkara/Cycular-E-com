@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .forms import UserRegisterForm
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login,authenticate,logout
-from django.contrib.auth.hashers import make_password
+
 from django.contrib import messages
 from django.conf import settings
 import random
@@ -19,11 +19,6 @@ User = get_user_model()
 # Create your views here.
 
 
-############################  home page ###################################
-
-def home_page(request):
-    return render(request,'core/index.html')
-
 ###########################  user sign-up  #####################################
 import uuid
 
@@ -32,12 +27,6 @@ def generate_unique_session_key():
 
 @never_cache
 def register_view(request):
-
-    breadcrumbs_pages=[
-        {'name':'Home','url':'core/index.html'},
-        {'name':'Sign-up','url':'','active':True}
-    ]
-
     if request.method=='POST':
         form=UserRegisterForm(request.POST)
         if form.is_valid(): #check the all validation condition for the submitted data
@@ -48,14 +37,15 @@ def register_view(request):
             # #checker
             print(email,password,username)
 
-            session_key=generate_unique_session_key()
+            session_key=generate_unique_session_key() #custom function called for generate the session key : above
 
             otp = generate_otp()
+
             otp_created_at = timezone.now()
            
             request.session[session_key]={
                 'otp':otp,
-                'otp_created_at':otp_created_at.isoformat(),
+                'otp_created_at':otp_created_at.isoformat(),#for serialization
                 'email':email,
                 'username':username,
                 'password':password,
@@ -75,16 +65,17 @@ def register_view(request):
 
     context={
         'form':form,
-        'breadcrumb_pages': breadcrumbs_pages,
+     
     }
    
     return render(request,"user_side/sign-up.html",context)
 
 ###########################  login section #############################################
+
 @never_cache
 def login_view(request):
     if request.user.is_authenticated:
-        messages.warning(request, "Hello, you are already logged in.")
+        messages.info(request, "Hello, you are already logged in.")
         return redirect("core:index")
     
     if request.method == "POST":
@@ -108,11 +99,12 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    messages.success(request,"You logged out")
+    messages.info(request,"You logged out")
     return redirect("user_side:sign-in")
 
 ###########################  otp page section  #########################################
 
+@never_cache
 def otp_view(request):
 
     #cheker
@@ -120,21 +112,23 @@ def otp_view(request):
     session_key=request.session.get('user_registration_data')
     session_data=request.session.get(session_key)
 
-    # Debugging print statements
-    print("Session data before retrieving password:", session_data)
+    # # Debugging print statements
+    # print("Session data before retrieving password:", session_data)
     
-    # Attempt to retrieve the password from the session data
-    password = session_data.get('password')
-    print("Retrieved password:", password)
+    # # Attempt to retrieve the password from the session data
+    # password = session_data.get('password')
+    # print("Retrieved password:", password)
 
 
-    email=session_data.get('email')
-    username=session_data.get('username')
-    password=session_data.get('password')
+    # email=session_data.get('email')
+    # username=session_data.get('username')
+    # password=session_data.get('password')
 
-    print(email,username,password)
+    # print(email,username,password)
 
-    session_key=request.session.get('user_registration_data')
+    # session_key=request.session.get('user_registration_data')
+
+    #################################################
 
     if (not session_key) or (session_key not in request.session):
         messages.error(request, 'No data found. Please sign-up again.')
@@ -166,6 +160,7 @@ def otp_view(request):
             username=session_data.get('username')
             password=request.POST.get('password1')
 
+#############################################
             #checker
                     
             # Debugging print statements
@@ -189,6 +184,7 @@ def otp_view(request):
             password = session_data.get('password')
             print("Retrieved password:", password)
 
+########################################################
 
             user.save()
             if user is not None:
@@ -202,7 +198,7 @@ def otp_view(request):
                 messages.error(request,'User creation failed. Please try again.')
                 return redirect('user_side:sign-in')
         else:
-            messages.error(request,'Invalid OTP : Entered otp is not match, check-otu resend OTP.')
+            messages.error(request,'Invalid OTP : Entered otp is not match, check-otp resend OTP.')
 
     return render(request,'user_side/otp.html')
 
@@ -227,10 +223,12 @@ def send_otp_email(email,otp,username):
 def resend_otp(request):
     session_key = request.session.get('user_registration_data')
     if not session_key or session_key not in request.session:
+        messages.error(request, "Session expired. Please sign up again.")
         return redirect('user_side:sign-up')  # Redirect to signup if no session data
     
     session_data = request.session.get(session_key)
     if not session_data:
+        messages.error(request, "Session data not found. Please sign up again.")
         return redirect('user_side:sign-up')  # Redirect to signup if session data is empty
     
     email = session_data.get('email')
@@ -242,7 +240,8 @@ def resend_otp(request):
     session_data['otp_created_at'] = timezone.now().isoformat()
     request.session[session_key] = session_data
     request.session.modified = True
-    
+
+    messages.success(request, f"OTP successfully resent to {email}. Please check your inbox.")
     # Redirect back to the OTP input page with a success message
     return redirect('user_side:otp')
 
