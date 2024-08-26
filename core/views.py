@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from products.models import ProductVariant
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
 
-#######################  user home-side #####################################3
+#######################  user home-side #####################################
 
+@never_cache
 def Index(request):
     product_variants=ProductVariant.objects.filter(status=True,product__status=True)
     context={

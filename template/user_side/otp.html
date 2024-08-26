@@ -107,33 +107,41 @@
         }, countdownTime * 1000);
     }
 
-    // Handle OTP resend button click
-    document.getElementById("resend-otp").addEventListener("click", function(event) {
-        event.preventDefault(); // Prevent default link behavior
 
-        fetch("{% url 'user_side:resend-otp' %}", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}", // Include CSRF token
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert(data.message); // Display success message
-                countdownTime = 60; // Reset countdown time to 60 seconds
-                sessionStorage.setItem('countdownTime', countdownTime); // Update sessionStorage
-                clearInterval(timerInterval); // Clear the previous interval
-                timerInterval = setInterval(updateCountdown, 1000); // Restart the timer
-            } else {
-                alert(data.message); // Display error message
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
 
+
+
+    // // Handle OTP resend button click
+    // document.getElementById("resend-otp").addEventListener("click", function(event) {
+    //     event.preventDefault(); // Prevent default link behavior
+
+    //     fetch("{% url 'user_side:resend-otp' %}", {
+    //         method: "POST",
+    //         headers: {
+    //             "X-CSRFToken": "{{ csrf_token }}", // Include CSRF token
+    //             "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify({})
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.status === 'success') {
+    //             alert(data.message); // Display success message
+    //             countdownTime = 60; // Reset countdown time to 60 seconds
+    //             sessionStorage.setItem('countdownTime', countdownTime); // Update sessionStorage
+    //             clearInterval(timerInterval); // Clear the previous interval
+    //             timerInterval = setInterval(updateCountdown, 1000); // Restart the timer
+    //         } else {
+    //             alert(data.message); // Display error message
+    //         }
+    //     })
+    //     .catch(error => console.error('Error:', error));
+    // });
+
+
+
+
+    
     // Automatically move to the next OTP input
     const otpInputs = document.querySelectorAll('.otp-input');
     otpInputs.forEach((input, index) => {
