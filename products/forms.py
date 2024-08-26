@@ -34,13 +34,14 @@ class ProductForm(forms.ModelForm):
                 self.add_error('name', "Name must be at least 3 characters long.")
             if not re.match(r'^[a-zA-Z]', name):
                 self.add_error('name', "Name must start with a letter.")
-            if name and not re.match(r'^[a-zA-Z0-9\-\(\)](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', name):
+            if name and not re.match(r'^[a-zA-Z0-9\-\(\)\., ](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', name):
                 self.add_error('name', 'Name can only contain letters, numbers, hyphens, brackets, and a single space between words.')
             # Check for unique name in the Product model
             if Product.objects.filter(name=name).exclude(id=self.instance.id).exists():
                 self.add_error('name', "A product with this name already exists.")
-        if description and not re.match(r'^[a-zA-Z0-9\-\(\)](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', description):
-                self.add_error('description', 'Description can only contain letters, numbers, hyphens, brackets, and a single space between words.')
+         # Description validation
+        if description and not re.match(r'^[\w\-\(\)\.,;:\s]+$', description):
+            self.add_error('description', 'Key specifications can only contain letters, numbers, hyphens, brackets, periods, commas, and spaces.')
         if not category:
             self.add_error('category', "Category is required.")
         if not key_specification:
@@ -48,8 +49,10 @@ class ProductForm(forms.ModelForm):
         if len(key_specification) < 10:
             self.add_error('key_specification', "Key specification must be at least 10 characters long.")
         # Additional custom validations can go here
-        if key_specification and not re.match(r'^[a-zA-Z0-9\-\(\)](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', key_specification):
-                self.add_error('key_specification', 'Key specifications can only contain letters, numbers, hyphens, brackets, and a single space between words.')
+        if key_specification and not re.match(r'^[\w\-\(\)\.,;:\s]+$', key_specification):
+            self.add_error('key_specification', 'Key specifications can only contain letters, numbers, hyphens, brackets, periods, commas, and spaces.')
+
+
 
         return cleaned_data
     
