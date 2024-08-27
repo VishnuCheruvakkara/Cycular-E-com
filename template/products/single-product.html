@@ -1259,7 +1259,7 @@
 <script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
 <!-- Main JS File -->
 <script src="{% static 'assets/js/main.js' %}"></script>
-    <script>
+<script>
        
 
 $(document).ready(function () {
@@ -1310,35 +1310,7 @@ $(document).ready(function () {
     });
 });
 
-         
-
-
-
-        $(document).ready(function(){
-        $('#size').change(function(){
-            var size_id = $(this).val();
-            var product_id = "{{ variant.product.id }}";  // Pass the current product id
-            if(size_id) {
-                $.ajax({
-                    url: '{% url "products:get-variant-stock" %}',  // URL to the AJAX view
-                    data: {
-                        'size_id': size_id,
-                        'product_id': product_id,
-                    },
-                    dataType: 'json',
-                    success: function(data) {
-                        $('#stock-info').text('Stock: ' + data.stock);
-                    },
-                    error: function() {
-                        $('#stock-info').text('Error retrieving stock information');
-                    }
-                });
-            } else {
-                $('#stock-info').text('size guide');
-            }
-        });
-    });
-    </script>
+</script>
     
     
 </body>

@@ -10,14 +10,18 @@ from PIL import Image
 from django.views.decorators.http import require_POST
 from .models import Category,Brand,Size
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.decorators import login_required
 
 
 
 # Create your views here.
 
-###################### Product Management page #################################
+###################### Product Management page Admin side #################################
 
+@login_required(login_url='admin_side:seller-login')
 def ProductManagement(request):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     products=Product.objects.all()
 
     # Set up pagination.
@@ -34,9 +38,12 @@ def ProductManagement(request):
     }
     return render(request,'products/product-management.html',context)
 
-###################### Add product page #################################
+###################### Add product page Admin side #################################
 
+@login_required(login_url='admin_side:seller-login')
 def AddProduct(request):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
@@ -50,9 +57,12 @@ def AddProduct(request):
     return render(request, 'products/add-product.html', {'form': form})
 
 
-###################### Edit productpage Management page #################################
+###################### Edit productpage Management page Admin side #################################
 
+@login_required(login_url='admin_side:seller-login')
 def EditProduct(request,product_id):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     product=get_object_or_404(Product,id=product_id)
     if request.method =='POST':
         form = ProductForm(request.POST,request.FILES,instance=product)
@@ -71,7 +81,7 @@ def EditProduct(request,product_id):
     }
     return render(request,'products/edit-product.html',context)
 
-####################### delete product ########################################
+####################### delete product Admin side ########################################
 
 def DeleteProduct(request,product_id):
     product=get_object_or_404(Product,id=product_id)
@@ -79,7 +89,7 @@ def DeleteProduct(request,product_id):
     messages.success(request, 'Selected Product was successfully deleted.',extra_tags='admin}')
     return redirect('products:product-management')
 
-####################### image resize function  ########################################
+####################### image resize function Admin side ########################################
 
 
 def ResizeImage(image, max_width=800, max_height=600,filename=None):
@@ -98,9 +108,12 @@ def ResizeImage(image, max_width=800, max_height=600,filename=None):
     
     return img_file
 
-####################### add product varient  ########################################
+####################### add product varient Admin side ########################################
 
+@login_required(login_url='admin_side:seller-login')
 def product_variant(request, product_id):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     product = get_object_or_404(Product, id=product_id)
 
     if request.method == 'POST':
@@ -149,7 +162,7 @@ def product_variant(request, product_id):
 
     return render(request, 'products/variant-product.html', context)
 
-##################  Product soft-delete  ####################################
+##################  Product soft-delete  Admin side ####################################
 
 @require_POST
 def toggle_product_status(request):
@@ -162,9 +175,12 @@ def toggle_product_status(request):
     except Product.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Product not found'})
 
-##################  Product View  ####################################
+##################  Product View Admin side ####################################
 
+@login_required(login_url='admin_side:seller-login')
 def product_view(request,product_id):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     product=get_object_or_404(Product,id=product_id)
     product_variants=product.product_variants.all()
                                                                    
@@ -183,10 +199,12 @@ def product_view(request,product_id):
     }
     return render(request,'products/product-view.html',context)
 
-################## product category  page ################################
+################## product category  page  Admin side ################################
 
-
+@login_required(login_url='admin_side:seller-login')
 def category_management(request):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     if request.method == 'POST':
         form = CategoryForm(request.POST)
         if form.is_valid():
@@ -209,7 +227,7 @@ def category_management(request):
     
     return render(request, 'products/product-category-management.html', context)
 
-##################### Delete Category ############################
+##################### Delete Category Admin side ############################
 
 def delete_category(request,category_id):
     category=get_object_or_404(Category,id=category_id)
@@ -217,7 +235,7 @@ def delete_category(request,category_id):
     messages.success(request,'Category deleted successfully.',extra_tags='admin')
     return redirect('products:category-add')
 
-##################### Delete Brand  ##############################
+##################### Delete Brand Admin side ##############################
 
 def delete_brand(request,brand_id):
     brand=get_object_or_404(Brand,id=brand_id)
@@ -225,7 +243,7 @@ def delete_brand(request,brand_id):
     messages.success(request,'Brand deleted successfully.',extra_tags='admin')
     return redirect('products:category-add')
 
-#################### Delete Size ########################
+#################### Delete Size Admin side ########################
 
 def delete_size(request,size_id):
     size=get_object_or_404(Size,id=size_id)
@@ -233,9 +251,12 @@ def delete_size(request,size_id):
     messages.success(request,'Size deleted successfully.',extra_tags='admin')
     return redirect('products:category-add')
 
-################## add category ################################
+################## add category Admin Side ################################
 
+@login_required(login_url='admin_side:seller-login')
 def add_category(request):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     heading="Add-Category"
     if request.method == 'POST':
         form = CategoryForm(request.POST)
@@ -254,9 +275,12 @@ def add_category(request):
     }
     return render(request,'products/add-category.html',context)
 
-################## edit category ################################
+################## edit category Admin Side Admin Side ################################
 
+@login_required(login_url='admin_side:seller-login')
 def edit_category(request,category_id):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     category=get_object_or_404(Category,id=category_id)
     heading="Edit-Category"
     if request.method == 'POST':
@@ -278,9 +302,12 @@ def edit_category(request,category_id):
     return render(request,'products/add-category.html',context)
 
 
-############################ add-brand ##################################
+############################ add-brand Admin Side ##################################
 
+@login_required(login_url='admin_side:seller-login')
 def add_brand(request):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     heading="Add-Brand"
     if request.method == 'POST':
         form = BrandForm(request.POST)
@@ -299,9 +326,12 @@ def add_brand(request):
     }
     return render(request,'products/add-brand.html',context)
 
-############################ edit-brand #################################
+############################ edit-brand Admin Side #################################
 
+@login_required(login_url='admin_side:seller-login')
 def edit_brand(request,brand_id):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     brand=get_object_or_404(Brand,id=brand_id)
     heading="Edit-Brand"
     if request.method == 'POST':
@@ -322,9 +352,12 @@ def edit_brand(request,brand_id):
     }
     return render(request,'products/add-brand.html',context)
 
-############################ add-size ##################################
+############################ add-size Admin Side ##################################
 
+@login_required(login_url='admin_side:seller-login')
 def add_size(request):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     heading="Add-Size"
     if request.method == 'POST':
         form = SizeForm(request.POST)
@@ -343,9 +376,12 @@ def add_size(request):
     }
     return render(request,'products/add-size.html',context)
 
-############################ edit-size #################################
+############################ edit-size Admin Side #################################
 
+@login_required(login_url='admin_side:seller-login')
 def edit_size(request,size_id):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     size=get_object_or_404(Size,id=size_id)
     heading="Edit-Size"
     if request.method == 'POST':
@@ -365,7 +401,7 @@ def edit_size(request,size_id):
     }
     return render(request,'products/add-size.html',context)
 
-####################### delete product variant ########################################
+####################### delete product variant Admin side ########################################
 
 def delete_product_variant(request,variant_id):
     variant=get_object_or_404(ProductVariant,id=variant_id)
@@ -375,10 +411,12 @@ def delete_product_variant(request,variant_id):
     return redirect('products:product-view',product_id=product_id)
 
 
-####################### edit variant  ################################
+####################### edit variant Admin side ################################
 
-
+@login_required(login_url='admin_side:seller-login')
 def edit_variant(request, variant_id):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     variant = get_object_or_404(ProductVariant, id=variant_id)
     product = variant.product 
     product_id = product.id
@@ -426,7 +464,8 @@ def edit_variant(request, variant_id):
     }
     return render(request, 'products/edit-variant.html', context)
 
-######################## single product view  #########################
+######################## single product view User side  #########################
+
 
 def single_product_view(request, variant_id):
     variant=get_object_or_404(ProductVariant,id=variant_id)
@@ -443,7 +482,10 @@ def single_product_view(request, variant_id):
 
 ########################### product-variant-data-view #######################
 
+@login_required(login_url='admin_side:seller-login')
 def product_variant_data(request,variant_id):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     variant=get_object_or_404(ProductVariant,id=variant_id)
     context={
         'variant':variant,
@@ -452,16 +494,5 @@ def product_variant_data(request,variant_id):
     }
     return render(request,'products/product-variant-data-view.html',context)
 
-#####################  product stock count  by size using ajax  #########################
 
 
-def get_variant_stock(request):
-    if request.is_ajax():
-        size_id = request.GET.get('size_id')
-        product_id = request.GET.get('product_id')
-        variant = get_object_or_404(ProductVariant, size__id=size_id, product__id=product_id)
-        data = {
-            'stock': variant.stock,
-        }
-        return JsonResponse(data)
-    return JsonResponse({'error': 'Invalid request'}, status=400)
