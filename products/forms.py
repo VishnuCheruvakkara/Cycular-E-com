@@ -15,6 +15,7 @@ class ProductForm(forms.ModelForm):
             'brand',
             'key_specification',
         ]
+
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
@@ -22,6 +23,12 @@ class ProductForm(forms.ModelForm):
             'brand': forms.Select(attrs={'class': 'form-control'}),
             'key_specification': forms.Textarea(attrs={'class': 'form-control'}),
         }
+    def __init__(self, *args, **kwargs):
+        super(ProductForm, self).__init__(*args, **kwargs)
+        # Filter categories with status=True
+        self.fields['category'].queryset = Category.objects.filter(status=True)
+        # Filter brands with status=True
+        self.fields['brand'].queryset = Brand.objects.filter(status=True)
     def clean(self):
         cleaned_data = super().clean()
         name=cleaned_data.get("name")
@@ -122,6 +129,10 @@ class ProductVariantForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         product = kwargs.pop('product', None)
         super(ProductVariantForm, self).__init__(*args, **kwargs)
+    
+        # Filter the 'size' queryset to include only those with status=True
+        self.fields['size'].queryset = Size.objects.filter(status=True)
+
         if not self.instance.pk:
             self.fields['status'].initial = True
         if self.instance and self.instance.size:
