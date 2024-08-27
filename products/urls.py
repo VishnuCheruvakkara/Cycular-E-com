@@ -36,7 +36,8 @@ urlpatterns=[
     path('product-variant-data-view/<int:variant_id>',views.product_variant_data,name='product_variant_data_view'),
 
 
-
+    # Using Ajax on pending...
     path('get-variant-stock/',views.get_variant_stock, name='get-variant-stock'),
-
+    
+  
 ]

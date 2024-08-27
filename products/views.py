@@ -430,7 +430,7 @@ def edit_variant(request, variant_id):
 
 def single_product_view(request, variant_id):
     variant=get_object_or_404(ProductVariant,id=variant_id)
-    available_sizes = ProductVariant.objects.filter(product=variant.product).values_list('size__name', flat=True).distinct()
+    available_sizes = ProductVariant.objects.filter(product=variant.product).values('id','size__name').distinct()
     product=variant.product
     related_variants = ProductVariant.objects.filter( product__category=product.category).exclude(id=variant.id)[:5]
     print( related_variants)
@@ -465,4 +465,3 @@ def get_variant_stock(request):
         }
         return JsonResponse(data)
     return JsonResponse({'error': 'Invalid request'}, status=400)
-
