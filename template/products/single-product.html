@@ -652,7 +652,17 @@
                                         </div><!-- End .select-custom -->
                                     
                                         <!-- This is where the stock information will be displayed -->
-                                        <a href="#" id="size-guide" class="size-guide"><i class="icon-th-list"></i><span id="stock-info">size guide</span></a>
+                                        <a style="color:#1cc0a0" id="size-guide" class="size-guide"><i class="icon-th-list"></i>
+                                            <span >
+                                                {% if variant.stock > 5 %}
+                                                Size : {{variant.size}}, Stock : only 5 left
+                                                {% elif variant.stock > 0 %}
+                                                Size : {{variant.size}}, Stock : {{variant.stock}} left
+                                                {% else %}
+                                                Size : {{variant.size}}, out of stock
+                                                {% endif %}
+                                            </span>
+                                        </a>
                                     </div><!-- End .details-filter-row -->
                                     
 
