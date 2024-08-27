@@ -22,8 +22,6 @@ def SellerHome(request):
 
 @never_cache
 def SellerLogin(request):
-    if not request.user.is_superuser:
-        return redirect('core:index')
     if request.user.is_authenticated:
         return redirect('admin_side:seller-home')
     if request.method == "POST":
