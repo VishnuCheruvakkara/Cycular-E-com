@@ -14,12 +14,16 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 @login_required(login_url='admin_side:seller-login')
 @never_cache
 def SellerHome(request):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     return render(request,'admin_side/admin_dashboard.html')
 
 #############################   seller login  ########################################################
 
 @never_cache
 def SellerLogin(request):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     if request.user.is_authenticated:
         return redirect('admin_side:seller-home')
     if request.method == "POST":
@@ -51,6 +55,8 @@ def SellerLogout(request):
 
 @login_required(login_url='admin_side:seller_login')
 def UserManagement(request):
+    if not request.user.is_superuser:
+        return redirect('core:index')
 
     customers=User.objects.filter(is_superuser=False)
    
@@ -70,8 +76,11 @@ def UserManagement(request):
     return render(request,'admin_side/user_management.html',context)
 
 #############################   category management  ########################################################
+
 @login_required(login_url='admin_side:seller-login')
 def UserView(request,user_id):
+    if not request.user.is_superuser:
+        return redirect('core:index')
     user = get_object_or_404(User, id=user_id)
     context={
         'user':user

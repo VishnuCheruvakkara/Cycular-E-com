@@ -129,7 +129,7 @@
                                 </div><!-- End .heading-left -->
 
                                 <div class="heading-right">
-                                    <a href="category.html" class="title-link">View more Products <i class="icon-long-arrow-right"></i></a>
+                                    <a href="" class="title-link">View more Products <i class="icon-long-arrow-right"></i></a>
                                 </div><!-- End .heading-right -->
                             </div><!-- End .header-flex -->
 
@@ -174,6 +174,9 @@
                                     <div class="product-body">
                                         <div class="product-cat" style="color:rgb(115, 114, 114)">
                                             From : <span>{{ product_variant.product.brand }}</span>
+                                        </div>
+                                        <div class="product-cat" style="color:rgb(115, 114, 114)">
+                                            Size : <span>{{ product_variant.size }}</span>
                                         </div>
                                         <h3 class="product-title"><a href="{% url 'products:single-product-view' product_variant.id %}">{{ product_variant.product.name }}</a></h3>
                                         <div class="product-price">

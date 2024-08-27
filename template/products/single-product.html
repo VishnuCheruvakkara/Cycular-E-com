@@ -639,17 +639,30 @@
 
                                     <div class="details-filter-row details-row-size">
                                         <label for="size">Size:</label>
-                                        <div class="select-custom">
-                                            <select name="size" id="size" class="form-control">
-                                                <option value="" selected="selected">Select a size</option>
-                                                {% for size in available_sizes %}
-                                                    <option value="{{ size.id }}">{{ size }}</option>
-                                                {% endfor %}
-                                            </select>
+                                     
+                                            <div class="select-custom">
+                                                <select name="size" id="size" class="form-control" onchange="location = this.value;">
+                                                    <option value="" selected="selected">Select a size</option>
+                                                    {% for size in available_sizes %}
+                                                        <option value="{% url 'products:single-product-view' size.id %}">{{ size.size__name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div><!-- End .select-custom -->
+                                            
                                         </div><!-- End .select-custom -->
                                     
                                         <!-- This is where the stock information will be displayed -->
-                                        <a href="#" id="size-guide" class="size-guide"><i class="icon-th-list"></i><span id="stock-info">size guide</span></a>
+                                        <a style="color:#1cc0a0" id="size-guide" class="size-guide"><i class="icon-th-list"></i>
+                                            <span >
+                                                {% if variant.stock > 5 %}
+                                                Size : {{variant.size}}, Stock : only 5 left
+                                                {% elif variant.stock > 0 %}
+                                                Size : {{variant.size}}, Stock : {{variant.stock}} left
+                                                {% else %}
+                                                Size : {{variant.size}}, out of stock
+                                                {% endif %}
+                                            </span>
+                                        </a>
                                     </div><!-- End .details-filter-row -->
                                     
 
@@ -1246,7 +1259,7 @@
 <script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
 <!-- Main JS File -->
 <script src="{% static 'assets/js/main.js' %}"></script>
-    <script>
+<script>
        
 
 $(document).ready(function () {
@@ -1297,35 +1310,7 @@ $(document).ready(function () {
     });
 });
 
-         
-
-
-
-        $(document).ready(function(){
-        $('#size').change(function(){
-            var size_id = $(this).val();
-            var product_id = "{{ variant.product.id }}";  // Pass the current product id
-            if(size_id) {
-                $.ajax({
-                    url: '{% url "products:get-variant-stock" %}',  // URL to the AJAX view
-                    data: {
-                        'size_id': size_id,
-                        'product_id': product_id,
-                    },
-                    dataType: 'json',
-                    success: function(data) {
-                        $('#stock-info').text('Stock: ' + data.stock);
-                    },
-                    error: function() {
-                        $('#stock-info').text('Error retrieving stock information');
-                    }
-                });
-            } else {
-                $('#stock-info').text('size guide');
-            }
-        });
-    });
-    </script>
+</script>
     
     
 </body>
