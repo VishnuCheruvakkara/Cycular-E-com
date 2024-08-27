@@ -152,8 +152,8 @@ class ProductVariantForm(forms.ModelForm):
 
         if not price or price <= 0:
             self.add_error('price', "Price is required and must be greater than zero.")
-        if not stock or stock <=0:
-            self.add_error('stock',"Stock is required and must be greater that zero.")
+        if stock is None or stock < 0:
+            self.add_error('stock',"Stock is required and positive value.")
        
         max_size_mb = 2  # Maximum size in MB
 

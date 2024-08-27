@@ -34,6 +34,11 @@
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/skins/skin-demo-20.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/demos/demo-20.css' %}">
+
+   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
+
 </head>
 
 <body>
@@ -604,6 +609,7 @@
                                     </div><!-- End .row -->
                                 </div><!-- End .product-gallery -->
                             </div><!-- End .col-md-6 -->
+                            
                   
 
                             <div class="col-md-6">
@@ -1241,31 +1247,59 @@
 <!-- Main JS File -->
 <script src="{% static 'assets/js/main.js' %}"></script>
     <script>
-        $(document).ready(function () {
-        $("#product-zoom").ezPlug({
-            zoomType: "lens",               // Zooms inside the image container
-            cursor: "crosshair",            // Change cursor to crosshair
-            easing: false,                  // Disable easing for immediate zoom
-            scrollZoom: true,               // Allow zooming with the mouse scroll
-            zoomLevel: 2,                   // Increase zoom level (you can adjust this value for more zoom)
-            responsive: true,               // Make sure the zoom is responsive
-            borderSize: 0,                  // Remove border size
-            lensBorderSize: 0,              // Remove lens border size
-            lensSize: 150,                  // Adjust lens size (diameter of the circle)
-            zoomLens: true,                 // Enable the zoom lens for more control
-            lensOpacity: 0.5,               // Set lens opacity (optional)
-            lensShape: "round",             // Set the shape of the lens to round
-            lensColor: "#000",              // Optional: Set the color of the lens for a better visual effect
-        });
+       
 
-    
-            // Swap images when thumbnails are clicked
-            $("#product-zoom-gallery a").on('click', function (e) {
-                e.preventDefault();
-                var ez = $('#product-zoom').data('ezPlug');
-                ez.swapImage($(this).data('image'), $(this).data('zoom-image'));
-            });
-        });
+$(document).ready(function () {
+    var zoomLevel = 0; // Initial zoom level
+    var zoomSpeed = 0.1; // Adjust this value for scroll speed (lower is slower)
+
+    $("#product-zoom").elevateZoom({
+        zoomType: "lens",
+        cursor: "crosshair",
+        lensShape: "round",
+        lensSize: 275,
+        borderSize: 0,
+        lensBorderSize: 0,
+        zoomLevel: zoomLevel,
+        scrollZoom: true,
+        responsive: true,
+        lensOpacity: 0.5,
+        borderColor: "#000",
+    });
+
+    // Custom scroll zoom speed control
+    $(window).on('mousewheel DOMMouseScroll', function (e) {
+        e.preventDefault();
+        var delta = e.originalEvent.wheelDelta || -e.originalEvent.detail;
+
+        if (delta > 0) {
+            // Scrolling up
+            zoomLevel += zoomSpeed;
+        } else {
+            // Scrolling down
+            zoomLevel = Math.max(zoomSpeed, zoomLevel - zoomSpeed); // Ensure zoom level does not go below a certain threshold
+        }
+
+        $("#product-zoom").data('elevateZoom').changeZoomLevel(zoomLevel);
+    });
+
+    // Swap images when thumbnails are clicked
+    $("#product-zoom-gallery a").on('click', function (e) {
+        e.preventDefault();
+        var ez = $('#product-zoom').data('elevateZoom');
+        var newImage = $(this).data('image');
+        var newZoomImage = $(this).data('zoom-image');
+        
+        // Update the main image and zoom image
+        $('#product-zoom').attr('src', newImage);
+        $('#product-zoom').attr('data-zoom-image', newZoomImage);
+        ez.swaptheimage(newImage, newZoomImage);
+    });
+});
+
+         
+
+
 
         $(document).ready(function(){
         $('#size').change(function(){
