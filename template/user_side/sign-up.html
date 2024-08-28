@@ -27,6 +27,9 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="register" role="tabpanel" aria-labelledby="register-tab">
+
+
+
                             {% block warning_box %}
                                 <style>
                                     /* Add some styling to the form error container */
@@ -73,7 +76,18 @@
                                 </ul>
                             </div>
                             {% endif %}
+
+
+
                             <!-- to show the field error down below... -->
+                            <div style="margin-top:20px;">
+                                {% block admin-messages%}
+                                {% include 'partials/user-message.html' %}
+                                {% endblock %}
+                            </div>
+
+
+                            
                             {% if form.errors %}
                             <div class="form-error">
                                 <strong>Please correct the following errors:</strong>

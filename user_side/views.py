@@ -75,7 +75,7 @@ def register_view(request):
 @never_cache
 def login_view(request):
     if request.user.is_authenticated:
-        messages.info(request, "Hello, you are already logged in.")
+        messages.info(request, "Hello, you are already logged in.",extra_tags='user')
         return redirect("core:index")
     
     if request.method == "POST":
@@ -86,11 +86,15 @@ def login_view(request):
         user = authenticate(request, username=email, password=password)
         
         if user is not None:
-            login(request, user)
-            messages.success(request, "You are logged in.")
-            return redirect("core:index")
+            if user.is_active:
+                login(request, user)
+                messages.success(request, "You are logged in.",extra_tags='user')
+                return redirect('core:index')
+            else:
+                messages.error(request,'Your account has been blocked please check the contact support section...',extra_tags='user')
+                return redirect('core:idex')
         else:
-            messages.warning(request, "Invalid email or password. Please try again.")
+            messages.warning(request, "Invalid email or password. Please try again.",extra_tags='user')
     
     return render(request, 'user_side/sign-in.html')
 

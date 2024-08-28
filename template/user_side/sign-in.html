@@ -23,6 +23,12 @@
                             <a class="nav-link" href="{% url 'user_side:sign-up' %}">Register</a>
                         </li>
                     </ul>
+                    <div style="margin-top:20px;">
+                        {% block admin-messages%}
+                        {% include 'partials/user-message.html' %}
+                        {% endblock %}
+                    </div>
+                   
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="signin" role="tabpanel" aria-labelledby="signin-tab">
                             <form action="" method="POST">
