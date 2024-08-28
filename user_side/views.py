@@ -171,9 +171,13 @@ def otp_view(request):
             print("Retrieved password:", password)
 
             print("Password before creating user:", password)
+            ##############################################################
 
             user=User.objects.create_user(username=username,email=email,password=password)
-                        
+
+            ##############################################################
+            
+            #checker
             # Print the stored password (note: this will be a hashed value, not the raw password)
             print("Stored password (hashed):", user.password)
                      
