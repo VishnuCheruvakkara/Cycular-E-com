@@ -23,10 +23,10 @@
                 <div class="alert alert-info alert-dismissible" role="alert">
             {% endif %}
                 <strong>
-                    {% if 'success' in message.tags %}Success!
-                    {% elif 'error' in message.tags or 'danger' in message.tags %}Error!
-                    {% elif 'warning' in message.tags %}Warning!
-                    {% elif 'info' in message.tags %}Note!
+                    {% if 'success' in message.tags %}
+                    {% elif 'error' in message.tags or 'danger' in message.tags %}
+                    {% elif 'warning' in message.tags %}
+                    {% elif 'info' in message.tags %}
                     {% endif %}
                 </strong>
                 {{ message }}
@@ -42,13 +42,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     var alerts = document.querySelectorAll('.alert');
     
+    // Duration for which the alert is shown (in milliseconds)
+    var displayDuration = 6000; // 60 seconds
+
     alerts.forEach(function(alert) {
         // Fade in
         setTimeout(function() {
             alert.classList.add('show');
         }, 100);
 
-        // Fade out after 3 seconds
+        // Fade out after the specified duration
         setTimeout(function() {
             alert.classList.remove('show');
             
@@ -56,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert.addEventListener('transitionend', function() {
                 alert.remove();
             });
-        }, 3000);
+        }, displayDuration); // Use the specified duration here
     });
 });
 </script>
