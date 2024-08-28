@@ -75,7 +75,7 @@ def register_view(request):
 @never_cache
 def login_view(request):
     if request.user.is_authenticated:
-        messages.info(request, "Hello, you are already logged in.")
+        messages.info(request, "Hello, you are already logged in.",extra_tags='user')
         return redirect("core:index")
     
     if request.method == "POST":
@@ -90,7 +90,7 @@ def login_view(request):
             messages.success(request, "You are logged in.")
             return redirect("core:index")
         else:
-            messages.warning(request, "Invalid email or password. Please try again.")
+            messages.warning(request, "Invalid email or password. Please try again.",extra_tags='user')
     
     return render(request, 'user_side/sign-in.html')
 

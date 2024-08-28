@@ -1,6 +1,11 @@
 {% extends 'partials/base.html' %}
 {% block content %}
 {% load static %}
+
+{% block user-messages%}
+{% include 'partials/user-message.html' %}
+{% endblock %}
+
         <main class="main">
             <div class="intro-section pt-lg-2">
                 <div class="container">
@@ -18,7 +23,6 @@
                                 </div><!-- End .banner-content -->
                             </div><!-- End .banner -->
                         </div><!-- End .col-lg-6 -->
-
                         <div class="col-sm-6 col-lg-3">
                             <div class="banner banner-overlay">
                                 <a href="#">
