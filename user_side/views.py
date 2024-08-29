@@ -266,3 +266,7 @@ def toggle_user_status(request):
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'User not found'})
 
+############################### user accout-dashboard ##########################
+
+def user_dash_board(request):
+    return render(request,'user_side/user-dash-board.html')

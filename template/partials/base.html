@@ -105,11 +105,11 @@
                         {% if user.is_authenticated %}
                         <div class="header-dropdown-link">
                             <div class="account">
-                                <a href="#" title="My account">
+                                <a href="{% url 'user_side:user-dash-board' %}" title="My account">
                                     <div class="icon">
                                         <i class="icon-user"></i>
                                     </div>
-                                    <p>Account</p>
+                                    <p> My Account</p>
                                 </a>
                             </div><!-- End .compare-dropdown -->
                         {% else %}
