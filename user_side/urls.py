@@ -11,6 +11,8 @@ urlpatterns=[
     path('resend-otp/',views.resend_otp,name='resend-otp'),
     path('toggle-user-status/',views.toggle_user_status,name='toggle-user-status'),
     path('user-dash-board/',views.user_dash_board,name='user-dash-board'),
+    path('change-username/',views.change_username,name='change-username'),
+    path('change-email/',views.chagne_email,name='change-email'),
 
 ]
 

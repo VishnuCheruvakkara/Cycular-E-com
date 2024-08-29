@@ -13,7 +13,9 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
-
+import re
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 # Create your views here.
@@ -268,5 +270,75 @@ def toggle_user_status(request):
 
 ############################### user accout-dashboard ##########################
 
+@login_required(login_url='user_side:sign-in')
 def user_dash_board(request):
-    return render(request,'user_side/user-dash-board.html')
+    context={
+        'user':request.user
+    }
+    return render(request,'user_side/user-dash-board.html',context)
+
+############################### update or change username ##########################
+
+@login_required(login_url='user_side:sign-in')
+def change_username(request):
+    errors = {}
+    show_modal=False
+    if request.method=='POST':
+        new_username=request.POST.get('username')
+        current_username=request.user.username
+        if not new_username:
+            errors['username']='Username cannot be empty.'
+        elif not re.match(r'^[A-Za-z]+( [A-Za-z]+){0,5}$', new_username):
+            errors['username'] = 'Username must contain only letters and at most one space between words.'
+        elif len(new_username)<3 :
+            errors['username']='Username contain atleast 3 letters.'
+        elif User.objects.filter(username=new_username).exclude(username=current_username).exists():
+            errors['username']='This username is already taken.'
+            
+
+        if not errors:
+            user=request.user
+            user.username=new_username
+            user.save()
+            messages.success(request,'Your username has been updated successfully!')
+            return redirect('user_side:user-dash-board')
+        else:
+            show_modal=True
+            #dont close modal when there is any validation error found
+
+    context={
+        'errors':errors,
+        'user':request.user,
+        'show_modal':show_modal
+    }
+
+    return render(request,'user_side/user-dash-board.html',context)
+
+###################### update or change the email address of the current uesr ##########################
+
+def chagne_email(request):
+    errors={}
+    if request.method=='POST':
+        new_email=request.POST.get('new_email')
+        user=request.user
+
+        if not new_email:
+            errors['new_email']='Email cannot be empty.'
+        else:
+            try:
+                validate_email(new_email)
+                if User.objects.filter(email=new_email).exclude(username=user.username).exists():
+                    errors['new_email']='This email is already taken.'
+                else:
+                    user.email=new_email
+                    user.save()
+                    messages.success(request,'Your email has been updated successfully!')
+                    return redirect('user_side:user-dash-board')
+            except ValidationError:
+                errors['new_email']="Enter a valid email address."
+    context= {
+        'current_email':request.user.email,
+        'errors':errors,
+    }
+    return render(request,'user_side/user-dash-board.html',context)
+    

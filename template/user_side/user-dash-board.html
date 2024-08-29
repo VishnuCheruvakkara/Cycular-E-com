@@ -1,16 +1,15 @@
-
+{% extends 'partials/base.html' %}
 {% load static %}
-{% block extra_css%}
-<!-- Bootstrap CSS -->
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-{% endblock %}
+
 {% block content %}
 <head>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
-        <main class="main" style="margin-top: 25px;">
+        <main class="main" style="margin-top: 20;">
         	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
         		<div class="container">
         			<h1 class="page-title">My Account<span>Shop</span></h1>
@@ -70,55 +69,18 @@
                                             </div>
                                         </div>
                                      
-                                       <!-- Dashboard Navigation Links -->
-<div class="dashboard-nav">
-    <a href="#" class="nav-link" data-target="username">Change Username</a>
-    <a href="#" class="nav-link" data-target="email">Change Email</a>
-    <a href="#" class="nav-link" data-target="password">Change Password</a>
-</div>
+                                        <!-- profile edit section -->
+                                        <div class="mt-3">
+                                            <a href="#" class="d-block mb-1" data-toggle="modal" data-target="#changeUsernameModal">Change Username</a>
+                                            
+                                                                                        <!-- Link to open the email change modal -->
+                                            <a href="#" class="d-block mb-1" data-toggle="modal" data-target="#changeEmailModal">Change Email</a>
 
-<!-- Dashboard Content Area -->
-<div class="dashboard-content">
-    <div class="content-section" id="username">
-        <!-- Change Username Form -->
-        <form id="changeUsernameForm">
-            <div class="mb-3">
-                <label for="newUsername" class="form-label">New Username</label>
-                <input type="text" class="form-control" id="newUsername" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
-    </div>
-    <div class="content-section" id="email" style="display: none;">
-        <!-- Change Email Form -->
-        <form id="changeEmailForm">
-            <div class="mb-3">
-                <label for="newEmail" class="form-label">New Email</label>
-                <input type="email" class="form-control" id="newEmail" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
-    </div>
-    <div class="content-section" id="password" style="display: none;">
-        <!-- Change Password Form -->
-        <form id="changePasswordForm">
-            <div class="mb-3">
-                <label for="currentPassword" class="form-label">Current Password</label>
-                <input type="password" class="form-control" id="currentPassword" required>
-            </div>
-            <div class="mb-3">
-                <label for="newPassword" class="form-label">New Password</label>
-                <input type="password" class="form-control" id="newPassword" required>
-            </div>
-            <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                <input type="password" class="form-control" id="confirmPassword" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
-    </div>
-</div>
+                                            <!-- Link to open the password change modal -->
+                                            <a href="#" class="d-block mb-1" data-toggle="modal" data-target="#changePasswordModal">Change Password</a>
 
+                                        </div>
+                                        <!-- Profile Section End -->
 
                                        
                                     
@@ -219,6 +181,106 @@
 
 
 
+
+       <!-- Modal for changing username -->
+        <div class="modal fade" id="changeUsernameModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="changeUsernameForm" method="POST" action="{% url 'user_side:change-username' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Change Username</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                    <label for="newUsername">Change your Username below</label>
+                    <input type="text" class="form-control" id="newUsername" name="username" placeholder="Enter new username" value="{{ user.username }}" required>
+                    {% if errors.username %}
+                    <small class="text-danger">{{ errors.username }}</small>
+                    {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- Cancel button to close the modal -->
+                   
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        
+
+        
+        <!-- Modal for changing email -->
+        <div class="modal fade" id="changeEmailModal" tabindex="-1" role="dialog" aria-labelledby="changeEmailModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="changeEmailForm" method="POST">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changeEmailModalLabel">Change Email</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                    <label for="newEmail">New Email Address</label>
+                    <input type="email" class="form-control" id="newEmail" name="new_email" placeholder="Enter new email address"  required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                   
+                    <!-- Submit button to submit the form -->
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        
+        
+        <!-- Modal for changing password -->
+        <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                <form id="changePasswordForm">
+                    <div class="col-md-12">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password">
+                    </div>
+                    <div class="col-md-12">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
+                    </div>
+                    <div class="col-md-12">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password">
+                    </div>
+                </form>
+                </div>
+                <div class="modal-footer">
+                
+                <button type="submit" form="changePasswordForm" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+            </div>
+        </div>
+        
+
+        
+
         
 
     <!-- Plugins JS File -->
@@ -228,6 +290,13 @@
     <script src="{% static 'assets/js/jquery.waypoints.min.js' %}"></script>
     <script src="{% static 'assets/js/superfish.min.js' %}"></script>
     <script src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
+    
+
+    
+
+
+
+
     <!-- Main JS File -->
     <script src="{% static 'assets/js/main.js' %}"></script>
    
@@ -235,6 +304,40 @@
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
+    <!-- for the sweet alert  -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if the messages framework has set a success or error message
+            {% if messages %}
+                {% for message in messages %}
+                    let type = 'success';
+                    let title = 'Success!';
+                    let text = '{{ message }}';
+    
+                    if (message.tags == 'error') {
+                        type = 'error';
+                        title = 'Error!';
+                    }
+    
+                    Swal.fire({
+                        icon: type,
+                        title: title,
+                        text: text,
+                        confirmButtonText: 'OK'
+                    });
+                {% endfor %}
+            {% endif %}
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+        // Check if the modal should be shown based on the context variable
+        {% if show_modal %}
+            // Open the modal if there are errors
+            $('#changeUsernameModal').modal('show');
+        {% endif %}
+    });
+    </script>
 
 </body>
 
