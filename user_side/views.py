@@ -16,6 +16,7 @@ from django.http import JsonResponse
 import re
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.utils.crypto import get_random_string
 
 User = get_user_model()
 # Create your views here.
@@ -183,7 +184,7 @@ def otp_view(request):
 
             ##############################################################
             
-            #checker
+            #checker``
             # Print the stored password (note: this will be a hashed value, not the raw password)
             print("Stored password (hashed):", user.password)
                      
@@ -314,31 +315,88 @@ def change_username(request):
 
     return render(request,'user_side/user-dash-board.html',context)
 
-###################### update or change the email address of the current uesr ##########################
+###################### update or change the email address of the current uesr by sending otp to the current email address ##########################
 
-def chagne_email(request):
+otp_storage={}
+
+def change_email(request):
     errors={}
+    user=request.user
+
+
     if request.method=='POST':
         new_email=request.POST.get('new_email')
-        user=request.user
-
         if not new_email:
             errors['new_email']='Email cannot be empty.'
         else:
             try:
                 validate_email(new_email)
-                if User.objects.filter(email=new_email).exclude(username=user.username).exists():
+                if User.objects.filter(email=new_email).exclude(id=user.id).exists():
                     errors['new_email']='This email is already taken.'
                 else:
-                    user.email=new_email
-                    user.save()
-                    messages.success(request,'Your email has been updated successfully!')
-                    return redirect('user_side:user-dash-board')
+                    #To generate otp...
+                    otp=get_random_string(length=6,allowed_chars="")
+                    otp_storage[user.id]=otp
+
+                    #send otp to the user's current email address.
+
+                    send_mail(
+                        'OTP Verification',
+                        f'Your OTP for email change is : {otp}',
+                        settings.EMAIL_HOST_USER,
+                        [user.email],
+                        fail_silently=False
+                    )
+                    messages.success(request,'An OTP has been sent to your current email. Please enter it to confirm your email change.')
+                    return JsonResponse({'status': 'otp_sent'})
             except ValidationError:
                 errors['new_email']="Enter a valid email address."
-    context= {
-        'current_email':request.user.email,
+    context={
+        'current_email':user.email,
         'errors':errors,
     }
-    return render(request,'user_side/user-dash-board.html',context)
-    
+
+
+    return render(request,'uesr_side/user-dash-board.htmnl',context)
+
+##########################  verify otp for the email change   #################################
+
+@login_required(login_url='user_side:sign-in')
+def verify_otp(request):
+    errors = {}
+    user = request.user
+    current_time = timezone.now()
+
+    if request.method == 'POST' and 'otp' in request.POST:
+        entered_otp = request.POST.get('otp')
+        stored_data = otp_storage.get(user.id)
+
+        if not stored_data:
+            errors['otp'] = 'OTP not found or has expired.'
+        else:
+            stored_otp = stored_data['otp']
+            otp_time = stored_data['time']
+
+            # Check if OTP is expired (2 minutes)
+            if current_time - otp_time > timedelta(minutes=2):
+                errors['otp'] = 'OTP has expired. Please request a new one.'
+                otp_storage.pop(user.id, None)  # Remove expired OTP
+            elif entered_otp == stored_otp:
+                # Update user's email if OTP matches
+                new_email = request.session.get('new_email')
+                user.email = new_email
+                user.save()
+
+                # Remove OTP from storage after successful verification
+                otp_storage.pop(user.id, None)
+                request.session.pop('new_email', None)  # Remove new email from session
+
+                # Success message with SweetAlert
+                return JsonResponse({'status': 'success', 'message': 'Your email has been updated successfully!'})
+            else:
+                errors['otp'] = 'Invalid OTP. Please try again.'
+
+    context = {
+        'errors': errors,
+    }
+    return render(request, 'user_side/otp_verification_modal.html', context)
