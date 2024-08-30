@@ -317,86 +317,52 @@ def change_username(request):
 
 ###################### update or change the email address of the current uesr by sending otp to the current email address ##########################
 
-otp_storage={}
+otp_storage = {}
 
 def change_email(request):
-    errors={}
-    user=request.user
+    errors = {}
+    user = request.user
 
-
-    if request.method=='POST':
-        new_email=request.POST.get('new_email')
+    if request.method == 'POST':
+        new_email = request.POST.get('new_email')
         if not new_email:
-            errors['new_email']='Email cannot be empty.'
+            errors['new_email'] = 'Email cannot be empty.'
         else:
             try:
                 validate_email(new_email)
                 if User.objects.filter(email=new_email).exclude(id=user.id).exists():
-                    errors['new_email']='This email is already taken.'
+                    errors['new_email'] = 'This email is already taken.'
                 else:
-                    #To generate otp...
-                    otp=get_random_string(length=6,allowed_chars="")
-                    otp_storage[user.id]=otp
+                    # Generate OTP
+                    otp = get_random_string(length=6, allowed_chars='0123456789')
+                    otp_storage[user.id] = {'otp': otp, 'time': timezone.now()}
 
-                    #send otp to the user's current email address.
-
+                    # Send OTP to the user's new email address
                     send_mail(
                         'OTP Verification',
-                        f'Your OTP for email change is : {otp}',
+                        f'Your OTP for email change is: {otp}',
                         settings.EMAIL_HOST_USER,
-                        [user.email],
+                        [new_email],
                         fail_silently=False
                     )
-                    messages.success(request,'An OTP has been sent to your current email. Please enter it to confirm your email change.')
-                    return JsonResponse({'status': 'otp_sent'})
+                    
+                    # Store the new email temporarily in the session for verification
+                    request.session['new_email'] = new_email
+                    
+                    # Success message for the user
+                    messages.success(request, 'An OTP has been sent to your current email. Please enter it to confirm your email change.')
+                    
+                    # Redirect to the OTP verification page
+                    return redirect('user_side:verify_otp')
             except ValidationError:
-                errors['new_email']="Enter a valid email address."
-    context={
-        'current_email':user.email,
-        'errors':errors,
-    }
-
-
-    return render(request,'uesr_side/user-dash-board.htmnl',context)
-
-##########################  verify otp for the email change   #################################
-
-@login_required(login_url='user_side:sign-in')
-def verify_otp(request):
-    errors = {}
-    user = request.user
-    current_time = timezone.now()
-
-    if request.method == 'POST' and 'otp' in request.POST:
-        entered_otp = request.POST.get('otp')
-        stored_data = otp_storage.get(user.id)
-
-        if not stored_data:
-            errors['otp'] = 'OTP not found or has expired.'
-        else:
-            stored_otp = stored_data['otp']
-            otp_time = stored_data['time']
-
-            # Check if OTP is expired (2 minutes)
-            if current_time - otp_time > timedelta(minutes=2):
-                errors['otp'] = 'OTP has expired. Please request a new one.'
-                otp_storage.pop(user.id, None)  # Remove expired OTP
-            elif entered_otp == stored_otp:
-                # Update user's email if OTP matches
-                new_email = request.session.get('new_email')
-                user.email = new_email
-                user.save()
-
-                # Remove OTP from storage after successful verification
-                otp_storage.pop(user.id, None)
-                request.session.pop('new_email', None)  # Remove new email from session
-
-                # Success message with SweetAlert
-                return JsonResponse({'status': 'success', 'message': 'Your email has been updated successfully!'})
-            else:
-                errors['otp'] = 'Invalid OTP. Please try again.'
+                errors['new_email'] = "Enter a valid email address."
 
     context = {
+        'current_email': user.email,
         'errors': errors,
     }
-    return render(request, 'user_side/otp_verification_modal.html', context)
+
+    return render(request, 'user_side/user-dash-board.html', context)
+
+
+##########################  verify otp for the email change   #################################

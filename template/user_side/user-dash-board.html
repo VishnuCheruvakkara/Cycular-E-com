@@ -9,15 +9,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         /* Initially hide the form */
-        #changeEmailForm {
-            display: none;
-            margin-top: 10px; 
-            margin-bottom: 10px;
-        }
+       
+       
     </style>
 </head>
 <body>
-        <main class="main" style="margin-top: 20;">
+        <main class="main mt-2 ">
         	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
         		<div class="container">
         			<h1 class="page-title">My Account<span>Shop</span></h1>
@@ -64,7 +61,7 @@
                                         <div class="profile-section d-flex align-items-center mb-4">
                                             <!-- Profile Image -->
                                             <div class="profile-photo mr-3 position-relative">
-                                                <img src="path/to/profile/photo.jpg" alt="Profile Photo" class="img-fluid rounded-circle" width="80" height="80" style="border: 2px solid #1cc0a0;">
+                                                <img src="{% static 'assets/images/cycular/user-profile.jpg' %}" alt="Profile Photo" class="img-fluid rounded-circle" width="80" height="80" style="border: 2px solid #1cc0a0;">
                                                 <!-- Edit Button -->
                                                 
                                             </div>
@@ -72,8 +69,8 @@
                                             
                                             <!-- User Info -->
                                             <div class="profile-info">
-                                                <h4 class="mb-1">User Name</h4> <!-- User name placeholder -->
-                                                <p class="mb-0">user@example.com</p> <!-- User email placeholder -->
+                                                <h4 class="mb-1">{{user.username}}</h4> <!-- User name placeholder -->
+                                                <p class="mb-0">{{user.email}}</p> <!-- User email placeholder -->
                                             </div>
                                         </div>
                                      
@@ -81,26 +78,47 @@
                                         <div class="mt-3">
                                             <a href="#" class="d-block mb-1" data-toggle="modal" data-target="#changeUsernameModal">Change Username</a>
                                             
-                                            <!-- Link to open the email change modal -->
-                                            <a href="#" class="d-block mb-1" id="changeEmailLink">Change Email</a>
+                                            <a href="#" id="toggleEmailFormLink" class="d-block mb-1">Change Email</a>
 
-                                              <!-- Change Email Form -->
-                                            <div id="changeEmailForm">
-                                                <form method="POST" action="">
+                                           <!-- Change Email Form (Initially Hidden) -->
+                                            <div id="changeEmailSection" style="display: none; margin-top: 10px;">
+                                                <form id="changeEmailForm" method="POST">
                                                     {% csrf_token %}
                                                     <div class="form-group">
-                                                        <label for="newEmail">New Email Address</label>
-                                                        <input type="email" class="form-control" id="newEmail" name="new_email" placeholder="Enter new email address" required>
-                                                        {% if errors.new_email %}
-                                                            <div class="text-danger mt-2">{{ errors.new_email }}</div>
-                                                        {% endif %}
+                                                        <label for="newEmail">New Email</label>
+                                                        <input type="email" class="form-control" id="newEmail" name="new_email" placeholder="Enter new email" required />
                                                     </div>
-                                                    <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#otpVerificationModal">Submit</button>
+                                                    <button type="submit" class="btn btn-primary mb-3">Submit</button>
                                                 </form>
                                             </div>
 
+
                                             <!-- Link to open the password change modal -->
-                                            <a href="#" class="d-block mb-1" data-toggle="modal" data-target="#changePasswordModal">Change Password</a>
+                                            <a href="#" id="togglePasswordFormLink" class="d-block mb-1" >
+                                                Change Password
+                                            </a>
+
+                                            <!-- Change Password Form (Initially Hidden) -->
+                                            <div id="changePasswordSection" style="display: none; margin-top: 10px;">
+                                                <form id="changePasswordForm" method="POST">
+                                                    {% csrf_token %}
+                                                    <div class="form-group">
+                                                        <label for="currentPassword">Current Password</label>
+                                                        <input type="password" class="form-control"id="currentPassword" placeholder="Enter current password" required
+                                                        />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="newPassword">New Password</label>
+                                                        <input type="password" class="form-control" id="newPassword" placeholder="Enter new password" required />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="confirmPassword">Confirm New Password</label>
+                                                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password" required />
+                                                    </div>
+                                                    <button  type="submit" class="btn btn-primary mb-3">Submit</button>
+                                                </form>
+                                            </div>
+
 
                                         </div>
                                         <!-- Profile Section End -->
@@ -246,88 +264,11 @@
         </div>
 
 
-        <!-- otp modal for change email -->
-
-        <div class="modal fade" id="otpVerificationModal" tabindex="-1" role="dialog" aria-labelledby="otpVerificationModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <form id="otpVerificationForm" method="POST">
-                        {% csrf_token %}
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="otpVerificationModalLabel">Verify OTP</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <!-- OTP Field -->
-                            <div class="col-md-12">
-                                <label for="otp"><b>Note : </b>OTP was sent to your current email-id, Please check it out...</label>
-                                
-                                <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter OTP" required />
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <!-- OTP Validity Message -->
-                                    <div id="otpValidityMessage" class="text-danger">
-                                        OTP is valid for 2 minutes...
-                                    </div>
-                                    
-                                    <!-- Resend OTP Link -->
-                                    <a href="#" id="resendOtpLink" >
-                                        Resend OTP?
-                                    </a>
-                                </div>
-
-                                {% if errors.otp %}
-                                <small class="text-danger">{{ errors.username }}</small>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Verify</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-
+      
         
 
        
-        
-        <!-- Modal for changing password -->
-        <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                </div>
-                <div class="modal-body">
-                <form id="changePasswordForm">
-                    <div class="col-md-12">
-                    <label for="currentPassword">Current Password</label>
-                    <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password">
-                    </div>
-                    <div class="col-md-12">
-                    <label for="newPassword">New Password</label>
-                    <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
-                    </div>
-                    <div class="col-md-12">
-                    <label for="confirmPassword">Confirm New Password</label>
-                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password">
-                    </div>
-                </form>
-                </div>
-                <div class="modal-footer">
-                
-                <button type="submit" form="changePasswordForm" class="btn btn-primary">Submit</button>
-                </div>
-            </div>
-            </div>
-        </div>
+       
         
 
         
@@ -419,14 +360,37 @@
         });
     });
 
-       // JavaScript to toggle form visibility
-    document.getElementById('changeEmailLink').addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent default link behavior
-        var form = document.getElementById('changeEmailForm');
-        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
-    });
- 
 
+    // JavaScript to toggle the display of the change email section
+    document.getElementById("toggleEmailFormLink").addEventListener("click", function (event) {
+    // Prevent the default link behavior
+    event.preventDefault();
+
+    // Get the email change section
+    const emailSection = document.getElementById("changeEmailSection");
+
+    // Toggle the display of the form
+    emailSection.style.display = emailSection.style.display === "none" ? "block" : "none";
+    });
+
+
+   
+  
+ 
+    //JavaScript to toggle the display of the change password section
+    document.getElementById("togglePasswordFormLink").addEventListener("click", function (event) {
+        // Prevent the default link behavior
+        event.preventDefault();
+
+        // Get the password change section
+        const passwordSection = document.getElementById("changePasswordSection");
+
+        // Toggle the display of the form
+        passwordSection.style.display = passwordSection.style.display === "none" ? "block" : "none";
+    });
+
+
+   
     </script>
 
 </body>
