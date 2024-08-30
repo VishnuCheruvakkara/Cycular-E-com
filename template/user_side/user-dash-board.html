@@ -7,6 +7,14 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- SweetAlert CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        /* Initially hide the form */
+        #changeEmailForm {
+            display: none;
+            margin-top: 10px; 
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
         <main class="main" style="margin-top: 20;">
@@ -73,8 +81,23 @@
                                         <div class="mt-3">
                                             <a href="#" class="d-block mb-1" data-toggle="modal" data-target="#changeUsernameModal">Change Username</a>
                                             
-                                                                                        <!-- Link to open the email change modal -->
-                                            <a href="#" class="d-block mb-1" data-toggle="modal" data-target="#changeEmailModal">Change Email</a>
+                                            <!-- Link to open the email change modal -->
+                                            <a href="#" class="d-block mb-1" id="changeEmailLink">Change Email</a>
+
+                                              <!-- Change Email Form -->
+                                            <div id="changeEmailForm">
+                                                <form method="POST" action="">
+                                                    {% csrf_token %}
+                                                    <div class="form-group">
+                                                        <label for="newEmail">New Email Address</label>
+                                                        <input type="email" class="form-control" id="newEmail" name="new_email" placeholder="Enter new email address" required>
+                                                        {% if errors.new_email %}
+                                                            <div class="text-danger mt-2">{{ errors.new_email }}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#otpVerificationModal">Submit</button>
+                                                </form>
+                                            </div>
 
                                             <!-- Link to open the password change modal -->
                                             <a href="#" class="d-block mb-1" data-toggle="modal" data-target="#changePasswordModal">Change Password</a>
@@ -93,7 +116,16 @@
                                             and <a href="#tab-account" class="tab-trigger-link">edit your password and account details</a>.
                                         </p>
                                     </div><!-- .End .tab-pane -->
+
+
+
+
+                                    <!-- Change Email Form -->
+  
                                     
+
+
+
 
 								    <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
 								    	<p>No order has been made yet.</p>
@@ -212,70 +244,54 @@
             </div>
             </div>
         </div>
-        
 
-        
-        <!-- Modal for Changing Email -->
-<div
-class="modal fade"
-id="changeEmailModal"
-tabindex="-1"
-role="dialog"
-aria-labelledby="changeEmailModalLabel"
-aria-hidden="true"
->
-<div class="modal-dialog" role="document">
-  <div class="modal-content">
-    <form id="changeEmailForm" method="POST">
-      {% csrf_token %}
-      <div class="modal-header">
-        <h5 class="modal-title" id="changeEmailModalLabel">Change Email</h5>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          aria-label="Close"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- New Email Field -->
-        <div class="form-group">
-          <label for="newEmail">New Email Address</label>
-          <input
-            type="email"
-            class="form-control"
-            id="newEmail"
-            name="new_email"
-            placeholder="Enter new email address"
-            required
-          />
-          <div id="emailError" class="text-danger mt-2"></div>
+
+        <!-- otp modal for change email -->
+
+        <div class="modal fade" id="otpVerificationModal" tabindex="-1" role="dialog" aria-labelledby="otpVerificationModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form id="otpVerificationForm" method="POST">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="otpVerificationModalLabel">Verify OTP</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- OTP Field -->
+                            <div class="col-md-12">
+                                <label for="otp"><b>Note : </b>OTP was sent to your current email-id, Please check it out...</label>
+                                
+                                <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter OTP" required />
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <!-- OTP Validity Message -->
+                                    <div id="otpValidityMessage" class="text-danger">
+                                        OTP is valid for 2 minutes...
+                                    </div>
+                                    
+                                    <!-- Resend OTP Link -->
+                                    <a href="#" id="resendOtpLink" >
+                                        Resend OTP?
+                                    </a>
+                                </div>
+
+                                {% if errors.otp %}
+                                <small class="text-danger">{{ errors.username }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Verify</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <!-- OTP Input Field (Initially Hidden) -->
-        <div class="form-group" id="otpSection" style="display: none;">
-          <label for="otp">Enter OTP</label>
-          <input
-            type="text"
-            class="form-control"
-            id="otp"
-            name="otp"
-            placeholder="Enter OTP"
-          />
-          <div id="otpError" class="text-danger mt-2"></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </div>
-    </form>
-  </div>
-</div>
-</div>
-        
 
+        
 
        
         
@@ -403,46 +419,13 @@ aria-hidden="true"
         });
     });
 
-    document
-    .getElementById("changeEmailForm")
-    .addEventListener("submit", function (event) {
-      event.preventDefault(); // Prevent default form submission
-
-      // Create FormData object to send data via AJAX
-      const formData = new FormData(this);
-
-      // Send POST request to the server
-      fetch("{% url 'user_side:change-email' %}", {
-        method: "POST",
-        body: formData,
-        headers: {
-          "X-Requested-With": "XMLHttpRequest", // Indicate AJAX request
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          // Reset error messages
-          document.getElementById("emailError").textContent = "";
-          document.getElementById("otpError").textContent = "";
-
-          if (data.status === "otp_sent") {
-            // Show OTP input section if OTP was sent successfully
-            document.getElementById("otpSection").style.display = "block";
-          } else if (data.errors) {
-            // Display errors if there are any
-            if (data.errors.new_email) {
-              document.getElementById("emailError").textContent =
-                data.errors.new_email;
-            }
-          } else {
-            alert("Unexpected error occurred. Please try again.");
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("Failed to process your request. Please try again.");
-        });
+       // JavaScript to toggle form visibility
+    document.getElementById('changeEmailLink').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default link behavior
+        var form = document.getElementById('changeEmailForm');
+        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
     });
+ 
 
     </script>
 
