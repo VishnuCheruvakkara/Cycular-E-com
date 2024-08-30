@@ -13,7 +13,8 @@ urlpatterns=[
     path('user-dash-board/',views.user_dash_board,name='user-dash-board'),
     path('change-username/',views.change_username,name='change-username'),
     path('change-email/',views.change_email,name='change-email'),
-    path('change-email-verify-otp/',views.change_email,name='change-email'),
+    path('change-email-verify-otp/',views.change_email,name='change-email-verify-otp'),
+
 
 ]
 
