@@ -26,6 +26,9 @@ urlpatterns = [
     path('seller/',include('admin_side.urls')),
     path('products/',include('products.urls')),
     path('social-auth/',include('social_django.urls',namespace='social')),  # Social authentication URLs
+    path('cart/',include('cart.urls')),
+    path('orders/',include('orders.urls')),
+    path('inventory/',include('inventory.urls')),
 ]
 
 if settings.DEBUG:

@@ -52,7 +52,11 @@ INSTALLED_APPS = [
     'core',  
     'user_side',
     'admin_side',
+    
     'products',
+    'orders',
+    'cart',
+    'inventory',
 ]
 
 MIDDLEWARE = [
