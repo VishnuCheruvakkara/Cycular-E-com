@@ -15,6 +15,10 @@ urlpatterns=[
     path('change-email/',views.change_email,name='change-email'),
     path('change-email-verify-otp/',views.change_email,name='change-email-verify-otp'),
 
+    path('add-address/',views.add_address,name='add-address'),
+    path('edit-address/<int:address_id>/',views.edit_address, name='edit-address'),
+
+
 
 ]
 

@@ -17,6 +17,7 @@ import re
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.utils.crypto import get_random_string
+from .models import Address
 
 User = get_user_model()
 # Create your views here.
@@ -273,8 +274,11 @@ def toggle_user_status(request):
 
 @login_required(login_url='user_side:sign-in')
 def user_dash_board(request):
+    addresses=Address.objects.filter(user=request.user)
+
     context={
-        'user':request.user
+        'user':request.user,
+        'addresses':addresses,
     }
     return render(request,'user_side/user-dash-board.html',context)
 
@@ -366,3 +370,67 @@ def change_email(request):
 
 
 ##########################  verify otp for the email change   #################################
+
+##########################  update the password of the logined user  ##################################
+
+########################## varify otp for the password change  ############################
+
+#Adress management section down below...
+
+#########################  add address view  ####################
+
+def add_address(request):
+    if request.method == 'POST':
+        address_line = request.POST.get('address_line')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        country = request.POST.get('country')
+        postal_code = request.POST.get('postal_code')
+        phone_number = request.POST.get('phone_number')
+        is_default = request.POST.get('is_default') == 'on'
+
+        Address.objects.create(
+            user=request.user,
+            address_line=address_line,
+            city=city,
+            state=state,
+            country=country,
+            postal_code=postal_code,
+            phone_number=phone_number,
+            is_default=is_default
+        )
+        
+        messages.success(request, 'Address added successfully.')
+        return redirect('user_side:user-dash-board') 
+    
+    return render(request, 'user_side/user-dash-board.html')
+
+
+#######################  edit address  ##########################
+
+def edit_address(request, address_id):
+    # Fetch the address object based on the given ID and ensure it belongs to the current user
+    address = get_object_or_404(Address, id=address_id, user=request.user)
+
+    if request.method == 'POST':
+        # Update address fields from the form
+        address.address_line = request.POST.get('address_line')
+        address.city = request.POST.get('city')
+        address.state = request.POST.get('state')
+        address.country = request.POST.get('country')
+        address.postal_code = request.POST.get('postal_code')
+        address.phone_number = request.POST.get('phone_number')
+        address.is_default = request.POST.get('is_default') == 'on'  # Checkbox handling for default address
+
+        # Save the updated address
+        address.save()
+        messages.success(request, 'Address updated successfully.')
+        
+        # Redirect back to the user dashboard
+        return redirect('user_side:user_dashboard')  # Change this to your correct dashboard view name
+
+    # Render the dashboard view with the edit form modal
+    context = {
+        'address': address,  # Pass the address object to pre-fill form fields
+    }
+    return render(request, 'user_side/user_dash_board.html', context)
