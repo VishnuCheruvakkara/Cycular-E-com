@@ -22,7 +22,8 @@ class Address(models.Model):
     state = models.CharField(max_length=100)
     country = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=20, blank=True, null=True) 
     is_default = models.BooleanField(default=False)  # Indicates the default address for a user
 
     def __str__(self):
-        return f"{self.street}, {self.city}, {self.state} - {self.postal_code}"
+        return f"{self.city}, {self.state} - {self.postal_code}"

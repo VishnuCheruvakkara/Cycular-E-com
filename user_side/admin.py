@@ -10,7 +10,7 @@ admin.site.register(User,UserAdmin)
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
-    list_display = ('user', 'address_line', 'city', 'state', 'postal_code', 'country','is_default')
+    list_display = ('user', 'address_line', 'city', 'state', 'postal_code', 'country','phone_number','is_default')
     search_fields = ('user__username', 'address_line', 'city', 'state', 'postal_code', 'country')
     list_filter = ('state', 'country')
 
