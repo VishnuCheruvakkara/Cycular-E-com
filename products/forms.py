@@ -15,6 +15,7 @@ class ProductForm(forms.ModelForm):
             'brand',
             'key_specification',
         ]
+
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
@@ -22,6 +23,12 @@ class ProductForm(forms.ModelForm):
             'brand': forms.Select(attrs={'class': 'form-control'}),
             'key_specification': forms.Textarea(attrs={'class': 'form-control'}),
         }
+    def __init__(self, *args, **kwargs):
+        super(ProductForm, self).__init__(*args, **kwargs)
+        # Filter categories with status=True
+        self.fields['category'].queryset = Category.objects.filter(status=True)
+        # Filter brands with status=True
+        self.fields['brand'].queryset = Brand.objects.filter(status=True)
     def clean(self):
         cleaned_data = super().clean()
         name=cleaned_data.get("name")
@@ -34,13 +41,14 @@ class ProductForm(forms.ModelForm):
                 self.add_error('name', "Name must be at least 3 characters long.")
             if not re.match(r'^[a-zA-Z]', name):
                 self.add_error('name', "Name must start with a letter.")
-            if name and not re.match(r'^[a-zA-Z0-9\-\(\)](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', name):
+            if name and not re.match(r'^[a-zA-Z0-9\-\(\)\., ](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', name):
                 self.add_error('name', 'Name can only contain letters, numbers, hyphens, brackets, and a single space between words.')
             # Check for unique name in the Product model
             if Product.objects.filter(name=name).exclude(id=self.instance.id).exists():
                 self.add_error('name', "A product with this name already exists.")
-        if description and not re.match(r'^[a-zA-Z0-9\-\(\)](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', description):
-                self.add_error('description', 'Description can only contain letters, numbers, hyphens, brackets, and a single space between words.')
+         # Description validation
+        if description and not re.match(r'^[\w\-\(\)\.,;:\s]+$', description):
+            self.add_error('description', 'Key specifications can only contain letters, numbers, hyphens, brackets, periods, commas, and spaces.')
         if not category:
             self.add_error('category', "Category is required.")
         if not key_specification:
@@ -48,8 +56,10 @@ class ProductForm(forms.ModelForm):
         if len(key_specification) < 10:
             self.add_error('key_specification', "Key specification must be at least 10 characters long.")
         # Additional custom validations can go here
-        if key_specification and not re.match(r'^[a-zA-Z0-9\-\(\)](?:[a-zA-Z0-9\-\(\)]|(?<=\S) )*$', key_specification):
-                self.add_error('key_specification', 'Key specifications can only contain letters, numbers, hyphens, brackets, and a single space between words.')
+        if key_specification and not re.match(r'^[\w\-\(\)\.,;:\s]+$', key_specification):
+            self.add_error('key_specification', 'Key specifications can only contain letters, numbers, hyphens, brackets, periods, commas, and spaces.')
+
+
 
         return cleaned_data
     
@@ -119,6 +129,10 @@ class ProductVariantForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         product = kwargs.pop('product', None)
         super(ProductVariantForm, self).__init__(*args, **kwargs)
+    
+        # Filter the 'size' queryset to include only those with status=True
+        self.fields['size'].queryset = Size.objects.filter(status=True)
+
         if not self.instance.pk:
             self.fields['status'].initial = True
         if self.instance and self.instance.size:
