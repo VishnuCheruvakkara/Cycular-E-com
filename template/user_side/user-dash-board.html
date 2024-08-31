@@ -338,33 +338,53 @@
                             <div class="form-group col-md-12 ">
                                 <label for="address_line">Address Line</label>
                                 <input type="text" name="address_line" class="form-control" required>
+                                {% if errors.address_line %}
+                                <div class="text-danger">{{ errors.address_line }}</div>
+                                {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="city">City</label>
                                 <input type="text" name="city" class="form-control" required>
+                                {% if errors.city %}
+                                <div class="text-danger">{{ errors.city }}</div>
+                                {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="state">State</label>
                                 <input type="text" name="state" class="form-control" required>
+                                {% if errors.state %}
+                                <div class="text-danger">{{ errors.state }}</div>
+                                {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="country">Country</label>
                                 <input type="text" name="country" class="form-control" required>
+                                {% if errors.country %}
+                                <div class="text-danger">{{ errors.country }}</div>
+                                {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="postal_code">Postal Code</label>
                                 <input type="text" name="postal_code" class="form-control" required>
+                                {% if errors.postal_code %}
+                                <div class="text-danger">{{ errors.postal_code }}</div>
+                                 {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="phone_number">Phone Number</label>
                                 <input type="text" name="phone_number" class="form-control">
+                                {% if errors.phone_number %}
+                                <div class="text-danger">{{ errors.phone_number }}</div>
+                                {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="is_default">Default Address</label>
                                 <input type="checkbox" name="is_default">
+                            
                             </div>
                             <div class="d-flex justify-content-center mt-3">
                                 <button type="submit" class="btn btn-primary mb-1">Add Address</button>
+                            
                             </div>
                         </form>
                     </div>
@@ -485,6 +505,8 @@
         // Toggle the display of the form
         passwordSection.style.display = passwordSection.style.display === "none" ? "block" : "none";
     });
+
+//////////////// code for dont close the add address modal ///////////////////
 
 
    
