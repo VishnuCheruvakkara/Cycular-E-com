@@ -426,11 +426,29 @@ def edit_address(request, address_id):
         address.save()
         messages.success(request, 'Address updated successfully.')
         
-        # Redirect back to the user dashboard
-        return redirect('user_side:user_dashboard')  # Change this to your correct dashboard view name
+        
+        return redirect('user_side:user-dash-board')  
 
-    # Render the dashboard view with the edit form modal
+
     context = {
         'address': address,  # Pass the address object to pre-fill form fields
     }
-    return render(request, 'user_side/user_dash_board.html', context)
+    return render(request, 'user_side/user-dash-board.html', context)
+
+
+#########################  delete user address  ######################3
+
+@login_required(login_url='user_side:sign-in')  # Restrict to logged-in users
+def delete_address(request, address_id):
+    # Get the address object that belongs to the logged-in user or 404 if not found
+    address = get_object_or_404(Address, id=address_id, user=request.user)
+
+    if request.method == 'POST':
+        # Delete the address
+        address.delete()
+        messages.success(request, 'Address has been deleted successfully.')
+        return redirect('user_side:user-dash-board')  # Redirect to the desired page after deletion
+
+    # If the method is not POST, show an error or handle appropriately
+    messages.error(request, 'Invalid request method. Please use the delete button provided.')
+    return redirect('user_side:user-dash-board')

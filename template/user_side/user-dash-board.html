@@ -161,7 +161,12 @@
                                                             <div>
                                                                 <!-- Trigger modal for editing the address -->
                                                                 <a href="#" data-toggle="modal" data-target="#editAddressModal{{ address.id }}">Edit <i class="icon-edit"></i></a>
-                                                                <a href="#" style="color: rgb(236, 98, 98);">Delete <i class="fas fa-trash"></i></a>
+                                                                <form action="{% url 'user_side:delete-address' address.id %}" method="POST" style="display: inline;">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="btn " style="color: rgb(236, 98, 98);">
+                                                                        Delete <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </form>
                                                             </div>
                                                         </div>
                                                         <p>
