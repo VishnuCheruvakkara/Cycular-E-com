@@ -379,10 +379,9 @@ def change_email(request):
 #Adress management section down below...
 
 #########################  add address view  ####################
-
 def add_address(request):
     errors = {}  # Dictionary to hold error messages
-    
+    add_address_show = False  # Flag to control modal visibility
 
     if request.method == 'POST':
         address_line = request.POST.get('address_line', '').strip()
@@ -465,16 +464,15 @@ def add_address(request):
             messages.success(request, 'Address added successfully.')
             return redirect('user_side:user-dash-board')
         else:
-          
-            messages.error(request, 'Please correct the errors below.')
+            add_address_show = True
+            messages.error(request, 'Please correct the errors in Add address form.')
 
     context = {
         'errors': errors,
-       
+        'add_address_show': add_address_show,
     }
 
     return render(request, 'user_side/user-dash-board.html', context)
-
 #######################  edit address  ##########################
 
 def edit_address(request, address_id):
