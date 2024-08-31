@@ -14,5 +14,8 @@ def Index(request):
     }
     return render(request,'core/index.html',context)
 
-##################  To show/list products in the user side ####################################
+##################  To show the category based seletection and filtering  ####################################
 
+def category_filter(request):
+    
+    return render(request,'core/category-filter.html')
