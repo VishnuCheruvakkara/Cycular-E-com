@@ -2,6 +2,56 @@
 {% load static %}
 
 {% block content %}
+<head>
+	<style>
+		.cart-summary {
+			display: inline-block;
+			padding: 10px 20px;
+			background-color: #f5f5f5;
+			border-radius: 8px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+			font-weight: 500;
+			position: relative;
+			overflow: hidden;
+			font-size: 18px;
+			color: #333;
+			transition: transform 0.3s ease;
+		}
+	
+		.cart-summary::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: 0;
+			height: 0;
+			border-style: solid;
+			border-width: 0 20px 20px 0;
+			border-color: transparent #f5f5f5;
+			border-radius: 0 0 8px 0;
+			transform: rotate(45deg);
+		}
+	
+		.cart-summary span {
+			font-weight: bold;
+			color: #1cc0a0; /* Change this to your preferred color */
+		}
+	
+		.cart-summary.animate {
+			animation: bounce 0.6s;
+		}
+	
+		@keyframes bounce {
+			0%, 100% {
+				transform: scale(1);
+			}
+			50% {
+				transform: scale(1.05);
+			}
+		}
+	</style>
+	
+</head>
 
 <body>
         <main class="main mt-2" >
@@ -13,16 +63,18 @@
             <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Shop</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'core:index' %}">Home</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
                     </ol>
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
-
+			
             <div class="page-content">
             	<div class="cart">
 	                <div class="container">
+						<div id="total-cart-items" class="cart-summary">
+							Total Products in Cart : <span id="total-products">0</span>
+						</div>
 	                	<div class="row">
 	                		<div class="col-lg-9">
 	                			<table class="table table-cart table-mobile">
@@ -56,10 +108,10 @@
 											<td class="price-col">₹ {{cart_item.product_variant.price}}</td>
 											<td class="quantity-col">
                                                 <div class="cart-product-quantity">
-                                                    <input type="number" class="form-control quantity-input" value="{{cart_item.quantity}}" min="1" max="10" step="1" data-cart-item-id="{{cart_item.id}}" data-max-stock="{{ cart_item.product_variant.stock }}" required>
+                                                    <input type="number" id="quantity-{{ cart_item.id }}" class="form-control" min="1" max="10" step="1" value="{{ cart_item.quantity }}" onchange="updateCartItemQuantity({{ cart_item.id }})" required>
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
-											<td class="total-col">₹ <span></span></td>
+											<td class="total-col" id="total-{{ cart_item.id }}">₹ <span>{{cart_item.product_variant.price}}</span></td>
 											<td class="remove-col">
 												<form id="remove-form-{{ cart_item.id }}" method="post" action="{% url 'cart:remove-from-cart' cart_item.id %}">
 													{% csrf_token %}
@@ -75,16 +127,7 @@
 								</table><!-- End .table table-wishlist -->
 
 	                			<div class="cart-bottom">
-			            			<div class="cart-discount">
-			            				<form action="#">
-			            					<div class="input-group">
-				        						<input type="text" class="form-control" required placeholder="coupon code">
-				        						<div class="input-group-append">
-													<button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
-												</div><!-- .End .input-group-append -->
-			        						</div><!-- End .input-group -->
-			            				</form>
-			            			</div><!-- End .cart-discount -->
+			            			
 
 			            			<a href="#" class="btn btn-outline-dark-2"><span>UPDATE CART</span><i class="icon-refresh"></i></a>
 		            			</div><!-- End .cart-bottom -->
@@ -95,53 +138,19 @@
 
 	                				<table class="table table-summary">
 	                					<tbody>
-	                						<tr class="summary-subtotal">
-	                							<td>Subtotal:</td>
-	                							<td>$160.00</td>
+											{% for cart_item in cart_items%}
+	                						<tr class="summary-subtotal" >
+	                							<td>{{cart_item.product_variant.product.name}} <p  id="product-count-{{ cart_item.id }}">(count : {{cart_item.quantity}} )</p></td>
+	                							<td id="total-{{ cart_item.id }}">₹ {{cart_item.product_variant.price}}</td>
 	                						</tr><!-- End .summary-subtotal -->
+											{% endfor %}
 	                						<tr class="summary-shipping">
-	                							<td>Shipping:</td>
-	                							<td>&nbsp;</td>
+	                							<td>Shipping/Delivary Charges:</td>
+	                							<td><b>Free</b></td>
 	                						</tr>
-
-	                						<tr class="summary-shipping-row">
-	                							<td>
-													<div class="custom-control custom-radio">
-														<input type="radio" id="free-shipping" name="shipping" class="custom-control-input">
-														<label class="custom-control-label" for="free-shipping">Free Shipping</label>
-													</div><!-- End .custom-control -->
-	                							</td>
-	                							<td>$0.00</td>
-	                						</tr><!-- End .summary-shipping-row -->
-
-	                						<tr class="summary-shipping-row">
-	                							<td>
-	                								<div class="custom-control custom-radio">
-														<input type="radio" id="standart-shipping" name="shipping" class="custom-control-input">
-														<label class="custom-control-label" for="standart-shipping">Standart:</label>
-													</div><!-- End .custom-control -->
-	                							</td>
-	                							<td>$10.00</td>
-	                						</tr><!-- End .summary-shipping-row -->
-
-	                						<tr class="summary-shipping-row">
-	                							<td>
-	                								<div class="custom-control custom-radio">
-														<input type="radio" id="express-shipping" name="shipping" class="custom-control-input">
-														<label class="custom-control-label" for="express-shipping">Express:</label>
-													</div><!-- End .custom-control -->
-	                							</td>
-	                							<td>$20.00</td>
-	                						</tr><!-- End .summary-shipping-row -->
-
-	                						<tr class="summary-shipping-estimate">
-	                							<td>Estimate for Your Country<br> <a href="dashboard.html">Change address</a></td>
-	                							<td>&nbsp;</td>
-	                						</tr><!-- End .summary-shipping-estimate -->
-
 	                						<tr class="summary-total">
-	                							<td>Total:</td>
-	                							<td>$160.00</td>
+	                							<td><b>Total:</b></td>
+	                							<td><b>$160.00</b></td>
 	                						</tr><!-- End .summary-total -->
 	                					</tbody>
 	                				</table><!-- End .table table-summary -->
@@ -149,7 +158,7 @@
 	                				<a href="{% url 'payment:check-out' %}" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
 	                			</div><!-- End .summary -->
 
-		            			<a href="category.html" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span><i class="icon-refresh"></i></a>
+		            			<a href="{% url 'core:category-filter' %}" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span><i class="icon-refresh"></i></a>
 	                		</aside><!-- End .col-lg-3 -->
 	                	</div><!-- End .row -->
 	                </div><!-- End .container -->
@@ -190,9 +199,80 @@
                 );
             }
         });
+	}
+	// Function to update cart item quantity
+	function updateCartItemQuantity(cartItemId) {
+		const quantity = document.getElementById(`quantity-${cartItemId}`).value;
+		const url = "{% url 'cart:update-cart-item-quantity' 0 %}".replace('0', cartItemId);
+
+		fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': '{{ csrf_token }}'
+			},
+			body: JSON.stringify({ quantity: quantity })
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.status === 'success') {
+				document.getElementById(`total-${cartItemId}`).innerHTML = `₹ <span>${data.new_total.toFixed(2)}</span>`;
+				// Update the count in the table
+				updateProductCount(cartItemId, quantity);
+				// Update the total number of products in the cart
+				updateTotalProductsCount();
+				
+			} else {
+				Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: data.message, // Display the error message from the server
+                confirmButtonText: 'OK'
+            });
+			}
+		})
+		.catch(error => {
+			console.error('Error:', error);
+		});
+	}
+	// Function to update the count in the table
+	function updateProductCount(cartItemId, quantity) {
+		const countElement = document.querySelector(`#product-count-${cartItemId}`);
+		if (countElement) {
+			countElement.textContent = ` (count: ${quantity})`;
+		}
+	}
 
 	
-    }
+
+	// Function to update the total number of products in the cart
+	function updateTotalProductsCount() {
+		let totalProducts = 0;
+		const quantities = document.querySelectorAll('.cart-product-quantity input[type="number"]');
+
+		// Sum all product quantities
+		quantities.forEach(input => {
+			totalProducts += parseInt(input.value, 10);
+		});
+
+		// Display the total number of products in the cart
+		const totalProductsElement = document.getElementById('total-products');
+		totalProductsElement.textContent = totalProducts;
+
+		// Add animation class
+		const cartSummary = document.getElementById('total-cart-items');
+		cartSummary.classList.add('animate');
+
+		// Remove animation class after animation ends to allow re-animation
+		cartSummary.addEventListener('animationend', () => {
+			cartSummary.classList.remove('animate');
+		});
+	}
+
+// Initial update of the total number of products when the page loads
+document.addEventListener('DOMContentLoaded', updateTotalProductsCount);
+
+
 </script>
 </body>
 

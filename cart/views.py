@@ -83,3 +83,23 @@ def remove_from_cart(request,cart_item_id):
 ######################## update cart quantity of a product based on the count and stock  ###################
 
 
+def update_cart_item_quantity(request, cart_item_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'User not authenticated'}, status=401)
+    
+    cart_item = get_object_or_404(CartItem, id=cart_item_id)
+    
+    try:
+        data = json.loads(request.body)
+        quantity = int(data.get('quantity', 0))
+        
+        if 1 <= quantity <= cart_item.product_variant.stock:
+            cart_item.quantity = quantity
+            cart_item.save()
+            new_total = cart_item.quantity * float(cart_item.product_variant.price)
+            return JsonResponse({'status': 'success', 'new_total': new_total})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Quantity is out of stock or invalid.'})
+    
+    except (ValueError, KeyError):
+        return JsonResponse({'status': 'error', 'message': 'Invalid data provided.'})
