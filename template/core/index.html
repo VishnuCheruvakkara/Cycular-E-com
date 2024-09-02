@@ -217,7 +217,32 @@
             </div><!-- End .bg-light pt-4 pb-4 -->
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-   
+        <script>
+            // Function to update cart count
+            function updateCartCount() {
+                fetch('{% url "cart:cart-count" %}', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.querySelector('.cart-count').textContent = data.count;
+                    } else {
+                        console.error('Failed to fetch cart count:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            // Call the updateCartCount function when the page loads
+            document.addEventListener('DOMContentLoaded', updateCartCount);
+
+        </script>
+
         <script>
             // Common SweetAlert function
             function showAlert(title, message, icon = 'info', buttonText = 'OK') {
@@ -229,22 +254,23 @@
                 });
             }
 
+            // Function to update the button state and style
             function updateButtonState(button, isAdded) {
                 if (isAdded) {
-                    button.textContent = 'In Cart';
-                    button.classList.add('disabled'); // Add a class to style the disabled button
-                    button.disabled = true; // Disable the button
+                    button.textContent = 'Remove from Cart'; // Change text to "Remove from Cart"
+                    button.style.backgroundColor = 'grey'; // Change button color to grey
+                    button.style.color = 'white'; // Set text color to white for better contrast
                 } else {
-                    button.textContent = 'Add to cart';
-                    button.classList.remove('disabled');
-                    button.disabled = false; // Enable the button
+                    button.textContent = 'Add to Cart';
+                    button.style.backgroundColor = ''; // Reset to default color
+                    button.style.color = ''; // Reset text color
                 }
             }
             function addToCart(button){
                 const productId=button.getAttribute('data-product-id');
 
                 // Check if button is already in "Added to Cart" state
-                const isAlreadyAdded = button.textContent === 'In Cart';
+                const isAlreadyAdded = button.textContent === 'Remove from Cart';
 
                 // Toggle state based on the current state
                 const action = isAlreadyAdded ? 'remove' : 'add';
@@ -279,8 +305,9 @@
                     if (data.status === 'success') {
                         updateButtonState(button, action === 'add');
                         showAlert('Success!', data.message, 'success','OK'); // Show success message
+                        updateCartCount();
                     } else {
-                        showAlert('Error', data.message || 'An error occurred. Please try again.', 'error','OK'); 
+                        showAlert('Notice', data.message || 'An error occurred. Please try again.', 'info','OK'); 
                     }
                 })
                 .catch(error => {
