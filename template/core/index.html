@@ -1,8 +1,10 @@
 {% extends 'partials/base.html' %}
 {% block content %}
 {% load static %}
-
-
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert/dist/sweetalert.min.css">
+</head>
+<body>
         <main class="main">
             <div class="intro-section pt-lg-2">
                
@@ -199,7 +201,7 @@
                                                 <span class="ratings-text">( 10 Reviews )</span>
                                             </div>
                                             <div class="product-action">
-                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                                <button class="btn-product btn-cart" data-product-id="{{ product_variant.id }}" onclick="addToCart(this)">Add to Cart</button>
                                                 <a href="#" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
                                             </div>
                                         </div>
@@ -214,6 +216,81 @@
                 </div><!-- End .block -->
             </div><!-- End .bg-light pt-4 pb-4 -->
 
-           
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
+        <script>
+            // Common SweetAlert function
+            function showAlert(title, message, icon = 'info', buttonText = 'OK') {
+                swal.fire({
+                    title: title,
+                    text: message,
+                    icon: icon, // can be 'success', 'error', 'warning', or 'info'
+                    confirmButtonText: buttonText,
+                });
+            }
+
+            function updateButtonState(button, isAdded) {
+                if (isAdded) {
+                    button.textContent = 'In Cart';
+                    button.classList.add('disabled'); // Add a class to style the disabled button
+                    button.disabled = true; // Disable the button
+                } else {
+                    button.textContent = 'Add to cart';
+                    button.classList.remove('disabled');
+                    button.disabled = false; // Enable the button
+                }
+            }
+            function addToCart(button){
+                const productId=button.getAttribute('data-product-id');
+
+                // Check if button is already in "Added to Cart" state
+                const isAlreadyAdded = button.textContent === 'In Cart';
+
+                // Toggle state based on the current state
+                const action = isAlreadyAdded ? 'remove' : 'add';
+
+                fetch('{% url "cart:add-to-cart" %}',{
+                    method:'POST',
+                    headers:{
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: new URLSearchParams({
+                        'product_variant_id': productId,
+                        'action': action 
+                    })
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        // User is not logged in
+                        return response.json().then(data => {
+                            showAlert('Login Required', data.message, 'warning', 'OK');
+                            throw new Error('Unauthorized'); // Stop further processing
+                        });
+                    } else if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Unexpected response');
+                    }
+                })
+            
+                .then(data => {
+                    if (data.status === 'success') {
+                        updateButtonState(button, action === 'add');
+                        showAlert('Success!', data.message, 'success','OK'); // Show success message
+                    } else {
+                        showAlert('Error', data.message || 'An error occurred. Please try again.', 'error','OK'); 
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (error.message !== 'Unauthorized') {
+                        showAlert('Error', 'An error occurred. Please try again.', 'error', 'OK');
+                    }
+                });
+            }
+        </script>
+</body>
 {% endblock content %}
           
