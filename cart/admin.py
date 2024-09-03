@@ -12,7 +12,7 @@ class CartAdmin(admin.ModelAdmin):
 
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
-    list_display = ('cart', 'product_variant', 'quantity')
+    list_display = ('cart', 'product_variant', 'quantity','subtotal')
     search_fields = ('cart__user__username', 'product_variant__product__name')
     list_filter = ('product_variant__product__category',)
 

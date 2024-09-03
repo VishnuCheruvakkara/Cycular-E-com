@@ -19,6 +19,12 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
         return f"{self.product_variant.product.name} (x{self.quantity})"
+    
+    def save(self, *args, **kwargs):
+        # Automatically update the subtotal whenever the cart item is saved
+        self.subtotal = self.quantity * float(self.product_variant.price)
+        super().save(*args, **kwargs)

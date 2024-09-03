@@ -92,14 +92,22 @@ def update_cart_item_quantity(request, cart_item_id):
     try:
         data = json.loads(request.body)
         quantity = int(data.get('quantity', 0))
+        max_quantity_limit = 5 
+
+        if quantity > max_quantity_limit:
+            return JsonResponse({
+                'status':'error',
+                'message':f'Maximum limit exceeded. You can only add up to {max_quantity_limit} of this product'
+            })
         
         if 1 <= quantity <= cart_item.product_variant.stock:
             cart_item.quantity = quantity
-            cart_item.save()
+            cart_item.save() # this will save the both cart item quantity and its price accordingly.
             new_total = cart_item.quantity * float(cart_item.product_variant.price)
             return JsonResponse({'status': 'success', 'new_total': new_total})
         else:
-            return JsonResponse({'status': 'error', 'message': 'Quantity is out of stock or invalid.'})
+            available_stock=cart_item.product_variant.stock
+            return JsonResponse({'status': 'error', 'message': f'Quantity is out of stock. Only {available_stock} quantity in stock.'})
     
     except (ValueError, KeyError):
         return JsonResponse({'status': 'error', 'message': 'Invalid data provided.'})

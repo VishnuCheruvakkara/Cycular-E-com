@@ -102,6 +102,10 @@
 													<h3 class="product-title">
 														<a href="{% url 'products:single-product-view' cart_item.product_variant.id %}">{{cart_item.product_variant.product.name}}</a>
 														<p>{{cart_item.product_variant.size.name}}</p>
+														{% if cart_item.product_variant.stock < 5 %}
+														<p>Available Stock : <span><b>{{cart_item.product_variant.stock}}</b></span></p>
+														{% endif %}
+
 													</h3><!-- End .product-title -->
 												</div><!-- End .product -->
 											</td>
@@ -111,7 +115,7 @@
                                                     <input type="number" id="quantity-{{ cart_item.id }}" class="form-control" min="1" max="10" step="1" value="{{ cart_item.quantity }}" onchange="updateCartItemQuantity({{ cart_item.id }})" required>
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
-											<td class="total-col" >₹ <span class="product-total" data-cart-item-id="{{ cart_item.id }}">{{cart_item.product_variant.price}}</span></td>
+											<td class="total-col" >₹ <span class="product-total" data-cart-item-id="{{ cart_item.id }}">{{cart_item.subtotal}}</span></td>
 											<td class="remove-col">
 												<form id="remove-form-{{ cart_item.id }}" method="post" action="{% url 'cart:remove-from-cart' cart_item.id %}">
 													{% csrf_token %}
@@ -141,7 +145,7 @@
 											{% for cart_item in cart_items%}
 	                						<tr class="summary-subtotal" >
 	                							<td>{{cart_item.product_variant.product.name}} <p  id="product-count-{{ cart_item.id }}">(count : {{cart_item.quantity}} )</p></td>
-	                							<td>₹ <span class="product-total" data-cart-item-id="{{ cart_item.id }}" >{{cart_item.product_variant.price}}</span></td>
+	                							<td>₹ <span class="product-total" data-cart-item-id="{{ cart_item.id }}" >{{cart_item.subtotal}}</span></td>
 	                						</tr><!-- End .summary-subtotal -->
 											{% endfor %}
 	                						<tr class="summary-shipping">
@@ -213,9 +217,23 @@
 	}
 	// Function to update cart item quantity
 	function updateCartItemQuantity(cartItemId) {
-		const quantity = document.getElementById(`quantity-${cartItemId}`).value;
+		const quantityInput = document.getElementById(`quantity-${cartItemId}`);
+		const quantity = parseInt(quantityInput.value, 10);
+    	const maxQuantityLimit = 5;
 		const url = "{% url 'cart:update-cart-item-quantity' 0 %}".replace('0', cartItemId);
 
+		// Check if quantity exceeds the allowed limit
+		if (quantity > maxQuantityLimit) {
+			quantityInput.value = maxQuantityLimit; // Reset to maximum allowed limit
+			Swal.fire({
+				icon: 'error',
+				title: 'Limit Exceeded',
+				text: `You can only add up to ${maxQuantityLimit} of this product.`,
+				confirmButtonText: 'OK'
+			});
+			return; // Prevent further execution
+		}
+		
 		fetch(url, {
 			method: 'POST',
 			headers: {
@@ -254,8 +272,6 @@
 			countElement.textContent = ` (count: ${quantity})`;
 		}
 	}
-
-	
 
 	// Function to update the total number of products in the cart
 	function updateTotalProductsCount() {
