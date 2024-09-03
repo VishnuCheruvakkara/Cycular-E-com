@@ -112,7 +112,7 @@
 											<td class="price-col">₹ {{cart_item.product_variant.price}}</td>
 											<td class="quantity-col">
                                                 <div class="cart-product-quantity">
-                                                    <input type="number" id="quantity-{{ cart_item.id }}" class="form-control" min="1" max="10" step="1" value="{{ cart_item.quantity }}" onchange="updateCartItemQuantity({{ cart_item.id }})" required>
+                                                    <input type="number" id="quantity-{{ cart_item.id }}" data-max-quantity="{{ cart_item.product_variant.stock }}" class="form-control" min="1" max="10" step="1" value="{{ cart_item.quantity }}" onchange="updateCartItemQuantity({{ cart_item.id }})" required>
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
 											<td class="total-col" >₹ <span class="product-total" data-cart-item-id="{{ cart_item.id }}">{{cart_item.subtotal}}</span></td>
@@ -221,6 +221,7 @@
 		const quantityInput = document.getElementById(`quantity-${cartItemId}`);
 		const quantity = parseInt(quantityInput.value, 10);
     	const maxQuantityLimit = 5;
+		const availableStock = parseInt(quantityInput.dataset.maxQuantity, 10);
 		const url = "{% url 'cart:update-cart-item-quantity' 0 %}".replace('0', cartItemId);
 
 		// Check if quantity exceeds the allowed limit
@@ -234,6 +235,24 @@
 			});
 			return; // Prevent further execution
 		}
+		if (quantity > availableStock) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Stock Limit Exceeded',
+                text: `Only ${availableStock} of this product is available in stock.`,
+                confirmButtonText: 'OK'
+            }).then(() => {
+                quantityInput.value = availableStock; // Reset to available stock
+                updateQuantityAndFetch(cartItemId, availableStock); // Trigger update
+            });
+            return; // Prevent further execution
+        }
+
+        updateQuantityAndFetch(cartItemId, quantity);
+    }
+
+	function updateQuantityAndFetch(cartItemId, quantity) {
+        const url = "{% url 'cart:update-cart-item-quantity' 0 %}".replace('0', cartItemId);
 		
 		fetch(url, {
 			method: 'POST',
@@ -306,12 +325,38 @@
 			cartSummary.classList.remove('animate');
 		});
 	}
+	
 
 // Initial update of the total number of products when the page loads
 document.addEventListener('DOMContentLoaded', updateTotalProductsCount);
 
+</script>
+<script>
+	// Function to update cart count
+	function updateCartCount() {
+		fetch('{% url "cart:cart-count" %}', {
+			method: 'GET',
+			headers: {
+				'X-Requested-With': 'XMLHttpRequest',
+				'X-CSRFToken': '{{ csrf_token }}'
+			}
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.status === 'success') {
+				document.querySelector('.cart-count').textContent = data.count;
+			} else {
+				console.error('Failed to fetch cart count:', data.message);
+			}
+		})
+		.catch(error => console.error('Error:', error));
+	}
+
+	// Call the updateCartCount function when the page loads
+	document.addEventListener('DOMContentLoaded', updateCartCount);
 
 </script>
+
 </body>
 
 {% endblock %}
