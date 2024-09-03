@@ -111,7 +111,7 @@
                                                     <input type="number" id="quantity-{{ cart_item.id }}" class="form-control" min="1" max="10" step="1" value="{{ cart_item.quantity }}" onchange="updateCartItemQuantity({{ cart_item.id }})" required>
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
-											<td class="total-col" id="total-{{ cart_item.id }}">₹ <span>{{cart_item.product_variant.price}}</span></td>
+											<td class="total-col" >₹ <span class="product-total" data-cart-item-id="{{ cart_item.id }}">{{cart_item.product_variant.price}}</span></td>
 											<td class="remove-col">
 												<form id="remove-form-{{ cart_item.id }}" method="post" action="{% url 'cart:remove-from-cart' cart_item.id %}">
 													{% csrf_token %}
@@ -141,7 +141,7 @@
 											{% for cart_item in cart_items%}
 	                						<tr class="summary-subtotal" >
 	                							<td>{{cart_item.product_variant.product.name}} <p  id="product-count-{{ cart_item.id }}">(count : {{cart_item.quantity}} )</p></td>
-	                							<td id="total-{{ cart_item.id }}">₹ {{cart_item.product_variant.price}}</td>
+	                							<td>₹ <span class="product-total" data-cart-item-id="{{ cart_item.id }}" >{{cart_item.product_variant.price}}</span></td>
 	                						</tr><!-- End .summary-subtotal -->
 											{% endfor %}
 	                						<tr class="summary-shipping">
@@ -200,6 +200,17 @@
             }
         });
 	}
+
+	// Function to update the total price display for a specific cart item in multiple places
+	function updatePriceDisplay(cartItemId, newTotal) {
+		// Select all elements with the class 'product-total' that have the correct data-cart-item-id
+		const totalElements = document.querySelectorAll(`.product-total[data-cart-item-id="${cartItemId}"]`);
+
+		// Update the inner HTML of each selected element
+		totalElements.forEach(element => {
+			element.innerHTML = `${newTotal.toFixed(2)}`;
+		});
+	}
 	// Function to update cart item quantity
 	function updateCartItemQuantity(cartItemId) {
 		const quantity = document.getElementById(`quantity-${cartItemId}`).value;
@@ -216,7 +227,8 @@
 		.then(response => response.json())
 		.then(data => {
 			if (data.status === 'success') {
-				document.getElementById(`total-${cartItemId}`).innerHTML = `₹ <span>${data.new_total.toFixed(2)}</span>`;
+				// Call the update function with the new total price
+				updatePriceDisplay(cartItemId, data.new_total);
 				// Update the count in the table
 				updateProductCount(cartItemId, quantity);
 				// Update the total number of products in the cart
