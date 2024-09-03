@@ -154,7 +154,7 @@
 	                						</tr>
 	                						<tr class="summary-total">
 	                							<td><b>Total:</b></td>
-	                							<td><b id="cart-total-price">$160.00</b></td>
+	                							<td><b class="cart-total-price" >{{ overall_total|floatformat:2 }}</b></td>
 	                						</tr><!-- End .summary-total -->
 	                					</tbody>
 	                				</table><!-- End .table table-summary -->
@@ -205,35 +205,18 @@
             }
         });
 	}
-	// Function to update the total price display in the cart summary
-	function updateCartTotal() {
-		let totalPrice = 0;
-		const subtotalElements = document.querySelectorAll('.product-total');
+	
 
-		// Sum up all the product subtotals
-		subtotalElements.forEach((element) => {
-			totalPrice += parseFloat(element.innerHTML);
-		});
 
-		// Update the total price display
-		const totalPriceElement = document.getElementById('cart-total-price');
-		totalPriceElement.innerHTML = `${totalPrice.toFixed(2)}`;
+
+
+	function updateCartTotal(overallTotal) {
+		const totalPriceElement = document.querySelector('.cart-total-price');
+		if (totalPriceElement) {
+			totalPriceElement.innerHTML = `${overallTotal.toFixed(2)}`;
+		}
 	}
 
-
-	// Function to update the total price display for a specific cart item in multiple places
-	function updatePriceDisplay(cartItemId, newTotal) {
-		// Select all elements with the class 'product-total' that have the correct data-cart-item-id
-		const totalElements = document.querySelectorAll(`.product-total[data-cart-item-id="${cartItemId}"]`);
-
-		// Update the inner HTML of each selected element
-		totalElements.forEach(element => {
-			element.innerHTML = `${newTotal.toFixed(2)}`;
-		});
-		// Update the total cart price
-		updateCartTotal();
-	}
-	// Function to update cart item quantity
 	function updateCartItemQuantity(cartItemId) {
 		const quantityInput = document.getElementById(`quantity-${cartItemId}`);
 		const quantity = parseInt(quantityInput.value, 10);
@@ -265,7 +248,7 @@
 			if (data.status === 'success') {
 				// Call the update function with the new total price
 				updatePriceDisplay(cartItemId, data.new_total);
-				
+				updateCartTotal(data.overall_total); 
 				// Update the count in the table
 				updateProductCount(cartItemId, quantity);
 				// Update the total number of products in the cart
@@ -284,11 +267,14 @@
 			console.error('Error:', error);
 		});
 	}
-	// Initial update of the total number of products when the page loads
-	document.addEventListener('DOMContentLoaded', () => {
-		updateTotalProductsCount();
-		updateCartTotal(); // Initial calculation of the total price
-	});
+
+	function updatePriceDisplay(cartItemId, newTotal) {
+		const totalElements = document.querySelectorAll(`.product-total[data-cart-item-id="${cartItemId}"]`);
+		totalElements.forEach(element => {
+			element.innerHTML = `${newTotal.toFixed(2)}`;
+		});
+	}
+
 	// Function to update the count in the table
 	function updateProductCount(cartItemId, quantity) {
 		const countElement = document.querySelector(`#product-count-${cartItemId}`);
