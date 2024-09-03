@@ -104,7 +104,11 @@ def update_cart_item_quantity(request, cart_item_id):
             cart_item.quantity = quantity
             cart_item.save() # this will save the both cart item quantity and its price accordingly.
             new_total = cart_item.quantity * float(cart_item.product_variant.price)
-            return JsonResponse({'status': 'success', 'new_total': new_total})
+            
+            # Calculate the overall cart total price
+            cart_items = CartItem.objects.filter(cart=cart_item.cart)  # Adjust this query if needed
+            overall_total = sum(item.quantity * float(item.product_variant.price) for item in cart_items)
+            return JsonResponse({'status': 'success', 'new_total': new_total, 'overall_total': overall_total})
         else:
             available_stock=cart_item.product_variant.stock
             return JsonResponse({'status': 'error', 'message': f'Quantity is out of stock. Only {available_stock} quantity in stock.'})
