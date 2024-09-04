@@ -35,7 +35,7 @@
     <link rel="stylesheet" href="{% static 'assets/css/skins/skin-demo-20.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/demos/demo-20.css' %}">
 
-   
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
 
@@ -477,9 +477,9 @@
                         </div><!-- End .compare-dropdown -->
 
                         <div class="dropdown cart-dropdown">
-                            <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                            <a href="{% url 'cart:cart-page'%}" class="dropdown-toggle" role="button"  >
                                 <i class="icon-shopping-cart"></i>
-                                <span class="cart-count">2</span>
+                                <span class="cart-count">0</span>
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-right">
@@ -679,8 +679,8 @@
                                     </div><!-- End .details-filter-row -->
 
                                     <div class="product-details-action">
-                                        <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-
+                                        <button class="btn-product btn-cart" data-product-id="{{ variant.id }}" onclick="addToCart(this)">Add to Cart</button>
+                                       
                                         <div class="details-action-wrapper">
                                             <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
                                            
@@ -844,7 +844,8 @@
                                 </div><!-- End .product-action-vertical -->
 
                                 <div class="product-action">
-                                    <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                    <button class="btn-product btn-cart" data-product-id="{{ variant.id }}" onclick="addToCart(this)">Add to Cart</button>
+
                                 </div><!-- End .product-action -->
                             </figure><!-- End .product-media -->
 
@@ -1263,9 +1264,9 @@
 <script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
 <!-- Main JS File -->
 <script src="{% static 'assets/js/main.js' %}"></script>
-<script>
-       
 
+<script>
+    
 $(document).ready(function () {
     var zoomLevel = 0; // Initial zoom level
     var zoomSpeed = 0.1; // Adjust this value for scroll speed (lower is slower)
@@ -1315,7 +1316,107 @@ $(document).ready(function () {
 });
 
 </script>
-    
+<script>
+     // Common SweetAlert function
+     function showAlert(title, message, icon = 'info', buttonText = 'OK') {
+                swal.fire({
+                    title: title,
+                    text: message,
+                    icon: icon, // can be 'success', 'error', 'warning', or 'info'
+                    confirmButtonText: buttonText,
+                });
+            }
+
+            // Function to update the button state and style
+            function updateButtonState(button, isAdded) {
+                if (isAdded) {
+                    button.textContent = 'Remove from Cart'; // Change text to "Remove from Cart"
+                    button.style.backgroundColor = 'grey'; // Change button color to grey
+                    button.style.color = 'white'; // Set text color to white for better contrast
+                } else {
+                    button.textContent = 'Add to Cart';
+                    button.style.backgroundColor = ''; // Reset to default color
+                    button.style.color = ''; // Reset text color
+                }
+            }
+            function addToCart(button){
+                const productId=button.getAttribute('data-product-id');
+
+                // Check if button is already in "Added to Cart" state
+                const isAlreadyAdded = button.textContent === 'Remove from Cart';
+
+                // Toggle state based on the current state
+                const action = isAlreadyAdded ? 'remove' : 'add';
+
+                fetch('{% url "cart:add-to-cart" %}',{
+                    method:'POST',
+                    headers:{
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: new URLSearchParams({
+                        'product_variant_id': productId,
+                        'action': action 
+                    })
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        // User is not logged in
+                        return response.json().then(data => {
+                            showAlert('Login Required', data.message, 'warning', 'OK');
+                            throw new Error('Unauthorized'); // Stop further processing
+                        });
+                    } else if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Unexpected response');
+                    }
+                })
+            
+                .then(data => {
+                    if (data.status === 'success') {
+                        updateButtonState(button, action === 'add');
+                        showAlert('Success!', data.message, 'success','OK'); // Show success message
+                        updateCartCount();
+                    } else {
+                        showAlert('Notice', data.message || 'An error occurred. Please try again.', 'info','OK'); 
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (error.message !== 'Unauthorized') {
+                        showAlert('Error', 'An error occurred. Please try again.', 'error', 'OK');
+                    }
+                });
+            }
+</script>
+<script>
+	// Function to update cart count
+	function updateCartCount() {
+		fetch('{% url "cart:cart-count" %}', {
+			method: 'GET',
+			headers: {
+				'X-Requested-With': 'XMLHttpRequest',
+				'X-CSRFToken': '{{ csrf_token }}'
+			}
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.status === 'success') {
+				document.querySelector('.cart-count').textContent = data.count;
+			} else {
+				console.error('Failed to fetch cart count:', data.message);
+			}
+		})
+		.catch(error => console.error('Error:', error));
+	}
+
+	// Call the updateCartCount function when the page loads
+	document.addEventListener('DOMContentLoaded', updateCartCount);
+
+</script>
+
     
 </body>
 
