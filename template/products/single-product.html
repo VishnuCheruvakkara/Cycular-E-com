@@ -673,7 +673,8 @@
                                     <div class="details-filter-row details-row-size">
                                         <label for="qty">Qty:</label>
                                         <div class="product-details-quantity">
-                                            <input type="number" id="quantity-{{ cart_item.id }}" data-max-quantity="{{ cart_item.product_variant.stock }}" class="form-control" value="{{ cart_item.quantity }}" min="1" max="10" step="1" data-decimals="0" onchange="updateCartItemQuantity({{ cart_item.id }})" required>
+                                            <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
+
                                         </div><!-- End .product-details-quantity -->
                                     </div><!-- End .details-filter-row -->
 
@@ -1264,127 +1265,6 @@
 <script src="{% static 'assets/js/main.js' %}"></script>
 <script>
        
-
-	function updateCartTotal(overallTotal) {
-		const totalPriceElement = document.querySelector('.cart-total-price');
-		if (totalPriceElement) {
-			totalPriceElement.innerHTML = `${overallTotal.toFixed(2)}`;
-		}
-	}
-
-	function updateCartItemQuantity(cartItemId) {
-		const quantityInput = document.getElementById(`quantity-${cartItemId}`);
-		const quantity = parseInt(quantityInput.value, 10);
-    	const maxQuantityLimit = 5;
-		const availableStock = parseInt(quantityInput.dataset.maxQuantity, 10);
-		const url = "{% url 'cart:update-cart-item-quantity' 0 %}".replace('0', cartItemId);
-
-		// Check if quantity exceeds the allowed limit
-		if (quantity > maxQuantityLimit) {
-			quantityInput.value = maxQuantityLimit; // Reset to maximum allowed limit
-			Swal.fire({
-				icon: 'error',
-				title: 'Limit Exceeded',
-				text: `You can only add up to ${maxQuantityLimit} of this product.`,
-				confirmButtonText: 'OK'
-			});
-			return; // Prevent further execution
-		}
-		if (quantity > availableStock) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Stock Limit Exceeded',
-                text: `Only ${availableStock} of this product is available in stock.`,
-                confirmButtonText: 'OK'
-            }).then(() => {
-                quantityInput.value = availableStock; // Reset to available stock
-                updateQuantityAndFetch(cartItemId, availableStock); // Trigger update
-            });
-            return; // Prevent further execution
-        }
-
-        updateQuantityAndFetch(cartItemId, quantity);
-    }
-
-	function updateQuantityAndFetch(cartItemId, quantity) {
-        const url = "{% url 'cart:update-cart-item-quantity' 0 %}".replace('0', cartItemId);
-		
-		fetch(url, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': '{{ csrf_token }}'
-			},
-			body: JSON.stringify({ quantity: quantity })
-		})
-		.then(response => response.json())
-		.then(data => {
-			if (data.status === 'success') {
-				// Call the update function with the new total price
-				updatePriceDisplay(cartItemId, data.new_total);
-				updateCartTotal(data.overall_total); 
-				// Update the count in the table
-				updateProductCount(cartItemId, quantity);
-				// Update the total number of products in the cart
-				updateTotalProductsCount();
-				
-			} else {
-				Swal.fire({
-                icon: 'error',
-                title: 'Update Failed',
-                text: data.message, // Display the error message from the server
-                confirmButtonText: 'OK'
-            });
-			}
-		})
-		.catch(error => {
-			console.error('Error:', error);
-		});
-	}
-
-	function updatePriceDisplay(cartItemId, newTotal) {
-		const totalElements = document.querySelectorAll(`.product-total[data-cart-item-id="${cartItemId}"]`);
-		totalElements.forEach(element => {
-			element.innerHTML = `${newTotal.toFixed(2)}`;
-		});
-	}
-
-	// Function to update the count in the table
-	function updateProductCount(cartItemId, quantity) {
-		const countElement = document.querySelector(`#product-count-${cartItemId}`);
-		if (countElement) {
-			countElement.textContent = ` (count: ${quantity})`;
-		}
-	}
-
-	// Function to update the total number of products in the cart
-	function updateTotalProductsCount() {
-		let totalProducts = 0;
-		const quantities = document.querySelectorAll('.cart-product-quantity input[type="number"]');
-
-		// Sum all product quantities
-		quantities.forEach(input => {
-			totalProducts += parseInt(input.value, 10);
-		});
-
-		// Display the total number of products in the cart
-		const totalProductsElement = document.getElementById('total-products');
-		totalProductsElement.textContent = totalProducts;
-
-		// Add animation class
-		const cartSummary = document.getElementById('total-cart-items');
-		cartSummary.classList.add('animate');
-
-		// Remove animation class after animation ends to allow re-animation
-		cartSummary.addEventListener('animationend', () => {
-			cartSummary.classList.remove('animate');
-		});
-	}
-	
-
-// Initial update of the total number of products when the page loads
-document.addEventListener('DOMContentLoaded', updateTotalProductsCount);
-
 
 $(document).ready(function () {
     var zoomLevel = 0; // Initial zoom level
