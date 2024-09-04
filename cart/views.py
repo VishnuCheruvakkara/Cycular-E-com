@@ -49,7 +49,7 @@ def add_to_cart(request):
             return JsonResponse({'status': 'success', 'message': 'Product added to your cart.'})
         else:
             # If the item already exists, show an error message or update as needed
-            return JsonResponse({'status': 'error', 'message': 'This product is already in your cart, Check your cart.'})
+            return JsonResponse({'status': 'info', 'message': 'This product is already in your cart, Check your cart.'})
 
     elif action == 'remove':
         # Remove the product from the cart

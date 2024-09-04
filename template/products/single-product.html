@@ -677,9 +677,18 @@
 
                                         </div><!-- End .product-details-quantity -->
                                     </div><!-- End .details-filter-row -->
-
+                                   
                                     <div class="product-details-action">
-                                        <button class="btn-product btn-cart" data-product-id="{{ variant.id }}" onclick="addToCart(this)">Add to Cart</button>
+                                        {% if cart_item_exists %}
+                                        
+                                        <a href="{% url 'cart:cart-page' %}" class="btn-product btn-cart" style="background-color: gray; color: white; border: none;">
+                                            <span>Go to cart</span>
+                                        </a>
+                                        {% else %}
+                                        <button id="cart-button" class="btn-product btn-cart" data-product-id="{{ variant.id }}" onclick="handleCart(this)">
+                                            <span id="cart-button-text">Add to Cart</span>
+                                        </button>
+                                        {% endif %}
                                        
                                         <div class="details-action-wrapper">
                                             <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
@@ -1390,6 +1399,67 @@ $(document).ready(function () {
                     }
                 });
             }
+</script>
+<script>
+  function handleCart(button) {
+        const productId = button.getAttribute('data-product-id');
+        const url = "{% url 'cart:add-to-cart' %}";
+        const csrfToken = '{{ csrf_token }}'; // Ensure you have the CSRF token available
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken // Include CSRF token in the request
+            },
+            body: new URLSearchParams({
+                'product_variant_id': productId,
+                'action': 'add'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({
+                    title: 'Success!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'Okay'
+                }).then(() => {
+                    // Change button to "Go to Cart"
+                    button.querySelector('#cart-button-text').textContent = 'Go to Cart';
+                    button.style.backgroundColor = 'gray'; // Change button color to gray
+                    button.style.color = 'white'; // Change button text color to white
+                    button.setAttribute('onclick', "window.location.href='{% url 'cart:cart-page' %}'"); // Redirect to cart page on click
+                });
+            } else if (data.status === 'already-in-cart') {
+                // Update button to "Go to Cart"
+                button.querySelector('#cart-button-text').textContent = 'Go to Cart';
+                button.style.backgroundColor = 'gray'; // Change button color to gray
+                button.style.color = 'white'; // Change button text color to white
+                button.setAttribute('onclick', "window.location.href='{% url 'cart:cart-page' %}'"); // Redirect to cart page on click
+            } else {
+                Swal.fire({
+                    title: 'Notice!',
+                    text: data.message,
+                    icon: 'info',
+                    confirmButtonText: 'Okay'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An error occurred while adding the product to the cart.',
+                icon: 'error',
+                confirmButtonText: 'Okay'
+            });
+        });
+    }
+
+   
+
 </script>
 <script>
 	// Function to update cart count
