@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 class Brand(models.Model):
     name = models.CharField(max_length=100)
@@ -51,7 +52,7 @@ class ProductVariant(models.Model):
     image2 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image3 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     status = models.BooleanField(default=True)
-
+    created_at = models.DateTimeField(default=timezone.now)
     class Meta:
         unique_together = ['size','product']
 
