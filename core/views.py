@@ -35,12 +35,21 @@ def category_filter(request):
     Min_price = request.GET.get('min_price', None)
     Max_price = request.GET.get('max_price', None)
 
+    # Get the search term from the GET parameters
+    search_query = request.GET.get('search', '').strip()
+
     product_variants = ProductVariant.objects.filter(status=True)
 
     # Fetch the price range from the database
     price_range = product_variants.aggregate(min_price=Min('price'), max_price=Max('price'))
     
-    print(price_range['max_price'],price_range['min_price'])
+    # Apply search filter if a search term is entered
+    if search_query:
+        product_variants = product_variants.filter(
+            Q(product__name__icontains=search_query) | 
+            Q(product__description__icontains=search_query)
+        )
+  
 
     # Apply category filter if any categories are selected
     if selected_categories:
@@ -81,7 +90,7 @@ def category_filter(request):
 
 
     
-    paginator = Paginator(product_variants, 5)  
+    paginator = Paginator(product_variants, 8)  
     page = request.GET.get('page')
 
     try:
@@ -105,6 +114,7 @@ def category_filter(request):
         'selected_brands':selected_brands,
         'selected_min_price': Min_price,
         'selected_max_price': Max_price,
+        'search_query': search_query,
     
         
     }

@@ -36,7 +36,7 @@
    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
    <link rel="stylesheet" href="{% static 'assets/css/skins/skin-demo-20.css' %}">
    <link rel="stylesheet" href="{% static 'assets/css/demos/demo-20.css' %}">
-
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
    <style>
     .slider-container {
         display: flex;
@@ -559,6 +559,7 @@
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
 
+
             <div class="page-content">
                 <div class="container">
                 	<div class="row">
@@ -582,6 +583,7 @@
                                                 <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
                                                 <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
                                                 <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
+                                                
                                                 <select name="sortby" id="sortby" class="form-control" onchange="this.form.submit()">
                                                     <option value="default">Sort By</option>
                                                     <option value="increase" {% if sort_by == 'increase' %}selected{% endif %}>Price : Low to High</option>
@@ -597,10 +599,23 @@
                 			</div><!-- End .toolbox -->
 
                             <!-- product show  -->
-                        
-                        
+
+
+                            <!-- search bar -->
+                            <form id="price-filter-form" method="get" action="{% url 'core:category-filter' %}">
+                                <div class="input-group mb-3">
+                                    <input type="text" name="search" class="form-control" placeholder="Search products..." aria-label="Search" value="{{ search_query }}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" type="submit">Search</button>
+                                    </div>
+                                </div>
+                                <!-- Existing filters and buttons -->
+                            </form>
+                 
                             <div class="products mb-3">
+                               
                                 <div class="row justify-content-center">
+                                   
 
                                     {% for product_variant in product_variants %}
                                     <div class="col-6 col-md-4 col-lg-4 col-xl-3">
@@ -706,7 +721,7 @@
                                 <div class="sidebar sidebar-shop">
                                     <div class="widget widget-clean">
                                         <label>Filters:</label>
-                                        <a href="#" id="clean-all-button" class="sidebar-filter-clear">Clean All</a>
+                                        <a href="#" id="clean-all-button" class="sidebar-filter-clear"><i class="fa fa-refresh" aria-hidden="true"></i> Clean All</a>
                                     </div><!-- End .widget widget-clean -->
                                 
                                     <div class="widget widget-collapsible">
@@ -718,6 +733,7 @@
                                             <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
                                             <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
                                             <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
+                                            <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
                                             <h3 class="widget-title">
                                                 <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
                                                     Category
@@ -757,6 +773,7 @@
                                         <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
                                         <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
                                         <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
+                                        <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
                                         <h3 class="widget-title">
                                             <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="true" aria-controls="widget-2">
                                                 Size
@@ -792,6 +809,7 @@
                                     <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
                                     <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
                                     <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
+                                    <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
 
                                         <h3 class="widget-title">
                                             <a data-toggle="collapse" href="#widget-3" role="button" aria-expanded="true" aria-controls="widget-3">
@@ -835,6 +853,7 @@
                                                 <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
                                                 <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
                                                 <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
+                                                <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
                                                 <div class="price-filter">
                                                     <div class="price-filter-text">
                                                         Price Range: <span id="price-range-display"></span>
@@ -983,14 +1002,7 @@
 	            </div><!-- End .container -->
 	        </div><!-- End .footer-middle -->
 
-	        <div class="footer-bottom">
-	        	<div class="container">
-	        		<p class="footer-copyright">Copyright © 2019 Molla Store. All Rights Reserved.</p><!-- End .footer-copyright -->
-	        		<figure class="footer-payments">
-	        			<img src="{% static 'assets/images/payments.png' %}" alt="Payment methods" width="272" height="20">
-	        		</figure><!-- End .footer-payments -->
-	        	</div><!-- End .container -->
-	        </div><!-- End .footer-bottom -->
+	      
         </footer><!-- End .footer -->
     </div><!-- End .page-wrapper -->
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
@@ -1186,6 +1198,8 @@
                                     <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="false">Register</a>
                                 </li>
                             </ul>
+
+                            
                             <div class="tab-content" id="tab-content-5">
                                 <div class="tab-pane fade show active" id="signin" role="tabpanel" aria-labelledby="signin-tab">
                                     <form action="#">
