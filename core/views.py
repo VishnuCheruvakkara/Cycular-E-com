@@ -29,10 +29,17 @@ def category_filter(request):
     selected_categories=request.GET.getlist('categories')
     selected_sizes = request.GET.getlist('sizes')
     selected_brands= request.GET.getlist('brands')
-
- 
+    
+    # Get price range from GET parameters
+    Min_price = request.GET.get('min_price', None)
+    Max_price = request.GET.get('max_price', None)
 
     product_variants = ProductVariant.objects.filter(status=True)
+
+    # Fetch the price range from the database
+    price_range = product_variants.aggregate(min_price=Min('price'), max_price=Max('price'))
+    
+    print(price_range['max_price'],price_range['min_price'])
 
     # Apply category filter if any categories are selected
     if selected_categories:
@@ -44,9 +51,11 @@ def category_filter(request):
     if selected_brands:
         product_variants=product_variants.filter(product__brand__id__in=selected_brands)
 
-    # Fetch the price range from the database
-    price_range = product_variants.aggregate(min_price=Min('price'), max_price=Max('price'))
+    # Apply price range filter if min_price and max_price are provided
+    if Min_price and Max_price:
+        product_variants = product_variants.filter(price__gte=Min_price, price__lte=Max_price)
 
+   
     #Fetch all the active categories...
     categories = Category.objects.annotate(
         product_variant_count=Count('products__product_variants', filter=Q(products__product_variants__status=True))
@@ -54,8 +63,7 @@ def category_filter(request):
     
     brands = Brand.objects.filter(status=True)
     sizes = Size.objects.filter(status=True)
-    price_range=product_variants.aggregate(min_price=Min('price'),max_price=Max('price'))
-
+   
 
 
     # Apply sorting
@@ -94,7 +102,8 @@ def category_filter(request):
         'selected_categories': selected_categories,
         'selected_sizes': selected_sizes,
         'selected_brands':selected_brands,
-     
+        'selected_min_price': Min_price,
+        'selected_max_price': Max_price,
     
         
     }

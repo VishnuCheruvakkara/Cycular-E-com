@@ -796,90 +796,88 @@
                                 </div><!-- End .widget -->
 
 
-                              
-                                <!-- Price filter -->
+                              <!-- Price filter -->
 <div class="widget widget-collapsible">
     <h3 class="widget-title">
-        <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
+        <a data-toggle="collapse" href="#price-widget" role="button" aria-expanded="true" aria-controls="price-widget">
             Price
         </a>
     </h3><!-- End .widget-title -->
 
-    <div class="collapse show" id="widget-5">
+    <div class="collapse show" id="price-widget">
         <div class="widget-body">
             <form id="price-filter-form" method="get" action="{% url 'core:category-filter' %}">
-                <div class="filter-price">
-                    <div class="filter-price-text">
-                        Price Range: <span id="filter-price-range"></span>
-                    </div><!-- End .filter-price-text -->
+                <div class="price-filter">
+                    <div class="price-filter-text">
+                        Price Range: <span id="price-range-display"></span>
+                    </div><!-- End .price-filter-text -->
 
-                    <div id="price-slider" class="slider-container"></div><!-- End .slider-container -->
+                    <div id="price-range-slider" class="slider-container"></div><!-- End .slider-container -->
 
                     <!-- Hidden fields for min and max price -->
-                    <input type="hidden" name="min_price" id="min-price">
-                    <input type="hidden" name="max_price" id="max-price">
-                    
-                    <button type="submit" class="btn btn-primary mt-5" >Apply Filter</button>
-                </div><!-- End .filter-price -->
+                    <input type="hidden" name="min_price" id="hidden-min-price">
+                    <input type="hidden" name="max_price" id="hidden-max-price">
+
+                    <button type="submit" class="btn btn-primary mt-5">Apply Filter</button>
+                </div><!-- End .price-filter -->
             </form><!-- End form -->
         </div><!-- End .widget-body -->
     </div><!-- End .collapse -->
 </div><!-- End .widget -->
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var slider = document.getElementById('price-slider');
-        var priceRangeText = document.getElementById('filter-price-range');
-        var minPriceInput = document.getElementById('min-price');
-        var maxPriceInput = document.getElementById('max-price');
-        var form = document.getElementById('price-filter-form');
+document.addEventListener('DOMContentLoaded', function() {
+    var slider = document.getElementById('price-range-slider');
+    var priceRangeText = document.getElementById('price-range-display');
+    var minPriceInput = document.getElementById('hidden-min-price');
+    var maxPriceInput = document.getElementById('hidden-max-price');
+    var form = document.getElementById('price-filter-form');
 
-        // Get min and max price from Django context
-        var minPrice = parseFloat('{{ price_range.min_price|default:"0" }}');
-        var maxPrice = parseFloat('{{ price_range.max_price|default:"100" }}');
+    // Global fixed min and max range for the slider
+    var globalMinPrice = parseFloat('{{ price_range.min_price|default:"4998.00" }}');
+    var globalMaxPrice = parseFloat('{{ price_range.max_price|default:"20000.00" }}');
 
-        noUiSlider.create(slider, {
-            start: [minPrice, maxPrice],
-            connect: true,
-            range: {
-                'min': minPrice,
-                'max': maxPrice
-            },
-            step: 800,
-            tooltips: true
-        });
+    // Initialize the slider with global min and max prices
+    noUiSlider.create(slider, {
+        start: [globalMinPrice, globalMaxPrice],
+        connect: true,
+        range: {
+            'min': globalMinPrice,
+            'max': globalMaxPrice,
+        },
+        step: 800,
+        tooltips: true
+    });
 
-        slider.noUiSlider.on('update', function(values) {
-            var minValue = parseFloat(values[0]);
-            var maxValue = parseFloat(values[1]);
-            priceRangeText.textContent = '₹' + minValue.toFixed(2) + ' - ₹' + maxValue.toFixed(2);
-
-            // Update hidden fields with current slider values
-            minPriceInput.value = minValue.toFixed(2);
-            maxPriceInput.value = maxValue.toFixed(2);
-        });
-
-        // Initial update
-        var initialValues = slider.noUiSlider.get();
-        var minValue = parseFloat(initialValues[0]);
-        var maxValue = parseFloat(initialValues[1]);
-
+    // Update display and hidden fields when the slider value changes
+    slider.noUiSlider.on('update', function(values) {
+        var minValue = parseFloat(values[0]);
+        var maxValue = parseFloat(values[1]);
         priceRangeText.textContent = '₹' + minValue.toFixed(2) + ' - ₹' + maxValue.toFixed(2);
 
-        // Set initial hidden field values
+        // Update hidden fields with current slider values
         minPriceInput.value = minValue.toFixed(2);
         maxPriceInput.value = maxValue.toFixed(2);
-
-        // Optionally, you can automatically submit the form when the slider changes
-        // form.addEventListener('submit', function(event) {
-        //     event.preventDefault(); // Prevent the default form submission
-        //     // You can use JavaScript to send the form data via AJAX if needed
-        //     form.submit(); // Submit the form
-        // });
     });
-</script
 
+    // Set the current range based on the URL parameters or defaults
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlMinPrice = parseFloat(urlParams.get('min_price')) || globalMinPrice;
+    var urlMaxPrice = parseFloat(urlParams.get('max_price')) || globalMaxPrice;
 
+    // Ensure slider always shows global min and max as range but sets the handles to the filtered range
+    slider.noUiSlider.set([Math.max(globalMinPrice, urlMinPrice), Math.min(globalMaxPrice, urlMaxPrice)]);
+
+    // Initial update
+    priceRangeText.textContent = '₹' + urlMinPrice.toFixed(2) + ' - ₹' + urlMaxPrice.toFixed(2);
+
+    // Set initial hidden field values
+    minPriceInput.value = urlMinPrice.toFixed(2);
+    maxPriceInput.value = urlMaxPrice.toFixed(2);
+});
+</script>
+
+                            
 
                 			</div><!-- End .sidebar sidebar-shop -->
                 		</aside><!-- End .col-lg-3 -->
