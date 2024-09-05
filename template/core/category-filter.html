@@ -37,7 +37,39 @@
    <link rel="stylesheet" href="{% static 'assets/css/skins/skin-demo-20.css' %}">
    <link rel="stylesheet" href="{% static 'assets/css/demos/demo-20.css' %}">
 
-
+   <style>
+    .slider-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    input[type="range"] {
+        width: 100%;
+        background: #ddd;
+        height: 5px;
+        border-radius: 5px;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: #007bff;
+        cursor: pointer;
+        /* For webkit browsers */
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: #007bff;
+        cursor: pointer;
+        /* For Firefox */
+    }
+    </style>
+    
 
 
 </head>
@@ -764,6 +796,32 @@
                                 </div><!-- End .widget -->
 
 
+                              
+
+                                <!-- price filter -->
+                                <div class="widget widget-collapsible">
+                                    <h3 class="widget-title">
+                                        <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
+                                            Price
+                                        </a>
+                                    </h3><!-- End .widget-title -->
+
+                                    <div class="collapse show" id="widget-5">
+                                        <div class="widget-body">
+                                            <div class="filter-price">
+                                                <div class="filter-price-text">
+                                                    Price Range:
+                                                    <span id="filter-price-range"></span>
+                                                </div><!-- End .filter-price-text -->
+                                                <div class="slider-container">
+                                                 
+                                                    <input type="range" id="price-max" min="0" max="100" value="100">
+                                                </div><!-- End .slider-container -->
+                                            </div><!-- End .filter-price -->
+                                        </div><!-- End .widget-body -->
+                                    </div><!-- End .collapse -->
+                                </div><!-- End .widget -->
+
 
 
                 			</div><!-- End .sidebar sidebar-shop -->
@@ -1256,6 +1314,37 @@
             });
         }
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var minSlider = document.getElementById('price-min');
+            var maxSlider = document.getElementById('price-max');
+            var priceRangeText = document.getElementById('filter-price-range');
+        
+            function updatePriceRange() {
+                var minValue = parseInt(minSlider.value, 10);
+                var maxValue = parseInt(maxSlider.value, 10);
+                
+                // Ensure minValue is not greater than maxValue
+                if (minValue > maxValue) {
+                    minSlider.value = maxValue;
+                    minValue = maxValue;
+                }
+        
+                // Update the displayed price range
+                priceRangeText.textContent = '$' + minValue.toFixed(2) + ' - $' + maxValue.toFixed(2);
+        
+                // Optionally, you can handle filtering logic here
+            }
+        
+            // Update range on slider input
+            minSlider.addEventListener('input', updatePriceRange);
+            maxSlider.addEventListener('input', updatePriceRange);
+        
+            // Initial update
+            updatePriceRange();
+        });
+        </script>
+        
 </body>
 
 

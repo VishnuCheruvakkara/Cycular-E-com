@@ -25,9 +25,11 @@ def Index(request):
 
 def category_filter(request):
     sort_by = request.GET.get('sortby','default')
+
     selected_categories=request.GET.getlist('categories')
     selected_sizes = request.GET.getlist('sizes')
     selected_brands= request.GET.getlist('brands')
+ 
 
     product_variants = ProductVariant.objects.filter(status=True)
 
