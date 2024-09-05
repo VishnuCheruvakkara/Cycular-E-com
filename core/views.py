@@ -27,6 +27,8 @@ def category_filter(request):
     sort_by = request.GET.get('sortby','default')
     selected_categories=request.GET.getlist('categories')
     selected_sizes = request.GET.getlist('sizes')
+    selected_brands= request.GET.getlist('brands')
+
     product_variants = ProductVariant.objects.filter(status=True)
 
     # Apply category filter if any categories are selected
@@ -35,6 +37,9 @@ def category_filter(request):
 
     if selected_sizes:
         product_variants = product_variants.filter(size__id__in=selected_sizes)
+
+    if selected_brands:
+        product_variants=product_variants.filter(product__brand__id__in=selected_brands)
 
     #Fetch all the active categories...
     categories = Category.objects.annotate(
@@ -82,6 +87,7 @@ def category_filter(request):
         'price_range': price_range,
         'selected_categories': selected_categories,
         'selected_sizes': selected_sizes,
+        'selected_brands':selected_brands,
     
         
     }

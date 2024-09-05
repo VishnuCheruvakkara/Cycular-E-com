@@ -660,8 +660,10 @@
                                 </ul>
                             </nav>
                 		</div><!-- End .col-lg-9 -->
-                		<aside class="col-lg-3 order-lg-first">
 
+
+
+                		<aside class="col-lg-3 order-lg-first">
 
                                 <div class="sidebar sidebar-shop">
                                     <div class="widget widget-clean">
@@ -696,7 +698,8 @@
                                             <button type="submit" class="btn btn-primary">Filter Category</button>
                                         </form>
                                     </div><!-- End .widget -->
-                                </div><!-- End .sidebar sidebar-shop -->
+
+                               
                             
                         
 
@@ -731,55 +734,38 @@
                                     </form><!-- Ensure form closes here -->
                                 </div><!-- End .widget -->
 
-        						 <!-- brand filter -->
-        						<div class="widget widget-collapsible">
-    								<h3 class="widget-title">
-									    <a data-toggle="collapse" href="#widget-4" role="button" aria-expanded="true" aria-controls="widget-4">
-									        Brand
-									    </a>
-									</h3><!-- End .widget-title -->
+        						<!-- Brand Filter -->
+                                <div class="widget widget-collapsible">
+                                    <form method="get" action="{% url 'core:category-filter' %}">
+                                        <h3 class="widget-title">
+                                            <a data-toggle="collapse" href="#widget-3" role="button" aria-expanded="true" aria-controls="widget-3">
+                                                Brand
+                                            </a>
+                                        </h3><!-- End .widget-title -->
 
-                                   
-									<div class="collapse show" id="widget-4">
-										<div class="widget-body">
-											<div class="filter-items">
+                                        <div class="collapse show" id="widget-3">
+                                            <div class="widget-body">
+                                                <div class="filter-items">
+                                                    {% for brand in brands %}
+                                                    <div class="filter-item">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="brand-{{brand.id}}" name="brands" value="{{ brand.id }}" {% if brand.id|stringformat:"s" in selected_brands %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="brand-{{brand.id}}">{{brand.name}}</label>
+                                                        </div><!-- End .custom-checkbox -->
+                                                    </div><!-- End .filter-item -->
+                                                    {% endfor %}
+                                                </div><!-- End .filter-items -->
+                                            </div><!-- End .widget-body -->
+                                        </div><!-- End .collapse -->
 
-                                                {% for brand in brands %}
-												<div class="filter-item">
-													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" id="brand-{{brand.id}}">
-														<label class="custom-control-label" for="brand-{{brand.id}}">{{brand.name}}</label>
-													</div><!-- End .custom-checkbox -->
-												</div><!-- End .filter-item -->
-                                                {% endfor %}
-
-											</div><!-- End .filter-items -->
-										</div><!-- End .widget-body -->
-									</div><!-- End .collapse -->
-        						</div><!-- End .widget -->
+                                        <!-- Submit Button -->
+                                        <button type="submit" class="btn btn-primary">Filter Brand</button>
+                                    </form><!-- Ensure form closes here -->
+                                </div><!-- End .widget -->
 
 
-                                <!-- price filter -->
-        						<div class="widget widget-collapsible">
-    								<h3 class="widget-title">
-									    <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
-									        Price
-									    </a>
-									</h3><!-- End .widget-title -->
 
-									<div class="collapse show" id="widget-5">
-										<div class="widget-body">
-                                            <div class="filter-price">
-                                                <div class="filter-price-text">
-                                                    Price Range:
-                                                    <span id="filter-price-range"></span>
-                                                </div><!-- End .filter-price-text -->
 
-                                                <div id="price-slider"></div><!-- End #price-slider -->
-                                            </div><!-- End .filter-price -->
-										</div><!-- End .widget-body -->
-									</div><!-- End .collapse -->
-        						</div><!-- End .widget -->
                 			</div><!-- End .sidebar sidebar-shop -->
                 		</aside><!-- End .col-lg-3 -->
                 	</div><!-- End .row -->
@@ -820,6 +806,7 @@
 	            					<li><a href="contact.html">Contact us</a></li>
 	            					<li><a href="login.html">Log in</a></li>
 	            				</ul><!-- End .widget-list -->
+
 	            			</div><!-- End .widget -->
 	            		</div><!-- End .col-sm-6 col-lg-3 -->
 
