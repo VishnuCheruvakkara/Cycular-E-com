@@ -26,9 +26,10 @@ def Index(request):
 def category_filter(request):
     sort_by = request.GET.get('sortby','default')
 
-    selected_categories=request.GET.getlist('categories')
-    selected_sizes = request.GET.getlist('sizes')
-    selected_brands= request.GET.getlist('brands')
+   # Get and filter out empty values
+    selected_categories = list(filter(None, request.GET.getlist('categories')))
+    selected_sizes = list(filter(None, request.GET.getlist('sizes')))
+    selected_brands = list(filter(None, request.GET.getlist('brands')))
     
     # Get price range from GET parameters
     Min_price = request.GET.get('min_price', None)

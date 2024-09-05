@@ -563,6 +563,7 @@
                 <div class="container">
                 	<div class="row">
                 		<div class="col-lg-9">
+                            
                 			<div class="toolbox">
                 				<div class="toolbox-left">
                 					<div class="toolbox-info">
@@ -576,6 +577,11 @@
                 						<div class="select-custom">
 											<!-- Sorting Dropdown -->
                                             <form method="GET" action="{% url 'core:category-filter' %}">
+                                                <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
+                                                <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
+                                                <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
+                                                <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
+                                                <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
                                                 <select name="sortby" id="sortby" class="form-control" onchange="this.form.submit()">
                                                     <option value="default">Sort By</option>
                                                     <option value="increase" {% if sort_by == 'increase' %}selected{% endif %}>Price : Low to High</option>
@@ -700,12 +706,18 @@
                                 <div class="sidebar sidebar-shop">
                                     <div class="widget widget-clean">
                                         <label>Filters:</label>
-                                        <a href="#" class="sidebar-filter-clear">Clean All</a>
+                                        <a href="#" id="clean-all-button" class="sidebar-filter-clear">Clean All</a>
                                     </div><!-- End .widget widget-clean -->
                                 
                                     <div class="widget widget-collapsible">
                                         <!-- Corrected Form Tag -->
                                         <form method="get" action="{% url 'core:category-filter' %}">
+
+                                             <!-- Hidden fields to preserve existing query parameters -->
+                                            <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
+                                            <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
+                                            <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
+                                            <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
                                             <h3 class="widget-title">
                                                 <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
                                                     Category
@@ -740,6 +752,11 @@
                                 <div class="widget widget-collapsible">
                                     <!-- Correct placement of the form opening tag -->
                                     <form method="get" action="{% url 'core:category-filter' %}">
+                                         <!-- Hidden fields to preserve existing query parameters -->
+                                        <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
+                                        <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
+                                        <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
+                                        <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
                                         <h3 class="widget-title">
                                             <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="true" aria-controls="widget-2">
                                                 Size
@@ -768,7 +785,14 @@
 
         						<!-- Brand Filter -->
                                 <div class="widget widget-collapsible">
+                                   
                                     <form method="get" action="{% url 'core:category-filter' %}">
+                                    <!-- Hidden fields to preserve existing query parameters -->
+                                    <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
+                                    <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
+                                    <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
+                                    <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
+
                                         <h3 class="widget-title">
                                             <a data-toggle="collapse" href="#widget-3" role="button" aria-expanded="true" aria-controls="widget-3">
                                                 Brand
@@ -797,85 +821,89 @@
 
 
                               <!-- Price filter -->
-<div class="widget widget-collapsible">
-    <h3 class="widget-title">
-        <a data-toggle="collapse" href="#price-widget" role="button" aria-expanded="true" aria-controls="price-widget">
-            Price
-        </a>
-    </h3><!-- End .widget-title -->
+                                <div class="widget widget-collapsible">
+                                    <h3 class="widget-title">
+                                        <a data-toggle="collapse" href="#price-widget" role="button" aria-expanded="true" aria-controls="price-widget">
+                                            Price
+                                        </a>
+                                    </h3><!-- End .widget-title -->
 
-    <div class="collapse show" id="price-widget">
-        <div class="widget-body">
-            <form id="price-filter-form" method="get" action="{% url 'core:category-filter' %}">
-                <div class="price-filter">
-                    <div class="price-filter-text">
-                        Price Range: <span id="price-range-display"></span>
-                    </div><!-- End .price-filter-text -->
+                                    <div class="collapse show" id="price-widget">
+                                        <div class="widget-body">
+                                            <form id="price-filter-form" method="get" action="{% url 'core:category-filter' %}">
+                                                 <!-- Hidden fields to preserve existing query parameters -->
+                                                <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
+                                                <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
+                                                <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
+                                                <div class="price-filter">
+                                                    <div class="price-filter-text">
+                                                        Price Range: <span id="price-range-display"></span>
+                                                    </div><!-- End .price-filter-text -->
 
-                    <div id="price-range-slider" class="slider-container"></div><!-- End .slider-container -->
+                                                    <div id="price-range-slider" class="slider-container"></div><!-- End .slider-container -->
 
-                    <!-- Hidden fields for min and max price -->
-                    <input type="hidden" name="min_price" id="hidden-min-price">
-                    <input type="hidden" name="max_price" id="hidden-max-price">
+                                                    <!-- Hidden fields for min and max price -->
+                                                    <input type="hidden" name="min_price" id="hidden-min-price">
+                                                    <input type="hidden" name="max_price" id="hidden-max-price">
 
-                    <button type="submit" class="btn btn-primary mt-5"> Filter Price </button>
-                </div><!-- End .price-filter -->
-            </form><!-- End form -->
-        </div><!-- End .widget-body -->
-    </div><!-- End .collapse -->
-</div><!-- End .widget -->
+                                                    <button type="submit" class="btn btn-primary mt-5"> Filter Price </button>
+                                                </div><!-- End .price-filter -->
+                                            </form><!-- End form -->
+                                        </div><!-- End .widget-body -->
+                                    </div><!-- End .collapse -->
+                                </div><!-- End .widget -->
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var slider = document.getElementById('price-range-slider');
-    var priceRangeText = document.getElementById('price-range-display');
-    var minPriceInput = document.getElementById('hidden-min-price');
-    var maxPriceInput = document.getElementById('hidden-max-price');
-    var form = document.getElementById('price-filter-form');
+                                <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    var slider = document.getElementById('price-range-slider');
+                                    var priceRangeText = document.getElementById('price-range-display');
+                                    var minPriceInput = document.getElementById('hidden-min-price');
+                                    var maxPriceInput = document.getElementById('hidden-max-price');
+                                    var form = document.getElementById('price-filter-form');
 
-    // Global fixed min and max range for the slider
-    var globalMinPrice = parseFloat('{{ price_range.min_price|default:"4998.00" }}');
-    var globalMaxPrice = parseFloat('{{ price_range.max_price|default:"20000.00" }}');
+                                    // Global fixed min and max range for the slider
+                                    var globalMinPrice = parseFloat('{{ price_range.min_price|default:"4998.00" }}');
+                                    var globalMaxPrice = parseFloat('{{ price_range.max_price|default:"20000.00" }}');
 
-    // Initialize the slider with global min and max prices
-    noUiSlider.create(slider, {
-        start: [globalMinPrice, globalMaxPrice],
-        connect: true,
-        range: {
-            'min': globalMinPrice,
-            'max': globalMaxPrice,
-        },
-        step: 800,
-        tooltips: true
-    });
+                                    // Initialize the slider with global min and max prices
+                                    noUiSlider.create(slider, {
+                                        start: [globalMinPrice, globalMaxPrice],
+                                        connect: true,
+                                        range: {
+                                            'min': globalMinPrice,
+                                            'max': globalMaxPrice,
+                                        },
+                                        step: 800,
+                                        tooltips: true
+                                    });
 
-    // Update display and hidden fields when the slider value changes
-    slider.noUiSlider.on('update', function(values) {
-        var minValue = parseFloat(values[0]);
-        var maxValue = parseFloat(values[1]);
-        priceRangeText.textContent = '₹' + minValue.toFixed(2) + ' - ₹' + maxValue.toFixed(2);
+                                    // Update display and hidden fields when the slider value changes
+                                    slider.noUiSlider.on('update', function(values) {
+                                        var minValue = parseFloat(values[0]);
+                                        var maxValue = parseFloat(values[1]);
+                                        priceRangeText.textContent = '₹' + minValue.toFixed(2) + ' - ₹' + maxValue.toFixed(2);
 
-        // Update hidden fields with current slider values
-        minPriceInput.value = minValue.toFixed(2);
-        maxPriceInput.value = maxValue.toFixed(2);
-    });
+                                        // Update hidden fields with current slider values
+                                        minPriceInput.value = minValue.toFixed(2);
+                                        maxPriceInput.value = maxValue.toFixed(2);
+                                    });
 
-    // Set the current range based on the URL parameters or defaults
-    var urlParams = new URLSearchParams(window.location.search);
-    var urlMinPrice = parseFloat(urlParams.get('min_price')) || globalMinPrice;
-    var urlMaxPrice = parseFloat(urlParams.get('max_price')) || globalMaxPrice;
+                                    // Set the current range based on the URL parameters or defaults
+                                    var urlParams = new URLSearchParams(window.location.search);
+                                    var urlMinPrice = parseFloat(urlParams.get('min_price')) || globalMinPrice;
+                                    var urlMaxPrice = parseFloat(urlParams.get('max_price')) || globalMaxPrice;
 
-    // Ensure slider always shows global min and max as range but sets the handles to the filtered range
-    slider.noUiSlider.set([Math.max(globalMinPrice, urlMinPrice), Math.min(globalMaxPrice, urlMaxPrice)]);
+                                    // Ensure slider always shows global min and max as range but sets the handles to the filtered range
+                                    slider.noUiSlider.set([Math.max(globalMinPrice, urlMinPrice), Math.min(globalMaxPrice, urlMaxPrice)]);
 
-    // Initial update
-    priceRangeText.textContent = '₹' + urlMinPrice.toFixed(2) + ' - ₹' + urlMaxPrice.toFixed(2);
+                                    // Initial update
+                                    priceRangeText.textContent = '₹' + urlMinPrice.toFixed(2) + ' - ₹' + urlMaxPrice.toFixed(2);
 
-    // Set initial hidden field values
-    minPriceInput.value = urlMinPrice.toFixed(2);
-    maxPriceInput.value = urlMaxPrice.toFixed(2);
-});
-</script>
+                                    // Set initial hidden field values
+                                    minPriceInput.value = urlMinPrice.toFixed(2);
+                                    maxPriceInput.value = urlMaxPrice.toFixed(2);
+                                });
+                                </script>
 
                             
 
@@ -1369,7 +1397,22 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     </script>
-  
+    <script>
+        // JavaScript to handle the Clean All button click event
+        document.addEventListener('DOMContentLoaded', function() {
+            const cleanAllButton = document.getElementById('clean-all-button');
+            
+            cleanAllButton.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default link behavior
+                
+                // Get the base URL without query parameters
+                const baseUrl = window.location.origin + window.location.pathname;
+                
+                // Redirect to the base URL to clear all filters
+                window.location.href = baseUrl;
+            });
+        });
+    </script>
         
 </body>
 
