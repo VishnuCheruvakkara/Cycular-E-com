@@ -18,6 +18,8 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.utils.crypto import get_random_string
 from .models import Address
+from django.views.decorators.cache import never_cache
+
 
 User = get_user_model()
 # Create your views here.
@@ -322,55 +324,106 @@ def change_username(request):
 
 ###################### update or change the email address of the current uesr by sending otp to the current email address ##########################
 
-otp_storage = {}
+context_data={}
 
-def change_email(request):
-    errors = {}
-    user = request.user
-
+@never_cache
+def email_change_view(request):
+    """
+    View to send OTP to the new email address entered by the user.
+    """
     if request.method == 'POST':
         new_email = request.POST.get('new_email')
-        if not new_email:
-            errors['new_email'] = 'Email cannot be empty.'
-        else:
-            try:
-                validate_email(new_email)
-                if User.objects.filter(email=new_email).exclude(id=user.id).exists():
-                    errors['new_email'] = 'This email is already taken.'
-                else:
-                    # Generate OTP
-                    otp = get_random_string(length=6, allowed_chars='0123456789')
-                    otp_storage[user.id] = {'otp': otp, 'time': timezone.now()}
+        context_data['new_email']=new_email
 
-                    # Send OTP to the user's new email address
-                    send_mail(
-                        'OTP Verification',
-                        f'Your OTP for email change is: {otp}',
-                        settings.EMAIL_HOST_USER,
-                        [new_email],
-                        fail_silently=False
-                    )
-                    
-                    # Store the new email temporarily in the session for verification
-                    request.session['new_email'] = new_email
-                    
-                    # Success message for the user
-                    messages.success(request, 'An OTP has been sent to your current email. Please enter it to confirm your email change.')
-                    
-                    # Redirect to the OTP verification page
-                    return redirect('user_side:verify_otp')
-            except ValidationError:
-                errors['new_email'] = "Enter a valid email address."
+        try:
+            validate_email(new_email)
+        except ValidationError:
+           messages.error(request,'Invalid email address. Please enter a valid email.')
+           return redirect('user_side:user-dash-board')
+       
+        # Check if the email already exists
+        if User.objects.filter(email=new_email).exists():
+            messages.error(request, 'This email address is already in use. Please choose a different email.')
+            context_data['email_error'] = 'This email address is already in use. Please choose a different email.'
+            return render(request, 'user_side/user-dash-board.html', context_data)
 
-    context = {
-        'current_email': user.email,
-        'errors': errors,
-    }
+        otp = random.randint(100000, 999999)  # Generate a random OTP
 
-    return render(request, 'user_side/user-dash-board.html', context)
+        # Send OTP to the new email address
+        send_mail(
+            'Your OTP Code',
+            f'Dear User,\n\nTo complete your email change request, please use the following OTP code: {otp}. This code is valid for 2 minutes.\n\nThank you!\n\n Greetings from Cycular...',
+            settings.EMAIL_HOST_USER,  # Replace with your actual sender email
+            [new_email],
+            fail_silently=False,
+        )
 
+        context_data['otp']=otp
+        context_data['otp_generated_time']=timezone.now()
+
+        messages.success(request,'An OTP has been sent to your new email address.')
+        return redirect('user_side:email-change-otp-view')
+
+    return render(request,'user_side/user-dash-board.html',context_data)
 
 ##########################  verify otp for the email change   #################################
+@never_cache
+def email_change_otp_view(request):
+    error_message = "" 
+    if request.method=='POST':
+        entered_otp=request.POST.get('otp')
+        current_time=timezone.now()
+        otp_generated_time=context_data.get('otp_generated_time')
+        otp_pattern = re.compile(r'^\d{6}$')
+
+        if not otp_pattern.match(entered_otp):
+            error_message = "Please enter a valid 6-digit OTP."
+
+        if  entered_otp == str(context_data.get('otp')) and otp_generated_time:
+            #check for otp is expired or not (timer is set to be 2 seconds.)
+            if (current_time-otp_generated_time).total_seconds() <= 120 :
+                user=request.user
+                user.email=context_data.get('new_email')
+                user.save()
+                #clear the data due to the user is successfully logged in 
+                context_data.clear()
+
+                messages.success(request,"Your Email has been successfully updated.")
+                return redirect('user_side:user-dash-board')
+            else:
+                messages.error(request,"The OTP has been expired.Please check the resend otp for a new otp.")
+        else:
+            messages.error(request,"The OTP you entered is incorrect.")
+
+    return render(request,'user_side/email-change-otp.html',{'error_message': error_message})
+
+########################### resend otp for the change email for the user #######################
+@never_cache
+def email_change_resend_otp_view(request):
+  
+        new_email=context_data.get('new_email')
+        if not new_email:
+            messages.error(request,'Email address is not available.')
+            return redirect('user_side:user-dash-board')
+        
+        otp = random.randint(100000, 999999)
+
+        send_mail(
+            'Your OTP code',
+            f'Dear User,\n\nTo complete your email change request, please use the following OTP code: {otp}. This code is valid for only 2 minutes.\n\nThank you!\n\nGreetings from Cycular...',
+            settings.EMAIL_HOST_USER,  # Replace with your actual sender email
+            [new_email],
+            fail_silently=False,
+        )
+        context_data['otp'] = otp
+        context_data['otp-generated-time'] = timezone.now()
+
+        messages.success(request, 'New OTP has been sent to your email address.')
+        return redirect('user_side:email-change-otp-view')  # Redirect to the OTP verification page
+    
+ 
+ 
+
 
 ##########################  update the password of the logined user  ##################################
 

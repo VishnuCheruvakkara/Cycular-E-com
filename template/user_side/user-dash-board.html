@@ -16,6 +16,8 @@
             margin: 30px auto; /* Adjust vertical margin if necessary */
         }
     </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -87,11 +89,14 @@
 
                                            <!-- Change Email Form (Initially Hidden) -->
                                             <div id="changeEmailSection" style="display: none; margin-top: 10px;">
-                                                <form id="changeEmailForm" method="POST">
+                                                <form  method="POST" action="{% url 'user_side:email-change-view' %}">
                                                     {% csrf_token %}
                                                     <div class="form-group">
-                                                        <label for="newEmail">New Email</label>
-                                                        <input type="email" class="form-control" id="newEmail" name="new_email" placeholder="Enter new email" required />
+                                                        <label>New Email</label>
+                                                        <input type="email" class="form-control"  name="new_email" placeholder="Enter new email" required />
+                                                        {% if email_error %}
+                                                        <p class="text-danger" style="margin-top: 5px;">{{ email_error }}</p>
+                                                        {% endif %}
                                                     </div>
                                                     <button type="submit" class="btn btn-primary mb-3">Submit</button>
                                                 </form>
@@ -393,9 +398,7 @@
                 </div>
             </div>
         </div>
-
-       
-    <script>
+        <script>
         {% for message in messages %}
             swal.fire({
                 icon:"{{message.tags}}",
@@ -404,6 +407,10 @@
                 
             })
         {% endfor %}
+        </script>
+
+    <script>
+       
 
         //js for address deletion confirmation
         document.addEventListener('DOMContentLoaded', function () {
