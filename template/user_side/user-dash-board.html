@@ -110,20 +110,20 @@
 
                                             <!-- Change Password Form (Initially Hidden) -->
                                             <div id="changePasswordSection" style="display: none; margin-top: 10px;">
-                                                <form id="changePasswordForm" method="POST">
+                                                <form id="changePasswordForm" method="POST" action="{% url 'user_side:password-change-view' %}">
                                                     {% csrf_token %}
                                                     <div class="form-group">
                                                         <label for="currentPassword">Current Password</label>
-                                                        <input type="password" class="form-control"id="currentPassword" placeholder="Enter current password" required
+                                                        <input name="current_password" type="password" class="form-control" placeholder="Enter current password" required
                                                         />
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="newPassword">New Password</label>
-                                                        <input type="password" class="form-control" id="newPassword" placeholder="Enter new password" required />
+                                                        <input name="new_password" type="password" class="form-control"  placeholder="Enter new password" required />
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="confirmPassword">Confirm New Password</label>
-                                                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password" required />
+                                                        <input name="confirm_new_password"  type="password" class="form-control"  placeholder="Confirm new password" required />
                                                     </div>
                                                     <button  type="submit" class="btn btn-primary mb-3">Submit</button>
                                                 </form>
@@ -398,13 +398,13 @@
                 </div>
             </div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
         {% for message in messages %}
             swal.fire({
                 icon:"{{message.tags}}",
                 title:"{{message}}",
                 text:"{{message.tags}}",
-                
             })
         {% endfor %}
         </script>

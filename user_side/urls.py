@@ -22,6 +22,12 @@ urlpatterns=[
     path('email-change-view',views.email_change_view,name='email-change-view'),
     path('email-change-otp-view',views.email_change_otp_view,name='email-change-otp-view'),
     path('email-change-resend-otp-view',views.email_change_resend_otp_view,name='email-change-resend-otp-view'),
+
+    #change password of the loged in user
+    path('password-change-view/',views.password_change_view,name='password-change-view'),
+    path('password-change-otp-view/',views.password_change_otp_view,name='password-change-otp-view'),
+    path('password-change-resend-otp-view/',views.password_change_resend_otp_view,name='password-change-resend-otp-view'),
+
     
 
 

@@ -72,6 +72,16 @@
             </div><!-- End .form-box -->
         </div><!-- End .container -->
     </div><!-- End .login-page -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        {% for message in messages %}
+            swal.fire({
+                icon:"{{message.tags}}",
+                title:"{{message}}",
+                text:"{{message.tags}}",
+            })
+        {% endfor %}
+    </script>
 
     <!-- Plugins JS File -->
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>

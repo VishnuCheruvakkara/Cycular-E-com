@@ -275,6 +275,7 @@ def toggle_user_status(request):
 ############################### user accout-dashboard ##########################
 
 @login_required(login_url='user_side:sign-in')
+@never_cache
 def user_dash_board(request):
     addresses=Address.objects.filter(user=request.user)
 
@@ -287,6 +288,7 @@ def user_dash_board(request):
 ############################### update or change username ##########################
 
 @login_required(login_url='user_side:sign-in')
+@never_cache
 def change_username(request):
     errors = {}
     show_modal=False
@@ -326,6 +328,7 @@ def change_username(request):
 
 context_data={}
 
+@login_required(login_url='user_side:sign-in')
 @never_cache
 def email_change_view(request):
     """
@@ -367,6 +370,8 @@ def email_change_view(request):
     return render(request,'user_side/user-dash-board.html',context_data)
 
 ##########################  verify otp for the email change   #################################
+
+@login_required(login_url='user_side:sign-in')
 @never_cache
 def email_change_otp_view(request):
     error_message = "" 
@@ -398,6 +403,8 @@ def email_change_otp_view(request):
     return render(request,'user_side/email-change-otp.html',{'error_message': error_message})
 
 ########################### resend otp for the change email for the user #######################
+
+@login_required(login_url='user_side:sign-in')
 @never_cache
 def email_change_resend_otp_view(request):
   
@@ -422,16 +429,123 @@ def email_change_resend_otp_view(request):
         return redirect('user_side:email-change-otp-view')  # Redirect to the OTP verification page
     
  
- 
-
 
 ##########################  update the password of the logined user  ##################################
 
+password_context={}
+
+
+@login_required(login_url='user_side:sign-in')
+@never_cache
+def password_change_view(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_new_password')
+
+        if new_password != confirm_password:
+            messages.error(request, 'New passwords do not match.')
+            return redirect('user_side:user-dash-board')
+        
+        if current_password == new_password:
+            messages.error(request,'New password cannot be same as the old password. try again...')
+            return redirect('user_side:user-dash-board')
+
+        user = request.user
+        if not user.check_password(current_password):
+            messages.error(request, 'Current password is incorrect.')
+            return redirect('user_side:user-dash-board')
+        
+    
+
+        # Generate and send OTP to user's email
+        otp = random.randint(100000, 999999)
+        password_context['otp'] = otp
+        password_context['otp_generated_time'] = timezone.now()
+        password_context['new_password'] = new_password
+        
+        send_mail(
+            'Your OTP Code',
+            f'Dear User,\n\nTo complete your password change request, please use the following OTP code: {otp}. This code is valid for 2 minutes.\n\nThank you!\n\nGreetings from Cycular...',
+            settings.EMAIL_HOST_USER,
+            [user.email],
+            fail_silently=False,
+        )
+        
+        messages.info(request, 'An OTP has been sent to your email address.')
+        return redirect('user_side:password-change-otp-view')
+
+    return render(request, 'user_side/user-dash-board.html')
+
 ########################## varify otp for the password change  ############################
+
+
+
+@login_required(login_url='user_side:sign-in')
+@never_cache
+def password_change_otp_view(request):
+    error_message_password = "" 
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp_password')
+        current_time = timezone.now()
+        otp_generated_time = password_context.get('otp_generated_time')
+        new_password = password_context.get('new_password')
+        
+        otp_pattern = re.compile(r'^\d{6}$')
+
+        if not otp_pattern.match(entered_otp):
+            error_message_password = "Please enter a valid 6-digit OTP."
+        elif entered_otp == str(password_context.get('otp')) and otp_generated_time:
+            if (current_time - otp_generated_time).total_seconds() <= 120:
+                user = request.user
+                user.set_password(new_password)
+                user.save()
+                password_context.clear()
+                messages.success(request, "Your password has been successfully updated,Please login with new password.")
+                return redirect('user_side:user-dash-board')
+            else:
+                messages.error(request, "The OTP has expired. Please request a new OTP.")
+        else:
+            messages.error(request, "The OTP you entered is incorrect.")
+
+    return render(request, 'user_side/password-change-otp.html', {'error_message_password': error_message_password})
+
+###########################  paswword resend otp view   ##################################
+
+@login_required(login_url='user_side:sign-in')
+@never_cache
+def password_change_resend_otp_view(request):
+    user = request.user
+    if not user.email:
+        messages.error(request, 'Email address is not available.')
+        return redirect('user_side:user-dash-board')
+    
+    # Generate a new OTP
+    otp = random.randint(100000, 999999)
+
+    # Send the OTP to the user's email
+    send_mail(
+        'Your OTP Code',
+        f'Dear User,\n\nTo complete your password change request, please use the following OTP code: {otp}. This code is valid for only 2 minutes.\n\nThank you!\n\nGreetings from Cycular...',
+        settings.EMAIL_HOST_USER,  # Replace with your actual sender email
+        [user.email],  # Send OTP to the user's email
+        fail_silently=False,
+    )
+
+    # Update the context with the new OTP and its generation time
+    password_context['otp'] = otp
+    password_context['otp_generated_time'] = timezone.now()
+
+    # Notify the user that a new OTP has been sent
+    messages.success(request, 'A new OTP has been sent to your email address.')
+    return redirect('user_side:password-change-otp-view')  # Redirect to the OTP verification page
+
+
 
 #Adress management section down below...
 
 #########################  add address view  ####################
+
 def add_address(request):
     errors = {}  # Dictionary to hold error messages
     add_address_show = False  # Flag to control modal visibility
