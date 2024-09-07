@@ -124,6 +124,13 @@
                                                     <div class="form-group">
                                                         <label for="confirmPassword">Confirm New Password</label>
                                                         <input name="confirm_new_password"  type="password" class="form-control"  placeholder="Confirm new password" required />
+                                                       
+                                                        <ul class="error-list">
+                                                            {% for error in error_message_password_change %}
+                                                                <li class="text-danger" style="margin-top: 5px;">{{ error }}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                       
                                                     </div>
                                                     <button  type="submit" class="btn btn-primary mb-3">Submit</button>
                                                 </form>

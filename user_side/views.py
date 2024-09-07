@@ -438,6 +438,7 @@ password_context={}
 @login_required(login_url='user_side:sign-in')
 @never_cache
 def password_change_view(request):
+    error_message_password_change=[]
     if request.method == 'POST':
         current_password = request.POST.get('current_password')
         new_password = request.POST.get('new_password')
@@ -450,6 +451,31 @@ def password_change_view(request):
         if current_password == new_password:
             messages.error(request,'New password cannot be same as the old password. try again...')
             return redirect('user_side:user-dash-board')
+
+         # Check if passwords match
+        if current_password != new_password:
+            error_message_password_change.append('Entered passwords do not match.')
+
+        # Validate password length
+        if len(new_password) < 8:
+            error_message_password_change.append('Password must be at least 8 characters long.')
+
+        # Validate password complexity
+        if not re.search(r'[A-Z]', new_password):
+            error_message_password_change.append('Password must contain at least one uppercase letter.')
+
+        if not re.search(r'[a-z]', new_password):
+            error_message_password_change.append('Password must contain at least one lowercase letter.')
+
+        if not re.search(r'[0-9]', new_password):
+            error_message_password_change.append('Password must contain at least one digit.')
+
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', new_password):
+            error_message_password_change.append('Password must contain at least one special character.')
+
+        if error_message_password_change:
+            messages.error(request,'Password validation error found!,Please try again...')
+            return render(request,'user_side/user-dash-board.html',{'error_message_password_change': error_message_password_change})
 
         user = request.user
         if not user.check_password(current_password):
@@ -475,11 +501,9 @@ def password_change_view(request):
         messages.info(request, 'An OTP has been sent to your email address.')
         return redirect('user_side:password-change-otp-view')
 
-    return render(request, 'user_side/user-dash-board.html')
+    return render(request, 'user_side/user-dash-board.html',{'error_message_password_change': error_message_password_change})
 
 ########################## varify otp for the password change  ############################
-
-
 
 @login_required(login_url='user_side:sign-in')
 @never_cache
@@ -647,6 +671,9 @@ def add_address(request):
     return render(request, 'user_side/user-dash-board.html', context)
 #######################  edit address  ##########################
 
+
+@login_required(login_url='user_side:sign-in')
+@never_cache
 def edit_address(request, address_id):
     # Fetch the address object based on the given ID and ensure it belongs to the current user
     address = get_object_or_404(Address, id=address_id, user=request.user)
@@ -677,7 +704,9 @@ def edit_address(request, address_id):
 
 #########################  delete user address  ######################3
 
-@login_required(login_url='user_side:sign-in')  # Restrict to logged-in users
+
+@login_required(login_url='user_side:sign-in')
+@never_cache
 def delete_address(request, address_id):
     # Get the address object that belongs to the logged-in user or 404 if not found
     address = get_object_or_404(Address, id=address_id, user=request.user)
@@ -694,89 +723,176 @@ def delete_address(request, address_id):
 
 ################### forget password section  ######################
 
-forget_context={}
+
+
+# This dictionary is used to store forget password-related information temporarily
+forget_context = {}
+
+@never_cache
 def forget_password(request):
-   
+    """
+    View for initiating the forget password process by entering the user's email.
+    """
     if request.method == 'POST':
         current_email = request.POST.get('current_email')
-        forget_context['current_email']=current_email
+        forget_context['current_email'] = current_email
 
-
+        # Validate the entered email
         try:
             validate_email(current_email)
         except ValidationError:
-           messages.error(request,'Invalid email address. Please enter a valid email.')
-           return redirect('user_side:user-dash-board')
+            messages.error(request, 'Invalid email address. Please enter a valid email.')
+            return redirect('user_side:forget-password')
 
-        #chec if the email exist in the data base or not
+        # Check if the email exists in the database
         if not User.objects.filter(email=current_email).exists():
-            messages.error(request,'The email address does not exist,try again...')
-            return  redirect('user_side:forget-password')
-        
-        otp = random.randint(100000, 999999)  # Generate a random OTP
+            messages.error(request, 'The email address does not exist, try again...')
+            return redirect('user_side:forget-password')
 
-        # Send OTP to the new email address
+        # Generate and send OTP
+        otp = random.randint(100000, 999999)
         send_mail(
             'Your OTP Code',
-            f'Dear User,\n\nIt seems like you requested a resend of your OTP code. Your new OTP is: {otp}. Please use this code to complete your request within 2 minutes.\n\nIf you did not request this OTP, please ignore this message.\n\nThank you for choosing Cycular!\n\nBest Regards,\nThe Cycular Team',
-            settings.EMAIL_HOST_USER,  # Replace with your actual sender email
+            f'Dear User,\n\nYour OTP code is: {otp}. Please use this code to reset your password within 2 minutes.\n\nThank you!\n\nBest Regards,\nThe Cycular Team',
+            settings.EMAIL_HOST_USER,
             [current_email],
             fail_silently=False,
         )
 
-        forget_context['otp']=otp
-        forget_context['otp_generated_time']=timezone.now()
+        # Store the OTP and generation time in the context
+        forget_context['otp'] = otp
+        forget_context['otp_generated_time'] = timezone.now()
 
-        messages.success(request,'An OTP has been sent to the enterd email address.')
+        messages.success(request, 'An OTP has been sent to the entered email address.')
         return redirect('user_side:forget-password-otp')
 
-    return render(request,'user_side/forget-password-1.html')
+    return render(request, 'user_side/forget-password-1.html')
 
-###################  forget password otp section  ###################
 
+############################   forget password otp send page   #########################
+
+@never_cache
 def forget_password_otp(request):
+    """
+    View for OTP verification during the forget password process.
+    """
     error_message_forget = "" 
-    if request.method=='POST':
-        entered_otp=request.POST.get('forget-otp')
-        current_time=timezone.now()
-        otp_generated_time=forget_context.get('otp_generated_time')
+    if request.method == 'POST':
+        entered_otp = request.POST.get('forget-otp')
+        current_time = timezone.now()
+        otp_generated_time = forget_context.get('otp_generated_time')
         otp_pattern = re.compile(r'^\d{6}$')
 
+        # Validate the OTP format
         if not otp_pattern.match(entered_otp):
             error_message_forget = "Please enter a valid 6-digit OTP."
 
-        if  entered_otp == str(forget_context.get('otp')) and otp_generated_time:
-            #check for otp is expired or not (timer is set to be 2 seconds.)
-            if (current_time-otp_generated_time).total_seconds() <= 120 :
-    
-                #clear the data due to the user is successfully logged in 
-                forget_context.clear()
-
-                messages.success(request,"Otp is verified.")
+        # Check OTP correctness and expiration
+        if entered_otp == str(forget_context.get('otp')) and otp_generated_time:
+            if (current_time - otp_generated_time).total_seconds() <= 120:
+                messages.success(request, "OTP is verified.Enter a new password...")
                 return redirect('user_side:forget-password-set')
             else:
-                messages.error(request,"The OTP has been expired.Please check the resend otp for a new otp.")
+                messages.error(request, "The OTP has expired. Please request a new OTP.")
         else:
-            messages.error(request,"The OTP you entered is incorrect.")
+            messages.error(request, "The OTP you entered is incorrect.")
 
-    return render(request,'user_side/forget-password-2.html',{'error_message_forget':error_message_forget})
+    return render(request, 'user_side/forget-password-2.html', {'error_message_forget': error_message_forget})
 
-##################### for get password new password entering section   ######################
+##########################  forget password resend otp #######################
 
+@never_cache
+def forget_password_resend_otp(request):
+    # Retrieve the current email from forget_context
+    current_email = forget_context.get('current_email')
 
+    # Check if an email is present in the forget_context
+    if not current_email:
+        messages.error(request, 'No email found. Please restart the forget password process.')
+        return redirect('user_side:forget-password')
+
+    # Generate a new OTP
+    new_otp = random.randint(100000, 999999)
+
+    # Send the new OTP to the user's email
+    send_mail(
+        'Your New OTP Code',
+        f'Dear User,\n\nYour new OTP code is: {new_otp}. Please use this code to reset your password within 2 minutes.\n\nThank you!\n\nBest Regards,\nThe Cycular Team',
+        settings.EMAIL_HOST_USER,
+        [current_email],
+        fail_silently=False,
+    )
+
+    # Update the forget_context with the new OTP and generation time
+    forget_context['otp'] = new_otp
+    forget_context['otp_generated_time'] = timezone.now()
+
+    # Notify the user about the new OTP
+    messages.success(request, 'A new OTP has been sent to your email address.')
+    return redirect('user_side:forget-password-otp')
+
+#############################  forget password new passwrord set  view ########################
+
+@never_cache
 def forget_password_set(request):
+    """
+    View for setting a new password after successful OTP verification.
+    """
+    error_message_password_forget = []  # List to collect error messages
+
     if request.method == 'POST':
-        pass1=request.POST.get('password')
-        pass2=request.POST.get('confirm_password')
+        pass1 = request.POST.get('password')
+        pass2 = request.POST.get('confirm_password')
 
+        # Check if passwords match
         if pass1 != pass2:
-            messages.error(request, 'Eterd passwords do not match.')
-            return redirect('user_side:forget-password-set')
-        else:
-            user = request.user
-            user.set_password(pass1)
-            user.save()
-            messages.success(request, "Your password has been successfully updated,Please login with new password.")
-            return redirect('user_side:sign-in')
+            error_message_password_forget.append('Entered passwords do not match.')
 
-    return render(request,'user_side/forget-password-3.html')
+        # Validate password length
+        if len(pass1) < 8:
+            error_message_password_forget.append('Password must be at least 8 characters long.')
+
+        # Validate password complexity
+        if not re.search(r'[A-Z]', pass1):
+            error_message_password_forget.append('Password must contain at least one uppercase letter.')
+
+        if not re.search(r'[a-z]', pass1):
+            error_message_password_forget.append('Password must contain at least one lowercase letter.')
+
+        if not re.search(r'[0-9]', pass1):
+            error_message_password_forget.append('Password must contain at least one digit.')
+
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', pass1):
+            error_message_password_forget.append('Password must contain at least one special character.')
+
+        # If there are errors, display them without proceeding further
+        if error_message_password_forget:
+            return render(request, 'user_side/forget-password-3.html', {'error_message_password_forget': error_message_password_forget})
+
+        # Retrieve the user's email from the context
+        current_email = forget_context.get('current_email')
+        if not current_email:
+            messages.error(request, 'Session expired or no email associated. Please restart the forget password process.')
+            return redirect('user_side:forget-password-otp')
+
+        # Attempt to find the user by email
+        try:
+            user = User.objects.get(email=current_email)
+        except User.DoesNotExist:
+            messages.error(request, 'No user found with this email address. Please try again.')
+            return redirect('user_side:forget-password-otp')
+
+        # Set the new password
+        user.set_password(pass1)
+        user.save()
+
+        # Clear context data to maintain security
+        forget_context.clear()
+
+        # Notify the user and redirect to sign-in
+        messages.success(request, "Your password has been successfully updated. Please log in with your new password.")
+        return redirect('user_side:sign-in')
+
+    return render(request, 'user_side/forget-password-3.html', {'error_message_password_forget': error_message_password_forget})
+
+#################################
