@@ -28,6 +28,10 @@ urlpatterns=[
     path('password-change-otp-view/',views.password_change_otp_view,name='password-change-otp-view'),
     path('password-change-resend-otp-view/',views.password_change_resend_otp_view,name='password-change-resend-otp-view'),
 
+    #forget password section
+    path('forget-password',views.forget_password,name='forget-password'),
+    path('forget-password-otp',views.forget_password_otp,name='forget-password-otp'),
+    path('forget-password-set',views.forget_password_set,name='forget-password-set'),
     
 
 
