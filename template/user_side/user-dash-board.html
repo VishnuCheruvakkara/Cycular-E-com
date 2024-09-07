@@ -16,6 +16,8 @@
             margin: 30px auto; /* Adjust vertical margin if necessary */
         }
     </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -50,9 +52,9 @@
 								    <li class="nav-item">
 								        <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Adresses</a>
 								    </li>
-								    <li class="nav-item">
+								    <!-- <li class="nav-item">
 								        <a class="nav-link" id="tab-account-link" data-toggle="tab" href="#tab-account" role="tab" aria-controls="tab-account" aria-selected="false">Account Details</a>
-								    </li>
+								    </li> -->
 								    <li class="nav-item">
 								        <a class="nav-link" href="{% url 'user_side:sign-out' %}">Sign Out</a>
 								    </li>
@@ -87,11 +89,14 @@
 
                                            <!-- Change Email Form (Initially Hidden) -->
                                             <div id="changeEmailSection" style="display: none; margin-top: 10px;">
-                                                <form id="changeEmailForm" method="POST">
+                                                <form  method="POST" action="{% url 'user_side:email-change-view' %}">
                                                     {% csrf_token %}
                                                     <div class="form-group">
-                                                        <label for="newEmail">New Email</label>
-                                                        <input type="email" class="form-control" id="newEmail" name="new_email" placeholder="Enter new email" required />
+                                                        <label>New Email</label>
+                                                        <input type="email" class="form-control"  name="new_email" placeholder="Enter new email" required />
+                                                        {% if email_error %}
+                                                        <p class="text-danger" style="margin-top: 5px;">{{ email_error }}</p>
+                                                        {% endif %}
                                                     </div>
                                                     <button type="submit" class="btn btn-primary mb-3">Submit</button>
                                                 </form>
@@ -105,20 +110,27 @@
 
                                             <!-- Change Password Form (Initially Hidden) -->
                                             <div id="changePasswordSection" style="display: none; margin-top: 10px;">
-                                                <form id="changePasswordForm" method="POST">
+                                                <form id="changePasswordForm" method="POST" action="{% url 'user_side:password-change-view' %}">
                                                     {% csrf_token %}
                                                     <div class="form-group">
                                                         <label for="currentPassword">Current Password</label>
-                                                        <input type="password" class="form-control"id="currentPassword" placeholder="Enter current password" required
+                                                        <input name="current_password" type="password" class="form-control" placeholder="Enter current password" required
                                                         />
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="newPassword">New Password</label>
-                                                        <input type="password" class="form-control" id="newPassword" placeholder="Enter new password" required />
+                                                        <input name="new_password" type="password" class="form-control"  placeholder="Enter new password" required />
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="confirmPassword">Confirm New Password</label>
-                                                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password" required />
+                                                        <input name="confirm_new_password"  type="password" class="form-control"  placeholder="Confirm new password" required />
+                                                       
+                                                        <ul class="error-list">
+                                                            {% for error in error_message_password_change %}
+                                                                <li class="text-danger" style="margin-top: 5px;">{{ error }}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                       
                                                     </div>
                                                     <button  type="submit" class="btn btn-primary mb-3">Submit</button>
                                                 </form>
@@ -230,17 +242,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            {% endfor %}
-                                                                            
-                                            <div class="col-lg-6 mb-3">
-                                                <div class="card card-dashboard">
-                                                    <div class="card-body">
-                                                        <h3 class="card-title">Shipping Address</h3>
-                                                        <p>You have not set up this type of address yet.<br>
-                                                        <a href="#">Edit <i class="icon-edit"></i></a></p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            {% endfor %}                                                                 
                                         </div>
                                     </div>
 
@@ -249,42 +251,8 @@
 								    	</div><!-- End .row -->
 								    </div><!-- .End .tab-pane -->
 
-								    <div class="tab-pane fade" id="tab-account" role="tabpanel" aria-labelledby="tab-account-link">
-								    	<form action="#">
-			                				<div class="row">
-			                					<div class="col-sm-6">
-			                						<label>First Name *</label>
-			                						<input type="text" class="form-control" required>
-			                					</div><!-- End .col-sm-6 -->
+							
 
-			                					<div class="col-sm-6">
-			                						<label>Last Name *</label>
-			                						<input type="text" class="form-control" required>
-			                					</div><!-- End .col-sm-6 -->
-			                				</div><!-- End .row -->
-
-		            						<label>Display Name *</label>
-		            						<input type="text" class="form-control" required>
-		            						<small class="form-text">This will be how your name will be displayed in the account section and in reviews</small>
-
-		                					<label>Email address *</label>
-		        							<input type="email" class="form-control" required>
-
-		            						<label>Current password (leave blank to leave unchanged)</label>
-		            						<input type="password" class="form-control">
-
-		            						<label>New password (leave blank to leave unchanged)</label>
-		            						<input type="password" class="form-control">
-
-		            						<label>Confirm new password</label>
-		            						<input type="password" class="form-control mb-2">
-
-		                					<button type="submit" class="btn btn-outline-primary-2">
-			                					<span>SAVE CHANGES</span>
-			            						<i class="icon-long-arrow-right"></i>
-			                				</button>
-			                			</form>
-								    </div><!-- .End .tab-pane -->
 								</div>
 	                		</div><!-- End .col-lg-9 -->
 	                	</div><!-- End .row -->
@@ -393,17 +361,19 @@
                 </div>
             </div>
         </div>
-
-       
-    <script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
         {% for message in messages %}
             swal.fire({
                 icon:"{{message.tags}}",
                 title:"{{message}}",
                 text:"{{message.tags}}",
-                
             })
         {% endfor %}
+        </script>
+
+    <script>
+       
 
         //js for address deletion confirmation
         document.addEventListener('DOMContentLoaded', function () {

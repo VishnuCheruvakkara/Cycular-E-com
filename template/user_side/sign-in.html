@@ -1,6 +1,8 @@
 {% extends 'partials/base.html' %}
 {% load static %}
 {% block content %}
+
+
 <main class="main">
     <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
         <div class="container">
@@ -48,7 +50,7 @@
                                         <i class="icon-long-arrow-right"></i>
                                     </button>
 
-                                    <a href="#" class="forgot-link">Forgot Your Password?</a>
+                                    <a href="{% url 'user_side:forget-password' %}" class="forgot-link">Forgot Your Password?</a>
                                 </div><!-- End .form-footer -->
                             </form>
 
@@ -69,6 +71,16 @@
             </div><!-- End .form-box -->
         </div><!-- End .container -->
     </div><!-- End .login-page -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        {% for message in messages %}
+            swal.fire({
+                icon:"{{message.tags}}",
+                title:"{{message}}",
+                text:"{{message.tags}}",
+            })
+        {% endfor %}
+    </script>
 
     <!-- Plugins JS File -->
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>
