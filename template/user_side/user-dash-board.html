@@ -354,7 +354,6 @@
                             </div>
                             <div class="d-flex justify-content-center mt-3">
                                 <button type="submit" class="btn btn-primary mb-1">Add Address</button>
-                            
                             </div>
                         </form>
                     </div>
@@ -457,6 +456,33 @@
 
 
     </script>
+    
+<script>
+	// Function to update cart count
+	function updateCartCount() {
+		fetch('{% url "cart:cart-count" %}', {
+			method: 'GET',
+			headers: {
+				'X-Requested-With': 'XMLHttpRequest',
+				'X-CSRFToken': '{{ csrf_token }}'
+			}
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.status === 'success') {
+				document.querySelector('.cart-count').textContent = data.count;
+			} else {
+				console.error('Failed to fetch cart count:', data.message);
+			}
+		})
+		.catch(error => console.error('Error:', error));
+	}
+
+	// Call the updateCartCount function when the page loads
+	document.addEventListener('DOMContentLoaded', updateCartCount);
+
+</script>
+
 
 </body>
 

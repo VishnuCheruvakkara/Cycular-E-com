@@ -3,15 +3,22 @@ from .models import Order,OrderItem
 
 # Register your models here.
 
-@admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'address', 'created_at', 'status', 'total_price')
-    search_fields = ('user__username', 'address__address_line1')
-    list_filter = ('status', 'created_at')
-    readonly_fields = ('created_at', 'total_price')  # Prevent modification of these fields
+    list_display = ('user', 'address', 'order_date', 'payment_method', 'payment_status', 'total_price')
+    readonly_fields = ('order_date', 'total_price')
+    list_filter = ('payment_status', 'payment_method', 'order_date')  # Ensure these fields exist
 
-@admin.register(OrderItem)
+    def total_price(self, obj):
+        return obj.total_price
+    total_price.admin_order_field = 'total_price'
+
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('order', 'product_variant', 'quantity', 'price')
-    search_fields = ('order__user__username', 'product_variant__product__name')
-    list_filter = ('order__status', 'product_variant__product__category')
+    list_display = ('order', 'product_variant', 'quantity', 'price', 'payment_status')
+    list_filter = ('order__payment_status', 'order__order_date')  # Ensure these fields exist
+
+    def price(self, obj):
+        return obj.price
+    price.admin_order_field = 'price'
+
+admin.site.register(Order, OrderAdmin)
+admin.site.register(OrderItem, OrderItemAdmin)

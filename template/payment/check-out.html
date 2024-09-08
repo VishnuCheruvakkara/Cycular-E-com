@@ -1,8 +1,20 @@
 {% extends 'partials/base.html' %}
 {% load static %}
+{% block style %}
 
+{% endblock %}
 
 {% block content %}
+	<head>
+		<style>
+				/* Custom width for modal */
+				.custom-modal-width .modal-dialog {
+				max-width: 450px; /* Adjust as needed */
+				margin: 30px auto; /* Adjust vertical margin if necessary */
+			}
+		</style>
+	</head>
+	<body>
         <main class="main mt-2 ">
         	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
         		<div class="container">
@@ -21,6 +33,9 @@
 
             <div class="page-content">
             	<div class="checkout">
+
+
+
 	                <div class="container">
             			<div class="checkout-discount">
             				<form action="#">
@@ -28,72 +43,52 @@
             					<label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
             				</form>
             			</div><!-- End .checkout-discount -->
+
+						<!-- space to show all address here and add address option  -->
+
             			<form action="#">
 		                	<div class="row">
-		                		<div class="col-lg-9">
-		                			<h2 class="checkout-title">Billing Details</h2><!-- End .checkout-title -->
-		                				<div class="row">
-		                					<div class="col-sm-6">
-		                						<label>First Name *</label>
-		                						<input type="text" class="form-control" required>
-		                					</div><!-- End .col-sm-6 -->
 
-		                					<div class="col-sm-6">
-		                						<label>Last Name *</label>
-		                						<input type="text" class="form-control" required>
-		                					</div><!-- End .col-sm-6 -->
-		                				</div><!-- End .row -->
 
-	            						<label>Company Name (Optional)</label>
-	            						<input type="text" class="form-control">
+							
+								<!-- Add address section -->
+								<div class="col-lg-9">
+									<h4 class="mb-3">Select Your Shipping Address</h4>
+									<div class="address-selection">
+										<div class="row">
+											<!-- Loop through the addresses here -->
+											{% for address in addresses %}
+											<div class="col-md-6 mb-4">
+												<div class="address-box p-3 border rounded">
+													<input type="radio" name="selected_address" id="address-{{ address.id }}" value="{{ address.id }}"
+														class="mr-2" {% if forloop.first %}checked{% endif %}>
+														<h3 class="card-title">Billing Address - {{ forloop.counter }}</h3>
+													<label for="address-{{ address.id }}" class="w-100">
+														<div class="address-details mt-2">
+															<b>{{ address.user.username }}</b>,
+															{{ address.address_line }},
+															{{ address.city }},
+															{{ address.state }},
+															{{ address.country }},
+															{{ address.phone_number }}
+														</div>
+													</label>
+												</div>
+											</div>
+											{% endfor %}
+											<!-- End of address loop -->
+										</div>
+									
+										<a href="" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#userAddAddressModal">
+											<i class="fas fa-circle-plus"></i> + Add New Address
+										</a>
 
-	            						<label>Country *</label>
-	            						<input type="text" class="form-control" required>
+									</div>
+								</div>
 
-	            						<label>Street address *</label>
-	            						<input type="text" class="form-control" placeholder="House number and Street name" required>
-	            						<input type="text" class="form-control" placeholder="Appartments, suite, unit etc ..." required>
+								 
 
-	            						<div class="row">
-		                					<div class="col-sm-6">
-		                						<label>Town / City *</label>
-		                						<input type="text" class="form-control" required>
-		                					</div><!-- End .col-sm-6 -->
 
-		                					<div class="col-sm-6">
-		                						<label>State / County *</label>
-		                						<input type="text" class="form-control" required>
-		                					</div><!-- End .col-sm-6 -->
-		                				</div><!-- End .row -->
-
-		                				<div class="row">
-		                					<div class="col-sm-6">
-		                						<label>Postcode / ZIP *</label>
-		                						<input type="text" class="form-control" required>
-		                					</div><!-- End .col-sm-6 -->
-
-		                					<div class="col-sm-6">
-		                						<label>Phone *</label>
-		                						<input type="tel" class="form-control" required>
-		                					</div><!-- End .col-sm-6 -->
-		                				</div><!-- End .row -->
-
-	                					<label>Email address *</label>
-	        							<input type="email" class="form-control" required>
-
-	        							<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="checkout-create-acc">
-											<label class="custom-control-label" for="checkout-create-acc">Create an account?</label>
-										</div><!-- End .custom-checkbox -->
-
-										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="checkout-diff-address">
-											<label class="custom-control-label" for="checkout-diff-address">Ship to a different address?</label>
-										</div><!-- End .custom-checkbox -->
-
-	                					<label>Order notes (optional)</label>
-	        							<textarea class="form-control" cols="30" rows="4" placeholder="Notes about your order, e.g. special notes for delivery"></textarea>
-		                		</div><!-- End .col-lg-9 -->
 		                		<aside class="col-lg-3">
 		                			<div class="summary">
 		                				<h3 class="summary-title">Your Order Details</h3><!-- End .summary-title -->
@@ -209,15 +204,103 @@
 
 		                				<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
 		                					<span class="btn-text">Place Order</span>
-		                					<span class="btn-hover-text">Proceed to Checkout</span>
+		                					<span class="btn-hover-text">Submit</span>
 		                				</button>
 		                			</div><!-- End .summary -->
 		                		</aside><!-- End .col-lg-3 -->
 		                	</div><!-- End .row -->
             			</form>
 	                </div><!-- End .container -->
+
+
+
                 </div><!-- End .checkout -->
             </div><!-- End .page-content -->
         </main><!-- End .main -->
+		<!-- Modal for add address -->
+		<div class="modal fade custom-modal-width " id="userAddAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+			<div class="modal-dialog " role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form method="post" action="{% url 'payment:add-address-checkout' %}">
+							{% csrf_token %}
+							<div class="form-group col-md-12 ">
+								<label for="address_line">Address Line</label>
+								<input type="text" name="address_line" class="form-control" required>
+								{% if errors.address_line %}
+								<div class="text-danger">{{ errors.address_line }}</div>
+								{% endif %}
+							</div>
+							<div class="form-group col-md-12">
+								<label for="city">City</label>
+								<input type="text" name="city" class="form-control" required>
+								{% if errors.city %}
+								<div class="text-danger">{{ errors.city }}</div>
+								{% endif %}
+							</div>
+							<div class="form-group col-md-12">
+								<label for="state">State</label>
+								<input type="text" name="state" class="form-control" required>
+								{% if errors.state %}
+								<div class="text-danger">{{ errors.state }}</div>
+								{% endif %}
+							</div>
+							<div class="form-group col-md-12">
+								<label for="country">Country</label>
+								<input type="text" name="country" class="form-control" required>
+								{% if errors.country %}
+								<div class="text-danger">{{ errors.country }}</div>
+								{% endif %}
+							</div>
+							<div class="form-group col-md-12">
+								<label for="postal_code">Postal Code</label>
+								<input type="text" name="postal_code" class="form-control" required>
+								{% if errors.postal_code %}
+								<div class="text-danger">{{ errors.postal_code }}</div>
+								 {% endif %}
+							</div>
+							<div class="form-group col-md-12">
+								<label for="phone_number">Phone Number</label>
+								<input type="text" name="phone_number" class="form-control">
+								{% if errors.phone_number %}
+								<div class="text-danger">{{ errors.phone_number }}</div>
+								{% endif %}
+							</div>
+							<div class="form-group col-md-12">
+								<label for="is_default">Default Address</label>
+								<input type="checkbox" name="is_default">
+							
+							</div>
+							<div class="d-flex justify-content-center mt-3">
+								<button type="submit" class="btn btn-primary mb-1">Add Address</button>
+							
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End address section -->
 
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+        {% for message in messages %}
+            swal.fire({
+                icon:"{{message.tags}}",
+                title:"{{message}}",
+                text:"{{message.tags}}",
+            })
+        {% endfor %}
+        </script>
+		<!-- Bootstrap and jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+	</body>
 {% endblock %}
