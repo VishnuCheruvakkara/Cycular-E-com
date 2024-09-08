@@ -37,6 +37,7 @@ urlpatterns=[
     #to show order item in the order history of user.
     path('order-item-details/<int:order_id>',views.order_item_details,name='order-item-details'),
     #cancell order of orderitems 
-    path('order-item-cancell/<int:order_item_id>',views.order_item_cancell,name='order-item-cancell')
+    path('order-item-cancell/<int:order_item_id>',views.order_item_cancell,name='order-item-cancell'),
+    path('canell-order/<int:order_id>',views.order_cancell,name='order-cancell'),
 ]
 

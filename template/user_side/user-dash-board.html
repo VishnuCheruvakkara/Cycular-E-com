@@ -176,7 +176,9 @@
                                                                 <th>Order Date</th>
                                                                
                                                                 <th>Order Status</th>
-                                                                <th>view</th>
+                                                                <th>View</th>
+                                                                <th>Cancell</th>
+
 
                                                               
                                                             </tr>
@@ -189,7 +191,12 @@
                                                                 <td>{{ order.order_status }}</td>
                                                                 <td>
                                                                     <a href="{% url 'user_side:order-item-details' order.id %}" class="status-link">
-                                                                       view
+                                                                       View
+                                                                    </a>
+                                                                </td>
+                                                                <td>
+                                                                    <a href="{% url 'user_side:order-cancell' order.id %}" class="status-link text-danger">
+                                                                       Cancell
                                                                     </a>
                                                                 </td>
                                                                 
