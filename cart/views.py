@@ -39,7 +39,14 @@ def add_to_cart(request):
     action = request.POST.get('action')
     product_variant=get_object_or_404(ProductVariant,id=product_variant_id)
 
+    # Check if the stock is zero
+   
     if action == 'add':
+          # Check if the product variant has stock available
+        if product_variant.stock <= 0:
+            # Return an error message if the product is out of stock
+            return JsonResponse({'status': 'error', 'message': 'This product is currently out of stock. Please check back later.'})
+    
         # Add the product to the cart
         cart_item, created = CartItem.objects.get_or_create(cart=cart, product_variant=product_variant)
         if created:
