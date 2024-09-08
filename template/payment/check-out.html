@@ -96,7 +96,7 @@
 		                		</div><!-- End .col-lg-9 -->
 		                		<aside class="col-lg-3">
 		                			<div class="summary">
-		                				<h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
+		                				<h3 class="summary-title">Your Order Details</h3><!-- End .summary-title -->
 
 		                				<table class="table table-summary">
 		                					<thead>
@@ -107,26 +107,26 @@
 		                					</thead>
 
 		                					<tbody>
-		                						<tr>
-		                							<td><a href="#">Beige knitted elastic runner shoes</a></td>
-		                							<td>$84.00</td>
-		                						</tr>
 
+												{% for cart_item in cart_items %}
 		                						<tr>
-		                							<td><a href="#">Blue utility pinafore denimdress</a></td>
-		                							<td>$76,00</td>
+		                							<td><a href="#">{{cart_item.product_variant.product.name}}</a> <p>Count : {{cart_item.quantity}}</p></td>
+													
+		                							<td>₹ {{cart_item.subtotal}}</td>
 		                						</tr>
+												{% endfor %}
+	
 		                						<tr class="summary-subtotal">
 		                							<td>Subtotal:</td>
-		                							<td>$160.00</td>
+		                							<td>₹ {{total_price}}</td>
 		                						</tr><!-- End .summary-subtotal -->
 		                						<tr>
 		                							<td>Shipping:</td>
-		                							<td>Free shipping</td>
+		                							<td><b>Free shipping</b></td>
 		                						</tr>
 		                						<tr class="summary-total">
-		                							<td>Total:</td>
-		                							<td>$160.00</td>
+		                							<td><b>Total:</b></td>
+		                							<td><b>₹ {{total_price}}</b></td>
 		                						</tr><!-- End .summary-total -->
 		                					</tbody>
 		                				</table><!-- End .table table-summary -->
@@ -171,7 +171,7 @@
 										            </h2>
 										        </div><!-- End .card-header -->
 										        <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
-										            <div class="card-body">Quisque volutpat mattis eros. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. 
+										            <div class="card-body">Cash on Delivery (COD) is a payment method that allows you to pay for your order in cash when it is delivered to your doorstep. This option provides a secure and convenient way to shop online without needing a credit card or making an online payment upfront. 
 										            </div><!-- End .card-body -->
 										        </div><!-- End .collapse -->
 										    </div><!-- End .card -->
