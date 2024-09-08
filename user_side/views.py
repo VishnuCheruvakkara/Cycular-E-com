@@ -19,7 +19,7 @@ from django.core.exceptions import ValidationError
 from django.utils.crypto import get_random_string
 from .models import Address
 from django.views.decorators.cache import never_cache
-
+from orders.models import Order,OrderItem
 
 User = get_user_model()
 # Create your views here.
@@ -278,10 +278,12 @@ def toggle_user_status(request):
 @never_cache
 def user_dash_board(request):
     addresses=Address.objects.filter(user=request.user)
+    orders=Order.objects.filter(user=request.user)
 
     context={
         'user':request.user,
         'addresses':addresses,
+        'orders':orders,
     }
     return render(request,'user_side/user-dash-board.html',context)
 
@@ -895,4 +897,20 @@ def forget_password_set(request):
 
     return render(request, 'user_side/forget-password-3.html', {'error_message_password_forget': error_message_password_forget})
 
-#################################
+########################### to show the orderd product detail page based on the orderitem ##########################
+
+def order_item_details(request,order_id):
+    order=get_object_or_404(Order,id=order_id)
+    order_items=OrderItem.objects.filter(order=order)
+    context={
+        'order_items':order_items,
+    }
+    return render(request,'user_side/order-item-history-user.html',context)
+
+
+##########################  orderitem cacelling logic   ####################
+
+def order_item_cancell(request,order_item_id):
+    order_item=get_object_or_404(OrderItem,id=order_item_id)
+    
+    return redirect('user_side:order-item-details',order_id=order_item.order.id)

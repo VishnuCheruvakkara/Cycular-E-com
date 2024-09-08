@@ -46,7 +46,7 @@
 								        <a class="nav-link active" id="tab-dashboard-link" data-toggle="tab" href="#tab-dashboard" role="tab" aria-controls="tab-dashboard" aria-selected="true">Dashboard</a>
 								    </li>
 								    <li class="nav-item">
-								        <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
+								        <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Order History</a>
 								    </li>
 								
 								    <li class="nav-item">
@@ -151,13 +151,74 @@
                                             and <a href="#tab-account" class="tab-trigger-link">edit your password and account details</a>.
                                         </p>
                                     </div><!-- .End .tab-pane -->
+
+                                    <!-- working for current changes,down below -->
+
+
+
+
+                                    
+
+
+
+
 								    <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
+
+                                        {% if orders %}
+                                        <main class="container text-center">
+                                            <div class="success-message" style="margin-top: 0px;">
+                                                <h4>Order History</h4>
+                                                <div class="table-container">
+                                                    <table class="table responsive-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Sl No</th>
+                                                                <th>Order Date</th>
+                                                               
+                                                                <th>Order Status</th>
+                                                                <th>view</th>
+
+                                                              
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for order in orders %}
+                                                            <tr>
+                                                                <td>{{ forloop.counter }}</td>
+                                                                <td>{{ order.order_date }}</td>
+                                                                <td>{{ order.order_status }}</td>
+                                                                <td>
+                                                                    <a href="{% url 'user_side:order-item-details' order.id %}" class="status-link">
+                                                                       view
+                                                                    </a>
+                                                                </td>
+                                                                
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                               
+                                            </div>
+                                        </main>
+                                        {% else %}
 								    	<p>No order has been made yet.</p>
 								    	<a href="{% url 'core:category-filter' %}" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
+                                        {% endif %}
 								    </div><!-- .End .tab-pane -->
 
+
+
+
+
+
+                                    
+
+
+
+
                                     <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
-                                        <div class="address-header d-flex justify-content-between align-items-center mb-3">
+                                      <div class="address-header d-flex justify-content-between align-items-center mb-3">
                                             <p class="mb-0">The following addresses will be used on the checkout page by default.</p>
                                             <a href="" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#userAddAddressModal">
                                                 <i class="fas fa-circle-plus"></i> Add 

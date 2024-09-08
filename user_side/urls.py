@@ -34,7 +34,9 @@ urlpatterns=[
     path('forget-password-set/',views.forget_password_set,name='forget-password-set'),
   
     path('forget-password-resend-otp/',views.forget_password_resend_otp,name='forget-password-resend-otp'),
-
-
+    #to show order item in the order history of user.
+    path('order-item-details/<int:order_id>',views.order_item_details,name='order-item-details'),
+    #cancell order of orderitems 
+    path('order-item-cancell/<int:order_item_id>',views.order_item_cancell,name='order-item-cancell')
 ]
 
