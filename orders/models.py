@@ -1,15 +1,14 @@
 from django.db import models
 from django.conf import settings
 from products.models import ProductVariant
-from user_side.models import Address
+
 # Create your models here.
 
 # Order Model
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
-    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True)
     order_date = models.DateTimeField(auto_now_add=True)
-    payment_method=models.CharField(max_length=20,choices=[('cash_on_delivery','cash_on_delivery'),('razorpay','razorpay'),('wallet','wallet')],default='cash_on_delivery')
+    payment_method=models.CharField(max_length=20,choices=[('cash_on_delivery','CASH ON DELIVERY'),('razorpay','razorpay'),('wallet','wallet')],default='cash_on_delivery')
     payment_status = models.CharField(max_length=20,default='Pending' , choices=[('Pending', 'Pending'),('Paid', 'Paid'),('Failed', 'Failed'),])
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 

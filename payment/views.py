@@ -1,10 +1,13 @@
 from django.shortcuts import render,get_object_or_404,redirect
 from cart.models import Cart,CartItem
 from user_side.models import Address
+from orders.models import OrderAddress,Order,OrderItem
 import re
 from django.contrib import messages
+from django.urls import reverse
 
 # Create your views here.
+#####################  check out page  #################
 
 def check_out(request):
     #retrive the current user's cart
@@ -16,7 +19,52 @@ def check_out(request):
     
     #total price of product
     total_price=sum(item.subtotal for item in cart_items)
-    print(addresses)
+
+    if request.method == 'POST':
+        try:
+            #get address id
+            address_id=request.POST.get('selected_address')
+            selected_address=Address.objects.get(id=address_id)
+            
+           
+            order=Order.objects.create(
+                user=request.user,
+                payment_method='cash_on_delevery',
+                total_price=total_price,
+            )
+             #save the address to the table 
+            order_address=OrderAddress.objects.create(
+                order=order,
+                address_line=selected_address.address_line,
+                city=selected_address.city,
+                state=selected_address.state,
+                country=selected_address.country,
+                postal_code=selected_address.postal_code,
+                phone_number=selected_address.phone_number,
+            )
+            for item in cart_items:
+                product_variant = item.product_variant
+                if product_variant.stock >= item.quantity:
+                    product_variant.stock -= item.quantity
+                    product_variant.save()  # Save the updated stock count
+                else:
+                    messages.error(request, f"Not enough stock for {product_variant.product.name}.")
+                    return redirect('cart:cart-view')  # Redirect if stock is insufficient
+                OrderItem.objects.create(
+                    order=order,
+                    product_variant=item.product_variant,
+                    quantity=item.quantity,
+                    price=item.subtotal,
+                )
+            # Clear the cart after successful purchase
+            cart.items.all().delete()
+            messages.success(request,'Order was placed successfully. Check out order History page to track order status...')
+            return redirect(reverse('payment:order-success-page',args=[order.id]))
+        except Exception as e:
+            # Log the exception
+            print(f"Error: {e}")
+            messages.error(request, 'An error occurred while placing the order.')
+  
     context={
         'cart_items':cart_items,
         'total_price':total_price,
@@ -24,7 +72,7 @@ def check_out(request):
     }
     return render(request,'payment/check-out.html',context)
 
-
+############################  add address in check out page.  ###################
 
 def add_address_checkout(request):
 
@@ -127,3 +175,19 @@ def add_address_checkout(request):
     }
 
     return render(request, 'payment/check-out.html', context)
+
+###################  order success page  ###########################
+
+def order_success_page(request,order_id):
+    # Fetch the order using the order_id
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    # Optionally, you might want to get the address details as well
+    order_address = getattr(order, 'order_address', None)
+
+    # Pass order and address details to the template
+    context = {
+        'order': order,
+        'order_address': order_address,
+    }
+    return render(request,'payment/order-success-page.html',context)

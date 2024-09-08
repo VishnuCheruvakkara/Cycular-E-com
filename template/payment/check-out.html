@@ -46,11 +46,9 @@
 
 						<!-- space to show all address here and add address option  -->
 
-            			<form action="#">
+            			<form action="{% url 'payment:check-out' %}" method="post">
+							{% csrf_token %}
 		                	<div class="row">
-
-
-							
 								<!-- Add address section -->
 								<div class="col-lg-9">
 									<h4 class="mb-3">Select Your Shipping Address</h4>
@@ -85,9 +83,6 @@
 
 									</div>
 								</div>
-
-								 
-
 
 		                		<aside class="col-lg-3">
 		                			<div class="summary">
@@ -204,7 +199,7 @@
 
 		                				<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
 		                					<span class="btn-text">Place Order</span>
-		                					<span class="btn-hover-text">Submit</span>
+		                					<span class="btn-hover-text">Confirm</span>
 		                				</button>
 		                			</div><!-- End .summary -->
 		                		</aside><!-- End .col-lg-3 -->

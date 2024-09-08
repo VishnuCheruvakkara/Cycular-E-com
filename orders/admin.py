@@ -1,24 +1,22 @@
 from django.contrib import admin
-from .models import Order,OrderItem
+from .models import Order, OrderItem, OrderAddress
 
-# Register your models here.
-
+@admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('user', 'address', 'order_date', 'payment_method', 'payment_status', 'total_price')
-    readonly_fields = ('order_date', 'total_price')
-    list_filter = ('payment_status', 'payment_method', 'order_date')  # Ensure these fields exist
+    list_display = ('id', 'user', 'order_date', 'payment_method', 'payment_status', 'total_price')
+    list_filter = ('payment_method', 'payment_status', 'order_date')
+    search_fields = ('user__username', 'payment_method', 'payment_status')
+    ordering = ('-order_date',)
 
-    def total_price(self, obj):
-        return obj.total_price
-    total_price.admin_order_field = 'total_price'
-
+@admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('order', 'product_variant', 'quantity', 'price', 'payment_status')
-    list_filter = ('order__payment_status', 'order__order_date')  # Ensure these fields exist
+    list_filter = ('payment_status',)
+    search_fields = ('order__id', 'product_variant__product__name')
+    ordering = ('order',)
 
-    def price(self, obj):
-        return obj.price
-    price.admin_order_field = 'price'
-
-admin.site.register(Order, OrderAdmin)
-admin.site.register(OrderItem, OrderItemAdmin)
+@admin.register(OrderAddress)
+class OrderAddressAdmin(admin.ModelAdmin):
+    list_display = ('order', 'address_line', 'city', 'state', 'country', 'postal_code', 'phone_number')
+    search_fields = ('order__id', 'city', 'state', 'country')
+    ordering = ('order',)
