@@ -919,5 +919,4 @@ def order_item_cancell(request,order_item_id):
 
 def order_cancell(request,order_id):
    
-    
     return redirect('user_side:user-dash-board')
