@@ -455,7 +455,7 @@ def password_change_view(request):
             return redirect('user_side:user-dash-board')
 
          # Check if passwords match
-        if current_password != new_password:
+        if new_password != confirm_password:
             error_message_password_change.append('Entered passwords do not match.')
 
         # Validate password length

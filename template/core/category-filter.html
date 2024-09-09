@@ -636,6 +636,12 @@
 
                                             <div class="product-body">
                                                 <div class="product-cat">
+
+                                                    {% if product_variant.stock == 0 %}
+                                                    <p class="text-danger"><b>out of stock</b></p>
+                                                    {% elif product_variant.stock < 5 %}
+                                                    <p><b>stock : {{product_variant.stock}} left </b></p>
+                                                    {% endif %}
                                                     <p>{{product_variant.product.category}},{{product_variant.size}},{{product_variant.product.brand}}</p>
                                                    
                                                 </div><!-- End .product-cat -->

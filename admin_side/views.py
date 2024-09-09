@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from orders.models import OrderItem
+from django.db.models import F
 
 # Create your views here.
 
@@ -95,8 +96,14 @@ def OrderManagement(request):
         new_status=request.POST.get('status')
 
         #update status of sepecific order item
-
         order_item = OrderItem.objects.get(id=order_item_id)
+        
+        #if the status is cancell at that time we need to resotore the product count of the cancelled products.
+        if new_status == 'Cancell' and order_item.order_item_status != 'Cancell':
+            #restore logic...
+            order_item.product_variant.stock=F('stock')+order_item.quantity
+            order_item.product_variant.save()
+
         order_item.order_item_status = new_status
         order_item.save()
         return redirect('admin_side:order-management')
