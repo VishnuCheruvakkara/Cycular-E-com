@@ -68,7 +68,13 @@
                                         <td>{{ order_item.order.order_date }}</td>
                                         <td>₹ {{ order_item.price }}</td>
                                         <td>{{ order_item.order_item_status }}</td>
-                                        <td>{{ order_item.quantity }}</td>
+                                        <td>
+                                        {% if order_item.order_item_status == 'Cancell' %}
+                                        <p>0</p>
+                                        {% else %}
+                                        <p>{{ order_item.quantity }}</p>
+                                        {% endif %}
+                                        </td>
                                         <td>
                                             <a href="{% url 'user_side:order-item-cancell' order_item.id %}" class="btn btn-danger btn-sm cancel-order-item-btn" data-url="{% url 'user_side:order-item-cancell' order_item.id %}">
                                                 Cancel
