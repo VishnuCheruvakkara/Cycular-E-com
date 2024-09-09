@@ -9,7 +9,7 @@ class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     order_date = models.DateTimeField(auto_now_add=True)
     payment_method=models.CharField(max_length=20,choices=[('cash_on_delivery','CASH ON DELIVERY'),('razorpay','razorpay'),('wallet','wallet')],default='cash_on_delivery')
-    order_status = models.CharField(max_length=20,default='Pending' , choices=[('Pending', 'Pending'),('Paid', 'Paid'),('Failed', 'Failed'),])
+    order_status = models.CharField(max_length=20,default='Pending' , choices=[('Pending', 'Pending'),('Cancelled', 'Cancelled'),('Deliverd', 'Deliverd'),])
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
@@ -21,7 +21,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    order_item_status = models.CharField(max_length=20,default='Pending' , choices=[('Pending', 'Pending'),('Paid', 'Paid'),('Failed', 'Failed'),])
+    order_item_status = models.CharField(max_length=20,default='Pending', choices=[('Pending', 'Pending'),('Cancell', 'Cancell'),('Deliverd', 'Deliverd'),])
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):

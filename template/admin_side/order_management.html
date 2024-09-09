@@ -1,0 +1,173 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- appointments23:19-->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
+    <title>Order-management </title>
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+    <!--[if lt IE 9]>
+		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
+		<script src="{% static 'admin/js/respond.min.js' %}"></script>
+	<![endif]-->
+</head>
+
+<body>
+{% block sidebar %}
+{% include 'partials/side-bar-admin.html' %}
+{% endblock %}
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Order Management</li>
+                    </ol>
+                </nav>
+                <div class="row">
+                    <div class="col-12">
+                        <h4 class="page-title">Current Orders</h4>
+                    </div>
+                </div>
+                    <div class="row filter-row">
+                        
+                        <div class="col-sm-6 col-md-3">
+                            <div class="form-group form-focus">
+                                <label class="focus-label">Employee Name</label>
+                                <input type="text" class="form-control floating">
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-6 col-md-3">
+                            <a href="#" class="btn btn-success btn-block"> Search </a>
+                        </div>
+                    </div>
+            
+                <!-- table area,down below... -->
+            
+                <div class="row">
+                    <div class="col-12">
+
+
+
+                        <div class="table-responsive">
+                            <table class="table table-striped custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sl.No</th>
+                                        <th>Product Name</th>
+                                        <th>Count</th>
+                                        <th>Size</th>
+                                        <th>User Name</th>
+                                        <th>Order Item Status</th>
+                                        <th>Order Address Details</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order_item in order_items %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ order_item.product_variant.product.name }}</td>
+                                        <td>{{ order_item.quantity }}</td>
+                                        <td>{{ order_item.product_variant.size }}</td>
+                                        <td>{{ order_item.order.user }}</td>
+                                        <td>{{ order_item.order_item_status }}</td>
+                                        <td>
+                                            <!-- Displaying address details -->
+                                            {% if order_item.order.order_address %}
+                                            <b>address line : </b>{{ order_item.order.order_address.address_line }},<br>
+                                            city : {{ order_item.order.order_address.city }},<br>
+                                            state : {{ order_item.order.order_address.state }},<br>
+                                            country : {{ order_item.order.order_address.country }},<br>
+                                            postal code : {{ order_item.order.order_address.postal_code }},<br>
+                                            phone number : {{ order_item.order.order_address.phone_number }}<br>
+                                            {% else %}
+                                                No address available
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                           <!-- Form to change order status -->
+                                            <form method="POST" action="">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="order_item_id" value="{{ order_item.id }}">
+                                                <select name="status" onchange="this.form.submit()">
+                                                    {% for status, label in status_choices %}
+                                                    <option value="{{ status }}" {% if order_item.order_item_status == status %}selected{% endif %}>
+                                                        {{ label }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </form>
+                                        </td>
+                                       
+                                       
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        
+                       
+                        <div class="d-flex justify-content-end">
+                            <ul class="pagination pagination-sm">
+                                <!-- Previous Page Link -->
+                                {% if customers.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ customers.previous_page_number }}" tabindex="-1">Previous</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                                {% endif %}
+                        
+                                <!-- Page Numbers -->
+                                {% for num in customers.paginator.page_range %}
+                                <li class="page-item {% if customers.number == num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                                {% endfor %}
+                        
+                                <!-- Next Page Link -->
+                                {% if customers.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ customers.next_page_number }}">Next</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="sidebar-overlay" data-reff=""></div>
+    <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'admin/js/popper.min.js' %}"></script>
+    <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+    <script src="{% static 'admin/js/select2.min.js' %}"></script>
+    <script src="{% static 'admin/js/app.js' %}"></script>
+</body>
+
+
+<!-- appointments23:20-->
+</html>

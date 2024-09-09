@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from orders.models import OrderItem
 
 # Create your views here.
 
@@ -84,3 +84,27 @@ def UserView(request,user_id):
         'user':user
     }
     return render(request,'admin_side/user-view.html',context)
+
+############################  order management  ###################
+
+def OrderManagement(request):
+    order_items = OrderItem.objects.all()
+    
+    if request.method == 'POST':
+        order_item_id=request.POST.get('order_item_id')
+        new_status=request.POST.get('status')
+
+        #update status of sepecific order item
+
+        order_item = OrderItem.objects.get(id=order_item_id)
+        order_item.order_item_status = new_status
+        order_item.save()
+        return redirect('admin_side:order-management')
+     # Define status choices directly from the model field
+    status_choices = OrderItem._meta.get_field('order_item_status').choices
+
+    context={
+        'order_items':order_items,
+        'status_choices': status_choices,
+    }
+    return render(request,'admin_side/order_management.html',context)
