@@ -45,6 +45,7 @@ class Size(models.Model):
 
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='product_variants', on_delete=models.CASCADE)
+    # color,foriegn key,
     size = models.ForeignKey(Size, related_name='size_variants', on_delete=models.CASCADE, null=True, blank=True)
     stock = models.PositiveIntegerField(default=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

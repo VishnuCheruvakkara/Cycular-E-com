@@ -81,7 +81,7 @@ def EditProduct(request,product_id):
     return render(request,'products/edit-product.html',context)
 
 ####################### delete product Admin side ########################################
-
+#note 
 def DeleteProduct(request,product_id):
     product=get_object_or_404(Product,id=product_id)
     product.delete()
