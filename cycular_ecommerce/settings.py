@@ -222,3 +222,8 @@ SOCIAL_AUTH_PIPELINE = (
 
 # Set this to the desired value in bytes
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
+
+#Payment section by razorpay configuaration 
+
+RAZORPAY_KEY_ID=env('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET=env('RAZORPAY_KEY_SECRET')

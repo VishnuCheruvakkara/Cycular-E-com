@@ -471,16 +471,12 @@ def single_product_view(request, variant_id):
     available_sizes = ProductVariant.objects.filter(product=variant.product).values('id','size__name').distinct()
     product=variant.product
     related_variants = ProductVariant.objects.filter( product__category=product.category).exclude(id=variant.id)[:5]
-    # Check if the user has this variant in their cart
-    cart_item_exists = CartItem.objects.filter(
-        cart__user=request.user, 
-        product_variant=variant
-    ).exists()
+   
     context={
         'variant':variant,
         'available_sizes': available_sizes,
         'related_variants': related_variants,
-        'cart_item_exists': cart_item_exists,
+       
        
     }
     return render(request, 'products/single-product.html',context)

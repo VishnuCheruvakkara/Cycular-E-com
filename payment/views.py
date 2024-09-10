@@ -5,6 +5,12 @@ from orders.models import OrderAddress,Order,OrderItem
 import re
 from django.contrib import messages
 from django.urls import reverse
+from django.conf import settings
+
+
+import razorpay
+#intializing the razor-pay client...
+razorpay_client=razorpay.Client(auth=(settings.RAZORPAY_KEY_ID,settings.RAZORPAY_KEY_SECRET))
 
 # Create your views here.
 #####################  check out page  #################
@@ -191,3 +197,34 @@ def order_success_page(request,order_id):
         'order_address': order_address,
     }
     return render(request,'payment/order-success-page.html',context)
+
+
+##################### Razor pay payment vies logic  ###########################
+
+def initiate_payment(request):
+    amount=10
+    currency='INR'
+    receipt='order_rcptid_11'
+
+    #create a razor pay order
+    razorpay_order=razorpay_client.order.create({
+        'amount':amount,
+        'currency':currency,
+        'reciept':receipt,
+        'payment_capture':'1'
+    })
+
+    context={
+        'razorpay_key_id':settings.RAZORPAY_KEY_ID,
+        'order_id':razorpay_order['id'],
+        'amount':amount,
+        'currency':currency,
+    }
+
+    return render(request,'payment/check-out.html',context)
+
+###################  payment success page by razor pay  #####################
+
+def payment_success(request):
+    pass
+
