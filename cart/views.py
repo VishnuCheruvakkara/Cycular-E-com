@@ -16,11 +16,14 @@ def cart(request):
     cart_items=cart.items.all()
 
     overall_total = sum(item.subtotal for item in cart_items)
+    total_quantity=sum(item.quantity for item in cart_items)
+ 
 
     context={
         'carts':cart,
         'cart_items':cart_items,
-        'overall_total': overall_total
+        'overall_total': overall_total,
+        'total_quantity':total_quantity,
 
     }
     return render(request,'cart/cart.html',context)

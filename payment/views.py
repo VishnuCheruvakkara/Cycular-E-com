@@ -26,16 +26,25 @@ def check_out(request):
     #total price of product
     total_price=sum(item.subtotal for item in cart_items)
 
+    if total_price == 0 :
+        messages.info(request,'Your cart is empty.Please add products to the cart before proceeding to checkout.')
+        return render(request, 'payment/check-out.html', {
+            'cart_items': cart_items,
+            'total_price': total_price,
+            'addresses': addresses,
+        })
+      
     if request.method == 'POST':
         try:
-            #get address id
+            # get address id
             address_id=request.POST.get('selected_address')
             selected_address=Address.objects.get(id=address_id)
-            
+            # Get the selected payment method
+            payment_method = request.POST.get('payment_method')
            
             order=Order.objects.create(
                 user=request.user,
-                payment_method='cash_on_delevery',
+                payment_method=payment_method,
                 total_price=total_price,
             )
              #save the address to the table 

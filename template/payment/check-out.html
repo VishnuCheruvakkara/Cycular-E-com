@@ -12,6 +12,24 @@
 				max-width: 450px; /* Adjust as needed */
 				margin: 30px auto; /* Adjust vertical margin if necessary */
 			}
+			#payment-toggle {
+				cursor: pointer; /* Changes cursor to pointer when hovering over the toggle switch */
+			}
+			/* Style the radio buttons */
+			input[type="radio"] {
+				cursor: pointer; /* Changes cursor to pointer when hovering over radio buttons */
+			}
+
+			/* Style the checkboxes */
+			input[type="checkbox"] {
+				cursor: pointer; /* Changes cursor to pointer when hovering over checkboxes */
+			}
+
+			/* Optional: If you want the pointer cursor on the label as well */
+			label {
+				cursor: pointer; /* Changes cursor to pointer when hovering over labels */
+			}
+
 		</style>
 	</head>
 	<body>
@@ -121,80 +139,87 @@
 		                					</tbody>
 		                				</table><!-- End .table table-summary -->
 
-		                				<div class="accordion-summary" id="accordion-payment">
-										    <div class="card">
-										        <div class="card-header" id="heading-1">
-										            <h2 class="card-title">
-										                <a role="button" data-toggle="collapse" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
-										                    Direct bank transfer
-										                </a>
-										            </h2>
-										        </div><!-- End .card-header -->
-										        <div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
-										            <div class="card-body">
-										                Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
-										            </div><!-- End .card-body -->
-										        </div><!-- End .collapse -->
-										    </div><!-- End .card -->
 
-										    <div class="card">
-										        <div class="card-header" id="heading-2">
-										            <h2 class="card-title">
-										                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
-										                    Check payments
-										                </a>
-										            </h2>
-										        </div><!-- End .card-header -->
-										        <div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
-										            <div class="card-body">
-										                Ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. 
-										            </div><!-- End .card-body -->
-										        </div><!-- End .collapse -->
-										    </div><!-- End .card -->
 
-										    <div class="card">
-										        <div class="card-header" id="heading-3">
-										            <h2 class="card-title">
-										                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
-										                    Cash on delivery
-										                </a>
-										            </h2>
-										        </div><!-- End .card-header -->
-										        <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
-										            <div class="card-body">Cash on Delivery (COD) is a payment method that allows you to pay for your order in cash when it is delivered to your doorstep. This option provides a secure and convenient way to shop online without needing a credit card or making an online payment upfront. 
-										            </div><!-- End .card-body -->
-										        </div><!-- End .collapse -->
-										    </div><!-- End .card -->
+										<div class="container mt-5">
+											<!-- Toggle Switch -->
+											<div class="form-group">
+												<h5 for="payment-toggle">Select Payment Method</h5>
+											
+											</div>
+									
+											<!-- Accordion for Payment Methods -->
+											<div class="accordion-summary" id="accordion-payment">
+												<!-- Direct Bank Transfer Section -->
+												<div class="card mt-3">
+													<div class="card-header" id="heading-1">
+														<h2 class="card-title">
+															<!-- Radio button input for Direct Bank Transfer -->
+															<input type="radio" name="payment_method" id="bank-transfer" value="" data-toggle="collapse" data-target="#collapse-1" aria-expanded="true" aria-controls="collapse-1" checked>
+															<label for="bank-transfer" class="ml-2">Direct bank transfer</label>
+														</h2>
+													</div><!-- End .card-header -->
+													<div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
+														<div class="card-body">
+															Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
+														</div><!-- End .card-body -->
+													</div><!-- End .collapse -->
+												</div><!-- End .card -->
+									
+												<!-- Wallet Payment Section -->
+												<div class="card mt-3">
+													<div class="card-header" id="heading-5">
+														<h2 class="card-title">
+															<!-- Radio button input for Wallet Payments -->
+															<input type="radio" name="payment_method" id="wallet-payment" value="wallet_payment" data-toggle="collapse" data-target="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
+															<label for="wallet-payment" class="ml-2">Wallet</label>
+														</h2>
+													</div><!-- End .card-header -->
+													<div id="collapse-5" class="collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
+														<div class="card-body">
+															Wallet payments allow you to use your digital wallet balance to pay for your order securely and conveniently. This method supports popular wallets like Paytm, Google Pay, PhonePe, and others, making the checkout process fast and hassle-free.
+														</div><!-- End .card-body -->
+													</div><!-- End .collapse -->
+												</div><!-- End .card -->
+									
+												<!-- Cash on Delivery Section -->
+												<div class="card mt-3">
+													<div class="card-header" id="heading-3">
+														<h2 class="card-title">
+															<!-- Radio button input for Cash on Delivery -->
+															<input type="radio" name="payment_method" id="COD" value="CASH ON DELIVERY" data-toggle="collapse" data-target="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+															<label for="cod" class="ml-2">Cash on delivery</label>
+														</h2>
+													</div><!-- End .card-header -->
+													<div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
+														<div class="card-body">
+															Cash on Delivery (COD) is a payment method that allows you to pay for your order in cash when it is delivered to your doorstep. This option provides a secure and convenient way to shop online without needing a credit card or making an online payment upfront.
+														</div><!-- End .card-body -->
+													</div><!-- End .collapse -->
+												</div><!-- End .card -->
+									
+												<!-- Razorpay Section -->
+												<div class="card mt-3">
+													<div class="card-header" id="heading-4">
+														<h2 class="card-title">
+															<!-- Radio button input for Razorpay -->
+															<input type="radio" name="payment_method" id="razorpay" value="razorpay" data-toggle="collapse" data-target="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
+															<label for="razorpay" class="ml-2">Razorpay</label>
+														</h2>
+													</div><!-- End .card-header -->
+													<div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
+														<div class="card-body">
+															Razorpay is a secure and versatile online payment gateway that allows businesses to accept, process, and disburse payments with ease. It supports various payment methods, including credit/debit cards, UPI, and net banking.
+														</div><!-- End .card-body -->
+													</div><!-- End .collapse -->
+												</div><!-- End .card -->
+									
+											</div><!-- End .accordion-summary -->
+										</div><!-- End .container -->
+									
+										   
 
-										    <div class="card">
-										        <div class="card-header" id="heading-4">
-										            <h2 class="card-title">
-										                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
-										                    PayPal <small class="float-right paypal-link">What is PayPal?</small>
-										                </a>
-										            </h2>
-										        </div><!-- End .card-header -->
-										        <div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
-										            <div class="card-body">
-										                Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum.
-										            </div><!-- End .card-body -->
-										        </div><!-- End .collapse -->
-										    </div><!-- End .card -->
-
-										    <div class="card">
-										        <div class="card-header" id="heading-5">
-										            <h2 class="card-title">
-										                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
-										                    Credit Card (Stripe)
-										                    <img src="{% static 'assets/images/payments-summary.png' %}" alt="payments cards">
-										                </a>
-										            </h2>
-										        </div><!-- End .card-header -->
-										        <div id="collapse-5" class="collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
-										            <div class="card-body"> Donec nec justo eget felis facilisis fermentum.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Lorem ipsum dolor sit ame.
-										            </div><!-- End .card-body -->
-										        </div><!-- End .collapse -->
-										    </div><!-- End .card -->
+										  
 										</div><!-- End .accordion -->
 
 		                				<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
