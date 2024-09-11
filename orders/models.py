@@ -6,14 +6,36 @@ from products.models import ProductVariant
 
 # Order Model
 class Order(models.Model):
+    PAYMENT_CHOICES = [
+        ('cash_on_delivery', 'CASH ON DELIVERY'),
+        ('razorpay', 'RAZORPAY'),
+        ('wallet', 'WALLET'),
+    ]
+
+    ORDER_STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Cancelled', 'Cancelled'),
+        ('Delivered', 'Delivered'),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     order_date = models.DateTimeField(auto_now_add=True)
-    payment_method=models.CharField(max_length=20,choices=[('cash_on_delivery','CASH ON DELIVERY'),('razorpay','razorpay'),('wallet','wallet')],default='cash_on_delivery')
-    order_status = models.CharField(max_length=20,default='Pending' , choices=[('Pending', 'Pending'),('Cancelled', 'Cancelled'),('Deliverd', 'Deliverd'),])
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='cash_on_delivery')
+    order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='Pending')
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
+
+    def get_payment_method_display(self):
+        # Convert PAYMENT_CHOICES to a dictionary
+        choices_dict = dict(self.PAYMENT_CHOICES)
+        return choices_dict.get(self.payment_method, self.payment_method)
+
+    def get_order_status_display(self):
+        # Convert ORDER_STATUS_CHOICES to a dictionary
+        status_dict = dict(self.ORDER_STATUS_CHOICES)
+        return status_dict.get(self.order_status, self.order_status)
 
 
 # OrderItem Model

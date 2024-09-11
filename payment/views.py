@@ -42,6 +42,26 @@ def check_out(request):
             # Get the selected payment method
             payment_method = request.POST.get('payment_method')
            
+            #for razor pay
+            if payment_method == 'razorpay':
+                razorpay_order=razorpay_client.order.create({
+                    'amount':total_price,
+                    'currency':'INR',
+                    'receipt':f'order_rcptid_{request.user.id}',
+                    'payment_capture':'1',
+                })
+                #pass the razor pay details into the backend...
+                context={
+                    'cart_items':cart_items,
+                    'total_price':total_price,
+                    'addresses':addresses,
+                    'razorpay_order_id':razorpay_order['id'],
+                    'razorpay_key_id':settings.RAZORPAY_KEY_ID,
+                    'toatal_amount':total_price,
+                }
+                return render(request,'payment/check-out.html',context)
+
+            #To handle all other payment method...
             order=Order.objects.create(
                 user=request.user,
                 payment_method=payment_method,

@@ -187,7 +187,7 @@
 													<div class="card-header" id="heading-3">
 														<h2 class="card-title">
 															<!-- Radio button input for Cash on Delivery -->
-															<input type="radio" name="payment_method" id="COD" value="CASH ON DELIVERY" data-toggle="collapse" data-target="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+															<input type="radio" name="payment_method" id="COD" value="cash_on_delivery" data-toggle="collapse" data-target="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
 															<label for="cod" class="ml-2">Cash on delivery</label>
 														</h2>
 													</div><!-- End .card-header -->
@@ -322,5 +322,51 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-	</body>
+
+<!-- Razorpay Payment Modal -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const razorpayButton = document.getElementById('proceed-to-pay');
+        razorpayButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+
+            if (paymentMethod === 'razorpay') {
+                const options = {
+                    "key": "{{ razorpay_key_id }}", // Enter the Key ID generated from the Razorpay Dashboard
+                    "amount": "{{ total_amount }}", // Amount in paise
+                    "currency": "INR",
+                    "name": "Your Company Name",
+                    "description": "Test Transaction",
+                    "order_id": "{{ razorpay_order_id }}", // Pass the order_id created from the backend
+                    "handler": function (response) {
+                        // Handle the success response
+                        alert("Payment successful!");
+                        // Redirect to the order success page or make a POST request to complete the order
+                       
+                    },
+                    "prefill": {
+                        "name": "{{ request.user.username }}",
+                        "email": "{{ request.user.email }}",
+                        "contact": "{{ request.user.profile.phone_number }}" // Replace with the actual contact number
+                    },
+                    "theme": {
+                        "color": "#3399cc"
+                    }
+                };
+
+                const rzp1 = new Razorpay(options);
+                rzp1.open();
+            } else {
+                // Handle other payment methods
+                document.getElementById('checkout-form').submit();
+            }
+        });
+    });
+</script>
+
+<button id="proceed-to-pay" class="btn btn-primary">Proceed to Pay</button>
+
+</body>
 {% endblock %}

@@ -55,7 +55,7 @@
 
 <body>
         <main class="main mt-2" >
-        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+        	<div class="page-header text-center" style="background-image: url({% static 'assets/images/page-header-bg.jpg' %})">
         		<div class="container">
         			<h1 class="page-title">Shopping Cart<span>Shop</span></h1>
         		</div><!-- End .container -->
@@ -78,19 +78,20 @@
 
 
 						{% if total_quantity == 0 %}
-						<div class="cta bg-image pt-6 pb-7 mb-5" style="background-image: url(assets/images/backgrounds/cta/bg-2.jpg);background-position: center right;">
-							<div class="row justify-content-center">
-								<div class="col-sm-10 col-md-8 col-lg-6">
-									<div class="cta-text text-center">
-										<h3 class="cta-title">Your Cart is Empty.</h3><!-- End .cta-title -->
-										<p class="cta-desc">It looks like you haven't added any cycles to your cart yet. Explore our range of premium cycles and gear up for your next ride. Browse our collection now and find the perfect bike for you!</p><!-- End .cta-desc -->
-											
-								
+						<div class="cta">
+							<div class="row justify-content-between align-items-center">
+								<div class="col-md-6 text-left">
+									<div class="cta-text">
+										<h3 class="cta-title">Your Cart is Empty.</h3>
+										<p class="cta-desc">It looks like you haven't added any cycles to your cart yet. Explore our range of premium cycles and gear up for your next ride. Browse our collection now and find the perfect bike for you!</p>
 										<a href="{% url 'core:category-filter' %}" class="btn btn-primary btn-rounded"><span>Explore</span><i class="icon-long-arrow-right"></i></a>
-									</div><!-- End .cta-text -->
-								</div><!-- End .col-sm-10 col-md-8 col-lg-6 -->
-							</div><!-- End .row -->
-						</div><!-- End .cta -->
+									</div>
+								</div>
+								<div class="col-md-6 text-right">
+									<img src="{% static 'assets/images/cycular/cart_is_empty.gif' %}" alt="Side GIF" class="side-gif">
+								</div>
+							</div>
+						</div>
 						{% else %}
 	                	<div class="row">
 	                		<div class="col-lg-9">
@@ -112,7 +113,7 @@
 												<div class="product">
 													<figure class="product-media">
 														<a href="{% url 'products:single-product-view' cart_item.product_variant.id %}">
-															<img src="{{ cart_item.product_variant.image1.url }}" alt="Product image">
+															<img src="{% static '{{ cart_item.product_variant.image1.url }}' %}" alt="Product image">
 														</a>
 													</figure>
 
