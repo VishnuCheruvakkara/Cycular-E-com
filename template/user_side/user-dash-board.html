@@ -214,57 +214,23 @@
 
 
 
-								    <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
-
+                                    <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
                                         {% if orders %}
-                                        <main class="container text-center">
-                                            <div class="success-message" style="margin-top: 0px;">
-                                                <h4>Order History</h4>
-                                                <div class="table-container">
-                                                    <table class="table responsive-table">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Sl No</th>
-                                                                <th>Order Date</th>
-                                                               
-                                                                <th>Order Status</th>
-                                                                <th>View</th>
-                                                                <th>Cancell</th>
-
-
-                                                              
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {% for order in orders %}
-                                                            <tr>
-                                                                <td>{{ forloop.counter }}</td>
-                                                                <td>{{ order.order_date }}</td>
-                                                                <td>{{ order.order_status }}</td>
-                                                                <td>
-                                                                    <a href="{% url 'user_side:order-item-details' order.id %}" class="status-link">
-                                                                       View
-                                                                    </a>
-                                                                </td>
-                                                                <td>
-                                                                    <a href="{% url 'user_side:order-cancell' order.id %}" class="status-link text-danger cancel-link">
-                                                                        Cancel
-                                                                    </a>                                                                    
-                                                                </td>
-                                                                
-                                                            </tr>
-                                                            {% endfor %}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                               
-                                            </div>
-                                        </main>
+                                            <p>Track your current all orders here...</p> 
+                                            <a href="{% url 'user_side:order-item-details' %}" class="btn btn-outline-primary-2">
+                                                <span>Order History</span><i class="icon-long-arrow-right"></i>
+                                            </a>
                                         {% else %}
-								    	<p>No order has been made yet.</p>
-								    	<a href="{% url 'core:category-filter' %}" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
+                                            <p>No order has been made yet.</p>
+                                            <a href="{% url 'core:category-filter' %}" class="btn btn-outline-primary-2">
+                                                <span>GO SHOP</span><i class="icon-long-arrow-right"></i>
+                                            </a>
+                                            <div class="d-flex justify-content-centure " style="height:250px; width:250px;">
+                                                <img src="{% static 'assets/images/cycular/order-empty.gif' %}" alt="Side GIF" class="side-gif centered-image">
+                                            </div>
                                         {% endif %}
-								    </div><!-- .End .tab-pane -->
+                                    </div><!-- .End .tab-pane -->
+                                    
 
 
 

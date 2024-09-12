@@ -278,9 +278,12 @@ def toggle_user_status(request):
 @never_cache
 def user_dash_board(request):
     addresses=Address.objects.filter(user=request.user)
+    orders=Order.objects.filter(user=request.user)
+
     context={
         'user':request.user,
         'addresses':addresses,
+        'orders':orders,
     }
     return render(request,'user_side/user-dash-board.html',context)
 
@@ -898,6 +901,7 @@ def forget_password_set(request):
 
 def order_item_details(request):
     order_items = OrderItem.objects.all()
+   
     context={
         'order_items':order_items,
     }
