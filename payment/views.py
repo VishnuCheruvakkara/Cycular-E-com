@@ -71,8 +71,8 @@ def check_out(request):
                     quantity=item.quantity,
                     price=item.subtotal,
                 )
-
-            #check whether user select the razorpay for payment
+ 
+            # check whether user select the razorpay for payment
             if payment_method == 'razorpay':
                 return redirect(reverse('payment:razorpay-order', args=[order.id]))
             
