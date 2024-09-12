@@ -113,7 +113,7 @@
 												<div class="product">
 													<figure class="product-media">
 														<a href="{% url 'products:single-product-view' cart_item.product_variant.id %}">
-															<img src="{% static '{{ cart_item.product_variant.image1.url }}' %}" alt="Product image">
+															<img src="{{ cart_item.product_variant.image1.url }}" alt="Product image">
 														</a>
 													</figure>
 

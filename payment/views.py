@@ -44,22 +44,32 @@ def check_out(request):
            
             #for razor pay
             if payment_method == 'razorpay':
-                razorpay_order=razorpay_client.order.create({
-                    'amount':total_price,
-                    'currency':'INR',
-                    'receipt':f'order_rcptid_{request.user.id}',
-                    'payment_capture':'1',
-                })
-                #pass the razor pay details into the backend...
-                context={
-                    'cart_items':cart_items,
-                    'total_price':total_price,
-                    'addresses':addresses,
-                    'razorpay_order_id':razorpay_order['id'],
-                    'razorpay_key_id':settings.RAZORPAY_KEY_ID,
-                    'toatal_amount':total_price,
-                }
-                return render(request,'payment/check-out.html',context)
+                try:
+                    razorpay_order=razorpay_client.order.create({
+                        'amount':int(total_price * 100),
+                        'currency':'INR',
+                        'receipt':f'order_rcptid_{request.user.id}',
+                        'payment_capture':'1',
+                    })
+                    #pass the razor pay details into the backend...
+                    context={
+                        'cart_items':cart_items,
+                        'total_price':total_price,
+                        'addresses':addresses,
+                        'razorpay_order_id':razorpay_order['id'],
+                        'razorpay_key_id':settings.RAZORPAY_KEY_ID,
+                        'toatal_amount':total_price,
+                    }
+                    return render(request,'payment/check-out.html',context)
+                except Exception as e:
+                     # Log the Razorpay order creation error
+                    print(f"Error creating Razorpay order: {e}")
+                    messages.error(request, 'An error occurred while creating the Razorpay order. Please try again.')
+                    return render(request, 'payment/check-out.html', {
+                        'cart_items': cart_items,
+                        'total_price': total_price,
+                        'addresses': addresses,
+                    })
 
             #To handle all other payment method...
             order=Order.objects.create(
