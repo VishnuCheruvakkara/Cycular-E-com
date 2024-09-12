@@ -75,6 +75,7 @@ def check_out(request):
             #check whether user select the razorpay for payment
             if payment_method == 'razorpay':
                 return redirect(reverse('payment:razorpay-order', args=[order.id]))
+            
             # Clear the cart after successful purchase
             cart.items.all().delete()
 

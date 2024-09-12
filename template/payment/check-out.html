@@ -322,5 +322,31 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+<script>
+	// Function to update cart count
+	function updateCartCount() {
+		fetch('{% url "cart:cart-count" %}', {
+			method: 'GET',
+			headers: {
+				'X-Requested-With': 'XMLHttpRequest',
+				'X-CSRFToken': '{{ csrf_token }}'
+			}
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.status === 'success') {
+				document.querySelector('.cart-count').textContent = data.count;
+			} else {
+				console.error('Failed to fetch cart count:', data.message);
+			}
+		})
+		.catch(error => console.error('Error:', error));
+	}
+
+	// Call the updateCartCount function when the page loads
+	document.addEventListener('DOMContentLoaded', updateCartCount);
+
+</script>
+
 </body>
 {% endblock %}

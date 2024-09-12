@@ -632,21 +632,21 @@
 </script>
 <!-- scripts for page loader -->
 <script>
-    // Show the loader when the page starts loading
+// Show the loader when the page starts loading
+window.addEventListener('load', function() {
+    const loader = document.getElementById('loader');
+    if (loader) {
+    loader.style.display = 'none'; // Hide the loader when the page is fully loaded
+    }
+});
+</script>
+<!-- page fade by js  -->
+<script>
+    // Add the JavaScript from Step 2
     window.addEventListener('load', function() {
-      const loader = document.getElementById('loader');
-      if (loader) {
-        loader.style.display = 'none'; // Hide the loader when the page is fully loaded
-      }
+        document.body.classList.add('fade-in-visible');
     });
-    </script>
-    <!-- page fade by js  -->
-    <script>
-        // Add the JavaScript from Step 2
-        window.addEventListener('load', function() {
-            document.body.classList.add('fade-in-visible');
-        });
-    </script>
+</script>
   
 
 </body>

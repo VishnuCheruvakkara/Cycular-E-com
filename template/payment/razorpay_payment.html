@@ -27,9 +27,59 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- style for the page loader -->
+    <style>
+        /* Loader container styling */
+        .loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999; /* Ensures the loader is on top of everything */
+        }
+    
+        /* Spinner styling */
+        .spinner {
+        border: 8px solid #f3f3f3; /* Light gray */
+        border-top: 8px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite; /* Animation for the spinner */
+        }
+    
+        /* Spinner animation */
+        @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+        }
+    
+        </style>
+        <!-- for the fade effect when the page load  -->
+        <style>
+            /* Add the CSS from Step 1 */
+            .fade-in {
+                opacity: 0; /* Hidden initially */
+                transition: opacity 0.8s ease-in-out; /* Smooth fade effect */
+            }
+            .fade-in-visible {
+                opacity: 1; /* Fully visible */
+            }
+    </style>
 </head>
 
-<body>
+
+<body class="fade-in" >
+    <!-- Loader HTML -->
+<div id="loader" class="loader">
+    <div class="spinner"></div>
+</div>
+   
     <div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
         <div class="text-center mb-4">
             <h4>Pay with Razorpay</h4>
@@ -96,6 +146,24 @@
 
     <!-- Main JS File -->
     <script src="{% static 'assets/js/main.js' %}"></script>
+    <!-- scripts for page loader -->
+    <script>
+    // Show the loader when the page starts loading
+    window.addEventListener('load', function() {
+      const loader = document.getElementById('loader');
+      if (loader) {
+        loader.style.display = 'none'; // Hide the loader when the page is fully loaded
+      }
+    });
+    </script>
+    <!-- page fade by js  -->
+    <script>
+        // Add the JavaScript from Step 2
+        window.addEventListener('load', function() {
+            document.body.classList.add('fade-in-visible');
+        });
+    </script>
+  
 </body>
 
 </html>
