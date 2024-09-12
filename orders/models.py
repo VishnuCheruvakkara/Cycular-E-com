@@ -13,11 +13,20 @@ class Order(models.Model):
     ]
 
     ORDER_STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('Cancelled', 'Cancelled'),
-        ('Delivered', 'Delivered'),
-    ]
-
+    ('Pending', 'Pending'),               # Order has been placed but not yet processed
+    ('Processing', 'Processing'),         # Order is being prepared or packaged
+    ('Shipped', 'Shipped'),               # Order has been shipped to the customer
+    ('Out for Delivery', 'Out for Delivery'), # Order is out for delivery to the customer
+    ('Delivered', 'Delivered'),           # Order has been delivered to the customer
+    ('Cancelled', 'Cancelled'),           # Order was cancelled by the customer or seller
+    ('Returned', 'Returned'),             # Order was returned by the customer
+    ('Refunded', 'Refunded'),             # Payment has been refunded to the customer
+    ('Failed', 'Failed'),                 # Payment failed during the transaction
+    ('On Hold', 'On Hold'),               # Order is on hold for some reason (e.g., payment verification)
+    ('Awaiting Payment', 'Awaiting Payment'), # Waiting for payment to be completed
+    ('Partially Shipped', 'Partially Shipped'), # Some items in the order have been shipped, others are pending
+    ('Pending Review', 'Pending Review'), # Order is pending review for further action
+]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     order_date = models.DateTimeField(auto_now_add=True)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='cash_on_delivery')
@@ -40,10 +49,25 @@ class Order(models.Model):
 
 # OrderItem Model
 class OrderItem(models.Model):
+    ORDER_STATUS_CHOICES = [
+    ('Pending', 'Pending'),               # Order has been placed but not yet processed
+    ('Processing', 'Processing'),         # Order is being prepared or packaged
+    ('Shipped', 'Shipped'),               # Order has been shipped to the customer
+    ('Out for Delivery', 'Out for Delivery'), # Order is out for delivery to the customer
+    ('Delivered', 'Delivered'),           # Order has been delivered to the customer
+    ('Cancelled', 'Cancelled'),           # Order was cancelled by the customer or seller
+    ('Returned', 'Returned'),             # Order was returned by the customer
+    ('Refunded', 'Refunded'),             # Payment has been refunded to the customer
+    ('Failed', 'Failed'),                 # Payment failed during the transaction
+    ('On Hold', 'On Hold'),               # Order is on hold for some reason (e.g., payment verification)
+    ('Awaiting Payment', 'Awaiting Payment'), # Waiting for payment to be completed
+    ('Partially Shipped', 'Partially Shipped'), # Some items in the order have been shipped, others are pending
+    ('Pending Review', 'Pending Review'), # Order is pending review for further action
+    ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    order_item_status = models.CharField(max_length=20,default='Pending', choices=[('Pending', 'Pending'),('Cancell', 'Cancell'),('Deliverd', 'Deliverd'),])
+    order_item_status = models.CharField(max_length=20,default='Pending', choices=ORDER_STATUS_CHOICES)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):

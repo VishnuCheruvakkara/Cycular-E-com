@@ -1,0 +1,101 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Pay with Razorpay</title>
+    <meta name="keywords" content="HTML5 Template">
+    <meta name="description" content="Pay with Razorpay">
+    <meta name="author" content="Your Company">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/images/icons/favicon-32x32.png' %}">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/plugins/owl-carousel/owl.carousel.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/plugins/magnific-popup/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/skins/skin-demo-20.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/demos/demo-20.css' %}">
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+<body>
+    <div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+        <div class="text-center mb-4">
+            <h4>Pay with Razorpay</h4>
+        </div>
+        <div class="row w-100">
+            <div class="col-md-6 d-flex justify-content-center align-items-center">
+                <img src="{% static 'assets/images/cycular/razorpay_payment.gif' %}" alt="Side GIF" class="img-fluid">
+            </div>
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <p class="lead mb-4">Please review your order details and proceed with the payment using the secure Razorpay payment gateway. If you have any questions or need assistance, feel free to contact our support team.</p>
+                <form id="razorpay-form">
+                    <input type="hidden" id="razorpay_order_id" value="{{ razorpay_order_id }}">
+                    <input type="hidden" id="razorpay_key_id" value="{{ razorpay_key_id }}">
+                    <input type="hidden" id="razorpay_amount" value="{{ razorpay_amount }}">
+                    <a href="{% url 'payment:check-out' %}"  class="btn btn-primary btn-lg mb-4" style="background:rgb(246, 70, 70);border-color:rgb(246, 70, 70) ;">Cancell payment</a>
+                    <button type="button" id="pay-button" class="btn btn-primary btn-lg mb-4">
+                        Pay Now <span><i class="icon-long-arrow-right"></i></span>
+                    </button>
+                   
+                </form>
+            </div>
+        </div>
+    <script>
+        document.getElementById('pay-button').onclick = function () {
+            var options = {
+                "key": document.getElementById('razorpay_key_id').value,
+                "amount": document.getElementById('razorpay_amount').value,
+                "currency": "INR",
+                "order_id": document.getElementById('razorpay_order_id').value,
+                "handler": function (response) {
+                    window.location.href = "{% url 'payment:payment-success' %}?razorpay_payment_id=" + response.razorpay_payment_id + "&order_id={{ order_id }}";
+                },
+                "prefill": {
+                    "email": "{{ request.user.email }}",
+                    "contact": "{{ request.user.profile.phone_number }}"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+            var rzp = new Razorpay(options);
+            rzp.open();
+        };
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        {% for message in messages %}
+            Swal.fire({
+                icon: "{{ message.tags }}",
+                title: "{{ message }}",
+                text: "{{ message.tags }}",
+            });
+        {% endfor %}
+    </script>
+
+    <!-- Plugins JS File -->
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.hoverIntent.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'assets/js/superfish.min.js' %}"></script>
+    <script src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
+
+    <!-- Main JS File -->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+</body>
+
+</html>

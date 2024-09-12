@@ -8,9 +8,9 @@ from django.urls import reverse
 from django.conf import settings
 
 
+                      
 import razorpay
-#intializing the razor-pay client...
-razorpay_client=razorpay.Client(auth=(settings.RAZORPAY_KEY_ID,settings.RAZORPAY_KEY_SECRET))
+
 
 # Create your views here.
 #####################  check out page  #################
@@ -25,7 +25,7 @@ def check_out(request):
     
     #total price of product
     total_price=sum(item.subtotal for item in cart_items)
-
+    
     if total_price == 0 :
         messages.info(request,'Your cart is empty.Please add products to the cart before proceeding to checkout.')
         return render(request, 'payment/check-out.html', {
@@ -33,45 +33,15 @@ def check_out(request):
             'total_price': total_price,
             'addresses': addresses,
         })
-      
+
     if request.method == 'POST':
+        payment_method=request.POST.get('payment_method') 
         try:
-            # get address id
+            #get address id
             address_id=request.POST.get('selected_address')
             selected_address=Address.objects.get(id=address_id)
-            # Get the selected payment method
-            payment_method = request.POST.get('payment_method')
+            
            
-            #for razor pay
-            if payment_method == 'razorpay':
-                try:
-                    razorpay_order=razorpay_client.order.create({
-                        'amount':int(total_price * 100),
-                        'currency':'INR',
-                        'receipt':f'order_rcptid_{request.user.id}',
-                        'payment_capture':'1',
-                    })
-                    #pass the razor pay details into the backend...
-                    context={
-                        'cart_items':cart_items,
-                        'total_price':total_price,
-                        'addresses':addresses,
-                        'razorpay_order_id':razorpay_order['id'],
-                        'razorpay_key_id':settings.RAZORPAY_KEY_ID,
-                        'toatal_amount':total_price,
-                    }
-                    return render(request,'payment/check-out.html',context)
-                except Exception as e:
-                     # Log the Razorpay order creation error
-                    print(f"Error creating Razorpay order: {e}")
-                    messages.error(request, 'An error occurred while creating the Razorpay order. Please try again.')
-                    return render(request, 'payment/check-out.html', {
-                        'cart_items': cart_items,
-                        'total_price': total_price,
-                        'addresses': addresses,
-                    })
-
-            #To handle all other payment method...
             order=Order.objects.create(
                 user=request.user,
                 payment_method=payment_method,
@@ -101,8 +71,14 @@ def check_out(request):
                     quantity=item.quantity,
                     price=item.subtotal,
                 )
+
+            #check whether user select the razorpay for payment
+            if payment_method == 'razorpay':
+                return redirect(reverse('payment:razorpay-order', args=[order.id]))
             # Clear the cart after successful purchase
             cart.items.all().delete()
+
+            
             messages.success(request,'Order was placed successfully. Check out order History page to track order status...')
             return redirect(reverse('payment:order-success-page',args=[order.id]))
         except Exception as e:
@@ -238,32 +214,62 @@ def order_success_page(request,order_id):
     return render(request,'payment/order-success-page.html',context)
 
 
-##################### Razor pay payment vies logic  ###########################
+##################### Razor pay payment views logic  ###########################
 
-def initiate_payment(request):
-    amount=10
-    currency='INR'
-    receipt='order_rcptid_11'
+# views.py
 
-    #create a razor pay order
-    razorpay_order=razorpay_client.order.create({
-        'amount':amount,
-        'currency':currency,
-        'reciept':receipt,
-        'payment_capture':'1'
+def create_razorpay_order(request, order_id):
+ 
+    order = get_object_or_404(Order, id=order_id)
+    client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
+
+    payment_amount = int(order.total_price * 100)  # Convert to paisa
+    payment_currency = 'INR'
+
+    razorpay_order = client.order.create({
+        'amount': payment_amount,
+        'currency': payment_currency,
+        'payment_capture': '1'  # Auto-capture payment
     })
 
-    context={
-        'razorpay_key_id':settings.RAZORPAY_KEY_ID,
-        'order_id':razorpay_order['id'],
-        'amount':amount,
-        'currency':currency,
-    }
+    order.razorpay_order_id = razorpay_order['id']
+    order.save()
+  
 
-    return render(request,'payment/check-out.html',context)
+    context = {
+        'razorpay_key_id': settings.RAZORPAY_API_KEY,
+        'razorpay_order_id': razorpay_order['id'],
+        'razorpay_amount': payment_amount,
+        'order_id': order.id,
+    }
+    return render(request, 'payment/razorpay_payment.html', context)
+
 
 ###################  payment success page by razor pay  #####################
 
 def payment_success(request):
-    pass
+    razorpay_payment_id = request.GET.get('razorpay_payment_id')
+    order_id = request.GET.get('order_id')
+    order = get_object_or_404(Order, id=order_id)
+    #retrive the current user's cart
+    cart=get_object_or_404(Cart,user=request.user)
+    
+    # Verify the payment (optional but recommended)
+    client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
+    try:
+        payment = client.payment.fetch(razorpay_payment_id)
+        if payment['status'] == 'captured':
+            order.order_status = 'Delivered'
+            order.save()
+            # Clear the cart only if the payment is successful
+            cart.items.all().delete()
+            
+            messages.success(request, 'Payment successful and order placed successfully!')
+        else:
+            messages.error(request, 'Payment failed.')
+    except Exception as e:
+        messages.error(request, 'An error occurred while verifying the payment.')
 
+    return render(request, 'payment/razorpay-success-page.html', {'order': order})
+
+###############################
