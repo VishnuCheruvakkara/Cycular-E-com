@@ -278,12 +278,9 @@ def toggle_user_status(request):
 @never_cache
 def user_dash_board(request):
     addresses=Address.objects.filter(user=request.user)
-    orders=Order.objects.filter(user=request.user)
-
     context={
         'user':request.user,
         'addresses':addresses,
-        'orders':orders,
     }
     return render(request,'user_side/user-dash-board.html',context)
 
@@ -899,9 +896,8 @@ def forget_password_set(request):
 
 ########################### to show the orderd product detail page based on the orderitem ##########################
 
-def order_item_details(request,order_id):
-    order=get_object_or_404(Order,id=order_id)
-    order_items=OrderItem.objects.filter(order=order)
+def order_item_details(request):
+    order_items = OrderItem.objects.all()
     context={
         'order_items':order_items,
     }
