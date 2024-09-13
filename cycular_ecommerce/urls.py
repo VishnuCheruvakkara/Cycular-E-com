@@ -30,12 +30,13 @@ urlpatterns = [
     path('orders/',include('orders.urls')),
     path('inventory/',include('inventory.urls')),
     path('payment/',include('payment.urls')),
+    path('wishlist/',include('wishlist.urls')),
 ]
 
 if settings.DEBUG:
     urlpatterns +=static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
     urlpatterns +=static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+  
 
 
 # {{ product.image.url }} use this to load the images in the template.
