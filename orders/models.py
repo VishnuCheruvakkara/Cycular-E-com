@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
-from products.models import ProductVariant
+from products.models import ProductVariant,Brand,Category
+from django.utils import timezone
+from django.core.validators import MinValueValidator
 
 # Create your models here.
 
@@ -88,7 +90,33 @@ class OrderAddress(models.Model):
 
 
 
+#coupen model
 
+class Coupon(models.Model):
+    DISCOUNT_TYPE_CHOICES = [
+        ('percentage', 'Percentage'),
+        ('fixed', 'Fixed Amount'),
+    ]
 
+    code = models.CharField(max_length=50, unique=True)
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT_TYPE_CHOICES)
+    discount_value = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    active = models.BooleanField(default=True)
+    applicable_brands = models.ManyToManyField(Brand, blank=True)  # Corrected reference
+    applicable_categories = models.ManyToManyField(Category, blank=True)  # Corrected reference
 
+    def __str__(self):
+        return f"{self.code} - {self.discount_type} ({self.discount_value})"
 
+    def is_valid(self):
+        """Check if the coupon is valid based on its active status and validity period."""
+        return self.active and self.valid_from <= timezone.now() <= self.valid_to
+
+    def applies_to_product(self, product):
+        """Check if the coupon applies to a specific product based on its category or brand."""
+        return (
+            product.category in self.applicable_categories.all() or
+            product.brand in self.applicable_brands.all()
+        )
