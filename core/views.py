@@ -30,6 +30,14 @@ def Index(request):
 ##################  To show the category based seletection and filtering  ####################################
 
 def category_filter(request):
+
+    if request.user.is_authenticated:
+        user_wishlist_ids=set(Wishlist.objects.filter(user=request.user).values_list('product_variant_id',flat=True))
+    else:
+        user_wishlist_ids=set()
+
+
+
     sort_by = request.GET.get('sortby','default')
 
    # Get and filter out empty values
@@ -43,6 +51,8 @@ def category_filter(request):
 
     # Get the search term from the GET parameters
     search_query = request.GET.get('search', '').strip()
+
+    
 
     product_variants = ProductVariant.objects.filter(status=True)
 
@@ -121,6 +131,7 @@ def category_filter(request):
         'selected_min_price': Min_price,
         'selected_max_price': Max_price,
         'search_query': search_query,
+        'user_wishlist_ids': user_wishlist_ids,
     
         
     }

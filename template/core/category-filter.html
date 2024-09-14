@@ -635,10 +635,11 @@
 
                                                 <div class="product-action-vertical ">
                                                     <!-- Wishlist Button -->
-                                                    <div class="details-action-wrapper">
-                                                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                                    </div><!-- End .details-action-wrapper -->
-
+                                                    {% if product_variant.id in user_wishlsit_ids %}
+                                                    <a type="button" class="btn-product btn-wishlist wishlist-button" href="{% url 'wishlist:wishlist-page' %}" ><span>Go to Wishlist</span></a>                       
+                                                    {% else %}
+                                                    <button type="button" class="btn-product btn-wishlist wishlist-button add-to-wishlist" data-product-item="{{ product_variant.id }}" style="font-size:15px ;"><span>Add to Wishlist</span></button>                       
+                                                    {% endif %}
                                                     
                                                 </div><!-- End .product-action-vertical -->
                                                 <div class="product-action">
