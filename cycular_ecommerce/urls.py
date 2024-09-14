@@ -31,6 +31,7 @@ urlpatterns = [
     path('inventory/',include('inventory.urls')),
     path('payment/',include('payment.urls')),
     path('wishlist/',include('wishlist.urls')),
+    path('wallet/',include('wallet.urls')),
 ]
 
 if settings.DEBUG:
