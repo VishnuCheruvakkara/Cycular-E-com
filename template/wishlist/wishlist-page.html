@@ -43,12 +43,12 @@
                                 <td class="product-col">
                                     <div class="product">
                                         <figure class="product-media">
-                                            <a href="">
+                                            <a href="{% url 'products:single-product-view' wishlist_item.product_variant.id %}">
                                                 <img src="{{ wishlist_item.product_variant.image1.url }}" alt="Product image">
                                             </a>
                                         </figure>
                                         <h3 class="product-title">
-                                            <a href="">
+                                            <a href="{% url 'products:single-product-view' wishlist_item.product_variant.id %}">
                                                 {{ wishlist_item.product_variant.product.name }}
                                             </a>
                                         </h3><!-- End .product-title -->

@@ -5,6 +5,7 @@ from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 from django.db.models.functions import Lower
 from products.models import Category,Brand,Size
 from django.db.models import Min,Max,Count,Q
+from wishlist.models import Wishlist
 
 
 # Create your views here.
@@ -14,10 +15,10 @@ from django.db.models import Min,Max,Count,Q
 @never_cache
 def Index(request):
     product_variants=ProductVariant.objects.filter(status=True,product__status=True)
-
-   
+    user_wishlist_ids=set(Wishlist.objects.filter(user=request.user).values_list('product_variant_id',flat=True))
     context={
         'product_variants':product_variants,
+        'user_wishlsit_ids':user_wishlist_ids,
     }
     return render(request,'core/index.html',context)
 

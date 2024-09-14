@@ -19,28 +19,31 @@ def wishlist_page(request):
 
 #####################  add product to the wish list   ####################
 
-
 def add_to_wishlist(request):
-    product_variant_id=request.GET['id']
-    product_variant=ProductVariant.objects.get(id=product_variant_id)
+    product_variant_id = request.GET.get('id')
+    context = {}
 
-    context={
+    try:
+        product_variant = ProductVariant.objects.get(id=product_variant_id)
+    except ProductVariant.DoesNotExist:
+        messages.error(request, "Product variant not found.")
+        context['bool'] = False
+        return JsonResponse(context)
 
-    }
-    wishlist_count=Wishlist.objects.filter(product_variant=product_variant,user=request.user).count()
-    print(wishlist_count)
-    if wishlist_count > 0:
-        context={
-            "bool":True
-        }
+    # Check if the product variant is already in the user's wishlist
+    wishlist_exists = Wishlist.objects.filter(product_variant=product_variant, user=request.user).exists()
+
+
+    if wishlist_exists:
+        context['bool'] = True
     else:
-        new_wishlist=Wishlist.objects.create(
+        Wishlist.objects.create(
             product_variant=product_variant,
             user=request.user,
         )
-        context={
-            "bool":True
-        }
+        messages.success(request, "Added to wishlist successfully.")
+        context['bool'] = True
+
     return JsonResponse(context)
 
 ########################  delete product from wishlist  ########################
