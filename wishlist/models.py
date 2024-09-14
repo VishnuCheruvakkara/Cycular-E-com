@@ -3,9 +3,6 @@ from django.conf import settings
 from products.models import Product,ProductVariant
 
 # Create your models here.
-
-
-
 # Wishlist Model
 
 class Wishlist(models.Model):

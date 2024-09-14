@@ -1,4 +1,4 @@
-from django.shortcuts import render,get_object_or_404
+from django.shortcuts import render,get_object_or_404,redirect
 from .models import Wishlist
 from products.models import Product,ProductVariant
 from django.contrib import messages
@@ -7,8 +7,14 @@ from django.http import JsonResponse
 # Create your views here.
 #####################  wish list page    ##################
 def wishlist_page(request):
-    
-    return render(request,'wishlist/wishlist-page.html')
+    if request.user.is_authenticated:
+        wishlist_items=Wishlist.objects.filter(user=request.user)
+    else:
+        wishlist_items=[]
+    context={
+        'wishlist_items':wishlist_items,
+    }
+    return render(request,'wishlist/wishlist-page.html',context)
 
 
 #####################  add product to the wish list   ####################
@@ -36,3 +42,12 @@ def add_to_wishlist(request):
             "bool":True
         }
     return JsonResponse(context)
+
+########################  delete product from wishlist  ########################
+
+def delete_wishlist(request,wishlist_id):
+    wishlist=get_object_or_404(Wishlist,id=wishlist_id)
+    wishlist.delete()
+    messages.success(request, 'Item successfully removed from your wishlist.')
+    return redirect('wishlist:wishlist-page')
+ 
