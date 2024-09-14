@@ -6,6 +6,7 @@ from django.http import JsonResponse
 
 # Create your views here.
 #####################  wish list page    ##################
+
 def wishlist_page(request):
     if request.user.is_authenticated:
         wishlist_items=Wishlist.objects.filter(user=request.user)
@@ -23,6 +24,11 @@ def add_to_wishlist(request):
     product_variant_id = request.GET.get('id')
     context = {}
 
+    if not request.user.is_authenticated:
+        context['bool'] = False
+        context['message'] = "Login required to add products to wishlist."
+        return JsonResponse(context)
+
     try:
         product_variant = ProductVariant.objects.get(id=product_variant_id)
     except ProductVariant.DoesNotExist:
@@ -33,16 +39,17 @@ def add_to_wishlist(request):
     # Check if the product variant is already in the user's wishlist
     wishlist_exists = Wishlist.objects.filter(product_variant=product_variant, user=request.user).exists()
 
-
     if wishlist_exists:
         context['bool'] = True
+        context['message'] = "Product is already in your wishlist."
     else:
         Wishlist.objects.create(
             product_variant=product_variant,
             user=request.user,
         )
-        messages.success(request, "Added to wishlist successfully.")
+      
         context['bool'] = True
+        context['message'] = "Added to wishlist successfully."
 
     return JsonResponse(context)
 

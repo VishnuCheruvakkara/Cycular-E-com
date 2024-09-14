@@ -11,7 +11,9 @@ class Wishlist(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'product_variant')
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'product_variant'], name='unique_wishlist_item')
+        ]
 
     def __str__(self):
         return f"{self.product_variant.product.name} in {self.user.username}'s Wishlist"

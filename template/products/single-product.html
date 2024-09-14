@@ -38,6 +38,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 </head>
 
@@ -665,17 +666,12 @@
                                             </span>
                                         </a>
                                     </div><!-- End .details-filter-row -->
-                                    
-
-                                 
-
-
-                                  
+                     
                                    
                                     <div class="product-details-action">
                                         {% if cart_item_exists %}
                                         
-                                        <a href="{% url 'cart:cart-page' %}" class="btn-product btn-cart" style="background-color: gray; color: white; border: none;">
+                                        <a href="{% url 'cart:cart-page' %}" class="btn-product btn-cart" style="background-color: gray; color: white; border: none; border-color:white;">
                                             <span>Go to cart</span>
                                         </a>
                                         {% else %}
@@ -685,8 +681,11 @@
                                         {% endif %}
                                        
                                         <div class="details-action-wrapper">
-                                            <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
-                                           
+                                            {% if wishlist_item_exists %}
+                                            <a type="button" class="btn-product btn-wishlist wishlist-button" href="{% url 'wishlist:wishlist-page' %}" ><span>Go to Wishlist</span></a>                       
+                                            {% else %}
+                                            <button type="button" class="btn-product btn-wishlist wishlist-button add-to-wishlist" data-product-item="{{ variant.id }}" ><span>Add to Wishlist</span></button>                       
+                                            {% endif %}
                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
 
@@ -1480,6 +1479,66 @@ $(document).ready(function () {
 	document.addEventListener('DOMContentLoaded', updateCartCount);
 
 </script>
+<script>
+    $(document).on("click", ".add-to-wishlist", function() {
+        let product_variant_id = $(this).attr("data-product-item");
+        let this_val = $(this);
+    
+        // Check if the button says "Go to wishlist"
+        if (this_val.text().trim() === "Go to wishlist") {
+            // Redirect to the wishlist page
+            window.location.href = "/wishlist/";  // Replace with your actual wishlist URL
+            return;
+        }
+    
+        // Perform the AJAX call if the product is not yet added to wishlist
+        $.ajax({
+            url: "/wishlist/add-to-wishlist",
+            data: { 
+                "id": product_variant_id 
+            },
+            dataType: "json",
+            beforeSend: function() {
+                console.log("Adding to wishlist...");
+            },
+            success: function(response) {
+                if (response.bool === true) {
+                    // Change button text to "Go to wishlist"
+                    this_val.html("Go to wishlist");
+    
+                    // SweetAlert for success
+                    Swal.fire({
+                        title: 'Added to Wishlist',
+                        text: response.message,  // Message from server
+                        icon: 'success',
+                        confirmButtonText: 'Ok'
+                    });
+                } else {
+                    // SweetAlert for login required
+                    Swal.fire({
+                        title: 'Login Required',
+                        text: response.message,  // Message from server
+                        icon: 'info',  // 'info' or 'error'
+                        confirmButtonText: 'Login',
+                        preConfirm: function() {
+                            window.location.href = "{% url 'user_side:sign-in' %}" ;  // Redirect to login page
+                        }
+                    });
+                }
+            },
+            error: function() {
+                // SweetAlert for general error
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                });
+            }
+        });
+    });
+</script>
+    
 
     
 </body>

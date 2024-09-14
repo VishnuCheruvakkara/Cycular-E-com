@@ -15,7 +15,12 @@ from wishlist.models import Wishlist
 @never_cache
 def Index(request):
     product_variants=ProductVariant.objects.filter(status=True,product__status=True)
-    user_wishlist_ids=set(Wishlist.objects.filter(user=request.user).values_list('product_variant_id',flat=True))
+    
+    if request.user.is_authenticated:
+        user_wishlist_ids=set(Wishlist.objects.filter(user=request.user).values_list('product_variant_id',flat=True))
+    else:
+        user_wishlist_ids=set()
+
     context={
         'product_variants':product_variants,
         'user_wishlsit_ids':user_wishlist_ids,

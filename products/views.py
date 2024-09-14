@@ -12,6 +12,7 @@ from .models import Category,Brand,Size
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from cart.models import CartItem
+from wishlist.models import Wishlist
 
 # Create your views here.
 
@@ -476,12 +477,18 @@ def single_product_view(request, variant_id):
         request.user.is_authenticated and 
         CartItem.objects.filter(cart__user=request.user, product_variant=variant).exists()
     )
+
+    wishlist_item_exists = (
+        request.user.is_authenticated and 
+        Wishlist.objects.filter(user=request.user, product_variant=variant).exists()
+    )
+   
     context={
         'variant':variant,
         'available_sizes': available_sizes,
         'related_variants': related_variants,
         'cart_item_exists': cart_item_exists,  # Simple flag to check in the template
-
+        'wishlist_item_exists': wishlist_item_exists,
        
     }
     return render(request, 'products/single-product.html',context)
