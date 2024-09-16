@@ -33,11 +33,22 @@ def cancell_order_item(request, order_item_id):
 
         # Validate CAPTCHA
         try:
-            captcha_store = CaptchaStore.objects.get(hashkey=captcha_key)  # Query by hashkey
-            if captcha_store.response != captcha_response:
+            # Query by hashkey (adjust according to your CaptchaStore model)
+            captcha_store = CaptchaStore.objects.get(hashkey=captcha_key)
+            
+            # Debugging information
+            print(f"Stored CAPTCHA response: {captcha_store.response}")
+            
+            # Validate the response
+            if captcha_store.response.upper() != captcha_response:
                 return JsonResponse({'error': 'Invalid CAPTCHA response'}, status=400)
+        
         except CaptchaStore.DoesNotExist:
             return JsonResponse({'error': 'CAPTCHA key not found'}, status=400)
+
+
+
+
         # Get the order item to be cancelled
         order_item = get_object_or_404(OrderItem, id=order_item_id)
 

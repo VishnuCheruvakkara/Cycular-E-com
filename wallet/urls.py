@@ -9,7 +9,5 @@ app_name='wallet'
 urlpatterns=[
    path('',views.wallet_page,name='wallet-page'),
    path('cancell-order-item/<int:order_item_id>',views.cancell_order_item,name='cancell-order-item'),
-   path('captcha-image-url/', lambda request: JsonResponse({
-        'captcha_image_url': captcha_image_url(CaptchaStore.generate_key())
-    }), name='captcha-image-url'),
+   path('captcha-image-url/', views.captcha_image_view, name='captcha-image-url'), 
 ]

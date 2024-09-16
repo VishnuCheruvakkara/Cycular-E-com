@@ -132,14 +132,15 @@
                     preConfirm: () => {
                         // Get the entered CAPTCHA value
                         const captchaResponse = document.getElementById('captcha-input').value;
-    
+                        const captchaKey = document.getElementById('captcha-container').getAttribute('data-captcha-key');
+
                         if (!captchaResponse) {
                             Swal.showValidationMessage('Please enter the CAPTCHA');
                             return false;
                         }
     
                         // Return the CAPTCHA input value to the `then` part of the promise
-                        return { captchaResponse: captchaResponse };
+                        return { captchaResponse: captchaResponse,captchaKey: captchaKey };
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -152,6 +153,7 @@
                             },
                             body: JSON.stringify({
                                 'captcha_response': result.value.captchaResponse,  // Send the CAPTCHA response
+                                'captcha_key': result.value.captchaKey  
                             })
                         })
                         .then(response => response.json())
@@ -175,6 +177,7 @@
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('captcha-image').src = data.captcha_image_url; // Set CAPTCHA image source
+                        document.getElementById('captcha-container').setAttribute('data-captcha-key', data.captcha_key);
                     });
             }
         });
