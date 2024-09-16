@@ -13,7 +13,7 @@
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
             <div class="container">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'core:index' %}">Home</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Wallet</li>
                 </ol>
             </div><!-- End .container -->
@@ -22,52 +22,55 @@
         <div class="page-content">
             <div class="container">
                 <!-- Wallet Balance Overview -->
-                <div class="wallet-summary">
-                    <h2 class="wallet-title">Wallet Balance</h2>
-                    <div class="wallet-balance">
-                        <span class="balance-amount">₹ {{ wallet.balance }}</span>
+                <div class="wallet-summary text-center mb-5">
+                    <h5 class="wallet-title">Wallet Balance</h5>
+                    <div class="wallet-balance d-flex justify-content-center align-items-center">
+                        <span class="balance-amount display-4">₹ {{ wallet.balance }}</span>
                     </div>
-                    <div class="wallet-actions">
-                        <a href="{% url 'wallet:top-up' %}" class="btn btn-primary">Top Up</a>
-                        <a href="{% url 'wallet:withdraw' %}" class="btn btn-secondary">Withdraw</a>
-                    </div>
+                    
                 </div><!-- End .wallet-summary -->
-
+        
                 <!-- Transaction History -->
                 <div class="transaction-history">
-                    <h2 class="history-title">Transaction History</h2>
-                    <table class="table table-transactions">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Amount</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for transaction in transactions %}
-                            <tr>
-                                <td>{{ transaction.timestamp|date:"d M Y, H:i" }}</td>
-                                <td class="{% if transaction.transaction_type == 'debit' %}text-danger{% else %}text-success{% endif %}">
-                                    {% if transaction.transaction_type == 'debit' %}-{% endif %}
-                                    ₹ {{ transaction.amount }}
-                                </td>
-                                <td>{{ transaction.transaction_type|capfirst }}</td>
-                                <td>{{ transaction.description }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center">No transactions available</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table><!-- End .table table-transactions -->
+                    <h5 class="history-title text-center mb-4">Transaction History</h5>
+                    <div class="table-responsive">
+                        <table class="table table-transactions text-center">
+                            <thead>
+                                <tr>
+
+                                    <th>Sl.No.</th>
+                                    <th>Transaction Type</th>
+                                    <th>Purpose</th>
+                                    <th>Amount</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in transactions %}
+                                <tr>
+                                    <td>{{ forloop.counter}}</td>
+                                    <td>{{ transaction.timestamp|date:"d M Y, H:i" }}</td>
+                                    <td class="{% if transaction.transaction_type == 'debit' %}text-danger{% else %}text-success{% endif %}">
+                                        {% if transaction.transaction_type == 'debit' %}-{% endif %}
+                                        ₹ {{ transaction.amount }}
+                                    </td>
+                                    <td>{{ transaction.transaction_type|capfirst }}</td>
+                                    <td>{{ transaction.description }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center ">No transactions available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table><!-- End .table table-transactions -->
+                    </div><!-- End .table-responsive -->
                 </div><!-- End .transaction-history -->
             </div><!-- End .container -->
         </div><!-- End .page-content -->
-    </main><!-- End .main -->
-
+        
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
     <!-- Plugins JS File -->

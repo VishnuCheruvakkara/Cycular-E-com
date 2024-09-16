@@ -908,15 +908,3 @@ def order_item_details(request):
     return render(request,'user_side/order-item-history-user.html',context)
 
 
-##########################  orderitem cacelling logic   ####################
-
-def order_item_cancell(request,order_item_id):
-    order_item=get_object_or_404(OrderItem,id=order_item_id)
-    
-    return redirect('user_side:order-item-details',order_id=order_item.order.id)
-
-####################### order cancelling logic   ########################
-
-def order_cancell(request,order_id):
-   
-    return redirect('user_side:user-dash-board')

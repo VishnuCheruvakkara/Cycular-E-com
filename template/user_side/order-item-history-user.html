@@ -78,9 +78,11 @@
                                         {% endif %}
                                         </td>
                                         <td>
-                                            <a href="{% url 'user_side:order-item-cancell' order_item.id %}" class="btn btn-danger btn-sm cancel-order-item-btn" data-url="{% url 'user_side:order-item-cancell' order_item.id %}">
-                                                Cancel
-                                            </a>
+                                            <button class="btn btn-danger btn-sm cancel-order-item-btn" 
+                                            data-url="{% url 'wallet:cancell-order-item' order_item.id %}"
+                                            {% if order_item.order_item_status == 'Cancelled' %} disabled {% endif %}>
+                                            Cancel
+                                            </button>
                                         </td>
                                     </tr>
                                     {% empty %}
@@ -94,6 +96,62 @@
                     </div>
                 </div>
             </main>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Select all cancel buttons
+                    const cancelButtons = document.querySelectorAll('.cancel-order-item-btn');
+            
+                    cancelButtons.forEach(button => {
+                        button.addEventListener('click', function(event) {
+                            event.preventDefault(); // Prevent default anchor behavior
+                            
+                            // Get the URL for cancellation from the button's data attribute
+                            const url = this.getAttribute('data-url');
+            
+                            // Send the cancellation request using fetch
+                            fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': '{{ csrf_token }}',  // Ensure CSRF token is passed
+                                    'Content-Type': 'application/json',
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.error) {
+                                    // Show SweetAlert error message
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: data.error,
+                                    });
+                                } else {
+                                    // Show SweetAlert success message
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success!',
+                                        text: data.message,
+                                    }).then(() => {
+                                        // Disable the cancel button and show the item is cancelled
+                                        this.setAttribute('disabled', 'true');
+                                        this.innerText = 'Cancelled';
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                // Show SweetAlert error message for network issues
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Something went wrong. Please try again later.',
+                                });
+                                console.error('Error:', error);
+                            });
+                        });
+                    });
+                });
+            </script>
             
 
 
@@ -111,39 +169,6 @@
             })
         {% endfor %}
         </script>
-
-    <script>
-       
-
-       document.addEventListener('DOMContentLoaded', function () {
-    // Get all cancel buttons
-    document.querySelectorAll('.cancel-order-item-btn').forEach(button => {
-        button.addEventListener('click', function (event) {
-            event.preventDefault(); // Prevent the default button behavior
-            
-            // Get the cancellation URL from data attribute
-            const cancelUrl = this.getAttribute('data-url');
-            
-            // Show the SweetAlert confirmation dialog
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you really want to cancel this order item? This action cannot be undone.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, cancel it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // If the user confirms, redirect to the cancellation URL
-                    window.location.href = cancelUrl;
-                }
-            });
-        });
-    });
-});
-
-    </script>
 
     <!-- Plugins JS File -->
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>
