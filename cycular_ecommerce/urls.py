@@ -32,6 +32,7 @@ urlpatterns = [
     path('payment/',include('payment.urls')),
     path('wishlist/',include('wishlist.urls')),
     path('wallet/',include('wallet.urls')),
+    path('captcha/', include('captcha.urls')),
 ]
 
 if settings.DEBUG:

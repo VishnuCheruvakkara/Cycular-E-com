@@ -97,69 +97,95 @@
                 </div>
             </main>
 
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Select all cancel buttons
-                    const cancelButtons = document.querySelectorAll('.cancel-order-item-btn');
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             
-                    cancelButtons.forEach(button => {
-                        button.addEventListener('click', function(event) {
-                            event.preventDefault(); // Prevent default anchor behavior
-                            
-                            // Get the URL for cancellation from the button's data attribute
-                            const url = this.getAttribute('data-url');
-            
-                            // Send the cancellation request using fetch
-                            fetch(url, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRFToken': '{{ csrf_token }}',  // Ensure CSRF token is passed
-                                    'Content-Type': 'application/json',
-                                },
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cancelButtons = document.querySelectorAll('.cancel-order-item-btn');
+    
+        cancelButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default button behavior
+                const cancelUrl = this.getAttribute('data-url');
+    
+                // Show SweetAlert confirmation with CAPTCHA
+                Swal.fire({
+                    title: 'Are you sure to cancell this product ?',
+                    text: "Please confirm the cancellation!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Cancel!',
+                    html: `
+                    <div>Enter CAPTCHA to confirm:</div>
+                    <div id="captcha-container" style="text-align: center; margin-bottom: 10px;">
+                        <img src="" id="captcha-image" alt="CAPTCHA Image" 
+                             style="display: block; max-width: 100%; height: auto; margin: 0 auto;">
+                    </div>
+                    <input type="text" id="captcha-input" placeholder="Enter CAPTCHA" class="swal2-input">
+                     `,
+                    didOpen: () => {
+                        // Load CAPTCHA from Django when the modal opens
+                        loadCaptcha();
+                    },
+                    preConfirm: () => {
+                        // Get the entered CAPTCHA value
+                        const captchaResponse = document.getElementById('captcha-input').value;
+    
+                        if (!captchaResponse) {
+                            Swal.showValidationMessage('Please enter the CAPTCHA');
+                            return false;
+                        }
+    
+                        // Return the CAPTCHA input value to the `then` part of the promise
+                        return { captchaResponse: captchaResponse };
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Send cancellation request along with CAPTCHA to the server
+                        fetch(cancelUrl, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                'captcha_response': result.value.captchaResponse,  // Send the CAPTCHA response
                             })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.error) {
-                                    // Show SweetAlert error message
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Oops...',
-                                        text: data.error,
-                                    });
-                                } else {
-                                    // Show SweetAlert success message
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Success!',
-                                        text: data.message,
-                                    }).then(() => {
-                                        // Disable the cancel button and show the item is cancelled
-                                        this.setAttribute('disabled', 'true');
-                                        this.innerText = 'Cancelled';
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                // Show SweetAlert error message for network issues
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: 'Something went wrong. Please try again later.',
-                                });
-                                console.error('Error:', error);
-                            });
-                        });
-                    });
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                Swal.fire('Error', data.error, 'error');
+                            } else {
+                                Swal.fire('Success', data.message, 'success');
+                                button.setAttribute('disabled', 'true');
+                                button.innerText = 'Cancelled';
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
                 });
-            </script>
+            });
+    
+            // Function to load the CAPTCHA from Django
+            function loadCaptcha() {
+                fetch("{% url 'wallet:captcha-image-url' %}")
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('captcha-image').src = data.captcha_image_url; // Set CAPTCHA image source
+                    });
+            }
+        });
+    });
+    </script>
+
+
+
+
             
-
-
-
-
-
-            
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
         <script>
         {% for message in messages %}
             swal.fire({
