@@ -22,20 +22,32 @@
 </head>
 <body>
         <main class="main mt-2 ">
-        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
-               
+
+            <div class="page-header text-center" style="background-image: url('{% static 'assets/images/page-header-bg.jpg' %}')">
         		<div class="container">
-        			<h1 class="page-title">My Account<span>Shop</span></h1>
+        			<h1 class="page-title">Order History<span>Overview</span></h1>
         		</div><!-- End .container -->
         	</div><!-- End .page-header -->
-            <nav aria-label="breadcrumb" class="breadcrumb-nav mb-3">
+            <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'core:index' %}">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">My Account</li>
-                    </ol>
-                </div><!-- End .container -->
-            </nav><!-- End .breadcrumb-nav -->
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'core:index' %}">Home</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">Wallet</li>
+                            </ol>
+                        </div>
+                        <div class="col text-right">
+                            <a href="{% url 'wallet:wallet-page' %}"  style=" cursor: pointer;">
+                                Go to Wallet
+                                <i class="bi bi-arrow-right ms-2 transition"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
 
 
 
@@ -60,23 +72,20 @@
                             </thead>
                             <tbody>
                                 {% for order_item in order_items %}
-                                   
                                     <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <td>
+                                        <td data-label="Sl No">{{ forloop.counter }}</td>
+                                        <td data-label="Image">
                                             <a href="{% url 'products:single-product-view' order_item.product_variant.id %}"><img src="{{order_item.product_variant.image1.url}}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: 50px; height: 50px;"></a>
                                         </td>
-                                        <td><a href="{% url 'products:single-product-view' order_item.product_variant.id %}">{{ order_item.product_variant.product.name }}</a></td>
-                                        <td>{{ order_item.order.get_payment_method_display }}</td>
-                                        <td>{{ order_item.order.order_date }}</td>
-                                        <td>₹ {{ order_item.price }}</td>
-                                        <td>{{ order_item.order_item_status }}</td>
-                                        <td>
-                                      
-                                        <p>{{ order_item.quantity }}</p>
-                                      
+                                        <td data-label="Product Name"><a href="{% url 'products:single-product-view' order_item.product_variant.id %}">{{ order_item.product_variant.product.name }}</a></td>
+                                        <td data-label="Payment Method">{{ order_item.order.get_payment_method_display }}</td>
+                                        <td data-label="Order Date">{{ order_item.order.order_date }}</td>
+                                        <td data-label="Price">₹ {{ order_item.price }}</td>
+                                        <td data-label="Status">{{ order_item.order_item_status }}</td>
+                                        <td data-label="Count">
+                                            <p>{{ order_item.quantity }}</p>
                                         </td>
-                                        <td>
+                                        <td data-label="Cancel">
                                             <button 
                                                 class="btn btn-danger btn-sm cancel-order-item-btn" 
                                                 data-url="{% url 'wallet:cancell-order-item' order_item.id %}"
@@ -89,18 +98,50 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    {% empty %}
+                                {% empty %}
                                     <tr>
-                                        <td colspan="8">No items found for this order.</td>
+                                        <td colspan="9">No items found for this order.</td>
                                     </tr>
-                                    
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </main>
-
+            
+            <style>
+            @media screen and (max-width: 767px) {
+                .responsive-table thead {
+                    display: none;
+                }
+                .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+                    display: block;
+                    width: 100%;
+                }
+                .responsive-table tr {
+                    margin-bottom: 15px;
+                }
+                .responsive-table td {
+                    text-align: right;
+                    padding-left: 50%;
+                    position: relative;
+                }
+                .responsive-table td::before {
+                    content: attr(data-label);
+                    position: absolute;
+                    left: 6px;
+                    width: 45%;
+                    padding-right: 10px;
+                    white-space: nowrap;
+                    text-align: left;
+                    font-weight: bold;
+                }
+                .responsive-table td img {
+                    max-width: 100%;
+                    height: auto;
+                }
+            }
+            </style>
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>      

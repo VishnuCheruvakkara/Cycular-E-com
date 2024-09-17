@@ -4,20 +4,33 @@
 
 {% block content %}
 <body>
-    <main class="main">
+    <main class="main  mt-2">
         <div class="page-header text-center" style="background-image: url('{% static 'assets/images/page-header-bg.jpg' %}')">
             <div class="container">
                 <h1 class="page-title">Wallet & Transaction history<span>Overview</span></h1>
             </div><!-- End .container -->
         </div><!-- End .page-header -->
+       
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
             <div class="container">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'core:index' %}">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Wallet</li>
-                </ol>
-            </div><!-- End .container -->
-        </nav><!-- End .breadcrumb-nav -->
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'core:index' %}">Home</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Wallet</li>
+                        </ol>
+                    </div>
+                    <div class="col text-right">
+                        <a href="{% url 'user_side:order-item-details' %}"  style=" cursor: pointer;">
+                            Go to Order History
+                            <i class="bi bi-arrow-right ms-2 transition"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
         <div class="page-content">
             <div class="container">
@@ -98,6 +111,8 @@
             text: "{{ message.tags }}",
         })
         {% endfor %}
+
+        
     </script>
 </body>
 {% endblock %}
