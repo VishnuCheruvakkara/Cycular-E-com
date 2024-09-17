@@ -10,15 +10,28 @@
         			<h1 class="page-title">Wishlist<span>Shop</span></h1>
         		</div><!-- End .container -->
         	</div><!-- End .page-header -->
+
+
             <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Shop</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Wishlist</li>
-                    </ol>
-                </div><!-- End .container -->
-            </nav><!-- End .breadcrumb-nav -->
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'core:index' %}">Home</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">Wallet</li>
+                            </ol>
+                        </div>
+                        <div class="col text-right">
+                            <a href="{% url 'cart:cart-page' %}"  style=" cursor: pointer;">
+                                Go to cart page
+                                <i class="bi bi-arrow-right ms-2 transition"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
 
             <div class="page-content">
             	<div class="container">

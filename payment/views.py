@@ -81,7 +81,7 @@ def check_out(request):
             cart.items.all().delete()
 
             
-            messages.success(request,'Order was placed successfully. Check out order History page to track order status...')
+            messages.success(request,'Order was placed successfully. Details are added to the order-history...')
             return redirect(reverse('payment:order-success-page',args=[order.id]))
         except Exception as e:
             # Log the exception
@@ -247,6 +247,11 @@ def create_razorpay_order(request, order_id):
     return render(request, 'payment/razorpay_payment.html', context)
 
 
+
+
+
+
+
 ###################  payment success page by razor pay  #####################
 
 def payment_success(request):
@@ -262,7 +267,7 @@ def payment_success(request):
     try:
         payment = client.payment.fetch(razorpay_payment_id)
         if payment['status'] == 'captured':
-            order.order_status = 'Delivered'
+            order.order_status = 'Pending'
             order.save()
             # Clear the cart only if the payment is successful
             cart.items.all().delete()

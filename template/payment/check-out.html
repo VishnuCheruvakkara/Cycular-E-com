@@ -34,7 +34,8 @@
 	</head>
 	<body>
         <main class="main mt-2 ">
-        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+            <div class="page-header text-center" style="background-image: url('{% static 'assets/images/page-header-bg.jpg' %}')">
+        	
         		<div class="container">
         			<h1 class="page-title">Checkout<span>Shop</span></h1>
         		</div><!-- End .container -->
@@ -150,22 +151,7 @@
 									
 											<!-- Accordion for Payment Methods -->
 											<div class="accordion-summary" id="accordion-payment">
-												<!-- Direct Bank Transfer Section -->
-												<div class="card mt-3">
-													<div class="card-header" id="heading-1">
-														<h2 class="card-title">
-															<!-- Radio button input for Direct Bank Transfer -->
-															<input type="radio" name="payment_method" id="bank-transfer" value="" data-toggle="collapse" data-target="#collapse-1" aria-expanded="true" aria-controls="collapse-1" checked>
-															<label for="bank-transfer" class="ml-2">Direct bank transfer</label>
-														</h2>
-													</div><!-- End .card-header -->
-													<div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
-														<div class="card-body">
-															Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
-														</div><!-- End .card-body -->
-													</div><!-- End .collapse -->
-												</div><!-- End .card -->
-									
+											
 												<!-- Wallet Payment Section -->
 												<div class="card mt-3">
 													<div class="card-header" id="heading-5">
