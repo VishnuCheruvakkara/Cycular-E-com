@@ -13,9 +13,22 @@ from captcha.helpers import captcha_image_url
 
 #######################  wallet-page  ###################
 
+from django.shortcuts import render, get_object_or_404
+from .models import Wallet, Transaction
+from orders.models import OrderItem
+
 def wallet_page(request):
+ 
+    wallet, created = Wallet.objects.get_or_create(user=request.user)
     
-    return render(request,'wallet/wallet-page.html')
+    transactions = wallet.transactions.all()
+
+   
+    context = {
+        "wallet": wallet,
+        "transactions": transactions,
+    }
+    return render(request, 'wallet/wallet-page.html', context)
 
 
 ##########################  orderitem cacelling logic   ####################
@@ -58,6 +71,7 @@ def cancell_order_item(request, order_item_id):
 
         # Update the order item status to "Cancelled"
         order_item.order_item_status = 'Cancelled'
+
         order_item.save()
 
         # Fetch or create the user's wallet
@@ -65,6 +79,7 @@ def cancell_order_item(request, order_item_id):
 
         # Add the order item price to the wallet balance
         wallet.balance += Decimal(order_item.price)
+     
         wallet.save()
 
         # Log the transaction
@@ -72,7 +87,8 @@ def cancell_order_item(request, order_item_id):
             wallet=wallet,
             transaction_type='credit',
             transaction_purpose='refund',
-         
+            transaction_amount=Decimal(order_item.price),
+            description=f"{order_item.product_variant.product.name} was cancelled",
         )
 
         # Send a success response indicating the cancellation and wallet refund

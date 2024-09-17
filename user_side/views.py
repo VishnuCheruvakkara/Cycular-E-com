@@ -900,11 +900,15 @@ def forget_password_set(request):
 ########################### to show the orderd product detail page based on the orderitem ##########################
 
 def order_item_details(request):
-    order_items = OrderItem.objects.all()
-   
-    context={
-        'order_items':order_items,
-    }
-    return render(request,'user_side/order-item-history-user.html',context)
-
+    if request.user.is_authenticated:
+        order_items = OrderItem.objects.filter(order__user=request.user)
+    
+        context={
+            'order_items':order_items,
+        }
+        return render(request,'user_side/order-item-history-user.html',context)
+    else:
+        # Handle the case where the user is not logged in (optional)
+        messages.error(request, "You need to log in to view your order items.")
+        return redirect('login')
 

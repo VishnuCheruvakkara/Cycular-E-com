@@ -23,6 +23,7 @@
 <body>
         <main class="main mt-2 ">
         	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+               
         		<div class="container">
         			<h1 class="page-title">My Account<span>Shop</span></h1>
         		</div><!-- End .container -->
@@ -71,17 +72,20 @@
                                         <td>₹ {{ order_item.price }}</td>
                                         <td>{{ order_item.order_item_status }}</td>
                                         <td>
-                                        {% if order_item.order_item_status == 'Cancell' %}
-                                        <p>0</p>
-                                        {% else %}
+                                      
                                         <p>{{ order_item.quantity }}</p>
-                                        {% endif %}
+                                      
                                         </td>
                                         <td>
-                                            <button class="btn btn-danger btn-sm cancel-order-item-btn" 
-                                            data-url="{% url 'wallet:cancell-order-item' order_item.id %}"
-                                            {% if order_item.order_item_status == 'Cancelled' %} disabled {% endif %}>
-                                            Cancel
+                                            <button 
+                                                class="btn btn-danger btn-sm cancel-order-item-btn" 
+                                                data-url="{% url 'wallet:cancell-order-item' order_item.id %}"
+                                                {% if order_item.order_item_status == 'Cancelled' %} 
+                                                    disabled 
+                                                    data-toggle="tooltip" 
+                                                    title="This product has already been cancelled" 
+                                                {% endif %}>
+                                                Cancel
                                             </button>
                                         </td>
                                     </tr>
@@ -99,8 +103,7 @@
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-            
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>      
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const cancelButtons = document.querySelectorAll('.cancel-order-item-btn');
@@ -182,6 +185,14 @@
             }
         });
     });
+
+     // custom tooltip
+     $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip({
+                delay: { "show": 500, "hide": 100 },  // Delay before showing and hiding the tooltip
+                placement: 'top'  // Placement can be adjusted as needed
+            });
+        });
     </script>
 
 
@@ -189,15 +200,15 @@
 
             
         
-        <script>
-        {% for message in messages %}
-            swal.fire({
-                icon:"{{message.tags}}",
-                title:"{{message}}",
-                text:"{{message.tags}}",
-            })
-        {% endfor %}
-        </script>
+    <script>
+    {% for message in messages %}
+        swal.fire({
+            icon:"{{message.tags}}",
+            title:"{{message}}",
+            text:"{{message.tags}}",
+        })
+    {% endfor %}
+    </script>
 
     <!-- Plugins JS File -->
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>

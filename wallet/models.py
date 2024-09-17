@@ -19,6 +19,7 @@ class Transaction(models.Model):
     TRANSACTION_TYPES = (
         ('credit', 'Credit'),
         ('debit', 'Debit'),
+        ('nulll','Null')
     )
 
     TRANSACTION_PURPOSES = (
@@ -29,6 +30,10 @@ class Transaction(models.Model):
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='transactions')
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
     transaction_purpose = models.CharField(max_length=10, choices=TRANSACTION_PURPOSES)
+    transaction_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    description=models.CharField(max_length=255,default="not available")
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
+
 
     def __str__(self):
         return f"{self.transaction_type.capitalize()} for {self.transaction_purpose} "

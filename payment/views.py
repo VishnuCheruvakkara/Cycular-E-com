@@ -6,6 +6,7 @@ import re
 from django.contrib import messages
 from django.urls import reverse
 from django.conf import settings
+from wallet.models import Transaction
 
 
                       
@@ -252,6 +253,7 @@ def payment_success(request):
     razorpay_payment_id = request.GET.get('razorpay_payment_id')
     order_id = request.GET.get('order_id')
     order = get_object_or_404(Order, id=order_id)
+    order_items=order.items.all()
     #retrive the current user's cart
     cart=get_object_or_404(Cart,user=request.user)
     
@@ -264,6 +266,17 @@ def payment_success(request):
             order.save()
             # Clear the cart only if the payment is successful
             cart.items.all().delete()
+
+            wallet = request.user.wallet
+            for order_item in order_items:
+                Transaction.objects.create(
+                    wallet=wallet,
+                    transaction_type='null',
+                    transaction_purpose='purchase',
+                    transaction_amount=order_item.price,
+                    description=f"{order_item.product_variant.product.name} Purchase via Razorpay"
+                )
+            
             
             messages.success(request, 'Payment successful and order placed successfully!')
         else:

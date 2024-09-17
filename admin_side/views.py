@@ -99,7 +99,7 @@ def OrderManagement(request):
         order_item = OrderItem.objects.get(id=order_item_id)
         
         #if the status is cancell at that time we need to resotore the product count of the cancelled products.
-        if new_status == 'Cancell' and order_item.order_item_status != 'Cancell':
+        if new_status == 'Cancelled' and order_item.order_item_status != 'Cancelled':
             #restore logic...
             order_item.product_variant.stock=F('stock')+order_item.quantity
             order_item.product_variant.save()

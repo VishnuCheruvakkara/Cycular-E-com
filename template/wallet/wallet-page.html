@@ -7,7 +7,7 @@
     <main class="main">
         <div class="page-header text-center" style="background-image: url('{% static 'assets/images/page-header-bg.jpg' %}')">
             <div class="container">
-                <h1 class="page-title">Wallet<span>Overview</span></h1>
+                <h1 class="page-title">Wallet & Transaction history<span>Overview</span></h1>
             </div><!-- End .container -->
         </div><!-- End .page-header -->
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
@@ -25,7 +25,7 @@
                 <div class="wallet-summary text-center mb-5">
                     <h5 class="wallet-title">Wallet Balance</h5>
                     <div class="wallet-balance d-flex justify-content-center align-items-center">
-                        <span class="balance-amount display-4">₹ {{ wallet.balance }}</span>
+                        <span class="balance-amount display-4"  style="color:#1cc0a0"><b>₹ {{ wallet.balance }}</b></span>
                     </div>
                     
                 </div><!-- End .wallet-summary -->
@@ -50,20 +50,26 @@
                             <tbody>
                                 {% for transaction in transactions %}
                                 <tr>
-                                    <td>{{ forloop.counter}}</td>
-                                    <td>{{ transaction.timestamp|date:"d M Y, H:i" }}</td>
-                                    <td class="{% if transaction.transaction_type == 'debit' %}text-danger{% else %}text-success{% endif %}">
-                                        {% if transaction.transaction_type == 'debit' %}-{% endif %}
-                                        ₹ {{ transaction.amount }}
-                                    </td>
+                                    <td>{{ forloop.counter }}</td>
+                                  
                                     <td>{{ transaction.transaction_type|capfirst }}</td>
+                                    
+                                    <td>{{ transaction.transaction_purpose|capfirst }}</td>
+
+                                    <td style="color:#1cc0a0"><b> ₹ {{ transaction.transaction_amount }}</b></td>
+
                                     <td>{{ transaction.description }}</td>
+                                   
+                                    <td>{{ transaction.created_at|date:"d M Y, h:i A" }}</td>
+
+                                   
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="6" class="text-center ">No transactions available</td>
+                                    <td colspan="6" class="text-center">No transactions available</td>
                                 </tr>
                                 {% endfor %}
+                          
                             </tbody>
                         </table><!-- End .table table-transactions -->
                     </div><!-- End .table-responsive -->

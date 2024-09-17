@@ -48,7 +48,7 @@ class OrderItem(models.Model):
     ORDER_STATUS_CHOICES = [
     ('Pending', 'Pending'),               # Order has been placed but not yet processed
     ('Processing', 'Processing'),         # Order is being prepared or packaged
-    ('Out for Delivery', 'Out for Delivery'), # Order is out for delivery to the customer
+    ('Out for Delivery','Out for Delivery'), # Order is out for delivery to the customer
     ('Delivered', 'Delivered'),           # Order has been delivered to the customer
     ('Cancelled', 'Cancelled'),           # Order was cancelled by the customer or seller
     ('Refunded', 'Refunded'),   
