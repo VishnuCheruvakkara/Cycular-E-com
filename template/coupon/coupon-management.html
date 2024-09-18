@@ -71,7 +71,7 @@
                 <div class="row mb-3">
                     <div class="col-12 text-right">
                         <a href="#" class="btn btn-primary btn-rounded" data-toggle="modal" data-target="#couponModal">
-                            <i class="fa fa-plus"></i> Add Products
+                            <i class="fa fa-plus"></i> Create Coupen
                         </a>
                     </div>
                 </div>
@@ -79,59 +79,65 @@
  
 
                <!-- Modal Structure -->
-<div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-primary" id="couponModalLabel"><b>Create a New Coupon</b></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+                <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-primary" id="couponModalLabel"><b>Create a New Coupon</b></h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
 
-            <!-- Coupon Form -->
-            <form>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="couponName">Coupon code</label>
-                        <input type="text" class="form-control" id="couponCod" placeholder="Enter coupon code" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="couponAmount">Coupon Amount (%)</label>
-                        <input type="number" class="form-control" id="couponAmount" min="0" max="100" placeholder="Enter discount percentage" required>
-                    </div>
+                            <!-- Coupon Form -->
+                            <form method="post" action="{% url 'coupon:coupon-management' %}">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="couponName">Coupon code</label>
+                                        <input  name="code" type="text" class="form-control" id="couponCod" placeholder="Enter coupon code" required>
+                                        <!-- Error message for code -->
+                                        {% if errors.code %}
+                                            <small class="text-danger">{{ errors.code }}</small><br>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="couponAmount">Coupon Amount (%)</label>
+                                        <input name="discount_value" type="number" class="form-control" id="couponAmount" min="0" max="100" placeholder="Enter discount percentage" required>
+                                        {% if errors.discount_value %}
+                                            <small class="text-danger">{{ errors.discount_value }}</small><br>
+                                        {% endif %}
+                                    </div>
 
-                    <div class="form-group">
-                        <label for="validDate">Valid Until  <i class="fa fa-calendar"></i></label>
-                        <input type="text" class="form-control" id="validDate" placeholder="Select a valid date " required>
-                       
+                                    <div class="form-group">
+                                        <label for="validDate">Valid Until  <i class="fa fa-calendar"></i></label>
+                                        <input name="valid_until" type="text" class="form-control" id="validDate" placeholder="Select a valid date " required>
+                                        {% if errors.valid_until %}
+                                            <small class="text-danger">{{ errors.valid_until }}</small><br>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group description-field">
+                                        <label for="description">Description <i class="fa fa-info-circle"></i></label>
+                                        <textarea name="description" class="form-control" id="description" placeholder="Enter description" required></textarea>
+                                        {% if errors.description %}
+                                            <small class="text-danger">{{ errors.description}}</small><br>
+                                        {% endif %}
+                                    </div>
+                                
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save Coupon</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <div class="form-group description-field">
-                        <label for="description">Description <i class="fa fa-info-circle"></i></label>
-                        <textarea class="form-control" id="description" placeholder="Enter description" required></textarea>
-                    </div>
-                   
                 </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save Coupon</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
- 
             
                 <div class="row">
-                   
                     <div class="col-12">
-
-
-
                         <div class="table-responsive">
                             <table class="table table-striped custom-table">
                                 <thead>
@@ -238,7 +244,16 @@
     <script src="{% static 'admin/js/select2.min.js' %}"></script>
     <script src="{% static 'admin/js/app.js' %}"></script>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    {% for message in messages %}
+            swal.fire({
+                icon:"{{message.tags}}",
+                title:"{{message}}",
+                text:"{{message.tags}}",    
+            })
+    {% endfor %}
+    </script>
     
   <!-- Bootstrap 4 JS, Popper.js, and jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -256,6 +271,7 @@
       });
     });
   </script>
+ 
 </body>
 
 <!-- appointments23:20-->
