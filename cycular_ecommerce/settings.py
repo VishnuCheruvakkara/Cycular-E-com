@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     'wishlist',
     'wallet',
     'captcha',
-    'coupen',
+    'coupon',
 ]
 
 MIDDLEWARE = [
