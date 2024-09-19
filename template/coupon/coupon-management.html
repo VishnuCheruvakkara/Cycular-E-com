@@ -37,18 +37,26 @@
             font-size: 12px ; 
             /* Adjust the text size */
         }
-        .swal2-confirm:focus {
+        .swal2-confirm{
              /* Adjust padding for the button */
             
-            font-size: 10px ; 
+            font-size: 12px ; 
             background-color:#009efb;
             box-shadow: none !important; 
-            
-         
+            border:none !important;
         }
-
-    
+      
+        .swal2-cancel {
+            /* Customize the cancel button */
+            background-color: #d33; /* Red color */
+           
+            font-size: 12px;
+            box-shadow: none !important; 
+        }
+        
         </style>
+
+
    
     <!-- jQuery UI CSS for Datepicker -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -269,32 +277,31 @@
                             </table>
                         </div>
 
-                        
-                       
+                        <!-- pagination here...  -->
                         <div class="d-flex justify-content-end">
                             <ul class="pagination pagination-sm">
                                 <!-- Previous Page Link -->
-                                {% if customers.has_previous %}
+                                {% if coupons.has_previous %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ customers.previous_page_number }}" tabindex="-1">Previous</a>
+                                    <a class="page-link" href="?page={{ coupons.previous_page_number }}" tabindex="-1">Previous</a>
                                 </li>
                                 {% else %}
                                 <li class="page-item disabled">
                                     <a class="page-link" href="#" tabindex="-1">Previous</a>
                                 </li>
                                 {% endif %}
-                        
+                                
                                 <!-- Page Numbers -->
-                                {% for num in customers.paginator.page_range %}
-                                <li class="page-item {% if customers.number == num %}active{% endif %}">
+                                {% for num in coupons.paginator.page_range %}
+                                <li class="page-item {% if coupons.number == num %}active{% endif %}">
                                     <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                                 </li>
                                 {% endfor %}
-                        
+                                
                                 <!-- Next Page Link -->
-                                {% if customers.has_next %}
+                                {% if coupons.has_next %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ customers.next_page_number }}">Next</a>
+                                    <a class="page-link" href="?page={{ coupons.next_page_number }}">Next</a>
                                 </li>
                                 {% else %}
                                 <li class="page-item disabled">
@@ -303,6 +310,8 @@
                                 {% endif %}
                             </ul>
                         </div>
+                        
+                       
                         
                     </div>
                 </div>
@@ -360,72 +369,94 @@
 
 
   <!-- script for the change the coupon status, down below... -->
-  <script>
-        function confirmDeleteCoupon(couponId) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // If confirmed, call deleteCoupon to handle the soft delete
-            deleteCoupon(couponId);
-        }
-    });
-}
+  
+<script>
+    function showAlert({
+        title = 'Alert',
+        text = '',
+        icon = 'info',
+        confirmButtonText = 'OK',
+        cancelButtonText = 'Cancel',
+        showCancelButton = false,
+        onConfirm = null,
+        onCancel = null
+    }) {
+        Swal.fire({
+            title,
+            text,
+            icon,
+            width:"250px",
+            showCancelButton,
+            confirmButtonText,
+            cancelButtonText,
+            customClass: {
+                icon: 'small-icon',
+                title: 'small-title',
+                confirmButton: 'swal2-confirm',
+                cancelButton: 'swal2-cancel',
+                popup: 'small-popup',
+            }
+        }).then((result) => {
+            if (result.isConfirmed && onConfirm) {
+                onConfirm();
+            } else if (result.isDismissed && onCancel) {
+                onCancel();
+            }
+        });
+    }
 
-function deleteCoupon(couponId) {
-    // Fetch the delete URL from Django's reverse URL resolver
-    const deleteUrl = `{% url 'coupon:delete-coupon' 0 %}`.replace('0', couponId);
+    function confirmDeleteCoupon(couponId) {
+        showAlert({
+            title: 'Are you sure?',
+            text: "This will delete permenently...!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            onConfirm: () => deleteCoupon(couponId)
+        });
+    }
 
-    // Send a fetch request to the soft delete URL
-    fetch(deleteUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}' // Ensure CSRF token is sent for security
-        },
-        body: JSON.stringify({ active: false })
-    })
+    function deleteCoupon(couponId) {
+        const deleteUrl = `{% url 'coupon:delete-coupon' 0 %}`.replace('0', couponId);
 
+        fetch(deleteUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ active: false })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("JSON Data:", data);
 
+            if (data.success) {
+                showAlert({
+                    title: 'Deleted!',
+                    text: 'Your coupon has been deleted.',
+                    icon: 'success'
+                });
 
-    .then(response => {
-        // Log the raw response
-        console.log("Raw Response:", response);
-        
-        // Parse the response as JSON
-        return response.json();
-    })
-    .then(data => {
-        // Log the JSON data
-        console.log("JSON Data:", data);
-
-        if (data.success) {
-            // Show a success message and remove the coupon row from the table
-            Swal.fire(
-                'Deleted!',
-                'Your coupon has been deleted.',
-                'success'
-            );
-
-            // Remove the coupon row from the table
-            document.getElementById(`coupon-row-${couponId}`).remove();
-        } else {
-            Swal.fire('Error', 'Error deleting the coupon. Please try again.', 'error');
-        }
-    })
-    .catch(error => {
-        Swal.fire('Error', 'Error deleting the coupon. Please try again.', 'error');
-        console.error("Error:", error);
-    });
-}
-
-  </script>
+                document.getElementById(`coupon-row-${couponId}`).remove();
+            } else {
+                showAlert({
+                    title: 'Error',
+                    text: 'Error deleting the coupon. Please try again.',
+                    icon: 'error'
+                });
+            }
+        })
+        .catch(error => {
+            showAlert({
+                title: 'Error',
+                text: 'Error deleting the coupon. Please try again.',
+                icon: 'error'
+            });
+            console.error("Error:", error);
+        });
+    }
+</script>
  
 </body>
 

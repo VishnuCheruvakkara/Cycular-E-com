@@ -4,8 +4,11 @@ from .models import Coupon
 from django.contrib import messages
 import re
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 # Create your views here.
+
+############################  admin coupen page  ##########################
 
 def coupon_management(request):
     errors = {}
@@ -58,9 +61,14 @@ def coupon_management(request):
             return redirect('coupon:coupon-management')  # Adjust to your actual view or URL
         else:
             messages.error(request, 'There were errors in your form.')
-    coupons=Coupon.objects.filter(active=True)
+    
+    coupon_list=Coupon.objects.filter(active=True)
+    paginator = Paginator(coupon_list, 5)  # Show 10 coupons per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context={
-        'coupons':coupons,
+        'coupons':page_obj,
         'errors':errors,
     }
    
