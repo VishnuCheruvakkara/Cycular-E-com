@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.conf import settings
 from wallet.models import Transaction
+from coupon.models import Coupon
 
 
                       
@@ -19,6 +20,7 @@ import razorpay
 def check_out(request):
     #retrive the current user's cart
     cart=get_object_or_404(Cart,user=request.user)
+    
     #to take all address
     addresses=Address.objects.filter(user=request.user)
     #retrive all items for the current user cart
@@ -87,12 +89,14 @@ def check_out(request):
             # Log the exception
             print(f"Error: {e}")
             messages.error(request, 'An error occurred while placing the order.')
-  
+    coupons = Coupon.objects.filter(active=True) 
     context={
         'cart_items':cart_items,
         'total_price':total_price,
         'addresses':addresses,
+        'coupons':coupons,
     }
+
     return render(request,'payment/check-out.html',context)
 
 ############################  add address in check out page.  ###################

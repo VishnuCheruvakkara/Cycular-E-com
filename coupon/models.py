@@ -21,3 +21,4 @@ class Coupon(models.Model):
             if self.valid_until.hour == 0 and self.valid_until.minute == 0 and self.valid_until.second == 0:
                 self.valid_until = self.valid_until.replace(hour=12, minute=0, second=0)
         super().save(*args, **kwargs)
+

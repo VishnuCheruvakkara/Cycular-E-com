@@ -298,6 +298,7 @@
 							<div class="offcanvas-body">
 								<div class="coupon-list">
 									<!-- Coupon Card 1 -->
+									{% for coupon in coupons %}
 									<div class="card">
 										<div class="main">
 											<div class="co-img">
@@ -305,16 +306,17 @@
 											</div>
 											<div class="vertical"></div>
 											<div class="content">
-												<h2>Mcdonalds</h2>
-												<h1>10% <span>Coupon</span></h1>
-												<p>Valid till 30 April 2024</p>
+												<h2>{{ coupon.code }}</h2>
+												<h1>{{ coupon.discount_value }}% <span>Coupon</span></h1>
+												<p>Valid till {{ coupon.valid_until|date:"d F Y" }}</p>
 											</div>
 										</div>
 										<div class="copy-button">
-											<input id="copyvalue1" type="text" readonly value="GOFREE" />
-											<button onclick="copyIt('copyvalue1')" class="copybtn">COPY</button>
+											<input id="copyvalue{{ forloop.counter }}" type="text" readonly value="{{ coupon.code }}" />
+											<button onclick="copyIt('copyvalue{{ forloop.counter }}')" class="copybtn">COPY</button>
 										</div>
 									</div>
+									{% endfor %}
 								</div>
 							</div>
 						</div>
@@ -324,12 +326,18 @@
 
 						<script>
 						document.getElementById('showCouponsBtn').addEventListener('click', function() {
-							document.getElementById('couponCanvas').classList.add('show');
+							const couponCanvas = document.getElementById('couponCanvas');
+							if (couponCanvas.classList.contains('show')) {
+								couponCanvas.classList.remove('show'); // Close the modal
+							} else {
+								couponCanvas.classList.add('show'); // Open the modal
+							}
 						});
 
 						document.getElementById('closeBtn').addEventListener('click', function() {
-							document.getElementById('couponCanvas').classList.remove('show');
+							document.getElementById('couponCanvas').classList.remove('show'); // Close the modal
 						});
+
 
 						function copyIt(copyFieldId) {
 							let copyInput = document.getElementById(copyFieldId);
