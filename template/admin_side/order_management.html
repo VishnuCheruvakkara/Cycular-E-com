@@ -120,32 +120,31 @@
                             </table>
                         </div>
 
-                        
-                       
+                        <!-- Pagination Controls -->
                         <div class="d-flex justify-content-end">
                             <ul class="pagination pagination-sm">
                                 <!-- Previous Page Link -->
-                                {% if customers.has_previous %}
+                                {% if order_items.has_previous %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ customers.previous_page_number }}" tabindex="-1">Previous</a>
+                                    <a class="page-link" href="?page={{ order_items.previous_page_number }}" tabindex="-1">Previous</a>
                                 </li>
                                 {% else %}
                                 <li class="page-item disabled">
                                     <a class="page-link" href="#" tabindex="-1">Previous</a>
                                 </li>
                                 {% endif %}
-                        
+
                                 <!-- Page Numbers -->
-                                {% for num in customers.paginator.page_range %}
-                                <li class="page-item {% if customers.number == num %}active{% endif %}">
+                                {% for num in order_items.paginator.page_range %}
+                                <li class="page-item {% if order_items.number == num %}active{% endif %}">
                                     <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                                 </li>
                                 {% endfor %}
-                        
+
                                 <!-- Next Page Link -->
-                                {% if customers.has_next %}
+                                {% if order_items.has_next %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ customers.next_page_number }}">Next</a>
+                                    <a class="page-link" href="?page={{ order_items.next_page_number }}">Next</a>
                                 </li>
                                 {% else %}
                                 <li class="page-item disabled">
@@ -153,8 +152,9 @@
                                 </li>
                                 {% endif %}
                             </ul>
-                        </div>
-                        
+                        </div>  
+                       
+                      
                     </div>
                 </div>
             </div>

@@ -90,11 +90,15 @@ def UserView(request,user_id):
 
 def OrderManagement(request):
     order_items = OrderItem.objects.all()
-    
+    paginator= Paginator(order_items,5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     if request.method == 'POST':
         order_item_id=request.POST.get('order_item_id')
         new_status=request.POST.get('status')
-
+        page_number=request.GET.get('page')
+        page_obj=paginator.get_page(page_number)
         #update status of sepecific order item
         order_item = OrderItem.objects.get(id=order_item_id)
         
@@ -111,7 +115,7 @@ def OrderManagement(request):
     status_choices = OrderItem._meta.get_field('order_item_status').choices
 
     context={
-        'order_items':order_items,
+        'order_items':page_obj,
         'status_choices': status_choices,
     }
     return render(request,'admin_side/order_management.html',context)
