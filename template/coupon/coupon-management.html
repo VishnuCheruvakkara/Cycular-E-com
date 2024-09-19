@@ -71,7 +71,7 @@
                 <div class="row mb-3">
                     <div class="col-12 text-right">
                         <a href="#" class="btn btn-primary btn-rounded" data-toggle="modal" data-target="#couponModal">
-                            <i class="fa fa-plus"></i> Create Coupen
+                            <i class="fa fa-plus"></i> Create Coupon
                         </a>
                     </div>
                 </div>
@@ -143,53 +143,93 @@
                                 <thead>
                                     <tr>
                                         <th>Sl.No</th>
-                                        <th>Coupon Name</th>
+                                        <th>Coupon Code</th>
                                         <th>Coupon percentage</th>
-                                        <th>Coupon amount</th>
-                                        <th>Expiry</th>
+                                        <th>Description</th>
+                                        <th>Created at</th>
+                                        <th>Expriry date</th>
                                         <th>Edit</th>
                                         <th>Delete</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for order_item in order_items %}
+                                    {% for coupon in coupons %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td>{{ order_item.product_variant.product.name }}</td>
-                                        <td>{{ order_item.quantity }}</td>
-                                        <td>{{ order_item.product_variant.size }}</td>
-                                        <td>{{ order_item.order.user }}</td>
-                                        <td>{{ order_item.order_item_status }}</td>
+                                        <td>{{ coupon.code }}</td>
+                                        <td>{{ coupon.discount_value }} %</td>
+                                        <td>{{ coupon.description }}</td>
+                                        <td>{{ coupon.valid_from|date:"d-m-Y H:i:s A" }}</td>
+                                        <td>{{ coupon.valid_until|date:"d-m-Y H:i:s A" }}</td>
+                    
                                         <td>
-                                            <!-- Displaying address details -->
-                                            {% if order_item.order.order_address %}
-                                            <b>address line : </b>{{ order_item.order.order_address.address_line }},<br>
-                                            city : {{ order_item.order.order_address.city }},<br>
-                                            state : {{ order_item.order.order_address.state }},<br>
-                                            country : {{ order_item.order.order_address.country }},<br>
-                                            postal code : {{ order_item.order.order_address.postal_code }},<br>
-                                            phone number : {{ order_item.order.order_address.phone_number }}<br>
-                                            {% else %}
-                                                No address available
-                                            {% endif %}
+                                            <a href="#" class="btn btn-warning " data-toggle="modal" data-target="#editCouponModal{{ coupon.id }}">
+                                                <i class="fa fa-edit"></i> Edit Coupon
+                                            </a>
                                         </td>
+
                                         <td>
-                                           <!-- Form to change order status -->
-                                            <form method="POST" action="">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="order_item_id" value="{{ order_item.id }}">
-                                                <select name="status" onchange="this.form.submit()">
-                                                    {% for status, label in status_choices %}
-                                                    <option value="{{ status }}" {% if order_item.order_item_status == status %}selected{% endif %}>
-                                                        {{ label }}
-                                                    </option>
-                                                    {% endfor %}
-                                                </select>
-                                            </form>
+                                            <button class="btn btn-sm toggle-status" data-user-id="{{ user.id }}"  data-is-active="{{ user.is_active }}"  data-toggle="modal" data-target="#confirm-modal-{{ user.id }}">
+                                                <span class="custom-badge status-{{ user.is_active|yesno:'green,red' }}">
+                                                    {{ user.is_active|yesno:'Active,Inactive' }}
+                                                </span>
+                                            </button>
                                         </td>
-                                       
-                                       
                                     </tr>
+
+
+                                    <!-- Modal for Edit Coupon -->
+                                    <div class="modal fade" id="editCouponModal{{ coupon.id }}" tabindex="-1" role="dialog" aria-labelledby="editCouponModalLabel{{ coupon.id }}" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editCouponModalLabel{{ coupon.id }}">Edit Coupon</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <!-- Edit Coupon Form -->
+                                                <form method="post" action="{% url 'coupon:edit-coupon' coupon.id %}">
+                                                    {% csrf_token %}
+                                                    <div class="modal-body">
+                                                        <div class="form-group">
+                                                            <label for="couponCode">Coupon Code</label>
+                                                            <input type="text" class="form-control" id="couponCode" name="code" value="{{ coupon.code }}" required>
+                                                            {% if errors.code %}
+                                                            <small class="text-danger">{{ errors.code }}</small><br>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="discountValue">Discount Value (%)</label>
+                                                            <input type="number" class="form-control" id="discountValue" name="discount_value" value="{{ coupon.discount_value }}" min="0" max="100" required>
+                                                            {% if errors.discount_value %}
+                                                            <small class="text-danger">{{ errors.discount_value }}</small><br>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="validUntil">Valid Until (DD-MM-YYYY)</label>
+                                                            <input type="text" class="form-control" id="validUntil" name="valid_until" value="{{ coupon.valid_until|date:'d-m-Y ' }}" required>
+                                                            {% if errors.valid_until %}
+                                                            <small class="text-danger">{{ errors.valid_until }}</small><br>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="description">Description</label>
+                                                            <textarea class="form-control" id="description" name="description" required>{{ coupon.description }}</textarea>
+                                                            {% if errors.description %}
+                                                            <small class="text-danger">{{ errors.description}}</small><br>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-primary">Update Coupon</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                   
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -256,7 +296,7 @@
     </script>
     
   <!-- Bootstrap 4 JS, Popper.js, and jQuery -->
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+ 
 
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 
