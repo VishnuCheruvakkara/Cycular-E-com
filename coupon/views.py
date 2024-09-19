@@ -1,8 +1,9 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from datetime import datetime
-from coupon.models import Coupon
+from .models import Coupon
 from django.contrib import messages
 import re
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -57,7 +58,7 @@ def coupon_management(request):
             return redirect('coupon:coupon-management')  # Adjust to your actual view or URL
         else:
             messages.error(request, 'There were errors in your form.')
-    coupons=Coupon.objects.all()
+    coupons=Coupon.objects.filter(active=True)
     context={
         'coupons':coupons,
         'errors':errors,
@@ -122,7 +123,7 @@ def edit_coupon(request, coupon_id):
             return redirect('coupon:coupon-management')  # Adjust to your actual view or URL
         else:
             messages.error(request, 'There were errors in your form.')
-    coupons=Coupon.objects.all()
+    coupons=Coupon.objects.filter(active=True)
     context = {
         'coupon': coupon,
         'errors': errors,
@@ -131,3 +132,19 @@ def edit_coupon(request, coupon_id):
    
     return render(request, 'coupon/coupon-management.html', context)
 
+####################  soft delete for the coupen  #########################
+
+def delete_coupon(request, coupon_id):
+    if request.method == 'POST':
+        print(f"Received POST request to delete coupon {coupon_id}")
+        try:
+            coupon = Coupon.objects.get(id=coupon_id)
+            
+            # Soft delete the coupon by setting active to False
+            coupon.active = False
+            coupon.save()
+
+            return JsonResponse({'success': True})
+        except Coupon.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Coupon not found'}, status=404)
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)

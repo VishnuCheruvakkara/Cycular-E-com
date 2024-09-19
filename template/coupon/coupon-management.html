@@ -182,17 +182,23 @@
                                 </thead>
                                 <tbody>
                                     {% for coupon in coupons %}
-                                    <tr>
+                                    <tr id="coupon-row-{{ coupon.id }}">
                                         <td>{{ forloop.counter }}</td>
                                         <td>{{ coupon.code }}</td>
                                         <td>{{ coupon.discount_value }} %</td>
                                         <td>{{ coupon.description }}</td>
                                         <td>{{ coupon.valid_from|date:"d-m-Y H:i:s A" }}</td>
                                         <td>{{ coupon.valid_until|date:"d-m-Y H:i:s A" }}</td>
-                    
                                         <td>
                                             <a href="#" class="btn btn-warning " data-toggle="modal" data-target="#editCouponModal{{ coupon.id }}">
                                                 <i class="fa fa-edit"></i> Edit Coupon
+                                            </a>
+                                        </td>
+                    
+                                        <td>
+                                            <!-- Delete button triggers SweetAlert confirmation -->
+                                            <a href="#" class="btn btn-danger" onclick="confirmDeleteCoupon({{ coupon.id }})">
+                                                <i class="fa fa-trash"></i> Delete Coupon 
                                             </a>
                                         </td>
 
@@ -326,9 +332,6 @@
                 title: 'small-title',
                 confirmButton: 'swal2-confirm',
                 popup: 'small-popup', 
-
-
-
             }
                
             });
@@ -350,6 +353,78 @@
         dateFormat: "dd-mm-yy"  // Format the date as YYYY-MM-DD
       });
     });
+  </script>
+
+
+
+
+
+  <!-- script for the change the coupon status, down below... -->
+  <script>
+        function confirmDeleteCoupon(couponId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, call deleteCoupon to handle the soft delete
+            deleteCoupon(couponId);
+        }
+    });
+}
+
+function deleteCoupon(couponId) {
+    // Fetch the delete URL from Django's reverse URL resolver
+    const deleteUrl = `{% url 'coupon:delete-coupon' 0 %}`.replace('0', couponId);
+
+    // Send a fetch request to the soft delete URL
+    fetch(deleteUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}' // Ensure CSRF token is sent for security
+        },
+        body: JSON.stringify({ active: false })
+    })
+
+
+
+    .then(response => {
+        // Log the raw response
+        console.log("Raw Response:", response);
+        
+        // Parse the response as JSON
+        return response.json();
+    })
+    .then(data => {
+        // Log the JSON data
+        console.log("JSON Data:", data);
+
+        if (data.success) {
+            // Show a success message and remove the coupon row from the table
+            Swal.fire(
+                'Deleted!',
+                'Your coupon has been deleted.',
+                'success'
+            );
+
+            // Remove the coupon row from the table
+            document.getElementById(`coupon-row-${couponId}`).remove();
+        } else {
+            Swal.fire('Error', 'Error deleting the coupon. Please try again.', 'error');
+        }
+    })
+    .catch(error => {
+        Swal.fire('Error', 'Error deleting the coupon. Please try again.', 'error');
+        console.error("Error:", error);
+    });
+}
+
   </script>
  
 </body>
