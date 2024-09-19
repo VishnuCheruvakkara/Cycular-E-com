@@ -88,6 +88,8 @@ def UserView(request,user_id):
 
 ############################  order management  ###################
 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def OrderManagement(request):
     order_items = OrderItem.objects.all()
     paginator= Paginator(order_items,5)

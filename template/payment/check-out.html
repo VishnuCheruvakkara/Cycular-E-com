@@ -31,6 +31,140 @@
 			}
 
 		</style>
+
+<style>
+	/* Coupon-specific styles */
+#couponCanvas .card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  max-width: 300px;
+}
+
+#couponCanvas .card .main {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f9f9f9;
+}
+
+#couponCanvas .card .co-img {
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+}
+
+#couponCanvas .card .co-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#couponCanvas .card .vertical {
+  height: 40px;
+  width: 1px;
+  background-color: #e0e0e0;
+  margin: 0 0.75rem;
+}
+
+#couponCanvas .card .content {
+  flex-grow: 1;
+}
+
+#couponCanvas .card .content h2 {
+  font-size: 0.9rem;
+  color: #333;
+  margin: 0 0 0.25rem;
+}
+
+#couponCanvas .card .content h1 {
+  font-size: 1.2rem;
+  color: #4CAF50;
+  margin: 0 0 0.25rem;
+}
+
+#couponCanvas .card .content h1 span {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+#couponCanvas .card .content p {
+  font-size: 0.75rem;
+  color: #888;
+  margin: 0;
+}
+
+#couponCanvas .card .copy-button {
+  display: flex;
+  padding: 0.5rem;
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+}
+
+#couponCanvas .card .copy-button input {
+  flex-grow: 1;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+#couponCanvas .card .copy-button .copybtn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* Applied Coupon Styles */
+.coupon-container .card {
+  position: relative;
+  margin-top: 1rem;
+  max-width: 300px;
+}
+
+.coupon-container .close-button {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  font-size: 1rem;
+  color: #888;
+  cursor: pointer;
+  z-index: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 350px) {
+  #couponCanvas .card,
+  .coupon-container .card {
+    max-width: 100%;
+  }
+
+  #couponCanvas .card .main {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  #couponCanvas .card .co-img {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  #couponCanvas .card .vertical {
+    display: none;
+  }
+}
+</style>
+	
+
+
 	</head>
 	<body>
         <main class="main mt-2 ">
@@ -56,12 +190,101 @@
 
 
 	                <div class="container">
+
+
+
             			<div class="checkout-discount">
             				<form action="#">
         						<input type="text" class="form-control" required id="checkout-discount-input">
             					<label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
             				</form>
+						
             			</div><!-- End .checkout-discount -->
+						<button class="btn btn-primary mt-2 mb-3" data-bs-toggle="offcanvas" data-bs-target="#couponCanvas">Show All Available Coupons</button>
+						
+						
+						
+						<!-- Off-Canvas for Available Coupons -->
+						<div class="offcanvas offcanvas-start" id="couponCanvas" tabindex="-1">
+							<div class="offcanvas-header">
+							<h5 class="offcanvas-title">Available Coupons</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+							</div>
+							<div class="offcanvas-body">
+							<div class="coupon-list">
+								<!-- Coupon Card 1 -->
+								<div class="card">
+								<div class="main">
+									<div class="co-img">
+									<img src="https://i.pinimg.com/originals/c7/84/67/c78467db9ff497393cb548a48f02d451.png" alt="">
+									</div>
+									<div class="vertical"></div>
+									<div class="content">
+									<h2>Mcdonalds</h2>
+									<h1>10% <span>Coupon</span></h1>
+									<p>Valid till 30 April 2024</p>
+									</div>
+								</div>
+								<div class="copy-button">
+									<input id="copyvalue1" type="text" readonly value="GOFREE" />
+									<button onclick="copyIt('copyvalue1')" class="copybtn">COPY</button>
+</div>
+								</div>
+							</div>
+							</div>
+						</div>
+
+
+
+
+						<!-- Coupon Applied Section -->
+						<div class="coupon-container"></div>
+
+						<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+						
+						<script>
+							function copyIt(copyFieldId) {
+							let copyInput = document.getElementById(copyFieldId);
+							copyInput.select();
+							document.execCommand("copy");
+							Swal.fire({
+								title: 'Coupon Copied!',
+								text: 'The coupon has been copied to your clipboard.',
+								icon: 'success',
+								confirmButtonText: 'OK'
+							});
+							}
+						
+							function applyCoupon() {
+							Swal.fire({
+								title: 'Coupon Applied!',
+								text: 'Your coupon has been successfully applied.',
+								icon: 'success',
+								confirmButtonText: 'OK'
+							}).then(() => {
+								let couponHTML = `
+								<div class="card">
+									<span class="close-button" onclick="removeCoupon(this)">x</span>
+									<div class="main">
+									<div class="co-img">
+										<img src="https://i.pinimg.com/originals/c7/84/67/c78467db9ff497393cb548a48f02d451.png" alt="">
+									</div>
+									<div class="vertical"></div>
+									<div class="content">
+										<h2>Mcdonalds</h2>
+										<h1>10% <span>Coupon</span></h1>
+										<p>Valid till 30 April 2024</p>
+									</div>
+									</div>
+								</div>`;
+								document.querySelector('.coupon-container').innerHTML = couponHTML;
+							});
+							}
+						
+							function removeCoupon(el) {
+							el.parentElement.remove();
+							}
+						</script>
 
 						<!-- space to show all address here and add address option  -->
 

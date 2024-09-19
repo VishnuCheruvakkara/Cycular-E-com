@@ -5,11 +5,15 @@ from django.contrib import messages
 import re
 from django.http import JsonResponse
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
 
 ############################  admin coupen page  ##########################
 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def coupon_management(request):
     errors = {}
     
