@@ -21,6 +21,34 @@
             background-color: rgba(0, 0, 0, 0.652); /* Adjust opacity as needed */
         }
     </style>
+
+
+    <!-- complete customization of the sweet alert -->
+    <style>
+        /* Inline style for customizing title font size */
+        .small-title {
+            font-size: 18px ;  /* Adjust the title size as per your need */
+            font-weight: bold; /* Optional: make title bold */
+        }
+        .small-icon {
+            font-size: 10px ;  
+        }
+        .small-popup {
+            font-size: 12px ; 
+            /* Adjust the text size */
+        }
+        .swal2-confirm:focus {
+             /* Adjust padding for the button */
+            
+            font-size: 10px ; 
+            background-color:#009efb;
+            box-shadow: none !important; 
+            
+         
+        }
+
+    
+        </style>
    
     <!-- jQuery UI CSS for Datepicker -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -83,7 +111,7 @@
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title text-primary" id="couponModalLabel"><b>Create a New Coupon</b></h5>
+                                <h3 class="modal-title text-primary" id="couponModalLabel"><b>Create a New Coupon</b></h3>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -112,7 +140,7 @@
 
                                     <div class="form-group">
                                         <label for="validDate">Valid Until  <i class="fa fa-calendar"></i></label>
-                                        <input name="valid_until" type="text" class="form-control" id="validDate" placeholder="Select a valid date " required>
+                                        <input name="valid_until" type="text" class="form-control" id="validDate" placeholder="Select a valid date" required>
                                         {% if errors.valid_until %}
                                             <small class="text-danger">{{ errors.valid_until }}</small><br>
                                         {% endif %}
@@ -121,7 +149,7 @@
                                         <label for="description">Description <i class="fa fa-info-circle"></i></label>
                                         <textarea name="description" class="form-control" id="description" placeholder="Enter description" required></textarea>
                                         {% if errors.description %}
-                                            <small class="text-danger">{{ errors.description}}</small><br>
+                                            <small class="text-danger">{{ errors.description }}</small><br>
                                         {% endif %}
                                     </div>
                                 
@@ -168,13 +196,7 @@
                                             </a>
                                         </td>
 
-                                        <td>
-                                            <button class="btn btn-sm toggle-status" data-user-id="{{ user.id }}"  data-is-active="{{ user.is_active }}"  data-toggle="modal" data-target="#confirm-modal-{{ user.id }}">
-                                                <span class="custom-badge status-{{ user.is_active|yesno:'green,red' }}">
-                                                    {{ user.is_active|yesno:'Active,Inactive' }}
-                                                </span>
-                                            </button>
-                                        </td>
+                                       
                                     </tr>
 
 
@@ -183,7 +205,9 @@
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="editCouponModalLabel{{ coupon.id }}">Edit Coupon</h5>
+                                                    <h3 class="modal-title text-primary" id="editCouponModalLabel{{ coupon.id }}"><b>Edit Coupon</b></h3>
+
+
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
@@ -201,18 +225,22 @@
                                                         </div>
                                                         <div class="form-group">
                                                             <label for="discountValue">Discount Value (%)</label>
-                                                            <input type="number" class="form-control" id="discountValue" name="discount_value" value="{{ coupon.discount_value }}" min="0" max="100" required>
+                                                            <input type="number" class="form-control" id="discountValue" name="discount_value" value="{{coupon.discount_value}}" min="0" max="100" required>
                                                             {% if errors.discount_value %}
                                                             <small class="text-danger">{{ errors.discount_value }}</small><br>
                                                             {% endif %}
                                                         </div>
+                                                    
+                                                       
+
                                                         <div class="form-group">
-                                                            <label for="validUntil">Valid Until (DD-MM-YYYY)</label>
-                                                            <input type="text" class="form-control" id="validUntil" name="valid_until" value="{{ coupon.valid_until|date:'d-m-Y ' }}" required>
+                                                            <label for="validDate">Valid Until <i class="fa fa-calendar"></i></label>
+                                                            <input name="valid_until" type="text" class="form-control" id="validDate" placeholder="Select a valid date" value="{{coupon.valid_until|date:'d-m-Y'}}" required>
                                                             {% if errors.valid_until %}
-                                                            <small class="text-danger">{{ errors.valid_until }}</small><br>
+                                                                <small class="text-danger">{{errors.valid_until}}</small><br>
                                                             {% endif %}
                                                         </div>
+
                                                         <div class="form-group">
                                                             <label for="description">Description</label>
                                                             <textarea class="form-control" id="description" name="description" required>{{ coupon.description }}</textarea>
@@ -290,8 +318,20 @@
             swal.fire({
                 icon:"{{message.tags}}",
                 title:"{{message}}",
-                text:"{{message.tags}}",    
-            })
+                text:"{{message.tags}}", 
+                width:"250px",
+
+                customClass: {
+                icon: 'small-icon',
+                title: 'small-title',
+                confirmButton: 'swal2-confirm',
+                popup: 'small-popup', 
+
+
+
+            }
+               
+            });
     {% endfor %}
     </script>
     
