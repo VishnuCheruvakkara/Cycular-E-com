@@ -275,15 +275,22 @@
 
 	                <div class="container">
 
-
-
-            			<div class="checkout-discount">
-            				<form action="#">
-        						<input type="text" class="form-control" required id="checkout-discount-input">
-            					<label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
-            				</form>
 						
-            			</div><!-- End .checkout-discount -->
+						<div class="checkout-discount">
+							<form action="#" style="display: flex; align-items: stretch; width: 100%;">
+								<div style="position: relative; flex-grow: 1;">
+									<input type="text" class="form-control" required id="couponInput" placeholder="Enter your coupon code" style="width: 250px; height: 38px; border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0;">
+									<label for="couponInput" class="text-truncate" style="position: absolute; top: 100%; left: 0; font-size: 0.8em; margin-top: 2px;">Have a coupon? <span>check below</span></label>
+								</div>
+								<button type="button" class="btn btn-primary btn-sm" onclick="applyCoupon()" style="white-space: nowrap; height: 38px; align-self: flex-start; border-top-left-radius: 0; border-bottom-left-radius: 0;">Apply Coupon</button>
+							</form>
+						</div><!-- End .checkout-discount -->
+
+						<!-- This section will be populated after a coupon is applied -->
+<div id="appliedCouponSection" style="display: none; border: 1px solid #ddd; padding: 10px; margin-top: 10px; position: relative;">
+    <span style="position: absolute; top: 5px; right: 10px; cursor: pointer;" onclick="removeCoupon()">X</span>
+    <p id="appliedCouponMessage"></p>
+</div>
 
 						<!-- apply coupon here, below... -->
 						
@@ -291,11 +298,10 @@
 							function applyCoupon() {
 								const couponCode = document.getElementById('couponInput').value;
 								const totalPrice = parseFloat(document.getElementById('totalPrice').innerText);
-								const orderId = {{ order.id }};  // Ensure this is passed in the template context
-
+						
 								// Use Django's URL tag to reverse the URL
-								const applyCouponUrl = "{% url 'payment:apply-coupon' order.id %}";  // Ensure 'apply_coupon' is the correct name of your URL in urls.py
-
+								const applyCouponUrl = "{% url 'payment:apply-coupon' %}";  // Adjust this to your URL pattern for applying coupon
+						
 								fetch(applyCouponUrl, {
 									method: 'POST',
 									headers: {
@@ -313,6 +319,10 @@
 											icon: 'success',
 											confirmButtonText: 'OK'
 										});
+										// Update the applied coupon section
+										document.getElementById('appliedCouponMessage').innerText = data.message;
+										document.getElementById('appliedCouponSection').style.display = 'block';
+
 										document.getElementById('discountedPrice').innerText = data.discounted_price.toFixed(2);
 									} else {
 										Swal.fire({
@@ -327,8 +337,8 @@
 									console.error('Error:', error);
 								});
 							}
-
 						</script>
+						
 
 
 
@@ -447,7 +457,7 @@
 									</div>
 								</div>
 
-		                		<aside class="col-lg-3">
+		                		    <aside class="col-lg-3">
 		                			<div class="summary">
 		                				<h3 class="summary-title">Your Order Details</h3><!-- End .summary-title -->
 
@@ -558,7 +568,7 @@
 		                				</button>
 		                			</div><!-- End .summary -->
 		                		</aside><!-- End .col-lg-3 -->
-		                	</div><!-- End .row -->
+	            	</div><!-- End .row -->
             			</form>
 	                </div><!-- End .container -->
 

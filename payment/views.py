@@ -10,6 +10,7 @@ from wallet.models import Transaction
 from coupon.models import Coupon
 import json
 from django.http import JsonResponse
+from decimal import Decimal
 
 
                       
@@ -299,26 +300,25 @@ def payment_success(request):
 
 ####################### apply coupon logic  #######################
 
-def apply_coupon_view(request,order_id):
-    order=get_object_or_404(Order,id=order_id)
-    #get the total price...
-    cart=get_object_or_404(Cart,user=request.user)
-    cart_items=cart.items.all()
-    total_price=sum(item.subtotal for item in cart_items)
-
+def apply_coupon_view(request):
 
     if request.method == "POST":
         data=json.loads(request.body)
         coupon_code=data.get('coupon_code')
+        #get the total price...
+        cart=get_object_or_404(Cart,user=request.user)
+        cart_items=cart.items.all()
+        total_price=sum(item.subtotal for item in cart_items)
 
         try:
             coupon = Coupon.objects.get(code=coupon_code,active=True)
-            discount_amount=(coupon.discount_value / 100) * total_price
-            discounted_price=total_price - discount_amount
+            total_price_decimal = Decimal(total_price)
+            discount_amount=((Decimal(coupon.discount_value)) / 100) * total_price_decimal
+            discounted_price=total_price_decimal - discount_amount
 
 
             return JsonResponse({
-                'message': f'Coupon applied! You saved {discount_amount:.2f}.',
+                'message': f'Coupon applied! You saved {discount_amount:.2f} ₹',
                 'discounted_price': discounted_price,
             })
 

@@ -12,6 +12,6 @@ urlpatterns = [
     path('payment-success/',views.payment_success, name='payment-success'),
 
     #apply coupon url here 
-      path('apply-coupon/<int:order_id>/',views.apply_coupon_view, name='apply-coupon'),
+      path('apply-coupon/',views.apply_coupon_view, name='apply-coupon'),
 ]
 
