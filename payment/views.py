@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.conf import settings
 from wallet.models import Transaction
 from coupon.models import Coupon
+import json
+from django.http import JsonResponse
 
 
                       
@@ -295,4 +297,32 @@ def payment_success(request):
 
     return render(request, 'payment/razorpay-success-page.html', {'order': order})
 
-###############################
+####################### apply coupon logic  #######################
+
+def apply_coupon_view(request,order_id):
+    order=get_object_or_404(Order,id=order_id)
+    #get the total price...
+    cart=get_object_or_404(Cart,user=request.user)
+    cart_items=cart.items.all()
+    total_price=sum(item.subtotal for item in cart_items)
+
+
+    if request.method == "POST":
+        data=json.loads(request.body)
+        coupon_code=data.get('coupon_code')
+
+        try:
+            coupon = Coupon.objects.get(code=coupon_code,active=True)
+            discount_amount=(coupon.discount_value / 100) * total_price
+            discounted_price=total_price - discount_amount
+
+
+            return JsonResponse({
+                'message': f'Coupon applied! You saved {discount_amount:.2f}.',
+                'discounted_price': discounted_price,
+            })
+
+        except Coupon.DoesNotExist:
+            return JsonResponse({'error': 'Invalid or inactive coupon code.'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request method.'}, status=405)

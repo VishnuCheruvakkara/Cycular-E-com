@@ -285,6 +285,52 @@
 						
             			</div><!-- End .checkout-discount -->
 
+						<!-- apply coupon here, below... -->
+						
+						<script>
+							function applyCoupon() {
+								const couponCode = document.getElementById('couponInput').value;
+								const totalPrice = parseFloat(document.getElementById('totalPrice').innerText);
+								const orderId = {{ order.id }};  // Ensure this is passed in the template context
+
+								// Use Django's URL tag to reverse the URL
+								const applyCouponUrl = "{% url 'payment:apply-coupon' order.id %}";  // Ensure 'apply_coupon' is the correct name of your URL in urls.py
+
+								fetch(applyCouponUrl, {
+									method: 'POST',
+									headers: {
+										'Content-Type': 'application/json',
+										'X-CSRFToken': '{{ csrf_token }}',  // Directly inject the CSRF token
+									},
+									body: JSON.stringify({ coupon_code: couponCode })
+								})
+								.then(response => response.json())
+								.then(data => {
+									if (data.message) {
+										Swal.fire({
+											title: 'Success',
+											text: data.message,
+											icon: 'success',
+											confirmButtonText: 'OK'
+										});
+										document.getElementById('discountedPrice').innerText = data.discounted_price.toFixed(2);
+									} else {
+										Swal.fire({
+											title: 'Error',
+											text: data.error,
+											icon: 'error',
+											confirmButtonText: 'OK'
+										});
+									}
+								})
+								.catch(error => {
+									console.error('Error:', error);
+								});
+							}
+
+						</script>
+
+
 
 
 						<button class="btn btn-primary btn-sm mt-2 mb-3" id="showCouponsBtn">Show All Available Coupons</button>
