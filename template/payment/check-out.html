@@ -286,59 +286,235 @@
 							</form>
 						</div><!-- End .checkout-discount -->
 
-						<!-- This section will be populated after a coupon is applied -->
-<div id="appliedCouponSection" style="display: none; border: 1px solid #ddd; padding: 10px; margin-top: 10px; position: relative;">
-    <span style="position: absolute; top: 5px; right: 10px; cursor: pointer;" onclick="removeCoupon()">X</span>
-    <p id="appliedCouponMessage"></p>
-</div>
+
+						<style>
+							.applied-coupon-container {
+								width: 220px;
+								margin-top: 35px;
+								position: relative;
+							}
+							
+							.applied-coupon {
+								width: 100%;
+								height: 100px;
+								border-radius: 10px;
+								overflow: hidden;
+								display: flex;
+								align-items: stretch;
+								position: relative;
+								text-transform: uppercase;
+								font-family: Arial, sans-serif;
+								filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
+							}
+							
+							.applied-coupon::before,
+							.applied-coupon::after {
+								content: "";
+								position: absolute;
+								top: 0;
+								width: 50%;
+								height: 100%;
+								z-index: 1;
+							}
+							
+							.applied-coupon::before {
+								left: 0;
+								background-image: radial-gradient(
+									circle at 0 50%,
+									transparent 25px,
+									gold 26px
+								);
+							}
+							
+							.applied-coupon::after {
+								right: 0;
+								background-image: radial-gradient(
+									circle at 100% 50%,
+									transparent 25px,
+									gold 26px
+								);
+							}
+							
+							.applied-coupon > div {
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								z-index: 2;
+							}
+							
+							.coupon-left {
+								width: 20%;
+								border-right: 2px dashed rgba(0, 0, 0, 0.13);
+								background: gold;
+							}
+							
+							.coupon-left div {
+								transform: rotate(-90deg);
+								white-space: nowrap;
+								font-weight: bold;
+								font-size: 1rem;
+							}
+							
+							.coupon-center {
+								flex-grow: 1;
+								text-align: center;
+								background: gold;
+								padding: 5px;
+							}
+							
+							.coupon-right {
+								width: 60px;
+								background-image: radial-gradient(
+									circle at 103% 51%,
+									transparent 23px,
+									#fff -2px
+								);
+							}
+							
+							.coupon-right div {
+								font-family: "Libre Barcode 128", cursive;
+								margin-left: -23px;
+								font-size: 1.8rem;
+								transform: rotate(-90deg);
+							}
+							
+							.coupon-center h2 {
+								background: #000;
+								color: gold;
+								padding: 0 5px;
+								font-size: 2.2rem;
+								display: inline-block;
+								margin-bottom: 2px;
+							}
+							
+							.coupon-center h3 {
+								font-size: 1.5rem;
+								margin-bottom: 2px;
+							}
+							
+							.coupon-center small {
+								font-size: 0.8rem;    
+								font-weight: 800;
+							}
+							
+							.coupon-cancel {
+								position: absolute;
+								top: -10px;
+								right: -10px;
+								width: 24px;
+								height: 24px;
+								background-color: #ee0505bb;
+								border-radius: 40%;
+								display: flex;
+								justify-content: center;
+								align-items: center;
+								color: white;
+								font-size: 14px;
+								font-weight: bold;
+								cursor: pointer;
+								z-index: 3;
+							}
+							</style>
+							
+							<div class="applied-coupon-container" >
+								<div class="applied-coupon" >
+									<div class="coupon-left">
+										<div>Applied</div>
+									</div>
+									<div class="coupon-center">
+										<div>
+											<h2>50% OFF</h2>
+											<h3>Coupon</h3>
+											<small>Valid until May, 2023</small>
+										</div>
+									</div>
+									<div class="coupon-right">
+										<div>123456</div>
+									</div>
+								</div>
+								<div class="coupon-cancel">×</div>
+							</div>
+
+						
 
 						<!-- apply coupon here, below... -->
 						
-						<script>
-							function applyCoupon() {
-								const couponCode = document.getElementById('couponInput').value;
-								const totalPrice = parseFloat(document.getElementById('totalPrice').innerText);
 						
-								// Use Django's URL tag to reverse the URL
-								const applyCouponUrl = "{% url 'payment:apply-coupon' %}";  // Adjust this to your URL pattern for applying coupon
-						
-								fetch(applyCouponUrl, {
-									method: 'POST',
-									headers: {
-										'Content-Type': 'application/json',
-										'X-CSRFToken': '{{ csrf_token }}',  // Directly inject the CSRF token
-									},
-									body: JSON.stringify({ coupon_code: couponCode })
-								})
-								.then(response => response.json())
-								.then(data => {
-									if (data.message) {
-										Swal.fire({
-											title: 'Success',
-											text: data.message,
-											icon: 'success',
-											confirmButtonText: 'OK'
-										});
-										// Update the applied coupon section
-										document.getElementById('appliedCouponMessage').innerText = data.message;
-										document.getElementById('appliedCouponSection').style.display = 'block';
-
-										document.getElementById('discountedPrice').innerText = data.discounted_price.toFixed(2);
-									} else {
-										Swal.fire({
-											title: 'Error',
-											text: data.error,
-											icon: 'error',
-											confirmButtonText: 'OK'
-										});
-									}
-								})
-								.catch(error => {
-									console.error('Error:', error);
-								});
-							}
-						</script>
-						
+<script>
+	function applyCoupon() {
+		const couponCode = document.getElementById('couponInput').value;
+	
+		// Use Django's URL tag to reverse the URL
+		const applyCouponUrl = "{% url 'payment:apply-coupon' %}";
+	
+		fetch(applyCouponUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': '{{ csrf_token }}',
+			},
+			body: JSON.stringify({ coupon_code: couponCode })
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.message) {
+				Swal.fire({
+					title: 'Success',
+					text: data.message,
+					icon: 'success',
+					confirmButtonText: 'OK'
+				});
+	
+				// Update coupon details
+				document.getElementById('couponDiscount').innerText = data.discount_text || '50% OFF'; // You may want to return this from your view
+				document.getElementById('couponValidity').innerText = data.validity || 'Valid until May, 2023'; // Update with actual validity if available
+				document.getElementById('couponCode').innerText = couponCode;
+	
+				// Show the applied coupon
+				document.getElementById('appliedCoupon').style.display = 'flex';
+	
+				// Update the discounted price
+				document.querySelectorAll('.discountedPrice').forEach(function(el) {
+					el.innerText = data.discounted_price.toFixed(2);
+				});
+			} else {
+				Swal.fire({
+					title: 'Error',
+					text: data.error,
+					icon: 'error',
+					confirmButtonText: 'OK'
+				});
+			}
+		})
+		.catch(error => {
+			console.error('Error:', error);
+		});
+	}
+	
+	function removeCoupon() {
+		// Hide the applied coupon
+		document.getElementById('appliedCoupon').style.display = 'none';
+	
+		// Optionally reset the total price to the original value
+		const originalPrice = parseFloat("{{ cart.total_price }}");
+		document.querySelectorAll('.totalPrice').forEach(function(el) {
+			el.innerText = originalPrice.toFixed(2);
+		});
+	
+		// Optionally, reset the coupon message
+		document.querySelectorAll('.appliedCouponMessage').forEach(function(el) {
+			el.innerText = '';
+		});
+	
+		// Notify user about coupon removal
+		Swal.fire({
+			title: 'Coupon Removed',
+			text: 'The coupon has been cleared.',
+			icon: 'info',
+			confirmButtonText: 'OK'
+		});
+	}
+	</script>
 
 
 
@@ -482,6 +658,10 @@
 		                						<tr class="summary-subtotal">
 		                							<td>Subtotal:</td>
 		                							<td>₹ {{total_price}}</td>
+		                						</tr><!-- End .summary-subtotal -->
+		                						<tr class="summary-subtotal">
+		                							<td>Coupon Discount:</td>
+		                							<td>₹ 0</td>
 		                						</tr><!-- End .summary-subtotal -->
 		                						<tr>
 		                							<td>Shipping:</td>
