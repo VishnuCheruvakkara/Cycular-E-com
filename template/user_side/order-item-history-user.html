@@ -87,7 +87,8 @@
                                         </td>
                                         <td data-label="Cancel" >
                                             <button 
-                                                class="btn btn-danger btn-sm cancel-order-item-btn"
+                                            style="width: 80px;"class="cancel-order-item-btn"
+                                                
                                                 data-url="{% url 'wallet:cancell-order-item' order_item.id %}"
                                                 {% if order_item.order_item_status == 'Cancelled' %} 
                                                     disabled 
