@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
+from django.utils import timezone
 
 # Create your views here.
 
@@ -66,7 +67,7 @@ def coupon_management(request):
         else:
             messages.error(request, 'There were errors in your form.')
     
-    coupon_list=Coupon.objects.filter(active=True)
+    coupon_list = Coupon.objects.filter(active=True, valid_until__gte=timezone.now()).order_by('valid_until')
     paginator = Paginator(coupon_list, 5)  # Show 10 coupons per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -144,7 +145,7 @@ def edit_coupon(request, coupon_id):
    
     return render(request, 'coupon/coupon-management.html', context)
 
-####################  soft delete for the coupen  #########################
+####################  soft delete for the created coupon  #########################
 
 def delete_coupon(request, coupon_id):
     if request.method == 'POST':

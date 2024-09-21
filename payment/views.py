@@ -11,6 +11,8 @@ from coupon.models import Coupon,CouponUsage
 import json
 from django.http import JsonResponse
 from decimal import Decimal
+from django.utils import timezone
+from datetime import datetime,time
 
 
 
@@ -111,10 +113,18 @@ def check_out(request):
             # check whether user select the razorpay for payment
             if payment_method == 'razorpay':
                 return redirect(reverse('payment:razorpay-order', args=[order.id]))
-            
+           
+           
             # Clear the cart after successful purchase
             cart.items.all().delete()
             if 'applied_coupon' in request.session:
+                # Get the coupon object
+                coupon = Coupon.objects.get(code=applied_coupon['coupon_code'])
+                # Fetch or create the CouponUsage instance for the user
+                coupon_usage, created = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
+                # Mark the coupon as used
+                coupon_usage.is_used = True
+                coupon_usage.save()
                 del request.session['applied_coupon']
 
             
@@ -124,7 +134,7 @@ def check_out(request):
             # Log the exception
             print(f"Error: {e}")
             messages.error(request, 'An error occurred while placing the order.')
-    coupons = Coupon.objects.filter(active=True) 
+    coupons = Coupon.objects.filter(active=True).order_by('-valid_until')
  
    
     context={
@@ -349,6 +359,20 @@ def apply_coupon_view(request):
             return JsonResponse({'error': 'Your cart is empty. Please add products to the cart to apply a coupon.'}, status=400)
         try:
             coupon = Coupon.objects.get(code=coupon_code,active=True)
+            # Ensure the expiration time is 12:00 PM on the valid_until date
+            expiration_time = timezone.make_aware(
+                datetime.combine(coupon.valid_until.date(), time(12, 0))
+            )
+
+            # Check if the coupon is expired (after 12:00 PM on the expiration date)
+            if timezone.now() > expiration_time:
+                return JsonResponse({'error': 'This coupon has expired.'}, status=400)
+            
+            # Check if the user has already used the coupon
+            coupon_usage, created = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
+            if coupon_usage.is_used:
+                return JsonResponse({'error': 'You have already used this coupon.'}, status=400)
+
             total_price_decimal = Decimal(total_price)
             discount_amount=((Decimal(coupon.discount_value)) / 100) * total_price_decimal
             valid_until_str = coupon.valid_until.strftime('%B %d, %Y')

@@ -538,11 +538,11 @@
 								<h5 class="offcanvas-title">Available Coupons</h5>
 								<button id="closeBtn" class="btn-close"><i class="fa fa-close"></i></button>
 							</div>
+
 							<div class="offcanvas-body">
 								<div class="coupon-list">
-									<!-- Coupon Card 1 -->
 									{% for coupon in coupons %}
-									<div class="card">
+									<div class="card" data-expiry="{{ coupon.valid_until|date:"Y-m-d H:i:s" }}">
 										<div class="main">
 											<div class="co-img">
 												<img src="https://i.pinimg.com/originals/c7/84/67/c78467db9ff497393cb548a48f02d451.png" alt="">
@@ -562,6 +562,25 @@
 									{% endfor %}
 								</div>
 							</div>
+							<script>
+								document.addEventListener('DOMContentLoaded', function () {
+									const now = new Date(); // Current date and time
+
+									document.querySelectorAll('.card').forEach(card => {
+										const expiryDate = new Date(card.dataset.expiry); // Get the expiry date from data attribute
+										
+										if (expiryDate < now) {
+											// Disable or style the coupon if it's expired
+											card.querySelector('.copy-button button').disabled = true; // Disable the copy button
+											card.style.opacity = '0.4'; // Make the card look faded
+											card.style.pointerEvents = 'none'; // Prevent clicks on the card
+										}
+									});
+								});
+
+							</script>
+							
+
 						</div>
 					
 						<!-- Coupon Applied Section -->
