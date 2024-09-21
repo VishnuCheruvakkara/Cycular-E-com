@@ -7,10 +7,11 @@ from django.contrib import messages
 from django.urls import reverse
 from django.conf import settings
 from wallet.models import Transaction
-from coupon.models import Coupon
+from coupon.models import Coupon,CouponUsage
 import json
 from django.http import JsonResponse
 from decimal import Decimal
+
 
 
                       
@@ -29,34 +30,32 @@ def check_out(request):
     #retrive all items for the current user cart
     cart_items=cart.items.all() #items is the related name
    
-    if not cart_items:
-        total_price = 0
-        messages.info(request, 'Your cart is empty. Please add products to the cart before proceeding to checkout.')
-        return render(request, 'payment/check-out.html', {
-            'cart_items': cart_items,
-            'total_price': total_price,
-            'addresses': addresses,
-        })
-    else:
-        # Calculate the total price of products
-        total_price = sum(Decimal(item.subtotal) for item in cart_items)
+   
+    item_discount=0
+    discount_value=0
+    discount_amount=0
+    coupon_code=None
+    item_proportion=0
+    # Calculate the total price of products
+    total_price = sum(Decimal(item.subtotal) for item in cart_items)
 
     #get the data from the sessiion directly, that was stored with the help of javascript...
     applied_coupon=request.session.get('applied_coupon',None)
     if applied_coupon:
         # Access each value from the session
         coupon_code = applied_coupon.get('coupon_code')
-        discount_value = applied_coupon.get('discount_value')
+        discount_value = applied_coupon.get('discount_value',0)
         valid_until = applied_coupon.get('valid_until')
-        discount_amount = Decimal(applied_coupon.get('discount_amount'))
+        discount_amount = Decimal(applied_coupon.get('discount_amount',0))
         coupon_grand_total = Decimal(applied_coupon.get('coupon_grand_total'))
          # Calculate proportional discount for each item
+        total_price = Decimal(coupon_grand_total)
+        
         for item in cart_items:
             item_proportion = Decimal(item.subtotal) / total_price  # Item's contribution to total price
             item_discount = item_proportion * discount_amount  # Proportional discount for this item
            
-
-        total_price = Decimal(coupon_grand_total)
+        
     
     if total_price == 0:
         messages.info(request,'Your cart is empty.Please add products to the cart before proceeding to checkout.')
@@ -108,14 +107,15 @@ def check_out(request):
                     coupon_discount_price=item_discount,
                     coupon_info=f"{discount_value}% of {coupon_code} coupon applied with {item_proportion*discount_value} % of discount"
                 )
- 
+           
             # check whether user select the razorpay for payment
             if payment_method == 'razorpay':
                 return redirect(reverse('payment:razorpay-order', args=[order.id]))
             
             # Clear the cart after successful purchase
             cart.items.all().delete()
-            del request.session['applied_coupon']
+            if 'applied_coupon' in request.session:
+                del request.session['applied_coupon']
 
             
             messages.success(request,'Order was placed successfully. Details are added to the order-history...')
@@ -344,7 +344,9 @@ def apply_coupon_view(request):
         cart=get_object_or_404(Cart,user=request.user)
         cart_items=cart.items.all()
         total_price=sum(item.subtotal for item in cart_items)
-
+        # Check if the cart is empty
+        if total_price == 0:
+            return JsonResponse({'error': 'Your cart is empty. Please add products to the cart to apply a coupon.'}, status=400)
         try:
             coupon = Coupon.objects.get(code=coupon_code,active=True)
             total_price_decimal = Decimal(total_price)
