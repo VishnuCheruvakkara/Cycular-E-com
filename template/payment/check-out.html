@@ -374,7 +374,7 @@
 							.coupon-right div {
 								font-family: "Libre Barcode 128", cursive;
 								margin-left: -23px;
-								font-size: 1.8rem;
+								font-size: 0.7rem;
 								transform: rotate(-90deg);
 							}
 							
@@ -412,19 +412,20 @@
 								font-size: 14px;
 								font-weight: bold;
 								cursor: pointer;
-								z-index: 3;
+								z-index: 1;
 							}
+							
 							</style>
 							
-							<div class="applied-coupon-container" >
-								<div class="applied-coupon" >
+							<div class="applied-coupon-container" style="display: none;">
+								<div class="applied-coupon">
 									<div class="coupon-left">
 										<div>Applied</div>
 									</div>
 									<div class="coupon-center">
 										<div>
-											<h2>50% OFF</h2>
 											<h3>Coupon</h3>
+											<h2>0% OFF</h2>
 											<small>Valid until May, 2023</small>
 										</div>
 									</div>
@@ -432,89 +433,99 @@
 										<div>123456</div>
 									</div>
 								</div>
-								<div class="coupon-cancel">×</div>
+								<div class="coupon-cancel" onclick="closeCoupon()">×</div>
 							</div>
 
+							
+						<script>
+							// Hide coupon on page load
+							document.addEventListener('DOMContentLoaded', function() {
+								const couponContainer = document.querySelector('.applied-coupon-container');
+								couponContainer.style.display = 'none'; // Ensure the coupon is hidden
+							});
+						
+							function closeCoupon() {
+								const couponContainer = document.querySelector('.applied-coupon-container');
+								couponContainer.style.display = 'none'; // Hide the coupon
 						
 
-						<!-- apply coupon here, below... -->
+								// Show SweetAlert indicating the coupon has been removed
+								Swal.fire({
+									title: 'Success',
+									text: 'Coupon removed successfully!',
+									icon: 'success',
+									confirmButtonText: 'OK'
+								});
+							}
+						
+							function applyCoupon() {
+								const couponCode = document.getElementById('couponInput').value;
+						
+								// Use Django's URL tag to reverse the URL
+								const applyCouponUrl = "{% url 'payment:apply-coupon' %}";  // Adjust this to your URL pattern for applying coupon
+						
+								fetch(applyCouponUrl, {
+									method: 'POST',
+									headers: {
+										'Content-Type': 'application/json',
+										'X-CSRFToken': '{{ csrf_token }}',  // Directly inject the CSRF token
+									},
+									body: JSON.stringify({ coupon_code: couponCode })
+								})
+								.then(response => response.json())
+								.then(data => {
+									if (data.message) {
+										Swal.fire({
+											title: 'Success',
+											text: data.message,
+											icon: 'success',
+											confirmButtonText: 'OK'
+										});
+						
+										// Show the applied coupon section
+										document.querySelector('.applied-coupon-container').style.display = 'block';
+
+						
+										// Update the coupon details in the HTML
+										document.querySelector('.coupon-left div').innerText = 'Applied';
+										document.querySelector('.coupon-center h2').innerText = `${data.discount_value}% OFF`;
+										document.querySelector('.coupon-center small').innerHTML = `Valid until<br>${data.valid_until}`;
+										document.querySelector('.coupon-right div').innerText = data.coupon_code;
+
+										// Update the coupon discount price
+										document.getElementById('coupon-discount').innerText =data.discount_amount;
+										// Update the discounted price
+										document.querySelector('.totalPrice').innerText = data.coupon_grand_total;
+										
+										
+									} else {
+										Swal.fire({
+											title: 'Error',
+											text: data.error,
+											icon: 'error',
+											confirmButtonText: 'OK'
+										});
+									}
+								})
+								.catch(error => {
+									console.error('Error:', error);
+									Swal.fire({
+										title: 'Error',
+										text: 'An error occurred while applying the coupon.',
+										icon: 'error',
+										confirmButtonText: 'OK'
+									});
+								});
+							}
+							// remove the coupon, below...
+							function removeCoupon() {
+								closeCoupon(); // Hide the coupon section
+						
+							}
+						</script>
 						
 						
-<script>
-	function applyCoupon() {
-		const couponCode = document.getElementById('couponInput').value;
-	
-		// Use Django's URL tag to reverse the URL
-		const applyCouponUrl = "{% url 'payment:apply-coupon' %}";
-	
-		fetch(applyCouponUrl, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': '{{ csrf_token }}',
-			},
-			body: JSON.stringify({ coupon_code: couponCode })
-		})
-		.then(response => response.json())
-		.then(data => {
-			if (data.message) {
-				Swal.fire({
-					title: 'Success',
-					text: data.message,
-					icon: 'success',
-					confirmButtonText: 'OK'
-				});
-	
-				// Update coupon details
-				document.getElementById('couponDiscount').innerText = data.discount_text || '50% OFF'; // You may want to return this from your view
-				document.getElementById('couponValidity').innerText = data.validity || 'Valid until May, 2023'; // Update with actual validity if available
-				document.getElementById('couponCode').innerText = couponCode;
-	
-				// Show the applied coupon
-				document.getElementById('appliedCoupon').style.display = 'flex';
-	
-				// Update the discounted price
-				document.querySelectorAll('.discountedPrice').forEach(function(el) {
-					el.innerText = data.discounted_price.toFixed(2);
-				});
-			} else {
-				Swal.fire({
-					title: 'Error',
-					text: data.error,
-					icon: 'error',
-					confirmButtonText: 'OK'
-				});
-			}
-		})
-		.catch(error => {
-			console.error('Error:', error);
-		});
-	}
-	
-	function removeCoupon() {
-		// Hide the applied coupon
-		document.getElementById('appliedCoupon').style.display = 'none';
-	
-		// Optionally reset the total price to the original value
-		const originalPrice = parseFloat("{{ cart.total_price }}");
-		document.querySelectorAll('.totalPrice').forEach(function(el) {
-			el.innerText = originalPrice.toFixed(2);
-		});
-	
-		// Optionally, reset the coupon message
-		document.querySelectorAll('.appliedCouponMessage').forEach(function(el) {
-			el.innerText = '';
-		});
-	
-		// Notify user about coupon removal
-		Swal.fire({
-			title: 'Coupon Removed',
-			text: 'The coupon has been cleared.',
-			icon: 'info',
-			confirmButtonText: 'OK'
-		});
-	}
-	</script>
+						
 
 
 
@@ -651,25 +662,25 @@
 		                						<tr>
 		                							<td><a href="#">{{cart_item.product_variant.product.name}}</a> <p>Count : {{cart_item.quantity}}</p></td>
 													
-		                							<td>₹ {{cart_item.subtotal}}</td>
+		                							<td>{{cart_item.subtotal}} ₹</td>
 		                						</tr>
 												{% endfor %}
 	
 		                						<tr class="summary-subtotal">
 		                							<td>Subtotal:</td>
-		                							<td>₹ {{total_price}}</td>
+		                							<td>{{total_price}} ₹</td>
 		                						</tr><!-- End .summary-subtotal -->
 		                						<tr class="summary-subtotal">
-		                							<td>Coupon Discount:</td>
-		                							<td>₹ 0</td>
+		                							<td style="color:rgb(240, 94, 94)"><b>Coupon Discount:</b></td>
+		                							<td style="color:rgb(240, 94, 94)"><b><span id="coupon-discount">0.00</span> ₹</b></td>
 		                						</tr><!-- End .summary-subtotal -->
 		                						<tr>
-		                							<td>Shipping:</td>
+		                							<td><b>Shipping:</b></td>
 		                							<td><b>Free shipping</b></td>
 		                						</tr>
 		                						<tr class="summary-total">
 		                							<td><b>Total:</b></td>
-		                							<td><b>₹ {{total_price}}</b></td>
+													<td><b><span class="totalPrice">{{ total_price }}</span> ₹</b></td>
 		                						</tr><!-- End .summary-total -->
 		                					</tbody>
 		                				</table><!-- End .table table-summary -->

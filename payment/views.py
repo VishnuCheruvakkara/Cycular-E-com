@@ -31,6 +31,14 @@ def check_out(request):
     
     #total price of product
     total_price=sum(item.subtotal for item in cart_items)
+
+    #get the data from the sessiion directly, that was stored with the help of javascript...
+    applied_coupon=request.session.get('applied_coupon',None)
+
+    print("Coupon Data in Checkout:", applied_coupon)
+   
+
+
     
     if total_price == 0 :
         messages.info(request,'Your cart is empty.Please add products to the cart before proceeding to checkout.')
@@ -211,6 +219,7 @@ def add_address_checkout(request):
 def order_success_page(request,order_id):
     # Fetch the order using the order_id
     order = get_object_or_404(Order, id=order_id, user=request.user)
+   
 
     # Optionally, you might want to get the address details as well
     order_address = getattr(order, 'order_address', None)
@@ -314,15 +323,26 @@ def apply_coupon_view(request):
             coupon = Coupon.objects.get(code=coupon_code,active=True)
             total_price_decimal = Decimal(total_price)
             discount_amount=((Decimal(coupon.discount_value)) / 100) * total_price_decimal
-            discounted_price=total_price_decimal - discount_amount
-
-
+            valid_until_str = coupon.valid_until.strftime('%B %d, %Y')
+            coupon_grand_total=total_price_decimal-discount_amount
+            # Store the coupon details in the session
+            request.session['applied_coupon'] = {
+                'coupon_code': coupon.code,
+                'discount_value': coupon.discount_value,
+                'valid_until': valid_until_str,
+                'discount_amount': f'{discount_amount:.2f}',
+                'coupon_grand_total': f'{coupon_grand_total:.2f}'
+            }
             return JsonResponse({
                 'message': f'Coupon applied! You saved {discount_amount:.2f} ₹',
-                'discounted_price': discounted_price,
+                'coupon_code': coupon.code,
+                'discount_value': coupon.discount_value,
+                'valid_until': valid_until_str,
+                'coupon_grand_total':f'{coupon_grand_total:.2f}',
+                'discount_amount':f'-{discount_amount:.2f}',
             })
 
         except Coupon.DoesNotExist:
-            return JsonResponse({'error': 'Invalid or inactive coupon code.'}, status=400)
+            return JsonResponse({'error': 'Invalid or inactive coupon code, Check the available coupon'}, status=400)
 
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
