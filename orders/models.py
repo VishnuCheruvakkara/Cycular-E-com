@@ -29,6 +29,7 @@ class Order(models.Model):
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='Pending')
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     coupon_discount_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+   
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
@@ -59,7 +60,8 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     order_item_status = models.CharField(max_length=20,default='Pending', choices=ORDER_STATUS_CHOICES)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    coupon_disount_price=models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    coupon_discount_price=models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,default=0.00)
+    coupon_info=models.CharField(max_length=250,default="Not Available")
 
     def __str__(self):
         return f"{self.product_variant.product.name} (x{self.quantity}) - Order {self.order.id}"

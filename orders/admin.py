@@ -10,7 +10,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('order', 'product_variant', 'quantity', 'price', 'order_item_status','coupon_disount_price')
+    list_display = ('order', 'product_variant', 'quantity', 'price', 'order_item_status','coupon_discount_price')
     list_filter = ('order_item_status',)
     search_fields = ('order__id', 'product_variant__product__name')
     ordering = ('order',)

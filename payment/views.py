@@ -28,19 +28,37 @@ def check_out(request):
     addresses=Address.objects.filter(user=request.user)
     #retrive all items for the current user cart
     cart_items=cart.items.all() #items is the related name
-    
-    #total price of product
-    total_price=sum(item.subtotal for item in cart_items)
+   
+    if not cart_items:
+        total_price = 0
+        messages.info(request, 'Your cart is empty. Please add products to the cart before proceeding to checkout.')
+        return render(request, 'payment/check-out.html', {
+            'cart_items': cart_items,
+            'total_price': total_price,
+            'addresses': addresses,
+        })
+    else:
+        # Calculate the total price of products
+        total_price = sum(Decimal(item.subtotal) for item in cart_items)
 
     #get the data from the sessiion directly, that was stored with the help of javascript...
     applied_coupon=request.session.get('applied_coupon',None)
+    if applied_coupon:
+        # Access each value from the session
+        coupon_code = applied_coupon.get('coupon_code')
+        discount_value = applied_coupon.get('discount_value')
+        valid_until = applied_coupon.get('valid_until')
+        discount_amount = Decimal(applied_coupon.get('discount_amount'))
+        coupon_grand_total = Decimal(applied_coupon.get('coupon_grand_total'))
+         # Calculate proportional discount for each item
+        for item in cart_items:
+            item_proportion = Decimal(item.subtotal) / total_price  # Item's contribution to total price
+            item_discount = item_proportion * discount_amount  # Proportional discount for this item
+           
 
-    print("Coupon Data in Checkout:", applied_coupon)
-   
-
-
+        total_price = Decimal(coupon_grand_total)
     
-    if total_price == 0 :
+    if total_price == 0:
         messages.info(request,'Your cart is empty.Please add products to the cart before proceeding to checkout.')
         return render(request, 'payment/check-out.html', {
             'cart_items': cart_items,
@@ -60,6 +78,8 @@ def check_out(request):
                 user=request.user,
                 payment_method=payment_method,
                 total_price=total_price,
+                coupon_discount_total=discount_amount,
+              
             )
              #save the address to the table 
             order_address=OrderAddress.objects.create(
@@ -72,6 +92,7 @@ def check_out(request):
                 phone_number=selected_address.phone_number,
             )
             for item in cart_items:
+                # to decreace stock count of product when user buy it
                 product_variant = item.product_variant
                 if product_variant.stock >= item.quantity:
                     product_variant.stock -= item.quantity
@@ -84,6 +105,8 @@ def check_out(request):
                     product_variant=item.product_variant,
                     quantity=item.quantity,
                     price=item.subtotal,
+                    coupon_discount_price=item_discount,
+                    coupon_info=f"{discount_value}% of {coupon_code} coupon applied with {item_proportion*discount_value} % of discount"
                 )
  
             # check whether user select the razorpay for payment
@@ -92,6 +115,7 @@ def check_out(request):
             
             # Clear the cart after successful purchase
             cart.items.all().delete()
+            del request.session['applied_coupon']
 
             
             messages.success(request,'Order was placed successfully. Details are added to the order-history...')
@@ -101,6 +125,8 @@ def check_out(request):
             print(f"Error: {e}")
             messages.error(request, 'An error occurred while placing the order.')
     coupons = Coupon.objects.filter(active=True) 
+ 
+   
     context={
         'cart_items':cart_items,
         'total_price':total_price,
