@@ -52,13 +52,7 @@ def check_out(request):
         coupon_grand_total = Decimal(applied_coupon.get('coupon_grand_total'))
          # Calculate proportional discount for each item
         total_price = Decimal(coupon_grand_total)
-        
-        for item in cart_items:
-            item_proportion = Decimal(item.subtotal) / total_price  # Item's contribution to total price
-            item_discount = item_proportion * discount_amount  # Proportional discount for this item
-           
-        
-    
+
     if total_price == 0:
         messages.info(request,'Your cart is empty.Please add products to the cart before proceeding to checkout.')
         return render(request, 'payment/check-out.html', {
@@ -93,6 +87,9 @@ def check_out(request):
                 phone_number=selected_address.phone_number,
             )
             for item in cart_items:
+                item_proportion = Decimal(item.subtotal) / total_price  # Item's contribution to total price
+                item_discount = item_proportion * discount_amount  # Proportional discount for this item
+                
                 # to decreace stock count of product when user buy it
                 product_variant = item.product_variant
                 if product_variant.stock >= item.quantity:
@@ -107,7 +104,7 @@ def check_out(request):
                     quantity=item.quantity,
                     price=item.subtotal,
                     coupon_discount_price=item_discount,
-                    coupon_info=f"{discount_value}% of {coupon_code} coupon applied with {item_proportion*discount_value} % of discount"
+                    coupon_info=f"{discount_value}% of {coupon_code} coupon applied.Discount of {item_discount:.2f} ₹"
                 )
            
             # check whether user select the razorpay for payment

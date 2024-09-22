@@ -64,9 +64,14 @@
                                     <th>Product Name</th>
                                     <th>paymet method</th>
                                     <th>Order Date</th>
-                                    <th>Price</th>
+                                    <th>Coupon info</th>
+                                    <th>Actual Price</th>
+                                    <th>Dicount Amount</th>
+                                    <th>Paid</th>
+
                                     <th>Status</th>
                                     <th>Count</th>
+
                                     <th>Cancel</th>
                                 </tr>
                             </thead>
@@ -80,14 +85,18 @@
                                         <td data-label="Product Name"><a href="{% url 'products:single-product-view' order_item.product_variant.id %}">{{ order_item.product_variant.product.name }}</a></td>
                                         <td data-label="Payment Method">{{ order_item.order.get_payment_method_display }}</td>
                                         <td data-label="Order Date">{{ order_item.order.order_date }}</td>
-                                        <td data-label="Price">₹ {{ order_item.price }}</td>
+                                        <td data-label="Coupon Info">{{ order_item.coupon_info }}</td>
+                                        <td data-label="Price">{{ order_item.price }} ₹</td>
+                                        <td data-label="Discount Price">{{ order_item.coupon_discount_price }} ₹</td>
+                                        <td data-label="Effective Price">{{ order_item.effective_price|floatformat:2 }} ₹</td>
                                         <td data-label="Status">{{ order_item.order_item_status }}</td>
                                         <td data-label="Count">
                                             <p>{{ order_item.quantity }}</p>
                                         </td>
                                         <td data-label="Cancel" >
                                             <button 
-                                            style="width: 80px;"class="cancel-order-item-btn"
+                                            style="width: 90px; color: white; background-color: {% if order_item.order_item_status == 'Cancelled' %} gray {% else %} rgb(253, 79, 79) {% endif %}; border: none; border-radius: 5px;" 
+                                            class="cancel-order-item-btn"
                                                 
                                                 data-url="{% url 'wallet:cancell-order-item' order_item.id %}"
                                                 {% if order_item.order_item_status == 'Cancelled' %} 
@@ -95,7 +104,7 @@
                                                     data-toggle="tooltip" 
                                                     title="This product has already been cancelled" 
                                                 {% endif %}>
-                                                Cancel
+                                                {% if order_item.order_item_status == 'Cancelled' %} Cancelled {% else %} Cancel {% endif %}
                                             </button>
                                         </td>
                                     </tr>

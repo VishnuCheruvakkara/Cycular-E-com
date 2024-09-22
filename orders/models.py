@@ -65,7 +65,9 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product_variant.product.name} (x{self.quantity}) - Order {self.order.id}"
-
+    def effective_price(self):
+        """Calculate the effective price after discount."""
+        return self.price - self.coupon_discount_price
 #address for the orderd products
 # ...
 class OrderAddress(models.Model):
