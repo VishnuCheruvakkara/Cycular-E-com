@@ -25,7 +25,7 @@ class Order(models.Model):
 ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     order_date = models.DateTimeField(auto_now_add=True)
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='cash_on_delivery')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='')
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='Pending')
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     coupon_discount_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

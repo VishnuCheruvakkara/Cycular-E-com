@@ -1,5 +1,7 @@
 {% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
+<!--Get your own code at fontawesome.com-->
 <div class="main-wrapper">
     <div class="header">
         <div class="header-left">
@@ -138,6 +140,9 @@
                     
                     <li>
                         <a href="{% url 'coupon:coupon-management' %}"><i class="fa fa-money"></i> <span>Coupen</span></a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_side:sales-report' %}"><i class="fa fa-file-invoice-dollar"></i><span>Sales Report</span></a>
                     </li>
                     <li>
                         <a href="departments.html"><i class="fa fa-check"></i> <span>Banner</span></a>

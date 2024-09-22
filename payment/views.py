@@ -89,7 +89,7 @@ def check_out(request):
             for item in cart_items:
                 item_proportion = Decimal(item.subtotal) / total_price  # Item's contribution to total price
                 item_discount = item_proportion * discount_amount  # Proportional discount for this item
-                
+
                 # to decreace stock count of product when user buy it
                 product_variant = item.product_variant
                 if product_variant.stock >= item.quantity:
@@ -123,7 +123,7 @@ def check_out(request):
                 coupon_usage.is_used = True
                 coupon_usage.save()
                 del request.session['applied_coupon']
-
+            
             
             messages.success(request,'Order was placed successfully. Details are added to the order-history...')
             return redirect(reverse('payment:order-success-page',args=[order.id]))
