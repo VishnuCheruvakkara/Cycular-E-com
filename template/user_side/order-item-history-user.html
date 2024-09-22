@@ -85,7 +85,13 @@
                                         <td data-label="Product Name"><a href="{% url 'products:single-product-view' order_item.product_variant.id %}">{{ order_item.product_variant.product.name }}</a></td>
                                         <td data-label="Payment Method">{{ order_item.order.get_payment_method_display }}</td>
                                         <td data-label="Order Date">{{ order_item.order.order_date }}</td>
-                                        <td data-label="Coupon Info">{{ order_item.coupon_info }}</td>
+                                        <td data-label="Coupon Info">
+                                            {% if order_item.coupon_discount_price == 0 %}
+                                                Coupon not applied
+                                            {% else %}
+                                                {{ order_item.coupon_info }}
+                                            {% endif %}
+                                        </td>
                                         <td data-label="Price">{{ order_item.price }} ₹</td>
                                         <td data-label="Discount Price">{{ order_item.coupon_discount_price }} ₹</td>
                                         <td data-label="Effective Price">{{ order_item.effective_price|floatformat:2 }} ₹</td>
@@ -218,6 +224,7 @@
                                 Swal.fire('Success', data.message, 'success');
                                 button.setAttribute('disabled', 'true');
                                 button.innerText = 'Cancelled';
+                                button.style.backgroundColor = 'gray';
                             }
                         })
                         .catch(error => console.error('Error:', error));
