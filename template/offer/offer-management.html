@@ -1,0 +1,217 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
+    <title>Offer Management</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+</head>
+
+<body>
+{% block sidebar %}
+{% include 'partials/side-bar-admin.html' %}
+{% endblock %}
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Offer Management</li>
+                    </ol>
+                </nav>
+                <div class="row">
+                    <div class="col-12">
+                        <h4 class="page-title">Current Offers</h4>
+                    </div>
+                </div>
+
+                <!-- Add Product Offer Button -->
+                <div class="row">
+                    <div class="col-12">
+                        <button class="btn btn-primary float-right mb-4" data-toggle="modal" data-target="#addProductOfferModal">
+                            Add Product Offer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product Offer Table -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="table-responsive">
+                            <table class="table table-striped custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sl.No</th>
+                                        <th>Product Name</th>
+                                        <th>Offer Percentage</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product_offer in product_offers %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ product_offer.product.name }}</td>
+                                        <td>{{ product_offer.offer_percentage }}%</td>
+                                        <td>{{ product_offer.start_date }}</td>
+                                        <td>{{ product_offer.end_date }}</td>
+                                        <td>
+                                            <!-- Edit/Delete buttons can go here -->
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Brand Offer Button -->
+                <div class="row">
+                    <div class="col-12">
+                        <button class="btn btn-primary float-right mb-4" data-toggle="modal" data-target="#addBrandOfferModal">
+                            Add Brand Offer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Brand Offer Table -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="table-responsive">
+                            <table class="table table-striped custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sl.No</th>
+                                        <th>Brand Name</th>
+                                        <th>Offer Percentage</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for brand_offer in brand_offers %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ brand_offer.brand.name }}</td>
+                                        <td>{{ brand_offer.offer_percentage }}%</td>
+                                        <td>{{ brand_offer.start_date }}</td>
+                                        <td>{{ brand_offer.end_date }}</td>
+                                        <td>
+                                            <!-- Edit/Delete buttons can go here -->
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Offer Modal -->
+<div class="modal fade" id="addProductOfferModal" tabindex="-1" role="dialog" aria-labelledby="addProductOfferLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductOfferLabel">Add Product Offer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="product">Product</label>
+                        <select class="form-control" name="product" required>
+                            {% for product in products %}
+                            <option value="{{ product.id }}">{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="offer_percentage">Offer Percentage</label>
+                        <input type="number" class="form-control" name="offer_percentage" min="1" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" class="form-control" name="start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">End Date</label>
+                        <input type="date" class="form-control" name="end_date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Offer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Brand Offer Modal -->
+<div class="modal fade" id="addBrandOfferModal" tabindex="-1" role="dialog" aria-labelledby="addBrandOfferLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBrandOfferLabel">Add Brand Offer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="brand">Brand</label>
+                        <select class="form-control" name="brand" required>
+                            {% for brand in brands %}
+                            <option value="{{ brand.id }}">{{ brand.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="offer_percentage">Offer Percentage</label>
+                        <input type="number" class="form-control" name="offer_percentage" min="1" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" class="form-control" name="start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">End Date</label>
+                        <input type="date" class="form-control" name="end_date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Offer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'admin/js/popper.min.js' %}"></script>
+<script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+<script src="{% static 'admin/js/select2.min.js' %}"></script>
+<script src="{% static 'admin/js/app.js' %}"></script>
+
+</body>
+
+</html>

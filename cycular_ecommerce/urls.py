@@ -34,6 +34,7 @@ urlpatterns = [
     path('wallet/',include('wallet.urls')),
     path('captcha/', include('captcha.urls')),
     path('coupon/', include('coupon.urls')),
+    path('offer/',include('offer.urls')),
 ]
 
 if settings.DEBUG:
