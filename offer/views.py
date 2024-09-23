@@ -1,18 +1,23 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import ProductVariantOffer, ProductVariant
+from .models import ProductVariantOffer, ProductVariant,Brand,BrandOffer
 from django.utils import timezone
+from django.http import JsonResponse
 
 # Create your views here.
 
 def offer_page(request):
     product_variants = ProductVariant.objects.select_related('product', 'size').all()
     # Fetch product variant offers related to those variants
-    product_variant_offers = ProductVariantOffer.objects.select_related('product_variant').all()
+    product_variant_offers = ProductVariantOffer.objects.select_related('product_variant').filter(status=True)
+    brands = Brand.objects.filter(status=True)
+
+
     
     context = {
         'product_variants': product_variants,
         'product_variant_offers': product_variant_offers,
+        'brands': brands, 
     }
     
     return render(request, 'offer/offer-management.html', context)
@@ -45,7 +50,7 @@ def add_product_variant_offer(request):
         if errors:
             messages.error(request, 'Please correct the error, Add product offer again.')
             product_variants = ProductVariant.objects.all()
-            product_variant_offers = ProductVariantOffer.objects.select_related('product_variant').all()
+            product_variant_offers = ProductVariantOffer.objects.select_related('product_variant').filter(status=True)
             return render(request, 'offer/offer-management.html', {
                 'product_variants': product_variants,
                 'errors': errors,
@@ -74,10 +79,59 @@ def add_product_variant_offer(request):
 
     # If not POST, render the form (could be modal-triggered, etc.)
     product_variants = ProductVariant.objects.all()  # Assuming you have a list of variants
-    product_variant_offers = ProductVariantOffer.objects.select_related('product_variant').all()
+    product_variant_offers = ProductVariantOffer.objects.select_related('product_variant').filter(status=True)
     context = {
         'product_variants': product_variants,
         'product_variant_offers': product_variant_offers,
         }
 
     return render(request, 'offer/offer-management.html', context)
+
+################ product variant soft delete  ##############################
+
+def delete_offer(request, offer_id):
+    if request.method == 'POST':
+        try:
+            # Get the offer object
+            offer = get_object_or_404(ProductVariantOffer, id=offer_id)
+
+            # Perform soft delete by setting status to False
+            offer.status = False
+            offer.save()
+
+            # Return success response as JSON
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=400)
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
+
+
+####################  add brand offer  ###################
+
+
+def add_brand_offer(request):
+    if request.method == 'POST':
+        brand_id = request.POST.get('brand')
+        offer_percentage = request.POST.get('offer_percentage')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+
+        
+        # Validate and create the BrandOffer
+        try:
+            brand = Brand.objects.get(id=brand_id)
+            brand_offer = BrandOffer.objects.create(
+                brand=brand,
+                offer_name=f"{offer_percentage}% off on {brand.name}",
+                discount_percentage=float(offer_percentage),
+                start_date=start_date,
+                end_date=end_date
+            )
+            messages.success(request, 'Brand offer added successfully!')
+            return redirect('offer:offer-page')  # Replace with your redirect view
+        except Exception as e:
+            messages.error(request, f'Error adding offer: {str(e)}')
+
+    brands = Brand.objects.all()
+    return render(request, 'offer/offer-management.html', {'brands': brands})

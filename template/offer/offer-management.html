@@ -12,7 +12,12 @@
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
-    
+    <style>
+        /* Custom modal background shade */
+        .modal-backdrop {
+           background-color: rgba(0, 0, 0, 0.652); /* Adjust opacity as needed */
+       }
+   </style>
     <!-- complete customization of the sweet alert -->
     <style>
         /* Inline style for customizing title font size */
@@ -113,7 +118,7 @@
                                         <td>{{ product_variant_offer.start_date }}</td>
                                         <td>{{ product_variant_offer.end_date }}</td>
                                         <td>
-                                            <!-- Edit/Delete buttons can go here -->
+                                            <button class="btn btn-danger delete-btn" data-offer-id="{{ product_variant_offer.id }}">Delete</button>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -160,7 +165,7 @@
                                         <td>{{ brand_offer.start_date }}</td>
                                         <td>{{ brand_offer.end_date }}</td>
                                         <td>
-                                            <!-- Edit/Delete buttons can go here -->
+                                            
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -228,7 +233,6 @@
         </div>
     </div>
 </div>
-
 <!-- Add Brand Offer Modal -->
 <div class="modal fade" id="addBrandOfferModal" tabindex="-1" role="dialog" aria-labelledby="addBrandOfferLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -240,11 +244,12 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="">
+                <form method="POST" action="{% url 'offer:add-brand-offer' %}"> 
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="brand">Brand</label>
                         <select class="form-control" name="brand" required>
+                            <option value="" disabled selected>Select Brand</option>
                             {% for brand in brands %}
                             <option value="{{ brand.id }}">{{ brand.name }}</option>
                             {% endfor %}
@@ -252,12 +257,9 @@
                     </div>
                     <div class="form-group">
                         <label for="offer_percentage">Offer Percentage</label>
-                        <input type="number" class="form-control" name="offer_percentage" min="1" max="100" required>
+                        <input type="number" class="form-control" name="offer_percentage" min="1" max="100" required placeholder="Enter discount percentage">
                     </div>
-                    <div class="form-group">
-                        <label for="start_date">Start Date</label>
-                        <input type="date" class="form-control" name="start_date" required>
-                    </div>
+                    
                     <div class="form-group">
                         <label for="end_date">End Date</label>
                         <input type="date" class="form-control" name="end_date" required>
@@ -268,6 +270,7 @@
         </div>
     </div>
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -288,6 +291,89 @@
         });
 {% endfor %}
 </script>
+<!-- JS for handling the soft delete of the ProductOffer model -->
+<script>
+    // Common SweetAlert function to handle various types of alerts
+    function showSweetAlert({title, text, icon, confirmButtonText, showCancelButton = false, confirmButtonColor = '#3085d6', cancelButtonColor = '#d33'}) {
+        return Swal.fire({
+            title: title,
+            text: text,
+            icon: icon,
+            showCancelButton: showCancelButton,
+            confirmButtonColor: confirmButtonColor,
+            cancelButtonColor: cancelButtonColor,
+            confirmButtonText: confirmButtonText,
+             width:"250px",
+
+            customClass: {
+            icon: 'small-icon',
+            title: 'small-title',
+            confirmButton: 'swal2-confirm',
+            popup: 'small-popup', 
+        }
+
+        });
+    }
+    
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function(event) {
+            const offerId = this.dataset.offerId;
+            const row = this.closest('tr');
+    
+            // Use the common SweetAlert function to confirm deletion
+            showSweetAlert({
+                title: 'Are you sure?',
+                text: "Do you really want to delete this offer? This action is not reversible!",
+                icon: 'warning',
+                confirmButtonText: 'Yes, delete it!',
+                showCancelButton: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Proceed with deletion if confirmed
+                    fetch("{% url 'offer:delete-offer' 0 %}".replace(0, offerId), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'  // Directly pass the CSRF token from the template
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Use the common SweetAlert for success message
+                            showSweetAlert({
+                                title: 'Deleted!',
+                                text: 'The offer has been deleted.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            });
+                            // Hide the soft-deleted offer row from the table
+                            row.style.display = 'none';
+                        } else {
+                            // Use the common SweetAlert for error message
+                            showSweetAlert({
+                                title: 'Error!',
+                                text: data.message,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        showSweetAlert({
+                            title: 'Error!',
+                            text: 'There was a problem processing your request.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        });
+    });
+    </script>
+    
 
 <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
 <script src="{% static 'admin/js/popper.min.js' %}"></script>
