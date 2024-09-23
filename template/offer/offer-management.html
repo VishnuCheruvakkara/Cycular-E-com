@@ -12,6 +12,40 @@
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+    
+    <!-- complete customization of the sweet alert -->
+    <style>
+        /* Inline style for customizing title font size */
+        .small-title {
+            font-size: 18px ;  /* Adjust the title size as per your need */
+            font-weight: bold; /* Optional: make title bold */
+        }
+        .small-icon {
+            font-size: 10px ;  
+        }
+        .small-popup {
+            font-size: 12px ; 
+            /* Adjust the text size */
+        }
+        .swal2-confirm{
+             /* Adjust padding for the button */
+            
+            font-size: 12px ; 
+            background-color:#009efb;
+            box-shadow: none !important; 
+            border:none !important;
+        }
+      
+        .swal2-cancel {
+            /* Customize the cancel button */
+            background-color: #d33; /* Red color */
+           
+            font-size: 12px;
+            box-shadow: none !important; 
+        }
+        
+        </style>
+
 </head>
 
 <body>
@@ -29,8 +63,15 @@
                     </ol>
                 </nav>
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-12 text-center"> <!-- Added text-center class here -->
                         <h4 class="page-title">Current Offers</h4>
+                    </div>
+                </div>
+                
+                <!-- Heading for Product Offers -->
+                <div class="row">
+                    <div class="col-12">
+                        <h4 >Available Product Offers</h4>
                     </div>
                 </div>
 
@@ -42,6 +83,9 @@
                         </button>
                     </div>
                 </div>
+                
+
+
 
                 <!-- Product Offer Table -->
                 <div class="row">
@@ -52,6 +96,7 @@
                                     <tr>
                                         <th>Sl.No</th>
                                         <th>Product Name</th>
+                                        <th>Offer Name</th>
                                         <th>Offer Percentage</th>
                                         <th>Start Date</th>
                                         <th>End Date</th>
@@ -59,13 +104,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for product_offer in product_offers %}
+                                    {% for product_variant_offer in product_variant_offers %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td>{{ product_offer.product.name }}</td>
-                                        <td>{{ product_offer.offer_percentage }}%</td>
-                                        <td>{{ product_offer.start_date }}</td>
-                                        <td>{{ product_offer.end_date }}</td>
+                                        <td>{{ product_variant_offer.product_variant.product.name }} - {{ product_variant_offer.product_variant.size.name }}</td>
+                                        <td>{{ product_variant_offer.offer_name }}</td>
+                                        <td>{{ product_variant_offer.discount_percentage }}%</td>
+                                        <td>{{ product_variant_offer.start_date }}</td>
+                                        <td>{{ product_variant_offer.end_date }}</td>
                                         <td>
                                             <!-- Edit/Delete buttons can go here -->
                                         </td>
@@ -76,7 +122,11 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <h4 >Available Brand Offer</h4>
+                    </div>
+                </div>
                 <!-- Add Brand Offer Button -->
                 <div class="row">
                     <div class="col-12">
@@ -125,38 +175,52 @@
     </div>
 </div>
 
-<!-- Add Product Offer Modal -->
+<!-- Add Product variant Offer Modal -->
 <div class="modal fade" id="addProductOfferModal" tabindex="-1" role="dialog" aria-labelledby="addProductOfferLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addProductOfferLabel">Add Product Offer</h5>
+                <h5 class="modal-title" id="addProductOfferLabel">Add Product variant Offer</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="">
+                <form method="POST" action="{% url 'offer:add-product-variant-offer' %}">
                     {% csrf_token %}
                     <div class="form-group">
-                        <label for="product">Product</label>
-                        <select class="form-control" name="product" required>
-                            {% for product in products %}
-                            <option value="{{ product.id }}">{{ product.name }}</option>
+                        <label for="offer_name">Offer Name</label>
+                        <input type="text" class="form-control" name="offer_name" value="{{ offer_name|default:'' }}" required>
+                        {% if errors.offer_name %}
+                            <small class="text-danger">{{ errors.offer_name }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="product_variant">Product Variant</label>
+                        <select class="form-control" name="product_variant_id" required>
+                            {% for variant in product_variants %}
+                                <option value="{{ variant.id }}">
+                                    {{ variant.product.name }} - {{ variant.size.name }}
+                                </option>
                             {% endfor %}
                         </select>
+                        {% if errors.product_variant_id %}
+                            <small class="text-danger">{{ errors.product_variant_id }}</small>
+                        {% endif %}
                     </div>
                     <div class="form-group">
                         <label for="offer_percentage">Offer Percentage</label>
-                        <input type="number" class="form-control" name="offer_percentage" min="1" max="100" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="start_date">Start Date</label>
-                        <input type="date" class="form-control" name="start_date" required>
+                        <input type="number" class="form-control" name="offer_percentage" min="1" max="100" value="{{ discount_percentage|default:'' }}" required>
+                        {% if errors.offer_percentage %}
+                            <small class="text-danger">{{ errors.offer_percentage }}</small>
+                        {% endif %}
                     </div>
                     <div class="form-group">
                         <label for="end_date">End Date</label>
-                        <input type="date" class="form-control" name="end_date" required>
+                        <input type="date" class="form-control" name="end_date" value="{{ end_date|default:'' }}" required>
+                        {% if errors.end_date %}
+                            <small class="text-danger">{{ errors.end_date }}</small>
+                        {% endif %}
                     </div>
                     <button type="submit" class="btn btn-primary">Add Offer</button>
                 </form>
@@ -204,6 +268,26 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+{% for message in messages %}
+        swal.fire({
+            icon:"{{message.tags}}",
+            title:"{{message}}",
+            text:"{{message.tags}}", 
+            width:"250px",
+
+            customClass: {
+            icon: 'small-icon',
+            title: 'small-title',
+            confirmButton: 'swal2-confirm',
+            popup: 'small-popup', 
+        }
+           
+        });
+{% endfor %}
+</script>
 
 <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
 <script src="{% static 'admin/js/popper.min.js' %}"></script>
