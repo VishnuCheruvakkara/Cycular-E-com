@@ -630,13 +630,26 @@
                                     </div><!-- End .rating-container -->
 
                                     <div class="product-price">
-                                       ₹ <span>{{variant.price}}</span>
+                                        {% if discounted_price < original_price %}
+                                        <span style="text-decoration: line-through; color:rgb(239, 98, 98);" >₹ {{ original_price }}</span> <!-- Original price -->
+                                        <span class="ml-5">₹ {{ discounted_price|floatformat:2 }}</span> <!-- Maximum discounted price -->
+                                        {% else %}
+                                        ₹ <span>{{ original_price }}</span>
+                                        {% endif %}
                                     </div><!-- End .product-price -->
                             
                                     <div class="product-content">
                                         <p>{{variant.product.description}}</p>
                                     </div><!-- End .product-content -->
 
+                                   <!-- Show offers -->
+                                   <div class="product-offers mb-2" >
+                                    {% if max_discount_percentage %}
+                                        <p style="color:rgb(250, 104, 104)"><b>Offer rate: {{ max_discount_percentage }}% off</b></p>
+                                    {% else %}
+                                        <p><b>No current offers available.</b></p>
+                                    {% endif %}
+                                </div><!-- End .product-offers -->
 
                                     <div class="details-filter-row details-row-size">
                                         <label for="size">Size:</label>

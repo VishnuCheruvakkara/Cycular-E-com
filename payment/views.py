@@ -10,13 +10,10 @@ from wallet.models import Transaction
 from coupon.models import Coupon,CouponUsage
 import json
 from django.http import JsonResponse
-from decimal import Decimal
+from decimal import Decimal,ROUND_DOWN
 from django.utils import timezone
 from datetime import datetime,time
-
-
-
-                      
+ 
 import razorpay
 
 
@@ -48,8 +45,8 @@ def check_out(request):
         coupon_code = applied_coupon.get('coupon_code')
         discount_value = applied_coupon.get('discount_value',0)
         valid_until = applied_coupon.get('valid_until')
-        discount_amount = Decimal(applied_coupon.get('discount_amount',0))
-        coupon_grand_total = Decimal(applied_coupon.get('coupon_grand_total'))
+        discount_amount = Decimal(applied_coupon.get('discount_amount', '0'))  # Convert from string to Decimal
+        coupon_grand_total = Decimal(applied_coupon.get('coupon_grand_total', '0'))  # Convert from string to Decimal
          # Calculate proportional discount for each item
         total_price = Decimal(coupon_grand_total)
 
@@ -87,9 +84,16 @@ def check_out(request):
                 phone_number=selected_address.phone_number,
             )
             for item in cart_items:
-                item_proportion = Decimal(item.subtotal) / total_price  # Item's contribution to total price
-                item_discount = item_proportion * discount_amount  # Proportional discount for this item
+                item_subtotal = Decimal(item.subtotal)
+                total_price_decimal = Decimal(total_price) 
 
+                print("subtotal:item.subtotal",item.subtotal)
+                item_proportion = (item_subtotal / total_price_decimal).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+                print("item_proportion",item_proportion)
+                # here is some problem 
+                print("discount_amount is : ",discount_amount)
+                item_discount = ((item_proportion)* discount_amount).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+                print("item_discount",item_discount)
                 # to decreace stock count of product when user buy it
                 product_variant = item.product_variant
                 if product_variant.stock >= item.quantity:
@@ -98,7 +102,7 @@ def check_out(request):
                 else:
                     messages.error(request, f"Not enough stock for {product_variant.product.name}.")
                     return redirect('cart:cart-view')  # Redirect if stock is insufficient
-                OrderItem.objects.create(
+                order_item=OrderItem.objects.create(
                     order=order,
                     product_variant=item.product_variant,
                     quantity=item.quantity,
@@ -106,7 +110,18 @@ def check_out(request):
                     coupon_discount_price=item_discount,
                     coupon_info=f"{discount_value}% of {coupon_code} coupon applied.Discount of {item_discount:.2f} ₹"
                 )
-           
+                # Printing the stored data
+                print(f"Stored OrderItem Data:")
+                print(f"Order ID: {order_item.order.id}")
+                print(f"Product Variant: {order_item.product_variant}")
+                print(f"Quantity: {order_item.quantity}")
+                print(f"Price (subtotal): {order_item.price}")
+                print(f"Coupon Discount Price: {order_item.coupon_discount_price}")
+                print(f"Coupon Info: {order_item.coupon_info}")
+                
+                print(f"Discount amount: {discount_amount}")
+                print(f"Final total price after discount: {total_price}")
+                        
             # check whether user select the razorpay for payment
             if payment_method == 'razorpay':
                 return redirect(reverse('payment:razorpay-order', args=[order.id]))
@@ -375,13 +390,25 @@ def apply_coupon_view(request):
             valid_until_str = coupon.valid_until.strftime('%B %d, %Y')
             coupon_grand_total=total_price_decimal-discount_amount
             # Store the coupon details in the session
+
+            discount_amount_float = float(discount_amount)
+            coupon_grand_total_float = float(coupon_grand_total)
+            
             request.session['applied_coupon'] = {
                 'coupon_code': coupon.code,
                 'discount_value': coupon.discount_value,
                 'valid_until': valid_until_str,
-                'discount_amount': f'{discount_amount:.2f}',
-                'coupon_grand_total': f'{coupon_grand_total:.2f}'
+                'discount_amount': str(discount_amount_float),  # Convert to str for consistent formatting
+                'coupon_grand_total': str(coupon_grand_total_float),  # Convert to str for consistent formatting
             }
+            
+            # Print the session values for debugging
+            print("Applied Coupon Session Data:")
+            print(f"Coupon Code: {request.session['applied_coupon']['coupon_code']}")
+            print(f"Discount Value: {request.session['applied_coupon']['discount_value']}")
+            print(f"Valid Until: {request.session['applied_coupon']['valid_until']}")
+            print(f"Discount Amount: {request.session['applied_coupon']['discount_amount']}")
+            print(f"Coupon Grand Total: {request.session['applied_coupon']['coupon_grand_total']}")
             return JsonResponse({
                 'message': f'Coupon applied! You saved {discount_amount:.2f} ₹',
                 'coupon_code': coupon.code,
