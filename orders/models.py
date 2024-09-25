@@ -43,6 +43,9 @@ class Order(models.Model):
         # Convert ORDER_STATUS_CHOICES to a dictionary
         status_dict = dict(self.ORDER_STATUS_CHOICES)
         return status_dict.get(self.order_status, self.order_status)
+    def paid_amount(self):
+        """Calculate the effective price after discount."""
+        return self.total_price - self.coupon_discount_total
 
 
 # OrderItem Model

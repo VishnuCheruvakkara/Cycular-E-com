@@ -28,6 +28,7 @@ def check_out(request):
     addresses=Address.objects.filter(user=request.user)
     #retrive all items for the current user cart
     cart_items=cart.items.all() #items is the related name
+    total_price=sum(item.subtotal for item in cart_items)
    
    
     item_discount=0
@@ -47,8 +48,7 @@ def check_out(request):
         valid_until = applied_coupon.get('valid_until')
         discount_amount = Decimal(applied_coupon.get('discount_amount', '0'))  # Convert from string to Decimal
         coupon_grand_total = Decimal(applied_coupon.get('coupon_grand_total', '0'))  # Convert from string to Decimal
-         # Calculate proportional discount for each item
-        total_price = Decimal(coupon_grand_total)
+      
 
     if total_price == 0:
         messages.info(request,'Your cart is empty.Please add products to the cart before proceeding to checkout.')
@@ -88,11 +88,11 @@ def check_out(request):
                 total_price_decimal = Decimal(total_price) 
 
                 print("subtotal:item.subtotal",item.subtotal)
-                item_proportion = (item_subtotal / total_price_decimal).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+                item_proportion = (item_subtotal / total_price_decimal)
                 print("item_proportion",item_proportion)
                 # here is some problem 
                 print("discount_amount is : ",discount_amount)
-                item_discount = ((item_proportion)* discount_amount).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+                item_discount = ((item_proportion)* discount_amount)
                 print("item_discount",item_discount)
                 # to decreace stock count of product when user buy it
                 product_variant = item.product_variant
