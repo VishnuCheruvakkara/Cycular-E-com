@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from products.models import ProductVariant
+from decimal import Decimal
 
 # Create your models here.
 
@@ -27,6 +28,17 @@ class CartItem(models.Model):
         return f"{self.product_variant.product.name} (x{self.quantity})"
     
     def save(self, *args, **kwargs):
-        # Automatically update the subtotal whenever the cart item is saved
-        self.subtotal = self.quantity * float(self.product_variant.price)
+        # Get the discounted price from the product variant
+        discounted_price = self.product_variant.get_discounted_price()
+        
+        # Calculate subtotal based on the discounted price if it exists
+        if discounted_price < self.product_variant.price:
+            self.subtotal = self.quantity * discounted_price
+        else:
+            self.subtotal = self.quantity * float(self.product_variant.price)
+
+        # Optionally update the discount amount if a discount exists
+        self.discount_amount = (self.product_variant.price - discounted_price) * self.quantity if discounted_price < self.product_variant.price else Decimal(0)
+        
+        # Call the parent save method
         super().save(*args, **kwargs)

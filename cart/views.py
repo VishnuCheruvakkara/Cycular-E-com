@@ -96,7 +96,6 @@ def remove_from_cart(request,cart_item_id):
 
 ######################## update cart quantity of a product based on the count and stock  ###################
 
-
 def update_cart_item_quantity(request, cart_item_id):
     if not request.user.is_authenticated:
         return JsonResponse({'status': 'error', 'message': 'User not authenticated'}, status=401)
@@ -110,21 +109,30 @@ def update_cart_item_quantity(request, cart_item_id):
 
         if quantity > max_quantity_limit:
             return JsonResponse({
-                'status':'error',
-                'message':f'Maximum limit exceeded. You can only add up to {max_quantity_limit} of this product'
+                'status': 'error',
+                'message': f'Maximum limit exceeded. You can only add up to {max_quantity_limit} of this product.'
             })
         
         if 1 <= quantity <= cart_item.product_variant.stock:
             cart_item.quantity = quantity
-            cart_item.save() # this will save the both cart item quantity and its price accordingly.
-            new_total = cart_item.quantity * float(cart_item.product_variant.price)
+            cart_item.save()
+
+            # Use discounted price if available, otherwise fallback to regular price
+            discounted_price = cart_item.product_variant.get_discounted_price()
+            price_to_use = discounted_price if discounted_price < cart_item.product_variant.price else cart_item.product_variant.price
+            new_total = cart_item.quantity * float(price_to_use)
+
+            # Calculate the overall cart total price, taking discounts into account
+            cart_items = CartItem.objects.filter(cart=cart_item.cart)
+            overall_total = sum(
+                item.quantity * float(
+                    item.product_variant.get_discounted_price() if item.product_variant.get_discounted_price() < item.product_variant.price else item.product_variant.price
+                ) for item in cart_items
+            )
             
-            # Calculate the overall cart total price
-            cart_items = CartItem.objects.filter(cart=cart_item.cart)  # Adjust this query if needed
-            overall_total = sum(item.quantity * float(item.product_variant.price) for item in cart_items)
             return JsonResponse({'status': 'success', 'new_total': new_total, 'overall_total': overall_total})
         else:
-            available_stock=cart_item.product_variant.stock
+            available_stock = cart_item.product_variant.stock
             return JsonResponse({'status': 'error', 'message': f'Quantity is out of stock. Only {available_stock} quantity in stock.'})
     
     except (ValueError, KeyError):
