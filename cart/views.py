@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 import json
 # Create your views here.
-#main cart page...
+##################   main cart page...   ########################
 
 def cart(request):
     if not request.user.is_authenticated:

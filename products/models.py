@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
+from decimal import Decimal
 
 class Brand(models.Model):
     name = models.CharField(max_length=100)
@@ -59,7 +60,50 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.size.name} - {self.product.name}"  # Updated __str__ method
+    def get_discounted_price(self):
+        """Calculate the discounted price based on product variant and brand offers."""
+        from offer.models import ProductVariantOffer, BrandOffer  # Lazy import to avoid circular dependency 
+       
+        product_variant_offer = ProductVariantOffer.objects.filter(product_variant=self, status=True).first()
+        brand_offer = BrandOffer.objects.filter(brand=self.product.brand, status=True).first()
+        
+        original_price = self.price
+        variant_discount_percentage = Decimal(0)  # Default to 0 if no product variant offer
+        brand_discount_percentage = Decimal(0)  # Default to 0 if no brand offer
+        
+        # Calculate product variant discount percentage
+        if product_variant_offer:
+            variant_discount_percentage = Decimal(product_variant_offer.discount_percentage)
+        
+        # Calculate brand discount percentage
+        if brand_offer:
+            brand_discount_percentage = Decimal(brand_offer.discount_percentage)
+        
+        # Determine the maximum discount percentage
+        max_discount_percentage = max(variant_discount_percentage, brand_discount_percentage)
+        
+        # Calculate the discounted price
+        discounted_price = original_price * (1 - (max_discount_percentage / Decimal(100)))
+        
+        return discounted_price
 
+    def get_discount_percentage(self):
+        """Return the maximum discount percentage applied to the product variant."""
+        from offer.models import ProductVariantOffer, BrandOffer  # Lazy import to avoid circular dependency
+        product_variant_offer = ProductVariantOffer.objects.filter(product_variant=self, status=True).first()
+        brand_offer = BrandOffer.objects.filter(brand=self.product.brand, status=True).first()
+        
+        variant_discount_percentage = Decimal(0)
+        brand_discount_percentage = Decimal(0)
+        
+        if product_variant_offer:
+            variant_discount_percentage = Decimal(product_variant_offer.discount_percentage)
+        
+        if brand_offer:
+            brand_discount_percentage = Decimal(brand_offer.discount_percentage)
+        
+        return max(variant_discount_percentage, brand_discount_percentage)
+    
 class Review(models.Model):
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

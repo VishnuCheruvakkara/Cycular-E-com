@@ -127,7 +127,13 @@
 													</h3><!-- End .product-title -->
 												</div><!-- End .product -->
 											</td>
-											<td class="price-col">{{cart_item.product_variant.price}} ₹ </td>
+											<td class="price-col">
+												{% if cart_item.product_variant.get_discounted_price %}
+													<span class="discounted-price">{{ cart_item.product_variant.get_discounted_price|floatformat:2 }} ₹</span>
+												{% else %}
+													{{ cart_item.product_variant.price }} ₹
+												{% endif %}
+											</td>
 											<td class="quantity-col">
                                                 <div class="cart-product-quantity">
                                                     <input type="number" id="quantity-{{ cart_item.id }}" data-max-quantity="{{ cart_item.product_variant.stock }}" class="form-control" min="1" max="10" step="1" value="{{ cart_item.quantity }}" onchange="updateCartItemQuantity({{ cart_item.id }})" required>
@@ -271,8 +277,8 @@
     }
 
 	function updateQuantityAndFetch(cartItemId, quantity) {
-        const url = "{% url 'cart:update-cart-item-quantity' 0 %}".replace('0', cartItemId);
-		
+		const url = "{% url 'cart:update-cart-item-quantity' 0 %}".replace('0', cartItemId);
+
 		fetch(url, {
 			method: 'POST',
 			headers: {
@@ -284,21 +290,17 @@
 		.then(response => response.json())
 		.then(data => {
 			if (data.status === 'success') {
-				// Call the update function with the new total price
-				updatePriceDisplay(cartItemId, data.new_total);
-				updateCartTotal(data.overall_total); 
-				// Update the count in the table
+				updatePriceDisplay(cartItemId, data.new_total, data.discounted_total);
+				updateCartTotal(data.overall_total);
 				updateProductCount(cartItemId, quantity);
-				// Update the total number of products in the cart
 				updateTotalProductsCount();
-				
 			} else {
 				Swal.fire({
-                icon: 'error',
-                title: 'Update Failed',
-                text: data.message, // Display the error message from the server
-                confirmButtonText: 'OK'
-            });
+					icon: 'error',
+					title: 'Update Failed',
+					text: data.message,
+					confirmButtonText: 'OK'
+				});
 			}
 		})
 		.catch(error => {
@@ -306,12 +308,18 @@
 		});
 	}
 
-	function updatePriceDisplay(cartItemId, newTotal) {
+
+	function updatePriceDisplay(cartItemId, newTotal, discountedTotal) {
 		const totalElements = document.querySelectorAll(`.product-total[data-cart-item-id="${cartItemId}"]`);
 		totalElements.forEach(element => {
-			element.innerHTML = `${newTotal.toFixed(2)}`;
+			if (discountedTotal !== undefined) {
+				element.innerHTML = `${discountedTotal.toFixed(2)} ₹`;  // Show discounted total if available
+			} else {
+				element.innerHTML = `${newTotal.toFixed(2)} ₹`;  // Otherwise, show the normal total
+			}
 		});
 	}
+
 
 	// Function to update the count in the table
 	function updateProductCount(cartItemId, quantity) {

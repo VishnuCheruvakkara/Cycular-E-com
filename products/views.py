@@ -475,29 +475,10 @@ def single_product_view(request, variant_id):
     product = variant.product
     related_variants = ProductVariant.objects.filter(product__category=product.category).exclude(id=variant.id)[:5]
 
-    # Fetch the active offers for the variant and brand
-    product_variant_offer = ProductVariantOffer.objects.filter(product_variant=variant, status=True).first()
-    brand_offer = BrandOffer.objects.filter(brand=product.brand, status=True).first()
+       # Fetch the discounted price and maximum discount percentage
+    discounted_price = variant.get_discounted_price()
+    max_discount_percentage = variant.get_discount_percentage()
     
-    # Initialize original price and discounted price
-    original_price = variant.price
-    variant_discount_percentage = Decimal(0)  # Default to 0 if no offer
-    brand_discount_percentage = Decimal(0)  # Default to 0 if no offer
-
-    # Calculate product variant discount percentage
-    if product_variant_offer:
-        variant_discount_percentage = Decimal(product_variant_offer.discount_percentage)
-
-    # Calculate brand discount percentage
-    if brand_offer:
-        brand_discount_percentage = Decimal(brand_offer.discount_percentage)
-
-    # Determine the maximum discount percentage
-    max_discount_percentage = max(variant_discount_percentage, brand_discount_percentage)
-
-    # Calculate the discounted price based on the maximum discount
-    discounted_price = original_price * (1 - (max_discount_percentage / Decimal(100)))
-
     # Check if the product variant exists in the user's cart
     cart_item_exists = (
         request.user.is_authenticated and 
@@ -515,11 +496,9 @@ def single_product_view(request, variant_id):
         'related_variants': related_variants,
         'cart_item_exists': cart_item_exists,
         'wishlist_item_exists': wishlist_item_exists,
-        'product_variant_offer': product_variant_offer,  # Add product variant offer for display if needed
-        'brand_offer': brand_offer,  # Add brand offer for display if needed
         'max_discount_percentage': max_discount_percentage,  # Pass the maximum discount percentage
         'discounted_price': discounted_price,  # Add discounted price
-        'original_price': original_price,  # Add original price
+        'original_price': variant.price,  # Add original price
     }
     
     return render(request, 'products/single-product.html', context)
