@@ -127,7 +127,7 @@
 													</h3><!-- End .product-title -->
 												</div><!-- End .product -->
 											</td>
-											<td class="price-col">₹ {{cart_item.product_variant.price}}</td>
+											<td class="price-col">{{cart_item.product_variant.price}} ₹ </td>
 											<td class="quantity-col">
                                                 <div class="cart-product-quantity">
                                                     <input type="number" id="quantity-{{ cart_item.id }}" data-max-quantity="{{ cart_item.product_variant.stock }}" class="form-control" min="1" max="10" step="1" value="{{ cart_item.quantity }}" onchange="updateCartItemQuantity({{ cart_item.id }})" required>
