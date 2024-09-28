@@ -79,7 +79,7 @@
             <h2>Order Details</h2>
             <p><strong>Order ID:</strong> {{ order.id }}</p>
             <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
-            <p><strong>Total Price:</strong> ₹ {{ order.paid_amount|floatformat:2 }}</p>
+            <p><strong>Total Price:</strong> {{ order.paid_amount|floatformat:2 }} ₹</p>
             <p><strong>Delivery Address:</strong> {{ order_address.address_line }}, {{ order_address.city }}, {{ order_address.state }}, {{ order_address.country }}, {{ order_address.postal_code }}</p>
             <p><strong>Phone Number:</strong> {{ order_address.phone_number }}</p>
         </div>

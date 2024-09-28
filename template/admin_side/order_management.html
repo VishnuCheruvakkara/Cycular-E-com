@@ -67,7 +67,9 @@
                                 <thead>
                                     <tr>
                                         <th>Sl.No</th>
+                                        <th>Image</th>
                                         <th>Product Name</th>
+                                        <th>Payment Method</th>
                                         <th>Count</th>
                                         <th>Size</th>
                                         <th>User Name</th>
@@ -81,7 +83,11 @@
                                     {% for order_item in order_items %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
+                                        <td data-label="Image">
+                                            <a><img src="{{order_item.product_variant.image1.url}}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: 50px; height: 50px;"></a>
+                                        </td>
                                         <td>{{ order_item.product_variant.product.name }}</td>
+                                        <td>{{ order_item.order.get_payment_method_display }}</td>
                                         <td>{{ order_item.quantity }}</td>
                                         <td>{{ order_item.product_variant.size }}</td>
                                         <td>{{ order_item.order.user }}</td>
@@ -102,19 +108,25 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                           <!-- Form to change order status -->
-                                            <form method="POST" action="">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="order_item_id" value="{{ order_item.id }}">
-                                                <select name="status" onchange="this.form.submit()">
-                                                    {% for status, label in status_choices %}
-                                                    <option value="{{ status }}" {% if order_item.order_item_status == status %}selected{% endif %}>
-                                                        {{ label }}
-                                                    </option>
-                                                    {% endfor %}
-                                                </select>
-                                            </form>
+                                            {% if order_item.order_item_status != 'Cancelled' %}
+                                                <!-- Form to change order status -->
+                                                <form method="POST" action="">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="order_item_id" value="{{ order_item.id }}">
+                                                    <select name="status" onchange="this.form.submit()">
+                                                        {% for status, label in status_choices %}
+                                                        <option value="{{ status }}" {% if order_item.order_item_status == status %}selected{% endif %}>
+                                                            {{ label }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </form>
+                                            {% else %}
+                                                <!-- Show cancellation message -->
+                                                <p>{{ order_item.cancelled_message }}</p>
+                                            {% endif %}
                                         </td>
+                                        
                                        
                                        
                                     </tr>

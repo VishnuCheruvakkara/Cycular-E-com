@@ -51,7 +51,6 @@ class Order(models.Model):
 # OrderItem Model
 class OrderItem(models.Model):
     ORDER_STATUS_CHOICES = [
-    ('Payment fail', 'Payment fail'),               # Order has been placed but not yet processed
     ('Order placed', 'Order placed'),               # Order has been placed but not yet processed
     ('Processing', 'Processing'),         # Order is being prepared or packaged
     ('Shipped', 'Shipped'),         # Order is being prepared or packaged
@@ -59,16 +58,17 @@ class OrderItem(models.Model):
     ('Delivered', 'Delivered'),           # Order has been delivered to the customer
     ('Cancelled', 'Cancelled'),           # Order was cancelled by the customer or seller
     ('Return Requested', 'Return Requested'),  # New choice for return request      
-    ('Returned', 'Returned'),  # New choice for returned item
+    ('Returned', 'Returned'),  # New choice for returned item          
     ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    order_item_status = models.CharField(max_length=20,default='Pending', choices=ORDER_STATUS_CHOICES)
+    order_item_status = models.CharField(max_length=20,default='Order placed', choices=ORDER_STATUS_CHOICES)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     coupon_discount_price=models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,default=0.00)
     coupon_info=models.CharField(max_length=250,default="Not Available")
-
+    cancelled_message = models.CharField(max_length=255, default="Order Cancelled by Cycular-Admin", blank=True)
+    
     def __str__(self):
         return f"{self.product_variant.product.name} (x{self.quantity}) - Order {self.order.id}"
     def effective_price(self):

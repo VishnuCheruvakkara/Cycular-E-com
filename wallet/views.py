@@ -7,21 +7,19 @@ from decimal import Decimal
 import json
 from captcha.models import CaptchaStore
 from captcha.helpers import captcha_image_url
+from django.utils import timezone
 # Create your views here.
 
 
 
 #######################  wallet-page  ###################
 
-from django.shortcuts import render, get_object_or_404
-from .models import Wallet, Transaction
-from orders.models import OrderItem
 
 def wallet_page(request):
  
     wallet, created = Wallet.objects.get_or_create(user=request.user)
     
-    transactions = wallet.transactions.all()
+    transactions = wallet.transactions.all().order_by('-created_at')
 
    
     context = {
@@ -71,6 +69,7 @@ def cancell_order_item(request, order_item_id):
 
         # Update the order item status to "Cancelled"
         order_item.order_item_status = 'Cancelled'
+        order_item.cancelled_message = f"Order cancelled by User : {request.user.username} on {timezone.now().strftime('%d %b %Y, %I:%M %p')}" 
         order_item.save()
 
         # Update the stock of the product variant by the order item quantity

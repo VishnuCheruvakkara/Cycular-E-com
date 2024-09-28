@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from decimal import Decimal,ROUND_DOWN
 from django.utils import timezone
 from datetime import datetime,time
+from wallet.models import Wallet
  
 import razorpay
 
@@ -29,13 +30,18 @@ def check_out(request):
     #retrive all items for the current user cart
     cart_items=cart.items.all() #items is the related name
     total_price=sum(item.subtotal for item in cart_items)
-   
+    
+    # Fetch wallet for the current user
+    wallet = get_object_or_404(Wallet, user=request.user)
+    wallet_balance = wallet.balance
    
     item_discount=0
     discount_value=0
     discount_amount=0
     coupon_code=None
     item_proportion=0
+    coupon_grand_total=0
+   
     # Calculate the total price of products
     total_price = sum(Decimal(item.subtotal) for item in cart_items)
 
@@ -74,6 +80,44 @@ def check_out(request):
                 })
             selected_address=Address.objects.get(id=address_id)
 
+              # Create a detailed description of items purchased
+            item_descriptions = []
+            for item in cart_items:
+                item_descriptions.append(f"{item.product_variant.product.name}: {item.product_variant.size} (Qty: {item.quantity})")
+            
+            item_details = ', '.join(item_descriptions)
+
+            # Calculate total price and wallet deduction
+            total_price = sum(Decimal(item.subtotal) for item in cart_items)
+
+            if coupon_grand_total != 0 :
+                val=coupon_grand_total
+            else:
+                val=total_price
+            # Handle wallet payment
+            if payment_method == 'wallet':
+                if wallet_balance < val:
+                    messages.error(request, f'Insufficient wallet balance to complete the purchase. Current balance is: {wallet_balance} ₹. Choose any other payment option.')
+                    return render(request, 'payment/check-out.html', {
+                        'cart_items': cart_items,
+                        'total_price': total_price,
+                        'addresses': addresses,
+                    })
+                
+                # Deduct wallet balance only after confirmation
+                wallet.balance -=  val
+                wallet.save()
+
+                # Create a new Transaction entry for the wallet
+                Transaction.objects.create(
+                    wallet=wallet,
+                    transaction_type='debit',
+                    transaction_purpose='purchase',
+                    transaction_amount = val,
+                    description=f"Wallet payment for order : {item_details}"
+                )
+
+
             order=Order.objects.create(
                 user=request.user,
                 payment_method=payment_method,
@@ -81,6 +125,7 @@ def check_out(request):
                 coupon_discount_total=discount_amount,
               
             )
+
              #save the address to the table 
             order_address=OrderAddress.objects.create(
                 order=order,
@@ -129,7 +174,8 @@ def check_out(request):
                 
                 print(f"Discount amount: {discount_amount}")
                 print(f"Final total price after discount: {total_price}")
-                        
+
+          
             # check whether user select the razorpay for payment
             if payment_method == 'razorpay':
                 return redirect(reverse('payment:razorpay-order', args=[order.id]))
@@ -275,10 +321,20 @@ def add_address_checkout(request):
 def order_success_page(request,order_id):
     # Fetch the order using the order_id
     order = get_object_or_404(Order, id=order_id, user=request.user)
-   
+    order_items=order.items.all()
 
-    # Optionally, you might want to get the address details as well
+   
     order_address = getattr(order, 'order_address', None)
+    wallet = request.user.wallet
+    for order_item in order_items:
+        Transaction.objects.create(
+            wallet=wallet,
+            transaction_type='null',
+            transaction_purpose='purchase',
+            transaction_amount=order_item.price,
+            description=f"{order_item.product_variant.product.name} Purchase via cash on delivery."
+        )
+            
 
     # Pass order and address details to the template
     context = {
