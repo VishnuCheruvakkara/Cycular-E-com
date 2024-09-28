@@ -40,7 +40,7 @@ def cancell_order_item(request, order_item_id):
         data = json.loads(request.body)
         captcha_response = data.get('captcha_response')
         captcha_key = data.get('captcha_key')
-      # Debugging information
+        # Debugging information
         print(f"Received CAPTCHA key: {captcha_key}")
         print(f"Received CAPTCHA response: {captcha_response}")
 
@@ -71,8 +71,12 @@ def cancell_order_item(request, order_item_id):
 
         # Update the order item status to "Cancelled"
         order_item.order_item_status = 'Cancelled'
-
         order_item.save()
+
+        # Update the stock of the product variant by the order item quantity
+        product_variant = order_item.product_variant
+        product_variant.stock += order_item.quantity
+        product_variant.save()
 
         # Fetch or create the user's wallet
         wallet, created = Wallet.objects.get_or_create(user=request.user)

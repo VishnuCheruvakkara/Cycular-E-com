@@ -901,8 +901,8 @@ def forget_password_set(request):
 
 def order_item_details(request):
     if request.user.is_authenticated:
-        order_items = OrderItem.objects.filter(order__user=request.user)
-    
+        order_items = OrderItem.objects.filter(order__user=request.user).order_by('-order__order_date')
+
         context={
             'order_items':order_items,
         }
@@ -912,3 +912,26 @@ def order_item_details(request):
         messages.error(request, "You need to log in to view your order items.")
         return redirect('login')
 
+############################  return product dynamically  ########################
+
+
+def request_return(request, order_item_id):
+    if request.method == 'POST':
+        try:
+            # Find the order item by ID
+            order_item = get_object_or_404(OrderItem, id=order_item_id)
+            
+            # Only allow return request if the current status is 'Delivered'
+            if order_item.order_item_status == 'Delivered':
+                order_item.order_item_status = 'Return Requested'
+                order_item.save()
+
+                # Return success response
+                return JsonResponse({'success': True})
+            else:
+                return JsonResponse({'success': False, 'error': 'Invalid order status.'})
+        
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})

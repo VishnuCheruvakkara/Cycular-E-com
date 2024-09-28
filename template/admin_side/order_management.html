@@ -71,6 +71,7 @@
                                         <th>Count</th>
                                         <th>Size</th>
                                         <th>User Name</th>
+                                        <th>Date of Order</th>
                                         <th>Order Item Status</th>
                                         <th>Order Address Details</th>
                                         <th>Status</th>
@@ -84,6 +85,8 @@
                                         <td>{{ order_item.quantity }}</td>
                                         <td>{{ order_item.product_variant.size }}</td>
                                         <td>{{ order_item.order.user }}</td>
+                                        <td>{{ order_item.order.order_date|date:"d-m-Y H:i:s A" }}</td>
+                                        
                                         <td>{{ order_item.order_item_status }}</td>
                                         <td>
                                             <!-- Displaying address details -->

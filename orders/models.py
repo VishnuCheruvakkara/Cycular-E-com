@@ -51,12 +51,15 @@ class Order(models.Model):
 # OrderItem Model
 class OrderItem(models.Model):
     ORDER_STATUS_CHOICES = [
-    ('Pending', 'Pending'),               # Order has been placed but not yet processed
+    ('Payment fail', 'Payment fail'),               # Order has been placed but not yet processed
+    ('Order placed', 'Order placed'),               # Order has been placed but not yet processed
     ('Processing', 'Processing'),         # Order is being prepared or packaged
+    ('Shipped', 'Shipped'),         # Order is being prepared or packaged
     ('Out for Delivery','Out for Delivery'), # Order is out for delivery to the customer
     ('Delivered', 'Delivered'),           # Order has been delivered to the customer
     ('Cancelled', 'Cancelled'),           # Order was cancelled by the customer or seller
-    ('Refunded', 'Refunded'),   
+    ('Return Requested', 'Return Requested'),  # New choice for return request      
+    ('Returned', 'Returned'),  # New choice for returned item
     ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)

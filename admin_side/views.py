@@ -99,7 +99,7 @@ def UserView(request,user_id):
 @login_required(login_url='admin_side:seller-login')
 @never_cache
 def OrderManagement(request):
-    order_items = OrderItem.objects.all()
+    order_items = OrderItem.objects.all().order_by('-order__order_date')
     paginator= Paginator(order_items,5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

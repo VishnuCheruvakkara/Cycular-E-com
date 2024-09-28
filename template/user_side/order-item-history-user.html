@@ -64,6 +64,7 @@
                                     <th>Product Name</th>
                                     <th>paymet method</th>
                                     <th>Order Date</th>
+                                    <th>offer</th>
                                     <th>Coupon info</th>
                                     <th>Actual Price</th>
                                     <th>Dicount Amount</th>
@@ -73,6 +74,7 @@
                                     <th>Count</th>
 
                                     <th>Cancel</th>
+                                    <th>Return</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -85,6 +87,16 @@
                                         <td data-label="Product Name"><a href="{% url 'products:single-product-view' order_item.product_variant.id %}">{{ order_item.product_variant.product.name }}</a></td>
                                         <td data-label="Payment Method">{{ order_item.order.get_payment_method_display }}</td>
                                         <td data-label="Order Date">{{ order_item.order.order_date }}</td>
+                                        
+                                        <td>
+                                        {% if item.product_variant.get_discounted_price %}
+                                           
+                                            Offer of{{ item.product_variant.get_discount_percentage }}%<br>
+                                        {% else %}
+                                            No Offers Available
+                                        {% endif %}
+                                        </td>
+
                                         <td data-label="Coupon Info">
                                             {% if order_item.coupon_discount_price == 0 %}
                                                 Coupon not applied
@@ -99,20 +111,45 @@
                                         <td data-label="Count">
                                             <p>{{ order_item.quantity }}</p>
                                         </td>
-                                        <td data-label="Cancel" >
-                                            <button 
-                                            style="width: 90px; color: white; background-color: {% if order_item.order_item_status == 'Cancelled' %} gray {% else %} rgb(253, 79, 79) {% endif %}; border: none; border-radius: 5px;" 
-                                            class="cancel-order-item-btn"
-                                                
-                                                data-url="{% url 'wallet:cancell-order-item' order_item.id %}"
-                                                {% if order_item.order_item_status == 'Cancelled' %} 
+                                        <td data-label="Cancel">
+                                            {% if order_item.order_item_status == 'Order placed' or order_item.order_item_status == 'Processing' or order_item.order_item_status == 'Shipped' %}
+                                                <button 
+                                                    style="width: 90px; color: white; background-color: rgb(253, 79, 79); border: none; border-radius: 5px;" 
+                                                    class="cancel-order-item-btn"
+                                                    data-url="{% url 'wallet:cancell-order-item' order_item.id %}">
+                                                    Cancel
+                                                </button>
+                                            {% elif order_item.order_item_status == 'Cancelled' %}
+                                                <button 
+                                                    style="width: 90px; color: white; background-color: gray; border: none; border-radius: 5px;" 
+                                                    class="cancel-order-item-btn" 
                                                     disabled 
                                                     data-toggle="tooltip" 
-                                                    title="This product has already been cancelled" 
-                                                {% endif %}>
-                                                {% if order_item.order_item_status == 'Cancelled' %} Cancelled {% else %} Cancel {% endif %}
-                                            </button>
+                                                    title="This product has already been cancelled">
+                                                    Cancelled
+                                                </button>
+                                            {% endif %}
                                         </td>
+                                        
+                                        
+                                        <td>
+                                            <!-- Show "Return Order" button only if the order is delivered -->
+                                            {% if order_item.order_item_status == 'Delivered' %}
+                                                <button class="return-btn" data-order-item-id="{{ order_item.id }}" 
+                                                    style="background-color: yellow; border: none; color: black; cursor: pointer; margin-left: 15px; border-radius: 5px;">
+                                                    Return
+                                                </button>
+                                            {% elif order_item.order_item_status == 'Return Requested' %}
+                                                <span style="color: rgb(255, 255, 255);background-color: gray;padding: 5px 10px;border-radius: 5px;margin-left: 20px;">requested</span>
+                                            {% elif order_item.order_item_status == 'Returned' %}
+                                                <span style="color: rgb(255, 255, 255);background-color: rgba(11, 165, 31, 0.79);padding: 5px 10px;border-radius: 5px;margin-left: 20px;">Returned</span>
+                                            {% else %}
+                                                <span></span>
+                                            {% endif %}
+                                        </td>
+                                        
+                                        
+                                        
                                     </tr>
                                 {% empty %}
                                     <tr>
@@ -124,6 +161,159 @@
                     </div>
                 </div>
             </main>
+
+
+            <!-- Include SweetAlert CSS and JS in your HTML -->
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const returnButtons = document.querySelectorAll('.return-btn');
+            
+                    returnButtons.forEach(button => {
+                        button.addEventListener('click', function(event) {
+                            event.preventDefault();  // Prevent default form behavior
+            
+                            const orderItemId = button.getAttribute('data-order-item-id');  // Get order item ID
+            
+                            // Show confirmation SweetAlert
+                            Swal.fire({
+                                title: 'Confirm Return',
+                                text: 'Are you sure you want to return this product?',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes, return it!',
+                                cancelButtonText: 'No, cancel!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // Show reason input SweetAlert
+                                    Swal.fire({
+                                        title: 'Reason for Return',
+                                        html: `
+                                            <p style="color:#fd4f4f;">Please select a reason:</p><br>
+                                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                                <div>
+                                                    <input type="radio" id="wrong-item" name="reason" value="Product is not the same">
+                                                    <label for="wrong-item">Product is not the same</label>
+                                                </div>
+                                                <div>
+                                                    <input type="radio" id="defective" name="reason" value="Product is defective">
+                                                    <label for="defective">Product is defective</label>
+                                                </div>
+                                                <div>
+                                                    <input type="radio" id="changed-mind" name="reason" value="Changed my mind">
+                                                    <label for="changed-mind">Changed my mind</label>
+                                                </div>
+                                                <div>
+                                                    <input type="radio" id="other" name="reason" value="Other">
+                                                    <label for="other">Other:</label>
+                                                    <input type="text" id="other-reason" placeholder="Enter your reason here" style="margin-left: 5px; padding: 5px; border-radius: 5px; border: 1px solid #ccc; width: 100%;">
+                                                </div>
+                                            </div>
+                                        `,
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Submit',
+                                        cancelButtonText: 'Cancel',
+                                        preConfirm: () => {
+                                            const reasonInputs = document.getElementsByName('reason');
+                                            let reasonSelected = false;
+                                            let reasonText = '';
+            
+                                            // Check if a reason is selected
+                                            for (const input of reasonInputs) {
+                                                if (input.checked) {
+                                                    reasonSelected = true;
+                                                    reasonText = input.value;
+            
+                                                    // If 'Other' is selected, validate the text input
+                                                    if (input.id === 'other') {
+                                                        const customReason = document.getElementById('other-reason').value.trim();
+                                                        if (!customReason) {
+                                                            Swal.showValidationMessage('Please enter a reason for the return.');
+                                                            return false;  // Prevent submission
+                                                        }
+                                                        reasonText = customReason;  // Use the custom reason provided by the user
+                                                    }
+                                                    break;
+                                                }
+                                            }
+            
+                                            // If no reason is selected
+                                            if (!reasonSelected) {
+                                                Swal.showValidationMessage('You need to select a reason for the return.');
+                                                return false;  // Prevent submission
+                                            }
+            
+                                            return { reason: reasonText };  // Return the reason for the fetch request
+                                        }
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            const reason = result.value.reason;  // Get the reason provided by the user
+            
+                                            // Dynamically construct the URL using Django reverse URL pattern
+                                            const requestReturnUrl = "{% url 'user_side:request-return' 0 %}".replace('0', orderItemId);
+            
+                                            // Make the fetch request to the server to update the return status
+                                            fetch(requestReturnUrl, {
+                                                method: 'POST',  // Use POST method
+                                                headers: {
+                                                    'Content-Type': 'application/json',  // Set the content type as JSON
+                                                    'X-CSRFToken': '{{ csrf_token }}',  // Send CSRF token for security
+                                                },
+                                                body: JSON.stringify({ status: 'Return Requested', reason: reason })  // Send status and reason as payload
+                                            })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('Network response was not ok');
+                                                }
+                                                return response.json();  // Parse JSON response
+                                            })
+                                            .then(data => {
+                                                if (data.success) {
+                                                    // Show success message using SweetAlert
+                                                    Swal.fire({
+                                                        title: 'Success!',
+                                                        text: 'Return request has been submitted.We will reach out you with in few days...',
+                                                        icon: 'success',
+                                                        confirmButtonText: 'OK'
+                                                    });
+            
+                                                    // Dynamically change the button's color and status to indicate return request
+                                                    button.style.backgroundColor = 'gray';  // Change color to gray
+                                                    button.textContent = 'Requested';  // Change button text
+                                                    button.style.color = 'white'; 
+                                                    button.disabled = true;  // Disable the button to prevent multiple clicks
+                                                    button.style.cursor = 'default'; 
+                                                } else {
+                                                    // Show error message using SweetAlert
+                                                    Swal.fire({
+                                                        title: 'Error!',
+                                                        text: 'Could not process the return request.',
+                                                        icon: 'error',
+                                                        confirmButtonText: 'OK'
+                                                    });
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error:', error);
+                                                // Show error message using SweetAlert
+                                                Swal.fire({
+                                                    title: 'Oops!',
+                                                    text: 'An error occurred while requesting the return.',
+                                                    icon: 'error',
+                                                    confirmButtonText: 'OK'
+                                                });
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    });
+                });
+            </script>
+            
+
             
             <style>
             @media screen and (max-width: 767px) {

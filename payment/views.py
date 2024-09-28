@@ -63,9 +63,17 @@ def check_out(request):
         try:
             #get address id
             address_id=request.POST.get('selected_address')
+
+            # Check if an address was selected
+            if not address_id:
+                messages.error(request, 'Please select a delivery address before proceeding.')
+                return render(request, 'payment/check-out.html', {
+                    'cart_items': cart_items,
+                    'total_price': total_price,
+                    'addresses': addresses,
+                })
             selected_address=Address.objects.get(id=address_id)
-            
-           
+
             order=Order.objects.create(
                 user=request.user,
                 payment_method=payment_method,

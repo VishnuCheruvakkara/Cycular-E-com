@@ -36,6 +36,8 @@ urlpatterns=[
     path('forget-password-resend-otp/',views.forget_password_resend_otp,name='forget-password-resend-otp'),
     #to show order item in the order history of user.
     path('order-item-details/',views.order_item_details,name='order-item-details'),
+    #path for dynamic product return stastus updation on userside
+    path('request-return/<int:order_item_id>/',views.request_return, name='request-return'),
    
 ]
 
