@@ -3,7 +3,7 @@ from products.models import ProductVariant
 from django.views.decorators.cache import never_cache
 from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 from django.db.models.functions import Lower
-from products.models import Category,Brand,Size
+from products.models import Category,Brand,Size,Color
 from django.db.models import Min,Max,Count,Q
 from wishlist.models import Wishlist
 
@@ -44,7 +44,7 @@ def category_filter(request):
     selected_categories = list(filter(None, request.GET.getlist('categories')))
     selected_sizes = list(filter(None, request.GET.getlist('sizes')))
     selected_brands = list(filter(None, request.GET.getlist('brands')))
-    
+    selected_colors = list(filter(None, request.GET.getlist('colors')))
     # Get price range from GET parameters
     Min_price = request.GET.get('min_price', None)
     Max_price = request.GET.get('max_price', None)
@@ -74,6 +74,8 @@ def category_filter(request):
     if selected_sizes:
         product_variants = product_variants.filter(size__id__in=selected_sizes)
 
+    if selected_colors:  # Apply color filter
+        product_variants = product_variants.filter(color__id__in=selected_colors)
     if selected_brands:
         product_variants=product_variants.filter(product__brand__id__in=selected_brands)
 
@@ -89,7 +91,7 @@ def category_filter(request):
     
     brands = Brand.objects.filter(status=True)
     sizes = Size.objects.filter(status=True)
-   
+    colors = Color.objects.filter(status=True) 
 
 
     # Apply sorting
@@ -124,9 +126,11 @@ def category_filter(request):
         'categories': categories,
         'brands': brands,
         'sizes': sizes,
+        'colors': colors,
         'price_range': price_range,
         'selected_categories': selected_categories,
         'selected_sizes': selected_sizes,
+        'selected_colors': selected_colors,
         'selected_brands':selected_brands,
         'selected_min_price': Min_price,
         'selected_max_price': Max_price,

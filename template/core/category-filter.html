@@ -784,47 +784,6 @@
                                         </form>
                                     </div><!-- End .widget -->
 
-                               
-                            
-                        
-
-
-                                <!-- Size Filter -->
-                                <div class="widget widget-collapsible">
-                                    <!-- Correct placement of the form opening tag -->
-                                    <form method="get" action="{% url 'core:category-filter' %}">
-                                         <!-- Hidden fields to preserve existing query parameters -->
-                                        <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
-                                        <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
-                                        <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
-                                        <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
-                                        <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
-                                        <h3 class="widget-title">
-                                            <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="true" aria-controls="widget-2">
-                                                Size
-                                            </a>
-                                        </h3><!-- End .widget-title -->
-
-                                        <div class="collapse show" id="widget-2">
-                                            <div class="widget-body">
-                                                <div class="filter-items">
-                                                    {% for size in sizes %}
-                                                    <div class="filter-item">
-                                                        <div class="custom-control custom-checkbox">
-                                                            <input type="checkbox" class="custom-control-input" id="size-{{ size.id }}" name="sizes" value="{{ size.id }}" {% if size.id|stringformat:"s" in selected_sizes %}checked{% endif %}>
-                                                            <label class="custom-control-label" for="size-{{ size.id }}">{{ size }}</label>
-                                                        </div><!-- End .custom-checkbox -->
-                                                    </div><!-- End .filter-item -->
-                                                    {% endfor %}
-                                                </div><!-- End .filter-items -->
-                                            </div><!-- End .widget-body -->
-                                        </div><!-- End .collapse -->
-                                        
-                                        <!-- Submit Button -->
-                                        <button type="submit" class="btn btn-primary">Filter Size</button>
-                                    </form><!-- Ensure form closes here -->
-                                </div><!-- End .widget -->
-
         						<!-- Brand Filter -->
                                 <div class="widget widget-collapsible">
                                    
@@ -861,6 +820,84 @@
                                         <button type="submit" class="btn btn-primary">Filter Brand</button>
                                     </form><!-- Ensure form closes here -->
                                 </div><!-- End .widget -->
+
+
+                                
+                                <!-- Size Filter -->
+                                <div class="widget widget-collapsible">
+                                    <!-- Correct placement of the form opening tag -->
+                                    <form method="get" action="{% url 'core:category-filter' %}">
+                                         <!-- Hidden fields to preserve existing query parameters -->
+                                        <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
+                                        <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
+                                        <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
+                                        <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
+                                        <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
+                                        <h3 class="widget-title">
+                                            <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="true" aria-controls="widget-2">
+                                                Size
+                                            </a>
+                                        </h3><!-- End .widget-title -->
+
+                                        <div class="collapse show" id="widget-2">
+                                            <div class="widget-body">
+                                                <div class="filter-items">
+                                                    {% for size in sizes %}
+                                                    <div class="filter-item">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="size-{{ size.id }}" name="sizes" value="{{ size.id }}" {% if size.id|stringformat:"s" in selected_sizes %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="size-{{ size.id }}">{{ size }}</label>
+                                                        </div><!-- End .custom-checkbox -->
+                                                    </div><!-- End .filter-item -->
+                                                    {% endfor %}
+                                                </div><!-- End .filter-items -->
+                                            </div><!-- End .widget-body -->
+                                        </div><!-- End .collapse -->
+                                        
+                                        <!-- Submit Button -->
+                                        <button type="submit" class="btn btn-primary">Filter Size</button>
+                                    </form><!-- Ensure form closes here -->
+                                </div><!-- End .widget -->
+
+                                <!-- Color Filter -->
+                                <div class="widget widget-collapsible">
+                                    <!-- Correct placement of the form opening tag -->
+                                    <form method="get" action="{% url 'core:category-filter' %}">
+                                        <!-- Hidden fields to preserve existing query parameters -->
+                                        <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
+                                        <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
+                                        <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
+                                        <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
+                                        <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
+                                        <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
+
+                                        <!-- Color Filter Section -->
+                                        <h3 class="widget-title">
+                                            <a data-toggle="collapse" href="#widget-3" role="button" aria-expanded="true" aria-controls="widget-3">
+                                                Color
+                                            </a>
+                                        </h3><!-- End .widget-title -->
+
+                                        <div class="collapse show" id="widget-3">
+                                            <div class="widget-body">
+                                                <div class="filter-items">
+                                                    {% for color in colors %}
+                                                    <div class="filter-item">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="color-{{ color.id }}" name="colors" value="{{ color.id }}" {% if color.id|stringformat:"s" in selected_colors %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="color-{{ color.id }}">{{ color.name }}</label>
+                                                        </div><!-- End .custom-checkbox -->
+                                                    </div><!-- End .filter-item -->
+                                                    {% endfor %}
+                                                </div><!-- End .filter-items -->
+                                            </div><!-- End .widget-body -->
+                                        </div><!-- End .collapse -->
+
+                                        <!-- Submit Button -->
+                                        <button type="submit" class="btn btn-primary">Filter Colors</button>
+                                    </form><!-- Ensure form closes here -->
+                                </div><!-- End .widget -->
+
 
                                 <!-- Price filter -->
                                 <div class="widget widget-collapsible">
