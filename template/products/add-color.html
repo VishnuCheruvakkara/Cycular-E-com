@@ -17,6 +17,8 @@
 		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
 		<script src="{% static 'admin/js/respond.min.js' %}"></script>
 	<![endif]-->
+  
+
    
 </head>
 
@@ -72,17 +74,31 @@
         </div>
     </div>
 
+ <!-- Include jscolor for color picker -->
+ <script src="https://jscolor.com/releases/2.4.5/jscolor.min.js"></script>
 
+ <!-- Include ntc.js for color name conversion -->
+ <script src="https://cdn.jsdelivr.net/gh/colorjs/color-name-list/ntc.js"></script>
 
+    
+    <script>
+        // Event listener for jscolor changes
+        document.getElementById('color-input').addEventListener('change', function() {
+            const colorHex = this.value; // Get the hex code from jscolor input
 
-    <div class="sidebar-overlay" data-reff=""></div>
-    <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
-	<script src="{% static 'admin/js/popper.min.js' %}"></script>
-    <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'admin/js/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'admin/js/dataTables.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
-    <script src="{% static 'admin/js/app.js' %}"></script>
+            // Use ntc.js to get the closest color name
+            const ntcMatch = ntc.name(colorHex);
+            const colorName = ntcMatch[1]; // ntc.name returns an array, second element is color name
+
+            // Update the color name in the display
+            document.getElementById('color-name').innerText = colorName;
+        });
+
+        // Initialize jscolor picker
+        jscolor.installByClassName('jscolor');
+    </script>
+
+   
     <script>
 
 

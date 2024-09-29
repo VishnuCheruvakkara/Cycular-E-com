@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Brand, Category, Product, Size, ProductVariant, Review
+from .models import Brand, Category, Product, Size,Color,ProductVariant, Review
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
@@ -20,15 +20,18 @@ class SizeAdmin(admin.ModelAdmin):
     list_display = ('name','status')
     # Removed color-related fields and filters
 
+
+@admin.register(Color)
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ('name','hex_code','status')  # Display name and status in the admin list view
+    search_fields = ('name',)  # Add a search box for color name
+    list_filter = ('status',)  # Filter by status in the admin interface
+
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ('product', 'size', 'price', 'image1', 'image2', 'image3','stock')
+    list_display = ('product', 'size','color','price', 'image1', 'image2', 'image3','stock')
     list_filter = ('product', 'size')  # Removed color-related filter
 
-    def get_color(self, obj):
-        # Removed as color field no longer exists
-        return 'No Color'
-    get_color.short_description = 'Color'
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):

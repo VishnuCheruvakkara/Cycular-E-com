@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .forms import ProductForm,ProductVariantForm,CategoryForm,BrandForm,SizeForm
+from .forms import ProductForm,ProductVariantForm,CategoryForm,BrandForm,SizeForm,ColorForm
 from django.contrib import messages
 from .models import Product,ProductVariant
 from django.http import JsonResponse
@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from io import BytesIO
 from PIL import Image
 from django.views.decorators.http import require_POST
-from .models import Category,Brand,Size
+from .models import Category,Brand,Size,Color
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from cart.models import CartItem
@@ -218,13 +218,15 @@ def category_management(request):
     categories = Category.objects.all()
     brands = Brand.objects.all()
     sizes = Size.objects.all()
+    colors= Color.objects.all()
    
     
     context = {
         'categories': categories,
         'brands': brands,
         'sizes':sizes,
-        'form': form  # Include the form in the context
+        'colors':colors,
+        'form': form,# Include the form in the context
     }
     
     return render(request, 'products/product-category-management.html', context)
@@ -235,7 +237,7 @@ def delete_category(request,category_id):
     category=get_object_or_404(Category,id=category_id)
     category.delete()
     messages.success(request,'Category deleted successfully.',extra_tags='admin')
-    return redirect('products:category-add')
+    return redirect('products:category-add')   
 
 ##################### Delete Brand Admin side ##############################
 
@@ -252,6 +254,15 @@ def delete_size(request,size_id):
     size.delete()
     messages.success(request,'Size deleted successfully.',extra_tags='admin')
     return redirect('products:category-add')
+
+################### Delete Color Admin side ##########################
+
+def delete_color(request,color_id):
+    color=get_object_or_404(Color,id=color_id)
+    color.delete()
+    messages.success(request,'Color deleted successfully.',extra_tags='admin')
+    return redirect('products:category-add')
+
 
 ################## add category Admin Side ################################
 
@@ -402,6 +413,70 @@ def edit_size(request,size_id):
         'heading':heading,
     }
     return render(request,'products/add-size.html',context)
+
+
+############################ add-color Admin Side ##################################d
+
+def add_color(request):
+    if request.method == 'POST':
+        form = ColorForm(request.POST)
+        if form.is_valid():
+            # Save the color to the database
+            form.save()
+            return redirect('products:category-add')  # Redirect to a relevant page
+    else:
+        form = ColorForm()  # Create an empty form for GET requests
+
+    # Render the add color template with the form
+    context = {
+        'form': form,
+        'heading': 'Add New Color',  # Set a heading for the page
+    }
+    return render(request, 'products/add-color.html', context)
+
+
+############################ edit-color Admin Side #################################
+
+@login_required(login_url='admin_side:seller-login')
+def edit_color(request,color_id):
+    if not request.user.is_superuser:
+        return redirect('core:index')
+    color=get_object_or_404(Color,id=color_id)
+    heading="Edit-Color"
+    if request.method == 'POST':
+        form = ColorForm(request.POST,instance=color)
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Color updated successfully!',extra_tags='admin')
+            return redirect('products:category-add')
+        else:
+            messages.error(request,'Please correct the error, try again!',extra_tags='admin')
+    else:
+        form=ColorForm(instance=color)
+
+    context={
+        'form':form,
+        'heading':heading,
+    }
+    return render(request,'products/add-color.html',context)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ####################### delete product variant Admin side ########################################
 

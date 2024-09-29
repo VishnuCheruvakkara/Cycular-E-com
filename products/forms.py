@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product,Size,ProductVariant,Category,Brand
+from .models import Product,Size,ProductVariant,Category,Brand,Color
 import re
 from django.utils.text import slugify
 import magic
@@ -311,4 +311,32 @@ class SizeForm(forms.ModelForm):
         if name and re.match(r'^\d+$', name):
             self.add_error('name', 'Name cannot consist of only numbers. It must include letters.')
 
-        return cleaned_data  # Corrected this line
+        return cleaned_data  # Corrected this line\
+    
+
+###########################   color form  ###########################
+
+
+class ColorForm(forms.ModelForm):
+    class Meta:
+        model = Color
+        fields = ['hex_code', 'name', 'status']  # Include status here
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter color name',
+                'id': 'color-name',  # Add ID for dynamic name update
+                'value':'white'
+            }),
+            'hex_code': forms.TextInput(attrs={
+                'class': 'form-control jscolor',
+                'placeholder': 'Choose a color',  # Placeholder text
+                'id': 'color-input',  # Add an ID for JavaScript targeting
+                'value': '#ff0000', # Default color value (optional)
+                'name':'color_hex',
+                'data-jscolor': '{}',
+            }),
+            'status': forms.CheckboxInput(attrs={
+                'class': 'form'  # Add a class for styling
+            }),
+        }

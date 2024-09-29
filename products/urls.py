@@ -18,6 +18,7 @@ urlpatterns=[
     path('category-delete/<int:category_id>',views.delete_category,name='category-delete'),
     path('brand-delete/<int:brand_id>',views.delete_brand,name='brand-delete'),
     path('size-delete/<int:size_id>',views.delete_size,name='size-delete'),
+    path('color-delete/<int:color_id>',views.delete_color,name='color-delete'),
  
     
     path('add-category/',views.add_category,name='add-category'),
@@ -29,8 +30,9 @@ urlpatterns=[
     path('add-size/',views.add_size,name='add-size'),
     path('edit-size/<int:size_id>',views.edit_size,name='edit-size'),
 
-  
-  
+    path('add-color/',views.add_color,name='add-color'),
+    path('edit-color/<int:color_id>',views.edit_color,name='edit-color'),
+
     path('delete-product-variant/<int:variant_id>',views.delete_product_variant,name='delete-product-variant'),
     path('edit-variant/<int:variant_id>',views.edit_variant,name='edit-variant'),
     path('product-variant-data-view/<int:variant_id>',views.product_variant_data,name='product_variant_data_view'),
