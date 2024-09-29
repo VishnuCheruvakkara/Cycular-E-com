@@ -75,6 +75,12 @@ class ProductVariantForm(forms.ModelForm):
         label='Select Size',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    color = forms.ModelChoiceField(
+        queryset=Color.objects.all(),
+        label='Select Color',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True,
+    )
     price = forms.DecimalField(
         label='Price',
         max_digits=10,
@@ -114,6 +120,7 @@ class ProductVariantForm(forms.ModelForm):
         fields = [
             'product_name',  # The readonly product name field
             'size',
+            'color',
             'price',
             'product',  # Include the product field
             'image1',
