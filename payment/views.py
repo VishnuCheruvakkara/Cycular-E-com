@@ -449,12 +449,19 @@ def apply_coupon_view(request):
             if coupon_usage.is_used:
                 return JsonResponse({'error': 'You have already used this coupon.'}, status=400)
 
+            # Check if the total price is less than ₹3000
+            if total_price < 3000:
+                return JsonResponse({ 'error': 'Coupon are applicable for the product price less than 3000 ₹'}, status=400)
+            
             total_price_decimal = Decimal(total_price)
             discount_amount=((Decimal(coupon.discount_value)) / 100) * total_price_decimal
             valid_until_str = coupon.valid_until.strftime('%B %d, %Y')
             coupon_grand_total=total_price_decimal-discount_amount
             # Store the coupon details in the session
-
+            # Check if the discount results in a grand total less than ₹3000 after applying the coupon
+            if coupon_grand_total < 3000:
+                return JsonResponse({
+                    'error': f'Coupon : "{coupon.code}" is not applicable for this product, Try any other Coupon less than {coupon.discount_value}%.'}, status=400)
             discount_amount_float = float(discount_amount)
             coupon_grand_total_float = float(coupon_grand_total)
             

@@ -15,6 +15,8 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from django.utils import timezone
 from io import BytesIO
 from datetime import datetime
+from decimal import Decimal
+from wallet.models import Wallet,Transaction
 
 # Create your views here.
 
@@ -111,12 +113,73 @@ def OrderManagement(request):
         page_obj=paginator.get_page(page_number)
         #update status of sepecific order item
         order_item = OrderItem.objects.get(id=order_item_id)
+        order = order_item.order  
         
         #if the status is cancell at that time we need to resotore the product count of the cancelled products.
         if new_status == 'Cancelled' and order_item.order_item_status != 'Cancelled':
             #restore logic...
             order_item.product_variant.stock=F('stock')+order_item.quantity
             order_item.product_variant.save()
+
+            # Fetch or create the user's wallet
+            wallet, created = Wallet.objects.get_or_create(user=order.user)
+
+            # Check if the payment method was not 'cash_on_delivery'
+            if order.payment_method != 'cash_on_delivery':
+              
+
+                # Add the order item price to the wallet balance
+                wallet.balance += Decimal(order_item.price)
+                wallet.save()
+
+                # Log the transaction in the wallet
+                Transaction.objects.create(
+                    wallet=wallet,
+                    transaction_type='credit',
+                    transaction_purpose='refund',
+                    transaction_amount=Decimal(order_item.price),
+                    description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity})was cancelled by Cycular-Admin",
+                )
+                
+                # Add a success message for refund
+                messages.success(request, f"Order item {order_item.product_variant.product.name} cancelled and refunded to the User wallet.")
+
+            else:
+                # Log a 'null' transaction if it's Cash on Delivery
+                Transaction.objects.create(
+                    wallet=wallet,
+                    transaction_type='null',  # Null transaction type to record but not affect balance
+                    transaction_purpose='refund',
+                    transaction_amount=Decimal(0),
+                    description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity}) was cancelled by Cycular-Admin. COD order - no refund to wallet.",
+                )
+                # Add a message if payment was cash on delivery (no refund)
+                messages.info(request, f"Order item {order_item.product_variant.product.name} cancelled. No refund issued (Cash on Delivery) to the User.")
+        
+         # If status is 'Returned', always refund the amount
+        elif new_status == 'Returned' and order_item.order_item_status != 'Returned':
+            # Restore stock for returned products
+            order_item.product_variant.stock = F('stock') + order_item.quantity
+            order_item.product_variant.save()
+
+            # Fetch or create the user's wallet
+            wallet, created = Wallet.objects.get_or_create(user=order.user)
+
+            # Refund the amount to the wallet
+            wallet.balance += Decimal(order_item.price)
+            wallet.save()
+
+            # Log the return transaction
+            Transaction.objects.create(
+                wallet=wallet,
+                transaction_type='credit',
+                transaction_purpose='returned',
+                transaction_amount=Decimal(order_item.price),
+                description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity}) was returned by Cycular-Admin.",
+            )
+
+            # Add a success message for refund on return
+            messages.success(request, f"Order item {order_item.product_variant.product.name} returned and refunded to the User wallet.")
 
         order_item.order_item_status = new_status
         order_item.save()

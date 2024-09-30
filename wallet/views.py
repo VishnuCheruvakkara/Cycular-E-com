@@ -62,7 +62,8 @@ def cancell_order_item(request, order_item_id):
 
         # Get the order item to be cancelled
         order_item = get_object_or_404(OrderItem, id=order_item_id)
-
+        order = order_item.order
+        
         # Check if the status is already "Cancelled" (optional for extra safety)
         if order_item.order_item_status == 'Cancelled':
             return JsonResponse({'error': 'Order item is already cancelled.'}, status=400)
@@ -79,29 +80,39 @@ def cancell_order_item(request, order_item_id):
 
         # Fetch or create the user's wallet
         wallet, created = Wallet.objects.get_or_create(user=request.user)
+        # Check if the order was paid using 'cash on delivery'
+        if order.payment_method != 'cash_on_delivery':
+            # Add the order item price to the wallet balance
+            wallet.balance += Decimal(order_item.price)
+            wallet.save()
 
-        # Add the order item price to the wallet balance
-        wallet.balance += Decimal(order_item.price)
-     
-        wallet.save()
+            # Log the transaction
+            Transaction.objects.create(
+                wallet=wallet,
+                transaction_type='credit',
+                transaction_purpose='refund',
+                transaction_amount=Decimal(order_item.price),
+                description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity}) was cancelled by User : {request.user}.",
+            )
 
-        # Log the transaction
-        Transaction.objects.create(
-            wallet=wallet,
-            transaction_type='credit',
-            transaction_purpose='refund',
-            transaction_amount=Decimal(order_item.price),
-            description=f"{order_item.product_variant.product.name} was cancelled",
-        )
-
-        # Send a success response indicating the cancellation and wallet refund
-        return JsonResponse({'message': 'Order item has been cancelled and amount added to your wallet.'})
-
+            # Send a success response indicating the cancellation and wallet refund
+            return JsonResponse({'message': 'Order item has been cancelled and amount added to your wallet.'})
+        else:
+            Transaction.objects.create(
+                wallet=wallet,
+                transaction_type='null',  # Null transaction type to record but not affect balance
+                transaction_purpose='refund',
+                transaction_amount=Decimal(0),
+                description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity}) was cancelled by User : {request.user}.",
+            )
+        return JsonResponse({
+            'message': 'Order item has been cancelled. No refund is issued as the payment method was Cash on Delivery.'
+        })
     # If not a POST request, return a bad request response
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 
-
+#######################  order cancell captcha controll  ##################
 
 def captcha_image_view(request):
     new_key = CaptchaStore.generate_key()  # Generate a unique CAPTCHA key

@@ -18,6 +18,40 @@
 		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
 		<script src="{% static 'admin/js/respond.min.js' %}"></script>
 	<![endif]-->
+    
+    <!-- complete customization of the sweet alert -->
+    <style>
+        /* Inline style for customizing title font size */
+        .small-title {
+            font-size: 18px ;  /* Adjust the title size as per your need */
+            font-weight: bold; /* Optional: make title bold */
+        }
+        .small-icon {
+            font-size: 10px ;  
+        }
+        .small-popup {
+            font-size: 12px ; 
+            /* Adjust the text size */
+        }
+        .swal2-confirm{
+             /* Adjust padding for the button */
+            
+            font-size: 12px ; 
+            background-color:#009efb;
+            box-shadow: none !important; 
+            border:none !important;
+        }
+      
+        .swal2-cancel {
+            /* Customize the cancel button */
+            background-color: #d33; /* Red color */
+           
+            font-size: 12px;
+            box-shadow: none !important; 
+        }
+        
+        </style>
+
 </head>
 
 <body>
@@ -108,23 +142,70 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            {% if order_item.order_item_status != 'Cancelled' %}
-                                                <!-- Form to change order status -->
-                                                <form method="POST" action="">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="order_item_id" value="{{ order_item.id }}">
-                                                    <select name="status" onchange="this.form.submit()">
-                                                        {% for status, label in status_choices %}
-                                                        <option value="{{ status }}" {% if order_item.order_item_status == status %}selected{% endif %}>
-                                                            {{ label }}
-                                                        </option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </form>
-                                            {% else %}
-                                                <!-- Show cancellation message -->
-                                                <p>{{ order_item.cancelled_message }}</p>
-                                            {% endif %}
+                                            <form method="POST" action="">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="order_item_id" value="{{ order_item.id }}">
+                                                {% if order_item.order_item_status == 'Cancelled' %}
+                                                    <!-- Show cancellation message when the order is cancelled -->
+                                                    <p class="text-danger">{{ order_item.cancelled_message }}</p>
+                                                {% else %}
+                                                <select name="status" onchange="this.form.submit()">
+                                                    {% if order_item.order_item_status == 'Order placed' %}
+                                                        <!-- When order is placed -->
+                                                        <option value="Order placed" selected>Order placed</option>
+                                                        <option value="Processing">Processing</option>
+                                                        <option value="Cancelled">Cancelled</option>
+                                                    
+                                                    {% elif order_item.order_item_status == 'Processing' %}
+                                                        <!-- When order is in processing -->
+                                                        <option value="Processing" selected>Processing</option>
+                                                        <option value="Shipped">Shipped</option>
+                                                        <option value="Cancelled">Cancelled</option>
+                                                    
+                                                    {% elif order_item.order_item_status == 'Shipped' %}
+                                                        <!-- When order is shipped -->
+                                                        <option value="Shipped" selected>Shipped</option>
+                                                        <option value="Out for Delivery">Out for Delivery</option>
+                                                        <option value="Cancelled">Cancelled</option>
+                                            
+                                                    {% elif order_item.order_item_status == 'Out for Delivery' %}
+                                                        <!-- When order is out for delivery -->
+                                                        <option value="Out for Delivery" selected>Out for Delivery</option>
+                                                        <option value="Product delivery on pending">Product delivery on pending</option>
+                                                        <option value="Product returned to near-hub">Product returned to near-hub</option>
+                                                        <option value="Delivered">Delivered</option>
+                                                    {% elif order_item.order_item_status == 'Product delivery on pending' %}
+                                                        <!-- When order is out for delivery -->
+                                                        <option value="Product delivery on pending" selected>Product delivery on pending</option>
+                                                        <option value="Out for Delivery">Out for Delivery</option>
+                                                        <option value="Product returned to near-hub">Product returned to near-hub</option>
+                                                        <option value="Delivered">Delivered</option>
+                                                    {% elif order_item.order_item_status == 'Product returned to near-hub' %}
+                                                        <!-- When order is out for delivery -->
+                                                        <option value="Product returned to near-hub" selected>Product returned to near-hub</option>
+                                                        <option value="Product delivery on pending">Product delivery on pending</option>
+                                                        <option value="Out for Delivery">Out for Delivery</option>
+                                                        <option value="Delivered">Delivered</option>
+                                                  
+                                            
+                                                    {% elif order_item.order_item_status == 'Delivered' %}
+                                                        <!-- When order is delivered -->
+                                                        <option value="Delivered" selected>Delivered</option>
+                                                       
+                                                    
+                                                    {% elif order_item.order_item_status == 'Return Requested' %}
+                                                        <!-- When return is requested -->
+                                                        <option value="Return Requested" >Return Requested</option>
+                                                        <option value="Returned">Returned</option>
+                                                    
+                                                    {% else %}
+                                                        <!-- When no valid status, just show current status -->
+                                                        <option value="{{ order_item.order_item_status }}" selected>{{ order_item.order_item_status }}</option>
+                                                    {% endif %}
+                                                </select>
+                                                {% endif %}
+                                            </form>
+                                            
                                         </td>
                                         
                                        
@@ -177,6 +258,27 @@
     </div>
 </div>
     <div class="sidebar-overlay" data-reff=""></div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    {% for message in messages %}
+            swal.fire({
+                icon:"{{message.tags}}",
+                title:"{{message}}",
+                text:"{{message.tags}}", 
+                width:"250px",
+
+                customClass: {
+                icon: 'small-icon',
+                title: 'small-title',
+                confirmButton: 'swal2-confirm',
+                popup: 'small-popup', 
+            }
+               
+            });
+    {% endfor %}
+    </script>
     <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
 	<script src="{% static 'admin/js/popper.min.js' %}"></script>
     <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>

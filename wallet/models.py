@@ -19,7 +19,7 @@ class Transaction(models.Model):
     TRANSACTION_TYPES = (
         ('credit', 'Credit'),
         ('debit', 'Debit'),
-        ('nulll','Null')
+        ('null','Null')
     )
 
     TRANSACTION_PURPOSES = (
