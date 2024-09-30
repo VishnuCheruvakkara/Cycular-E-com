@@ -460,24 +460,6 @@ def edit_color(request,color_id):
     }
     return render(request,'products/add-color.html',context)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ####################### delete product variant Admin side ########################################
 
 def delete_product_variant(request,variant_id):
@@ -546,7 +528,7 @@ def edit_variant(request, variant_id):
 
 def single_product_view(request, variant_id):
     variant = get_object_or_404(ProductVariant, id=variant_id)
-    available_sizes = ProductVariant.objects.filter(product=variant.product).values('id', 'size__name').distinct()
+    available_variants = ProductVariant.objects.filter(product=variant.product).values('id', 'size__name', 'color__name').distinct()
     product = variant.product
     related_variants = ProductVariant.objects.filter(product__category=product.category).exclude(id=variant.id)[:5]
 
@@ -567,7 +549,7 @@ def single_product_view(request, variant_id):
    
     context = {
         'variant': variant,
-        'available_sizes': available_sizes,
+        'available_variants': available_variants,
         'related_variants': related_variants,
         'cart_item_exists': cart_item_exists,
         'wishlist_item_exists': wishlist_item_exists,

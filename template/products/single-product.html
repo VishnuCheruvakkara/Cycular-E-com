@@ -651,19 +651,20 @@
                                     {% endif %}
                                 </div><!-- End .product-offers -->
 
-                                        <div class="details-filter-row details-row-size">
-                                        <label for="size">Size:</label>
-                                     
-                                            <div class="select-custom">
-                                                <select name="size" id="size" class="form-control" onchange="location = this.value;">
-                                                    <option value="" selected="selected">Select a size</option>
-                                                    {% for size in available_sizes %}
-                                                        <option value="{% url 'products:single-product-view' size.id %}">{{ size.size__name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div><!-- End .select-custom -->
-                                            
-                                        </div><!-- End .select-custom -->
+                                <div class="details-filter-row details-row-size">
+                                    <label for="variant">Variant:</label>
+                                    <div class="select-custom">
+                                        <select name="variant" id="variant" class="form-control" onchange="location = this.value;">
+                                            <option value="" selected="selected">Select a variant</option>
+                                            {% for variant in available_variants %}
+                                                <option value="{% url 'products:single-product-view' variant.id %}">
+                                                    {{ variant.color__name }} - {{ variant.size__name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div><!-- End .select-custom -->
+                                </div><!-- End .details-filter-row -->
+                                
                                     
                                         <!-- This is where the stock information will be displayed -->
                                         <a style="color:#1cc0a0" id="size-guide" class="size-guide"><i class="icon-th-list"></i>

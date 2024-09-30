@@ -98,8 +98,10 @@
 
                     <div class="d-flex justify-content-start mt-2">
                         <button type="submit" class="btn btn-primary me-3">Apply Filter</button>
-                        <a href="{% url 'admin_side:sales-report' %}?download_pdf=true&date_range={{ request.GET.date_range }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}" class="btn btn-danger" style="margin-left: 20px;">Download PDF</a>
-
+                        <a href="#" id="download-pdf-button" class="btn btn-danger" style="margin-left: 20px;">
+                            Download PDF
+                        </a>
+                        
                     </div>
                 </form>
             </div>
@@ -219,6 +221,35 @@ function toggleCustomDateInputs(value) {
     </div>
 </div>
     <div class="sidebar-overlay" data-reff=""></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById("download-pdf-button").addEventListener("click", function(e) {
+    e.preventDefault();  // Prevent immediate navigation
+
+    let timerInterval;
+    Swal.fire({
+      title: "Sales report is downloading...",
+      html: "Please wait...",
+      timer: 3000,  // Set the time as per your preference (3 seconds here)
+      width:"300px",
+      timerProgressBar: true,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+      willClose: () => {
+        clearInterval(timerInterval);
+      }
+    }).then((result) => {
+      if (result.dismiss === Swal.DismissReason.timer) {
+        // Redirect to download URL after the SweetAlert closes
+        const downloadUrl = "{% url 'admin_side:sales-report' %}?download_pdf=true&date_range={{ request.GET.date_range }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}";
+        window.location.href = downloadUrl;
+      }
+    });
+});
+
+    </script>
     <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
 	<script src="{% static 'admin/js/popper.min.js' %}"></script>
     <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
