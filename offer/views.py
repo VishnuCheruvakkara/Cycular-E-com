@@ -8,7 +8,7 @@ import json
 # Create your views here.
 
 def offer_page(request):
-    product_variants = ProductVariant.objects.select_related('product', 'size').filter(status=True) 
+    product_variants = ProductVariant.objects.select_related('product', 'size','color').filter(status=True) 
     # Fetch product variant offers related to those variants
     product_variant_offers = ProductVariantOffer.objects.select_related('product_variant').filter(status=True)
     brands = Brand.objects.filter(status=True)
@@ -48,7 +48,10 @@ def add_product_variant_offer(request):
             errors['end_date'] = "End date is required."
         elif timezone.datetime.strptime(end_date, '%Y-%m-%d').date() <= timezone.now().date():
             errors['end_date'] = "End date must be later than the current date."
-
+        # Check if the product variant already has an active offer
+        existing_offer = ProductVariantOffer.objects.filter(product_variant_id=product_variant_id, status=True).exists()
+        if existing_offer:
+            errors['product_variant_id'] = "This product variant already has an active offer."
         # If there are errors, return to the modal with errors
         if errors:
             messages.error(request, 'Please correct the error, Add product offer again.')
@@ -131,6 +134,11 @@ def add_brand_offer(request):
             brand = Brand.objects.filter(id=brand_id).first()
             if not brand:
                 errors['brand'] = 'Invalid brand selected.'
+            else:
+                # Check if an active offer already exists for the selected brand
+                existing_offer = BrandOffer.objects.filter(brand=brand, status=True).exists()
+                if existing_offer:
+                    errors['brand'] = 'This brand already has an active offer.'
 
         # Validate the offer percentage
         if not offer_percentage:

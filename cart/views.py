@@ -11,7 +11,8 @@ def cart(request):
     if not request.user.is_authenticated:
         return redirect('core:index')
     
-    cart=get_object_or_404(Cart,user=request.user)
+
+    cart, created = Cart.objects.get_or_create(user=request.user)
 
     cart_items=cart.items.all()
 

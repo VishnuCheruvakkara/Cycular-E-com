@@ -23,7 +23,8 @@ import razorpay
 
 def check_out(request):
     #retrive the current user's cart
-    cart=get_object_or_404(Cart,user=request.user)
+  
+    cart, created = Cart.objects.get_or_create(user=request.user)
     
     #to take all address
     addresses=Address.objects.filter(user=request.user)
@@ -32,7 +33,7 @@ def check_out(request):
     total_price=sum(item.subtotal for item in cart_items)
     
     # Fetch wallet for the current user
-    wallet = get_object_or_404(Wallet, user=request.user)
+    wallet,created = Wallet.objects.get_or_create(user=request.user)
     wallet_balance = wallet.balance
    
     item_discount=0

@@ -198,7 +198,7 @@
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="offer_name">Offer Name</label>
-                        <input type="text" class="form-control" name="offer_name" value="{{ offer_name|default:'' }}" required>
+                        <input type="text" class="form-control" name="offer_name" value="{{ form_data.offer_name|default:'' }}" required>
                         {% if errors.offer_name %}
                             <small class="text-danger">{{ errors.offer_name }}</small>
                         {% endif %}
@@ -208,7 +208,7 @@
                         <select class="form-control" name="product_variant_id" required>
                             {% for variant in product_variants %}
                                 <option value="{{ variant.id }}">
-                                    {{ variant.product.name }} - {{ variant.size.name }}
+                                    {{ variant.product.name }} - {{ variant.size.name }} - {{variant.color.name}}
                                 </option>
                             {% endfor %}
                         </select>
@@ -218,14 +218,14 @@
                     </div>
                     <div class="form-group">
                         <label for="offer_percentage">Offer Percentage</label>
-                        <input type="number" class="form-control" name="offer_percentage" min="1" max="100" value="{{ discount_percentage|default:'' }}" required>
+                        <input type="number" class="form-control" name="offer_percentage" min="1" max="100" value="{{ form_data.discount_percentage|default:'' }}" required>
                         {% if errors.offer_percentage %}
                             <small class="text-danger">{{ errors.offer_percentage }}</small>
                         {% endif %}
                     </div>
                     <div class="form-group">
                         <label for="end_date">End Date</label>
-                        <input type="date" class="form-control" name="end_date" value="{{ end_date|default:'' }}" required>
+                        <input type="date" class="form-control" name="end_date" value="{{ form_data.end_date|default:'' }}" required>
                         {% if errors.end_date %}
                             <small class="text-danger">{{ errors.end_date }}</small>
                         {% endif %}
@@ -324,6 +324,13 @@
                     cancelButtonText: 'No, cancel!',
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
+                    width: "250px",
+                    customClass: {
+                        icon: 'small-icon',
+                        title: 'small-title',
+                        confirmButton: 'swal2-confirm',
+                        popup: 'small-popup', 
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // Perform the soft delete via fetch
@@ -339,22 +346,54 @@
                         .then(data => {
                             if (data.success) {
                                 // Show success message and hide row
-                                Swal.fire('Deleted!', 'The product offer has been deleted.', 'success');
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'The product offer has been deleted.',
+                                    icon: 'success',
+                                    width: "250px", // Custom width
+                                    customClass: {
+                                        icon: 'small-icon',
+                                        title: 'small-title',
+                                        confirmButton: 'swal2-confirm',
+                                        popup: 'small-popup', 
+                                    }
+                                });
                                 row.style.display = 'none';
                             } else {
-                                Swal.fire('Error!', data.message, 'error');
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: data.message,
+                                    icon: 'error',
+                                    width: "250px", // Custom width
+                                    customClass: {
+                                        icon: 'small-icon',
+                                        title: 'small-title',
+                                        confirmButton: 'swal2-confirm',
+                                        popup: 'small-popup', 
+                                    }
+                                });
                             }
                         })
                         .catch(error => {
-                            Swal.fire('Oops!', 'An error occurred while deleting the product offer.', 'error');
+                            Swal.fire({
+                                title: 'Oops!',
+                                text: 'An error occurred while deleting the product offer.',
+                                icon: 'error',
+                                width: "250px", // Custom width
+                                customClass: {
+                                    icon: 'small-icon',
+                                    title: 'small-title',
+                                    confirmButton: 'swal2-confirm',
+                                    popup: 'small-popup', 
+                                }
+                            });
                         });
                     }
                 });
             });
         });
     });
-    </script>
-    
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const brandDeleteButtons = document.querySelectorAll('.delete-brand-offer-btn');
@@ -374,6 +413,13 @@
                     cancelButtonText: 'No, cancel!',
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
+                    width: "250px", // Custom width for BrandOffer as well
+                    customClass: {
+                        icon: 'small-icon',
+                        title: 'small-title',
+                        confirmButton: 'swal2-confirm',
+                        popup: 'small-popup', 
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // Perform the soft delete via fetch
@@ -389,14 +435,47 @@
                         .then(data => {
                             if (data.success) {
                                 // Show success message and hide row
-                                Swal.fire('Deleted!', 'The brand offer has been deleted.', 'success');
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'The brand offer has been deleted.',
+                                    icon: 'success',
+                                    width: "250px", // Custom width
+                                    customClass: {
+                                        icon: 'small-icon',
+                                        title: 'small-title',
+                                        confirmButton: 'swal2-confirm',
+                                        popup: 'small-popup', 
+                                    }
+                                });
                                 row.style.display = 'none';
                             } else {
-                                Swal.fire('Error!', data.message, 'error');
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: data.message,
+                                    icon: 'error',
+                                    width: "250px", // Custom width
+                                    customClass: {
+                                        icon: 'small-icon',
+                                        title: 'small-title',
+                                        confirmButton: 'swal2-confirm',
+                                        popup: 'small-popup', 
+                                    }
+                                });
                             }
                         })
                         .catch(error => {
-                            Swal.fire('Oops!', 'An error occurred while deleting the brand offer.', 'error');
+                            Swal.fire({
+                                title: 'Oops!',
+                                text: 'An error occurred while deleting the brand offer.',
+                                icon: 'error',
+                                width: "250px", // Custom width
+                                customClass: {
+                                    icon: 'small-icon',
+                                    title: 'small-title',
+                                    confirmButton: 'swal2-confirm',
+                                    popup: 'small-popup', 
+                                }
+                            });
                         });
                     }
                 });
@@ -404,10 +483,10 @@
         });
     });
 </script>
-    
+
     
 
-<script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></>
 <script src="{% static 'admin/js/popper.min.js' %}"></script>
 <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
