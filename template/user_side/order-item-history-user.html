@@ -73,8 +73,7 @@
                                     <th>Status</th>
                                     <th>Count</th>
 
-                                    <th>Cancel</th>
-                                    <th>Return</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -110,7 +109,8 @@
                                         <td data-label="Count">
                                             <p>{{ order_item.quantity }}</p>
                                         </td>
-                                        <td data-label="Cancel">
+                                        <td data-label="Order Actions">
+                                            <!-- Cancel button logic -->
                                             {% if order_item.order_item_status == 'Order placed' or order_item.order_item_status == 'Processing' or order_item.order_item_status == 'Shipped' %}
                                                 <button 
                                                     style="width: 90px; color: white; background-color: rgb(253, 79, 79); border: none; border-radius: 5px;" 
@@ -128,39 +128,31 @@
                                                     Cancelled
                                                 </button>
                                             {% endif %}
-                                        </td>
                                         
-                                        
-                                        <td>
-                                            <!-- Show "Return Order" button only if the order is delivered -->
+                                            <!-- Return button logic -->
                                             {% if order_item.order_item_status == 'Delivered' %}
                                                 <button class="return-btn" data-order-item-id="{{ order_item.id }}" 
-                                                    style="background-color: yellow; border: none; color: black; cursor: pointer; margin-left: 15px; border-radius: 5px;">
+                                                    style="background-color: yellow; border: none; color: black; cursor: pointer; border-radius: 5px;">
                                                     Return
                                                 </button>
                                             {% elif order_item.order_item_status == 'Return Requested' %}
-                                                <span style="color: rgb(255, 255, 255);background-color: gray;padding: 5px 10px;border-radius: 5px;margin-left: 20px;">requested</span>
+                                                <span style="color: rgb(255, 255, 255); background-color: gray; padding: 5px 10px; border-radius: 5px;">Requested</span>
                                             {% elif order_item.order_item_status == 'Returned' %}
-                                                <span style="color: rgb(255, 255, 255);background-color: rgba(11, 165, 31, 0.79);padding: 5px 10px;border-radius: 5px;margin-left: 20px;">Returned</span>
-                                            {% else %}
-                                                <span></span>
+                                                <span style="color: rgb(255, 255, 255); background-color: rgba(11, 165, 31, 0.79); padding: 5px 10px; border-radius: 5px; ">Returned</span>
                                             {% endif %}
                                         </td>
                                         
                                         
                                         
                                     </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="9">No items found for this order.</td>
-                                    </tr>
+                             
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </main>
-
+            
 
             <!-- Include SweetAlert CSS and JS in your HTML -->
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
