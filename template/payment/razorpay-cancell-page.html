@@ -1,0 +1,52 @@
+<!-- templates/payment/cancel.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+            text-align: center;
+        }
+        .cancel-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            margin-top: 50px;
+        }
+        .cancel-icon {
+            font-size: 50px;
+            color:#f25638;
+        .order-details {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cancel-container">
+        <h1 class="cancel-icon">❌ Payment Failed</h1>
+        <p>Your payment is failed. We understand that things don't always go as planned.You can complete the payment from the order history page.</p>
+
+        <div class="order-details">
+            <h2>Order Details:</h2>
+            <p><strong>Order ID:</strong> {{ order.id }}</p>
+            <p><strong>Total Amount:</strong> ₹{{ order.total_price }}</p>
+            <p><strong>Status:</strong> Your order is still pending.</p>
+        </div>
+
+        <p>If you have any questions or need assistance, please contact our support team.</p>
+        <a href="{% url 'user_side:order-item-details' %}" style="display: inline-block; margin-top: 20px; text-decoration: none; background-color: #f25638; color: white; padding: 10px 20px; border-radius: 5px;">Return to Order History</a>
+    </div>
+
+</body>
+</html>

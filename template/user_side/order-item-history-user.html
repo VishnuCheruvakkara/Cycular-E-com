@@ -50,10 +50,83 @@
             </nav>
 
 
-
-
             <main class="container text-center">
+
                 <div class="success-message" style="margin-top: 0px;">
+                    <h4>Pending Payments</h4>
+                    {% if orders %}
+                    <div class="table-container">
+                        <table class="table responsive-table text-center"> <!-- Add text-center to the table -->
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Sl No</th> <!-- Center header content -->
+                                    <th class="text-center">Products</th>
+                                    <th class="text-center">Payment Method</th>
+                                    <th class="text-center">Order Date</th>
+                                    <th class="text-center">Total Price</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Action</th>
+                                
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                    <tr>
+                                        <td data-label="Sl No" class="align-middle">{{ forloop.counter }}</td> <!-- Align vertically middle -->
+                                        <td data-label="Products" class="align-middle">
+                                            <ul class="list-unstyled">
+                                                {% for item in order.items.all %}
+                                                <li class="d-flex justify-content-center align-items-center mb-2">
+                                                    <!-- Image on the left -->
+                                                    <div class="me-3">
+                                                        <a href="{% url 'products:single-product-view' item.product_variant.id %}">
+                                                            <img src="{{ item.product_variant.image1.url }}" alt="{{ item.product_variant.product.name }}" class="img-thumbnail" style="width: 50px; height: 50px;">
+                                                        </a>
+                                                    </div>
+                
+                                                    <!-- Product details on the right -->
+                                                    <div>
+                                                        <strong>{{ item.product_variant.product.name }}</strong>
+                                                        <div>
+                                                            ({{ item.product_variant.color.name }} - {{ item.product_variant.size.name }})
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                        <td data-label="Payment Method" class="align-middle">{{ order.get_payment_method_display }}</td>
+                                        <td data-label="Order Date" class="align-middle">{{ order.order_date }}</td>
+                                        <td data-label="Total Price" class="align-middle">{{ order.paid_amount }} ₹</td>
+                                        <td data-label="Status" class="align-middle">{{ order.get_order_status_display }}</td>
+                                        <td data-label="Action" class="align-middle">
+                                            <a href="{% url 'payment:razorpay-order' order.id %}" 
+                                            style="display: inline-block; width: 90px; color: white; background-color: rgb(34, 139, 34); border: none; border-radius: 5px; text-align: center; padding: 10px 0; text-decoration: none;" 
+                                            class="complete-payment-btn">
+                                            Complete Payment
+                                            </a>
+                                        
+                                        </td>
+                                    
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No pending payments found.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <!-- Light green message box for no pending payments -->
+                    <div class="alert alert-success mt-3" style="background-color:#1cc0a0 ; color: rgb(255, 255, 255); padding: 15px; border-radius: 5px; text-align: center;">
+                        <strong>No pending payments found.</strong>
+                    </div>
+                    {% endif %}
+                </div>
+                
+
+                <div class="success-message" style="margin-top: 30px;">
                     <h4>Order History</h4>
                     <div class="table-container">
                         <table class="table responsive-table">
@@ -88,13 +161,13 @@
                                         <td data-label="Order Date">{{ order_item.order.order_date }}</td>
                                         
                                         <td>
-                                        {% if item.product_variant.get_discounted_price %}
-                                            Offer of{{ item.product_variant.get_discount_percentage }}%<br>
-                                        {% else %}
-                                            No Offers Available
-                                        {% endif %}
+                                            {% if order_item.product_variant.get_discount_percentage > 0 %}
+                                                Offer of {{ order_item.product_variant.get_discount_percentage }}%<br>
+                                            {% else %}
+                                                No Offers Available
+                                            {% endif %}
                                         </td>
-
+                                        
                                         <td data-label="Coupon Info">
                                             {% if order_item.coupon_discount_price == 0 %}
                                                 Coupon not applied

@@ -391,12 +391,12 @@ def payment_success(request):
     #retrive the current user's cart
     cart=get_object_or_404(Cart,user=request.user)
     
-    # Verify the payment (optional but recommended)
+    # Verify the payment 
     client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
     try:
         payment = client.payment.fetch(razorpay_payment_id)
         if payment['status'] == 'captured':
-            order.order_status = 'Pending'
+            order.order_status = 'Order placed'
             order.save()
             # Clear the cart only if the payment is successful
             cart.items.all().delete()
@@ -419,6 +419,29 @@ def payment_success(request):
         messages.error(request, 'An error occurred while verifying the payment.')
 
     return render(request, 'payment/razorpay-success-page.html', {'order': order})
+
+####################### payment-cancell  ############################
+
+def payment_cancel(request):
+    # Get the order ID from the request
+    order_id = request.GET.get('order_id')
+
+    # Retrieve the order using the order ID
+    order = get_object_or_404(Order, id=order_id)
+    cart=get_object_or_404(Cart,user=request.user)
+
+    # Update the order status to 'Cancelled'
+    order.order_status = 'Payment Failed'
+    order.save()
+    cart.items.all().delete()
+
+
+    # Provide feedback to the user
+    messages.warning(request, 'Your payment has been failed.Try to complete payment from the order history page.')
+
+    # Render the cancellation template with order details
+    return render(request, 'payment/razorpay-cancell-page.html', {'order': order})
+
 
 ####################### apply coupon logic  #######################
 

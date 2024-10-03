@@ -10,7 +10,7 @@ urlpatterns = [
     
     path('razorpay-order/<int:order_id>/',views.create_razorpay_order, name='razorpay-order'),
     path('payment-success/',views.payment_success, name='payment-success'),
-
+      path('payment-cancel/',views.payment_cancel, name='payment-cancel'),
     #apply coupon url here 
       path('apply-coupon/',views.apply_coupon_view, name='apply-coupon'),
 ]
