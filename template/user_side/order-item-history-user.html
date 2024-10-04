@@ -313,15 +313,45 @@
                                             <div class="modal-footer">
                                                 <span class="text-muted">&copy; {{ current_year }} Cycular. All rights reserved.</span>
                                                 <!-- Button to download the invoice -->
-                                                <a href="{% url 'user_side:download-invoice-item' order_item.id %}" class="btn btn-primary">Download Invoice</a>
+                                                <a href="{% url 'user_side:download-invoice-item' order_item.id %}" class="btn btn-primary download-invoice-button">Download Invoice</a>
+
+
 
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                                <script>
+                                    document.querySelectorAll(".download-invoice-button").forEach(button => {
+                                        button.addEventListener("click", function(e) {
+                                            e.preventDefault();  // Prevent immediate navigation
                                 
-
+                                            let timerInterval;
+                                            Swal.fire({
+                                                title: "Invoice is downloading...",
+                                                html: "Please wait...",
+                                                timer: 3000,  // Set the time as per your preference (6 seconds here)
+                                                width: "300px",
+                                                timerProgressBar: true,
+                                                didOpen: () => {
+                                                    Swal.showLoading();
+                                                },
+                                                willClose: () => {
+                                                    clearInterval(timerInterval);
+                                                }
+                                            }).then((result) => {
+                                                if (result.dismiss === Swal.DismissReason.timer) {
+                                                    // Redirect to download URL after the SweetAlert closes
+                                                    const downloadUrl = this.href;  // Use the href of the clicked button
+                                                    window.location.href = downloadUrl;
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
+                                
                                 {% endfor %}
                             </tbody>
                         </table>
