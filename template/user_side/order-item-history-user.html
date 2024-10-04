@@ -132,98 +132,103 @@
                         <table class="table responsive-table">
                             <thead>
                                 <tr>
-                                    <th>Sl No</th>
-                                    <th>Image</th>
-                                    <th>Product Name</th>
-                                    <th>paymet method</th>
-                                    <th>Order Date</th>
-                                    <th>offer</th>
-                                    <th>Coupon info</th>
-                                    <th>Actual Price</th>
-                                    <th>Dicount Amount</th>
-                                    <th>Paid</th>
-
-                                    <th>Status</th>
-                                    <th>Count</th>
-
-                                    <th>Actions</th>
+                                    <th style="text-align: center;">Sl No</th>
+                                    <th style="text-align: center;">Product</th>
+                                    <th style="text-align: center;">Payment Method</th>
+                                    <th style="text-align: center;">Order Date</th>
+                                    <th style="text-align: center;">Offer</th>
+                                    <th style="text-align: center;">Coupon Info</th>
+                                    <th style="text-align: center;">Actual Price</th>
+                                    <th style="text-align: center;">Discount Amount</th>
+                                    <th style="text-align: center;">Paid</th>
+                                    <th style="text-align: center;">Status</th>
+                                    <th style="text-align: center;">Count</th>
+                                    <th style="text-align: center;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for order_item in order_items %}
-                                    <tr>
-                                        <td data-label="Sl No">{{ forloop.counter }}</td>
-                                        <td data-label="Image">
-                                            <a href="{% url 'products:single-product-view' order_item.product_variant.id %}"><img src="{{order_item.product_variant.image1.url}}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: 50px; height: 50px;"></a>
-                                        </td>
-                                        <td data-label="Product Name"><a href="{% url 'products:single-product-view' order_item.product_variant.id %}">{{ order_item.product_variant.product.name }}</a></td>
-                                        <td data-label="Payment Method">{{ order_item.order.get_payment_method_display }}</td>
-                                        <td data-label="Order Date">{{ order_item.order.order_date }}</td>
+                                <tr>
+                                    <td data-label="Sl No" style="text-align: center;">{{ forloop.counter }}</td>
+                                    <td data-label="Product" style="min-width: 300px; text-align: center;">
+                                        <div style="display: flex; align-items: center; justify-content: center;">
+                                            <div>
+                                                <a href="{% url 'products:single-product-view' order_item.product_variant.id %}">
+                                                    <img src="{{ order_item.product_variant.image1.url }}"
+                                                        alt="{{ order_item.product_variant.product.name }}"
+                                                        style="width: 50px; height: 50px; object-fit: cover;">
+                                                </a>
+                                            </div>
+                                            <div style="text-align: left; margin-left: 10px;">
+                                                <strong>{{ order_item.product_variant.product.name }}</strong><br>
+                                                <small style="color: #6c757d;">
+                                                    ({{ order_item.product_variant.color.name }} - {{ order_item.product_variant.size.name }})
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td data-label="Payment Method" style="text-align: center;">{{ order_item.order.get_payment_method_display }}</td>
+                                    <td data-label="Order Date" style="text-align: center;">{{ order_item.order.order_date }}</td>
+                                    <td data-label="Offer" style="text-align: center;">
+                                        {% if order_item.product_variant.get_discount_percentage > 0 %}
+                                            Offer of {{ order_item.product_variant.get_discount_percentage }}%<br>
+                                        {% else %}
+                                            No Offers Available
+                                        {% endif %}
+                                    </td>
+                                    <td data-label="Coupon Info" style="text-align: center;">
+                                        {% if order_item.coupon_discount_price == 0 %}
+                                            Coupon not applied
+                                        {% else %}
+                                            {{ order_item.coupon_info }}
+                                        {% endif %}
+                                    </td>
+                                    <td data-label="Actual Price" style="text-align: center;">{{ order_item.price }} ₹</td>
+                                    <td data-label="Discount Amount" style="text-align: center;">{{ order_item.coupon_discount_price }} ₹</td>
+                                    <td data-label="Paid" style="text-align: center;">{{ order_item.effective_price|floatformat:2 }} ₹</td>
+                                    <td data-label="Status" style="text-align: center;">{{ order_item.order_item_status }}</td>
+                                    <td data-label="Count" style="text-align: center;">
+                                        <p>{{ order_item.quantity }}</p>
+                                    </td>
+                                    <td data-label="Actions" style="text-align: center;">
+                                        <!-- Cancel button logic -->
+                                        {% if order_item.order_item_status == 'Order placed' or order_item.order_item_status == 'Processing' or order_item.order_item_status == 'Shipped' %}
+                                            <button 
+                                                style="width: 90px; color: white; background-color: rgb(253, 79, 79); border: none; border-radius: 5px;" 
+                                                class="cancel-order-item-btn"
+                                                data-url="{% url 'wallet:cancell-order-item' order_item.id %}">
+                                                Cancel
+                                            </button>
+                                        {% elif order_item.order_item_status == 'Cancelled' %}
+                                            <button 
+                                                style="width: 90px; color: white; background-color: gray; border: none; border-radius: 5px;" 
+                                                class="cancel-order-item-btn" 
+                                                disabled 
+                                                data-toggle="tooltip" 
+                                                title="This product has already been cancelled">
+                                                Cancelled
+                                            </button>
+                                        {% endif %}
                                         
-                                        <td>
-                                            {% if order_item.product_variant.get_discount_percentage > 0 %}
-                                                Offer of {{ order_item.product_variant.get_discount_percentage }}%<br>
-                                            {% else %}
-                                                No Offers Available
-                                            {% endif %}
-                                        </td>
-                                        
-                                        <td data-label="Coupon Info">
-                                            {% if order_item.coupon_discount_price == 0 %}
-                                                Coupon not applied
-                                            {% else %}
-                                                {{ order_item.coupon_info }}
-                                            {% endif %}
-                                        </td>
-                                        <td data-label="Price">{{ order_item.price }} ₹</td>
-                                        <td data-label="Discount Price">{{ order_item.coupon_discount_price }} ₹</td>
-                                        <td data-label="Effective Price">{{ order_item.effective_price|floatformat:2 }} ₹</td>
-                                        <td data-label="Status">{{ order_item.order_item_status }}</td>
-                                        <td data-label="Count">
-                                            <p>{{ order_item.quantity }}</p>
-                                        </td>
-                                        <td data-label="Order Actions">
-                                            <!-- Cancel button logic -->
-                                            {% if order_item.order_item_status == 'Order placed' or order_item.order_item_status == 'Processing' or order_item.order_item_status == 'Shipped' %}
-                                                <button 
-                                                    style="width: 90px; color: white; background-color: rgb(253, 79, 79); border: none; border-radius: 5px;" 
-                                                    class="cancel-order-item-btn"
-                                                    data-url="{% url 'wallet:cancell-order-item' order_item.id %}">
-                                                    Cancel
-                                                </button>
-                                            {% elif order_item.order_item_status == 'Cancelled' %}
-                                                <button 
-                                                    style="width: 90px; color: white; background-color: gray; border: none; border-radius: 5px;" 
-                                                    class="cancel-order-item-btn" 
-                                                    disabled 
-                                                    data-toggle="tooltip" 
-                                                    title="This product has already been cancelled">
-                                                    Cancelled
-                                                </button>
-                                            {% endif %}
-                                        
-                                            <!-- Return button logic -->
-                                            {% if order_item.order_item_status == 'Delivered' %}
-                                                <button class="return-btn" data-order-item-id="{{ order_item.id }}" 
-                                                    style="background-color: yellow; border: none; color: black; cursor: pointer; border-radius: 5px;">
-                                                    Return
-                                                </button>
-                                            {% elif order_item.order_item_status == 'Return Requested' %}
-                                                <span style="color: rgb(255, 255, 255); background-color: gray; padding: 5px 10px; border-radius: 5px;">Requested</span>
-                                            {% elif order_item.order_item_status == 'Returned' %}
-                                                <span style="color: rgb(255, 255, 255); background-color: rgba(11, 165, 31, 0.79); padding: 5px 10px; border-radius: 5px; ">Returned</span>
-                                            {% endif %}
-                                        </td>
-                                        
-                                        
-                                        
-                                    </tr>
-                             
+                                        <!-- Return button logic -->
+                                        {% if order_item.order_item_status == 'Delivered' %}
+                                            <button class="return-btn" data-order-item-id="{{ order_item.id }}" 
+                                                style="background-color: yellow; border: none; color: black; cursor: pointer; border-radius: 5px;">
+                                                Return
+                                            </button>
+                                        {% elif order_item.order_item_status == 'Return Requested' %}
+                                            <span style="color: rgb(255, 255, 255); background-color: gray; padding: 5px 10px; border-radius: 5px;">Requested</span>
+                                        {% elif order_item.order_item_status == 'Returned' %}
+                                            <span style="color: rgb(255, 255, 255); background-color: rgba(11, 165, 31, 0.79); padding: 5px 10px; border-radius: 5px; ">Returned</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
+                
             </main>
             
 
