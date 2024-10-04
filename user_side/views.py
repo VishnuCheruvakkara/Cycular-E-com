@@ -21,6 +21,19 @@ from .models import Address
 from django.views.decorators.cache import never_cache
 from orders.models import Order,OrderItem
 
+
+from django.http import FileResponse, Http404
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, TableStyle
+import os
+import datetime
+from io import BytesIO
+import tempfile
+
+
 User = get_user_model()
 # Create your views here.
 
@@ -941,3 +954,149 @@ def request_return(request, order_item_id):
             return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
+
+##########################  invoice pdf generator  #####################
+def generate_invoice_pdf(order_item):
+    # Set the file path with the current date and time as the filename
+    temp_dir = tempfile.gettempdir()  # Get the temp directory
+    filename = f"invoice_{order_item.id}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    file_path = os.path.join(temp_dir, filename)
+
+    # Create the PDF
+    pdf = canvas.Canvas(file_path, pagesize=letter)
+    pdf.setTitle(f"Invoice - {order_item.id}")
+
+    # Find the static file path for the logo
+    logo_path = os.path.join(settings.STATIC_ROOT, "assets/images/cycular/cycular_black.png")
+    if not os.path.exists(logo_path):
+        logo_path = os.path.join(settings.BASE_DIR, "static", "assets/images/cycular/cycular_black.png")
+
+    # Adjusted y position for the logo and heading
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(50, 720, "Invoice")  # Heading
+
+    # Add logo centered below the invoice heading
+    if os.path.exists(logo_path):
+        logo_width = 80  # Adjust the logo size as needed
+        pdf.drawImage(logo_path, (letter[0] - logo_width) / 2, 690, width=logo_width, height=80, mask='auto')  # Centering logo
+    else:
+        pdf.drawString((letter[0] - 100) / 2, 690, "[Logo Not Found]")  # Centering for logo not found
+
+    # Fetch data from related models
+    order = order_item.order  # Get the order from order_item
+    product_variant = order_item.product_variant
+    product = product_variant.product
+    order_address = order.order_address  # Fetching the associated order address
+
+    # Customer information
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(50, 660, f"Order ID: {order_item.id}")
+    pdf.drawString(50, 640, f"Order Date: {order.order_date.strftime('%Y-%m-%d')}")
+
+    # Draw the shipping address
+    shipping_address = (
+        f"Order Address: {order_address.address_line}, "
+        f"{order_address.city}, {order_address.state}, "
+        f"{order_address.country}, {order_address.postal_code}"
+    )
+    address_lines = shipping_address.split(", ")
+    y_position = 610  # Adjusted starting y position for address
+
+    for line in address_lines:
+        pdf.drawString(50, y_position, line)
+        y_position -= 15  # Move down for the next line
+
+    pdf.drawString(50, y_position, f"Phone Number: {order_address.phone_number}")
+
+    # Create table for product information
+    data = [
+        ['Product Name', 'Variant Size', 'Variant Color', 'Quantity', 'Unit Price (Rs)'],
+        [product.name, product_variant.size, product_variant.color, order_item.quantity, f"{order_item.product_variant.price:.2f}"]
+    ]
+
+    # Create a table
+    table = Table(data, colWidths=[3 * inch, 1 * inch, 1 * inch, 1 * inch, 1 * inch])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1cc0a0")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    # Draw the table on the canvas
+    table.wrapOn(pdf, 50, 480)  # Adjust the position of the table as necessary
+    table.drawOn(pdf, 50, 480)
+
+    # Right side for pricing and discount details
+    y_position = 420  # Adjusted starting position for pricing details
+    left_label_x = 300  # X-coordinate for bold labels
+    normal_value_x = 460  # X-coordinate for normal values
+
+    # Original Price: bold label, normal value
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(left_label_x, y_position, "Original Price: ")  # Bold label
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(normal_value_x, y_position, f"{order_item.product_variant.price:.2f} Rs")  # Normal value
+    y_position -= 20  # Move down for the next line
+
+    # Offer Discount: bold label, normal value
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(left_label_x, y_position, "Offer Discount: ")  # Bold label
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(normal_value_x, y_position, f"-{order_item.product_variant.get_savings_amount():.2f} Rs")  # Normal value
+    y_position -= 20  # Move down for the next line
+
+    # Coupon Discount: bold label, normal value
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(left_label_x, y_position, "Coupon Discount: ")  # Bold label
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(normal_value_x, y_position, f"-{order_item.coupon_discount_price:.2f} Rs")  # Normal value
+    y_position -= 20  # Move down for the next line
+
+    # Total Amount Paid: bold label, normal value
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(left_label_x, y_position, "Total Amount Paid: ")  # Bold label
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(normal_value_x, y_position, f"{order_item.effective_price():.2f} Rs")  # Normal value
+
+    # Footer section with thank you and contact details
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(50, 200, "Thank you for your purchase from Cycular.")
+    pdf.drawString(50, 180, "For any issues, contact us at:")
+    pdf.drawString(50, 160, "Phone: 123-456-7890")
+    pdf.drawString(50, 140, "Address: 123 Cycle St, City Name, State, Zip Code")
+    pdf.drawString(50, 120, f"© {datetime.datetime.now().year} Cycular. All rights reserved.")
+
+    pdf.showPage()
+    pdf.save()
+
+    return file_path
+
+
+###########################  invoice pdf download button logic   ##############################
+
+
+def download_invoice_item(request, order_item_id):
+    try:
+        # Fetch the specific order item by its ID
+        order_item = OrderItem.objects.get(id=order_item_id)
+        
+        # Generate the invoice PDF for this order item
+        file_path = generate_invoice_pdf(order_item)
+
+        # Ensure the file exists before trying to return it
+        if os.path.exists(file_path):
+            # Return the PDF as a downloadable response
+            response = FileResponse(open(file_path, 'rb'), as_attachment=True, filename=f"invoice_{order_item.id}.pdf")
+            return response
+        else:
+            raise Http404("Invoice file not found")
+        
+    except OrderItem.DoesNotExist:
+        raise Http404("Order item not found")
+    except Exception as e:
+        raise Http404(f"Error generating PDF: {str(e)}")

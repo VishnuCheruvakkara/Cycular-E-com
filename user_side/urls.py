@@ -38,6 +38,8 @@ urlpatterns=[
     path('order-item-details/',views.order_item_details,name='order-item-details'),
     #path for dynamic product return stastus updation on userside
     path('request-return/<int:order_item_id>/',views.request_return, name='request-return'),
-   
+    #download the invoice logic
+    path('download-invoice-item/<int:order_item_id>/', views.download_invoice_item, name='download-invoice-item'),
 ]
+   
 

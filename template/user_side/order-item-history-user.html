@@ -199,7 +199,7 @@
                                         {% endif %}
                                     </td>
                                     <td data-label="Actual Price" style="text-align: center;">{{ order_item.product_variant.price }} ₹</td>
-                                    <td data-label="Discount Amount" style="text-align: center;">{{ order_item.coupon_discount_price }} ₹</td>
+                                    <td data-label="Coupon Discount" style="text-align: center;">{{ order_item.coupon_discount_price }} ₹</td>
                                     <td data-label="Paid" style="text-align: center;">{{ order_item.effective_price|floatformat:2 }} ₹</td>
                                     <td data-label="Status" style="text-align: center;"><b>{{ order_item.order_item_status }}</b></td>
                                    
@@ -313,7 +313,8 @@
                                             <div class="modal-footer">
                                                 <span class="text-muted">&copy; {{ current_year }} Cycular. All rights reserved.</span>
                                                 <!-- Button to download the invoice -->
-                                                <a href="#" class="btn btn-primary">Download Invoice</a>
+                                                <a href="{% url 'user_side:download-invoice-item' order_item.id %}" class="btn btn-primary">Download Invoice</a>
+
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                             </div>
                                         </div>
