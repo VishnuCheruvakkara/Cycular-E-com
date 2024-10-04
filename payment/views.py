@@ -31,6 +31,7 @@ def check_out(request):
     #retrive all items for the current user cart
     cart_items=cart.items.all() #items is the related name
     total_price=sum(item.subtotal for item in cart_items)
+    coupons = Coupon.objects.filter(active=True).order_by('-valid_until')
     
     # Fetch wallet for the current user
     wallet,created = Wallet.objects.get_or_create(user=request.user)
@@ -45,7 +46,7 @@ def check_out(request):
    
     # Calculate the total price of products
     total_price = sum(Decimal(item.subtotal) for item in cart_items)
-
+    print("Total price : ",total_price)
     #get the data from the sessiion directly, that was stored with the help of javascript...
     applied_coupon=request.session.get('applied_coupon',None)
     if applied_coupon:
@@ -67,6 +68,16 @@ def check_out(request):
 
     if request.method == 'POST':
         payment_method=request.POST.get('payment_method') 
+        # Check if any item in the cart exceeds ₹1000
+        if total_price-discount_amount> 1000:
+            if payment_method == 'cash_on_delivery':
+                messages.error(request, 'Cash on delivery is not available for products priced above ₹1000.')
+                return render(request, 'payment/check-out.html', {
+                    'cart_items': cart_items,
+                    'total_price': total_price,
+                    'addresses': addresses,
+                    'coupons':coupons,
+                })
         try:
             #get address id
             address_id=request.POST.get('selected_address')
@@ -201,7 +212,7 @@ def check_out(request):
             # Log the exception
             print(f"Error: {e}")
             messages.error(request, 'An error occurred while placing the order.')
-    coupons = Coupon.objects.filter(active=True).order_by('-valid_until')
+   
  
    
     context={

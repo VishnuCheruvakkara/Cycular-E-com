@@ -8,4 +8,5 @@ urlpatterns=[
 
    path('add-to-wishlist/',views.add_to_wishlist,name='add-to-wishlist'),
    path('delete-wishlist/<int:wishlist_id>',views.delete_wishlist,name='delete-wishlist'),
+   path('wishlist-count/',views.wishlist_count, name='wishlist-count'),
 ]

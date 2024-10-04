@@ -60,4 +60,10 @@ def delete_wishlist(request,wishlist_id):
     wishlist.delete()
     messages.success(request, 'Item successfully removed from your wishlist.')
     return redirect('wishlist:wishlist-page')
- 
+
+###################  Show wish list count dynamiccally using fetch api  #######################
+
+def wishlist_count(request):
+    # Get the count of wishlist items for the logged-in user
+    count = Wishlist.objects.filter(user=request.user).count()
+    return JsonResponse({'count': count})

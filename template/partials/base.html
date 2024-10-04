@@ -130,7 +130,7 @@
                                 <a href="{% url 'wishlist:wishlist-page' %}" title="Wishlist">
                                     <div class="icon">
                                         <i class="icon-heart-o"></i>
-                                        <span class="wishlist-count badge">3</span>
+                                        <span class="wishlist-count badge">0</span>
                                     </div>
                                     <p>Wishlist</p>
                                 </a>
@@ -554,6 +554,59 @@
 </div><!-- End .social-icons -->
 </div><!-- End .mobile-menu-wrapper -->
 </div><!-- End .mobile-menu-container -->
+
+<!-- scripts for other page base access, downbelow... -->
+<!-- script for find the wish list count -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Function to fetch the wishlist count from the server
+        function updateWishlistCount() {
+            fetch("{% url 'wishlist:wishlist-count' %}", {
+                method: "GET",
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',  // This makes it an AJAX request
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update the wishlist count on the page
+                const wishlistCountElement = document.querySelector('.wishlist-count');
+                wishlistCountElement.textContent = data.count;
+            })
+            .catch(error => console.error('Error fetching wishlist count:', error));
+        }
+    
+        // Call the function once the page loads
+        updateWishlistCount();
+    });
+</script>
+    
+<script>
+    // Function to update cart count
+    function updateCartCount() {
+        fetch('{% url "cart:cart-count" %}', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.querySelector('.cart-count').textContent = data.count;
+            } else {
+                console.error('Failed to fetch cart count:', data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Call the updateCartCount function when the page loads
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+
+</script>
+
 <!-- Plugins JS File -->
 <script src="{% static 'assets/js/jquery.min.js' %}"></script>
 <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>

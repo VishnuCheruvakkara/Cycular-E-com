@@ -142,8 +142,8 @@
                                     <th style="text-align: center;">Discount Amount</th>
                                     <th style="text-align: center;">Paid</th>
                                     <th style="text-align: center;">Status</th>
-                                    <th style="text-align: center;">Count</th>
                                     <th style="text-align: center;">Actions</th>
+                                    <th style="text-align: center;">Invoice</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -161,6 +161,7 @@
                                             </div>
                                             <div style="text-align: left; margin-left: 10px;">
                                                 <strong>{{ order_item.product_variant.product.name }}</strong><br>
+                                                <span style="color:#fd4f4f;font-size:10px;"><b>(Qty.{{ order_item.quantity }})</b></span>
                                                 <small style="color: #6c757d;">
                                                     ({{ order_item.product_variant.color.name }} - {{ order_item.product_variant.size.name }})
                                                 </small>
@@ -183,13 +184,11 @@
                                             {{ order_item.coupon_info }}
                                         {% endif %}
                                     </td>
-                                    <td data-label="Actual Price" style="text-align: center;">{{ order_item.price }} ₹</td>
+                                    <td data-label="Actual Price" style="text-align: center;">{{ order_item.product_variant.price }} ₹</td>
                                     <td data-label="Discount Amount" style="text-align: center;">{{ order_item.coupon_discount_price }} ₹</td>
                                     <td data-label="Paid" style="text-align: center;">{{ order_item.effective_price|floatformat:2 }} ₹</td>
-                                    <td data-label="Status" style="text-align: center;">{{ order_item.order_item_status }}</td>
-                                    <td data-label="Count" style="text-align: center;">
-                                        <p>{{ order_item.quantity }}</p>
-                                    </td>
+                                    <td data-label="Status" style="text-align: center;"><b>{{ order_item.order_item_status }}</b></td>
+                                   
                                     <td data-label="Actions" style="text-align: center;">
                                         <!-- Cancel button logic -->
                                         {% if order_item.order_item_status == 'Order placed' or order_item.order_item_status == 'Processing' or order_item.order_item_status == 'Shipped' %}
@@ -221,6 +220,14 @@
                                         {% elif order_item.order_item_status == 'Returned' %}
                                             <span style="color: rgb(255, 255, 255); background-color: rgba(11, 165, 31, 0.79); padding: 5px 10px; border-radius: 5px; ">Returned</span>
                                         {% endif %}
+                                    </td>
+                                    <td data-label="Invoice" style="text-align: center; width:125px">
+                                        <button 
+                                        style="width: 90px; color: white; background-color: rgb(79, 145, 253); border: none; border-radius: 5px;" 
+                                        class="invoice-btn"
+                                        data-url="">
+                                        Invoice
+                                    </button>
                                     </td>
                                 </tr>
                                 {% endfor %}
