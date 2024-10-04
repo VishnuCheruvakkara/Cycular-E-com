@@ -114,6 +114,14 @@ class ProductVariant(models.Model):
         
         return max(variant_discount_percentage, brand_discount_percentage)
     
+    def get_savings_amount(self):
+        """Calculate how much the user is saving based on the applied discount."""
+        original_price = self.price
+        discounted_price = self.get_discounted_price()
+        
+        savings = original_price - discounted_price
+        return savings
+    
 class Review(models.Model):
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

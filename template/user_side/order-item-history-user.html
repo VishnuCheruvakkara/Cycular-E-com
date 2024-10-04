@@ -16,6 +16,20 @@
             margin: 30px auto; /* Adjust vertical margin if necessary */
         }
     </style>
+    <!-- modal for invoice show -->
+    <style>
+    .modal-content {
+        padding: 20px;
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #e9ecef;
+    }
+    </style>
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
@@ -139,7 +153,7 @@
                                     <th style="text-align: center;">Offer</th>
                                     <th style="text-align: center;">Coupon Info</th>
                                     <th style="text-align: center;">Actual Price</th>
-                                    <th style="text-align: center;">Discount Amount</th>
+                                    <th style="text-align: center;">Coupon Discount</th>
                                     <th style="text-align: center;">Paid</th>
                                     <th style="text-align: center;">Status</th>
                                     <th style="text-align: center;">Actions</th>
@@ -172,7 +186,7 @@
                                     <td data-label="Order Date" style="text-align: center;">{{ order_item.order.order_date }}</td>
                                     <td data-label="Offer" style="text-align: center;">
                                         {% if order_item.product_variant.get_discount_percentage > 0 %}
-                                            Offer of {{ order_item.product_variant.get_discount_percentage }}%<br>
+                                            Offer of {{ order_item.product_variant.get_discount_percentage }}%. You saved  : {{ order_item.product_variant.get_savings_amount|floatformat:2}} ₹<br>
                                         {% else %}
                                             No Offers Available
                                         {% endif %}
@@ -223,13 +237,90 @@
                                     </td>
                                     <td data-label="Invoice" style="text-align: center; width:125px">
                                         <button 
-                                        style="width: 90px; color: white; background-color: rgb(79, 145, 253); border: none; border-radius: 5px;" 
-                                        class="invoice-btn"
-                                        data-url="">
-                                        Invoice
-                                    </button>
+                                            style="width: 90px; color: white; background-color: rgb(79, 145, 253); border: none; border-radius: 5px;"
+                                            data-toggle="modal" data-target="#invoiceModal-{{ order_item.id }}">
+                                            Invoice
+                                        </button>
                                     </td>
+                               
                                 </tr>
+
+                                  <!-- Bootstrap Modal for each order item -->
+                                  <div class="modal fade" id="invoiceModal-{{ order_item.id }}" tabindex="-1" aria-labelledby="invoiceModalLabel-{{ order_item.id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="invoiceModalLabel-{{ order_item.id }}">Invoice for Order #{{ order_item.id }}</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <!-- Company Info at the top -->
+                                                <div class="row mb-4 align-items-center">
+                                                    <!-- Logo on the left -->
+                                                    <div class="col-2">
+                                                        <img src="{% static 'assets/images/cycular/cycular_black.png' %}" alt="Cycular Logo" class="img-fluid" style="width: 100px; height: auto;">
+                                                    </div>
+                                                    <!-- Name and Address on the right -->
+                                                    <div class="col-10">
+                                                        <h4 class="mb-0">Cycular</h4>
+                                                        <p class="mb-0">123 Cycle St, City Name, State, Zip Code</p>
+                                                    </div>
+                                                </div>
+                                
+                                                <div class="row">
+                                                    <!-- Product Image on the left -->
+                                                    <div class="col-md-4">
+                                                        <img src="{{ order_item.product_variant.image1.url }}" alt="{{ order_item.product_variant.product.name }}" class="img-fluid" style="max-height: 150px; object-fit: cover;">
+                                                    </div>
+                                                    <!-- Product Details on the right -->
+                                                    <div class="col-md-8">
+                                                        <div class="row">
+                                                            <!-- Product Details Column -->
+                                                            <div class="col-6 text-left">
+                                                                <p><strong>Product:</strong></p>
+                                                                <p><strong>Quantity:</strong></p>
+                                                                <p><strong>Order Date:</strong></p>
+                                                                <p><strong>Payment Method:</strong></p>
+                                                                <p><strong>Actual Price:</strong></p>
+                                                                <p><strong>Coupon Discount:</strong></p>
+                                                                <p><strong>Offer Discount:</strong></p>
+                                                            </div>
+                                                            <!-- Product Values Column -->
+                                                            <div class="col-6 text-left">
+                                                                <p>{{ order_item.product_variant.product.name }}</p>
+                                                                <p>{{ order_item.quantity }}</p>
+                                                                <p>{{ order_item.order.order_date }}</p>
+                                                                <p>{{ order_item.order.get_payment_method_display }}</p>
+                                                                <p>{{ order_item.product_variant.price }} ₹</p>
+                                                                <p>-{{ order_item.coupon_discount_price }} ₹</p>
+                                                                <p>-{{ order_item.product_variant.get_savings_amount|floatformat:2 }} ₹</p>
+                                                            </div>
+                                                        </div>
+                                                        <hr>
+                                                        <div class="row">
+                                                            <div class="col-6 text-left font-weight-bold">
+                                                                <p>Total Amount:</p>
+                                                            </div>
+                                                            <div class="col-6 text-left font-weight-bold">
+                                                                <p>{{ order_item.effective_price|floatformat:2 }} ₹</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <span class="text-muted">&copy; {{ current_year }} Cycular. All rights reserved.</span>
+                                                <!-- Button to download the invoice -->
+                                                <a href="#" class="btn btn-primary">Download Invoice</a>
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+
                                 {% endfor %}
                             </tbody>
                         </table>
