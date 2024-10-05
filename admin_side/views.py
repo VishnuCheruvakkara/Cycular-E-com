@@ -17,8 +17,8 @@ from io import BytesIO
 from datetime import datetime
 from decimal import Decimal
 from wallet.models import Wallet,Transaction
+from products.models import Brand,Category,ProductVariant
 
-# Create your views here.
 
 #############################   seller home    ########################################################
 
@@ -27,7 +27,23 @@ from wallet.models import Wallet,Transaction
 def SellerHome(request):
     if not request.user.is_superuser:
         return redirect('core:index')
-    return render(request,'admin_side/admin_dashboard.html')
+
+    user_count = User.objects.filter(is_superuser=False).count()
+    active_user_count = User.objects.filter(is_superuser=False,is_active=True).count()
+    inactive_user_count = User.objects.filter(is_superuser=False,is_active=False).count()
+
+    product_variant_count = ProductVariant.objects.count()  # Count product variants
+    brand_count = Brand.objects.count()
+    category_count = Category.objects.count()
+    context = {
+        'user_count': user_count,
+        'product_variant_count': product_variant_count,
+        'brand_count': brand_count,
+        'category_count': category_count,
+        'active_user_count': active_user_count,
+        'inactive_user_count': inactive_user_count,
+    }
+    return render(request,'admin_side/admin_dashboard.html',context)
 
 #############################   seller login  ########################################################
 

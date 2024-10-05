@@ -25,9 +25,12 @@
         <div class="account-page">
 			<div class="account-center">
 				<div class="account-box">
-                    <div class="account-logo">
-                        <a href="index-2.html"><img src="{% static 'admin/img/logo-dark.png' %}" alt=""></a>
+                    <div style="text-align: center;">
+                        <a href="index-2.html">
+                            <img src="{% static 'assets/images/cycular/cycular_admin.png' %}" alt="" style="width: 125px; height: 125px;">
+                        </a>
                     </div>
+                    
                     <form action=""  method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 						
