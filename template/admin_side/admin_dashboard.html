@@ -11,6 +11,8 @@
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+
+    
 </head>
 
 <body>
@@ -18,11 +20,12 @@
 {% include 'partials/side-bar-admin.html' %}
 {% endblock %}
     <div class="page-wrapper">
+        
         <div class="content">
             {% block admin-messages %}
             {% include 'partials/admin-message.html' %}
             {% endblock %}
-            
+            <h3>Cycular Home</h3>
             <!-- Dashboard Widgets -->
             <div class="row">
                 <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
@@ -31,7 +34,6 @@
                         <div class="dash-widget-info text-right">
                             <h3>{{ user_count|default:0 }}</h3>
                             <span class="widget-title1">Users <i class="fa fa-check"></i></span>
-                            
                         </div>
                     </div>
                 </div>
@@ -70,7 +72,7 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">Sales Report</h4>
+                            <h4 class="card-title">Sales Chart</h4>
                             <div class="form-group">
                                 <label for="salesFilter">Filter By:</label>
                                 <select id="salesFilter" class="form-control">
@@ -81,118 +83,161 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <canvas id="salesChart"></canvas>
+                            <div style="width: 80%; margin: 0 auto;"> <!-- Wrapper for chart -->
+                                <canvas id="salesChart" style="max-width: 100%; height: 300px;"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Top Selling Sections -->
-            <div class="row">
-                <div class="col-lg-4">
+      
+            <!-- Top Selling Products -->
+            <div class="row mt-4">
+                <div class="col-lg-12">
                     <div class="card">
                         <div class="card-header">
                             <h4 class="card-title">Top 10 Best-Selling Products</h4>
                         </div>
                         <div class="card-body">
-                            <ul id="topProducts">
-                                <!-- Products will be listed here -->
-                            </ul>
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                <table class="table table-striped custom-table" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th>Sl.No</th>
+                                            <th>Image</th>
+                                            <th>Product Name</th>
+                                            <th>Color</th>
+                                            <th>Size</th>
+                                            <th style="text-align: center;">Total Sold</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product_variant in product_variants %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>
+                                                <img width="40" height="40" src="{{ product_variant.variant.image1.url }}" class="rounded-circle m-r-5" alt="Product Image">
+                                            </td>
+                                            <td>{{ product_variant.variant.product.name }}</td>
+                                            <td>{{ product_variant.variant.color.name }}</td>
+                                            <td>{{ product_variant.variant.size.name }}</td>
+                                            <td style="text-align: center;">{{ product_variant.total_quantity_sold }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Top 10 Best-Selling Categories</h4>
-                        </div>
-                        <div class="card-body">
-                            <ul id="topCategories">
-                                <!-- Categories will be listed here -->
-                            </ul>
-                        </div>
-                    </div>
+            </div>
+                
+            <!-- Best-Selling Categories and Brands -->
+            <div class="row mt-4">
+                <!-- Left side: Best-Selling Categories -->
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">Top 10 Best-Selling Categories</h4>
+        </div>
+        <div class="card-body">
+            <div class="scrollable-content" style="max-height: 400px; overflow-y: auto;">
+                {% for category in top_selling_categories %}
+                <div class="info-box" style="background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; height: 80px;">
+                    <h5 style="margin: 0; font-weight: bold; color: #333;">Category: <span style="color:#009efb;">{{ category.category.name }}</span></h5>
+                    <p><b>Total Sold: </b>{{ category.total_quantity_sold }}</p>
                 </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 
-                <div class="col-lg-4">
+
+                <!-- Right side: Best-Selling Brands -->
+                <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">
                             <h4 class="card-title">Top 10 Best-Selling Brands</h4>
                         </div>
                         <div class="card-body">
-                            <ul id="topBrands">
-                                <!-- Brands will be listed here -->
-                            </ul>
+                            <div class="scrollable-content" style="max-height: 400px; overflow-y: auto;">
+                                {% for brand in top_selling_brands %}
+                                <div class="info-box" style="background-color:#f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; height: auto;">
+                                    <h5 style="margin: 0; font-weight: bold; color: #333;">Brand: <span style="color:#009efb;">{{ brand.brand.name }}</span></h5>
+                                    <p style="margin: 5px 0; font-size: 14px;"><b>Description:</b> {{ brand.description }}</p>
+                                    <p style="margin: 5px 0; font-size: 14px;"><b>Total Sold:</b> {{ brand.total_quantity_sold }}</p>
+                                    
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </div>
+
+            <div class="sidebar-overlay" data-reff=""></div>
+            <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+            <script src="{% static 'admin/js/popper.min.js' %}"></script>
+            <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+            <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+            <script src="{% static 'admin/js/Chart.bundle.js' %}"></script>
+            <script src="{% static 'admin/js/chart.js' %}"></script>
+            <script src="{% static 'admin/js/app.js' %}"></script>
+
+            <!-- Custom JS to load data and charts -->
+            <script>
+                // Handle sales chart filter change
+                document.getElementById('salesFilter').addEventListener('change', function() {
+                    updateSalesChart(this.value);
+                });
+
+                // Initialize the sales chart with Chart.js
+                var ctx = document.getElementById('salesChart').getContext('2d');
+                var salesChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['January', 'February', 'March', 'April', 'May', 'June'],  // Example data
+                        datasets: [{
+                            label: 'Sales',
+                            data: [10, 20, 30, 40, 50, 60],
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    }
+                });
+
+                // Update the sales chart when filter changes
+                function updateSalesChart(filter) {
+                    // Fetch new data based on the filter (yearly, monthly, etc.)
+                    // Replace the following with actual logic to get filtered data
+                    if (filter === 'monthly') {
+                        salesChart.data.labels = ['January', 'February', 'March'];
+                        salesChart.data.datasets[0].data = [50, 30, 80];
+                    } else if (filter === 'weekly') {
+                        salesChart.data.labels = ['Week 1', 'Week 2', 'Week 3'];
+                        salesChart.data.datasets[0].data = [10, 25, 45];
+                    } else {
+                        salesChart.data.labels = ['2019', '2020', '2021'];
+                        salesChart.data.datasets[0].data = [200, 300, 400];
+                    }
+                    salesChart.update();
+                }
+
+                // Load the top 10 best-selling products, categories, and brands
+                function loadTopSellingData() {
+                    // Replace this with AJAX calls to get actual data
+                    document.getElementById('top-selling-products').innerHTML = 'Top Selling Products Loaded!';
+                }
+
+                // Initial data load
+                loadTopSellingData();
+            </script>
         </div>
     </div>
-
-    <div class="sidebar-overlay" data-reff=""></div>
-    <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
-    <script src="{% static 'admin/js/popper.min.js' %}"></script>
-    <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
-    <script src="{% static 'admin/js/Chart.bundle.js' %}"></script>
-    <script src="{% static 'admin/js/chart.js' %}"></script>
-    <script src="{% static 'admin/js/app.js' %}"></script>
-
-    <!-- Custom JS to load data and charts -->
-    <script>
-        // Handle sales chart filter change
-        document.getElementById('salesFilter').addEventListener('change', function() {
-            updateSalesChart(this.value);
-        });
-
-        // Initialize the sales chart with Chart.js
-        var ctx = document.getElementById('salesChart').getContext('2d');
-        var salesChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June'],  // Example data
-                datasets: [{
-                    label: 'Sales',
-                    data: [10, 20, 30, 40, 50, 60],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            }
-        });
-
-        // Update the sales chart when filter changes
-        function updateSalesChart(filter) {
-            // Fetch new data based on the filter (yearly, monthly, etc.)
-            // Replace the following with actual logic to get filtered data
-            if (filter === 'monthly') {
-                salesChart.data.labels = ['January', 'February', 'March'];
-                salesChart.data.datasets[0].data = [50, 30, 80];
-            } else if (filter === 'weekly') {
-                salesChart.data.labels = ['Week 1', 'Week 2', 'Week 3'];
-                salesChart.data.datasets[0].data = [10, 25, 45];
-            } else {
-                salesChart.data.labels = ['2019', '2020', '2021'];
-                salesChart.data.datasets[0].data = [200, 300, 400];
-            }
-            salesChart.update();
-        }
-
-        // Load the top 10 best-selling products, categories, and brands
-        function loadTopSellingData() {
-            // Replace this with AJAX calls to get actual data
-            document.getElementById('topProducts').innerHTML = '<li>Product A</li><li>Product B</li>';
-            document.getElementById('topCategories').innerHTML = '<li>Category X</li><li>Category Y</li>';
-            document.getElementById('topBrands').innerHTML = '<li>Brand M</li><li>Brand N</li>';
-        }
-
-        // On page load, load the top-selling data
-        window.onload = function() {
-            loadTopSellingData();
-        }
-    </script>
 </body>
 
 </html>

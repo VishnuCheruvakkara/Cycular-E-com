@@ -18,23 +18,85 @@ from datetime import datetime
 from decimal import Decimal
 from wallet.models import Wallet,Transaction
 from products.models import Brand,Category,ProductVariant
-
+from django.db.models import Sum
 
 #############################   seller home    ########################################################
-
 @login_required(login_url='admin_side:seller-login')
 @never_cache
 def SellerHome(request):
+    # Check if the user is a superuser
     if not request.user.is_superuser:
         return redirect('core:index')
 
+    # User statistics
     user_count = User.objects.filter(is_superuser=False).count()
-    active_user_count = User.objects.filter(is_superuser=False,is_active=True).count()
-    inactive_user_count = User.objects.filter(is_superuser=False,is_active=False).count()
+    active_user_count = User.objects.filter(is_superuser=False, is_active=True).count()
+    inactive_user_count = User.objects.filter(is_superuser=False, is_active=False).count()
 
+    # Product statistics
     product_variant_count = ProductVariant.objects.count()  # Count product variants
-    brand_count = Brand.objects.count()
-    category_count = Category.objects.count()
+    brand_count = Brand.objects.count()  # Count brands
+    category_count = Category.objects.count()  # Count categories
+
+     # Query the top 10 best-selling products
+    top_selling_products = (
+        OrderItem.objects.filter(order_item_status='Delivered')
+        .values('product_variant')
+        .annotate(total_quantity_sold=Sum('quantity'))
+        .order_by('-total_quantity_sold')[:10]
+    )
+     # Print the total_quantity_sold for debugging
+    for item in top_selling_products:
+        print(f"Product Variant ID: {item['product_variant']}, Total Quantity Sold: {item['total_quantity_sold']}")
+    
+     # Prepare a list of product variants with their total quantity sold
+    product_variants = []
+    for item in top_selling_products:
+        variant = ProductVariant.objects.get(id=item['product_variant'])
+        product_variants.append({
+            'variant': variant,
+            'total_quantity_sold': item['total_quantity_sold'],
+            'color': variant.color,  # Add color
+            'size': variant.size,     # Add size
+        })
+    print(product_variants)
+    # Prepare context for rendering
+
+    # Query the top 10 best-selling categories
+    top_selling_categories = (
+        OrderItem.objects.filter(order_item_status='Delivered')
+        .values('product_variant__product__category')  # Group by category
+        .annotate(total_quantity_sold=Sum('quantity'))  # Sum up the quantity sold
+        .order_by('-total_quantity_sold')[:10]  # Order by total sold, limit to top 10
+    )
+
+    # Prepare a list of categories with their total quantity sold
+    categories = []
+    for item in top_selling_categories:
+        category = Category.objects.get(id=item['product_variant__product__category'])
+        categories.append({
+            'category': category,
+            'total_quantity_sold': item['total_quantity_sold'],
+        })
+    
+    # Query the top 10 best-selling brands
+    top_selling_brands = (
+        OrderItem.objects.filter(order_item_status='Delivered')  # Filter delivered orders
+        .values('product_variant__product__brand')  # Group by brand
+        .annotate(total_quantity_sold=Sum('quantity'))  # Sum the quantities sold
+        .order_by('-total_quantity_sold')[:10]  # Order by total sold and limit to top 10
+    )
+
+    # Prepare a list of brands with their total quantity sold
+    brands = []
+    for item in top_selling_brands:
+        brand = Brand.objects.get(id=item['product_variant__product__brand'])
+        brands.append({
+            'brand': brand,
+            'total_quantity_sold': item['total_quantity_sold'],
+            'description': brand.description,
+        })
+
     context = {
         'user_count': user_count,
         'product_variant_count': product_variant_count,
@@ -42,8 +104,13 @@ def SellerHome(request):
         'category_count': category_count,
         'active_user_count': active_user_count,
         'inactive_user_count': inactive_user_count,
+        'product_variants': product_variants,
+        'top_selling_categories': categories,
+        'top_selling_brands': brands,
+       
     }
-    return render(request,'admin_side/admin_dashboard.html',context)
+    # Render the template with the context
+    return render(request, 'admin_side/admin_dashboard.html', context)
 
 #############################   seller login  ########################################################
 
