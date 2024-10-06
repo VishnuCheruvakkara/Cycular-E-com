@@ -67,9 +67,104 @@
                 </div>
             </div>
 
-            <!-- Sales Chart with Filter -->
+
+
+            <!-- Sales Chart Section -->
+         
            
-      
+               
+       
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="card shadow-sm p-4">
+                        <p class="mb-3">This chart displays the total sales over the selected time period for the delivered products. Use the options below to filter the data.</p>
+                        
+                        <!-- Filter Options Bar -->
+                        <div class="d-flex justify-content-between mb-4">
+                            <div class="btn-group" role="group" aria-label="Filter Sales">
+                                <a href="?filter=day" class="btn btn-outline-primary {% if filter_option == 'day' %}active{% endif %}">Today</a>
+                                <a href="?filter=week" class="btn btn-outline-primary {% if filter_option == 'week' %}active{% endif %}">This Week</a>
+                                <a href="?filter=month" class="btn btn-outline-primary {% if filter_option == 'month' %}active{% endif %}">This Month</a>
+                                <a href="?filter=year" class="btn btn-outline-primary {% if filter_option == 'year' %}active{% endif %}">This Year</a>
+                            </div>
+                        </div>
+            
+                        <!-- Sales Chart -->
+                        <div class="chart-container">
+                            <canvas id="salesChart" class="w-100" style="height: 500px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                var ctx = document.getElementById('salesChart').getContext('2d');
+                var salesChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: JSON.parse('{{ labels|escapejs }}'),  // X-axis: Time periods
+                        datasets: [{
+                            label: 'Sales',
+                            data: JSON.parse('{{ data|escapejs }}'),  // Y-axis: Sales data
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Light color
+                            borderColor: 'rgba(75, 192, 192, 1)',  // Darker color
+                            borderWidth: 2,
+                            fill: true // Fill the area under the line
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Time Period',
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Sales',
+                                    font: {
+                                        size: 14
+                                    }
+                                },
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 100 // Adjust the step size as needed for readability
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return 'Sales: ' + tooltipItem.raw.toLocaleString(); // Format the sales numbers
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+
+
+
             <!-- Top Selling Products -->
             <div class="row mt-4">
                 <div class="col-lg-12">

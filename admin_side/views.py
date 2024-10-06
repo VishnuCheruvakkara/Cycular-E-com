@@ -20,13 +20,23 @@ from wallet.models import Wallet,Transaction
 from products.models import Brand,Category,ProductVariant
 from django.db.models import Sum
 
+from django.db.models import Sum
+from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYear
+from django.utils import timezone
+import json
+from django.db.models.functions import TruncHour
+
+
 #############################   seller home    ########################################################
+
+
 @login_required(login_url='admin_side:seller-login')
 @never_cache
 def SellerHome(request):
     # Check if the user is a superuser
     if not request.user.is_superuser:
         return redirect('core:index')
+    
 
     # User statistics
     user_count = User.objects.filter(is_superuser=False).count()
@@ -97,6 +107,130 @@ def SellerHome(request):
             'description': brand.description,
         })
 
+
+    
+
+    # Get filter option (default is 'month')
+    filter_option = request.GET.get('filter', 'month')
+    now = timezone.now()
+
+    # Initialize labels and data
+    labels = []
+    data = []
+
+    # Apply the filter based on the selected time period
+    if filter_option == 'day':
+        # Get today's date range
+        start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_of_day = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+        # Query today's orders
+        order_data = (
+            OrderItem.objects.filter(order__order_date__range=(start_of_day, end_of_day))
+            .annotate(time_period=TruncHour('order__order_date'))
+            .values('time_period')
+            .annotate(total_price=Sum('price'))
+            .order_by('time_period')
+        )
+
+        # Generate labels for the current day (hourly)
+        labels = [f"{now.strftime('%Y-%m-%d')} {hour}:00" for hour in range(24)]
+        
+        # Prepare data for the chart
+        data_dict = {label: 0 for label in labels}  # Initialize all hourly data to zero
+        for item in order_data:
+            time_label = item['time_period'].strftime('%Y-%m-%d %H:00')
+            if time_label in data_dict:
+                data_dict[time_label] = float(item['total_price'])
+
+        data = [data_dict[label] for label in labels]
+
+    elif filter_option == 'week':
+        # Get the start and end of the current week
+        start_of_week = now - timezone.timedelta(days=now.weekday())  # Monday
+        end_of_week = start_of_week + timezone.timedelta(days=6)  # Sunday
+
+        # Query this week's orders
+        order_data = (
+            OrderItem.objects.filter(order__order_date__range=(start_of_week, end_of_week))
+            .annotate(time_period=TruncDay('order__order_date'))
+            .values('time_period')
+            .annotate(total_price=Sum('price'))
+            .order_by('time_period')
+        )
+
+        # Generate labels for the days of the week (Monday to Sunday)
+        labels = [(start_of_week + timezone.timedelta(days=i)).strftime('%A') for i in range(7)]
+
+        # Prepare data for the chart
+        data_dict = {label: 0 for label in labels}
+        for item in order_data:
+            time_label = item['time_period'].strftime('%A')
+            if time_label in data_dict:
+                data_dict[time_label] = float(item['total_price'])
+
+        data = [data_dict[label] for label in labels]
+
+    elif filter_option == 'month':
+        # Get the current month's range
+        start_of_month = now.replace(day=1)
+        end_of_month = (start_of_month + timezone.timedelta(days=32)).replace(day=1) - timezone.timedelta(days=1)
+
+        # Query this month's orders
+        order_data = (
+            OrderItem.objects.filter(order__order_date__range=(start_of_month, end_of_month))
+            .annotate(time_period=TruncDay('order__order_date'))
+            .values('time_period')
+            .annotate(total_price=Sum('price'))
+            .order_by('time_period')
+        )
+
+        # Generate labels for all days in the current month
+        days_in_month = (end_of_month - start_of_month).days + 1
+        labels = [(start_of_month + timezone.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(days_in_month)]
+
+        # Prepare data for the chart
+        data_dict = {label: 0 for label in labels}
+        for item in order_data:
+            time_label = item['time_period'].strftime('%Y-%m-%d')
+            if time_label in data_dict:
+                data_dict[time_label] = float(item['total_price'])
+
+        data = [data_dict[label] for label in labels]
+
+    elif filter_option == 'year':
+        # Get the current year's range
+        start_of_year = now.replace(month=1, day=1)
+        end_of_year = now.replace(month=12, day=31)
+
+        # Query this year's orders
+        order_data = (
+            OrderItem.objects.filter(order__order_date__range=(start_of_year, end_of_year))
+            .annotate(time_period=TruncMonth('order__order_date'))
+            .values('time_period')
+            .annotate(total_price=Sum('price'))
+            .order_by('time_period')
+        )
+
+        # Generate labels for all months in a year (January to December)
+        labels = [datetime(now.year, month, 1).strftime('%Y-%m') for month in range(1, 13)]
+
+        # Prepare data for the chart
+        data_dict = {label: 0 for label in labels}
+        for item in order_data:
+            time_label = item['time_period'].strftime('%Y-%m')
+            if time_label in data_dict:
+                data_dict[time_label] = float(item['total_price'])
+
+        data = [data_dict[label] for label in labels]
+
+    # Debugging: Print order_data to check results
+    print(f"Filter Option: {filter_option}")
+    print(f"Order Data: {list(order_data)}")  # Print actual data for debugging
+    print(f"Labels: {labels}")
+    print(f"Data: {data}")
+        
+   
     context = {
         'user_count': user_count,
         'product_variant_count': product_variant_count,
@@ -107,7 +241,10 @@ def SellerHome(request):
         'product_variants': product_variants,
         'top_selling_categories': categories,
         'top_selling_brands': brands,
-       
+        
+        'labels': json.dumps(labels),
+        'data': json.dumps(data),
+        'filter_option': filter_option, 
     }
     # Render the template with the context
     return render(request, 'admin_side/admin_dashboard.html', context)
