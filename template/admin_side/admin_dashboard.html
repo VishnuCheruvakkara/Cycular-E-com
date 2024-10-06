@@ -68,29 +68,7 @@
             </div>
 
             <!-- Sales Chart with Filter -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Sales Chart</h4>
-                            <div class="form-group">
-                                <label for="salesFilter">Filter By:</label>
-                                <select id="salesFilter" class="form-control">
-                                    <option value="yearly">Yearly</option>
-                                    <option value="monthly">Monthly</option>
-                                    <option value="weekly">Weekly</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div style="width: 80%; margin: 0 auto;"> <!-- Wrapper for chart -->
-                                <canvas id="salesChart" style="max-width: 100%; height: 300px;"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+           
       
             <!-- Top Selling Products -->
             <div class="row mt-4">
@@ -135,24 +113,24 @@
                 
             <!-- Best-Selling Categories and Brands -->
             <div class="row mt-4">
-                <!-- Left side: Best-Selling Categories -->
-<div class="col-md-6">
-    <div class="card">
-        <div class="card-header">
-            <h4 class="card-title">Top 10 Best-Selling Categories</h4>
-        </div>
-        <div class="card-body">
-            <div class="scrollable-content" style="max-height: 400px; overflow-y: auto;">
-                {% for category in top_selling_categories %}
-                <div class="info-box" style="background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; height: 80px;">
-                    <h5 style="margin: 0; font-weight: bold; color: #333;">Category: <span style="color:#009efb;">{{ category.category.name }}</span></h5>
-                    <p><b>Total Sold: </b>{{ category.total_quantity_sold }}</p>
+            <!-- Left side: Best-Selling Categories -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Top 10 Best-Selling Categories</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="scrollable-content" style="max-height: 400px; overflow-y: auto;">
+                            {% for category in top_selling_categories %}
+                            <div class="info-box" style="background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; height: 80px;">
+                                <h5 style="margin: 0; font-weight: bold; color: #333;">Category: <span style="color:#009efb;">{{ category.category.name }}</span></h5>
+                                <p><b>Total Sold: </b>{{ category.total_quantity_sold }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-                {% endfor %}
             </div>
-        </div>
-    </div>
-</div>
 
 
                 <!-- Right side: Best-Selling Brands -->
@@ -187,55 +165,7 @@
             <script src="{% static 'admin/js/chart.js' %}"></script>
             <script src="{% static 'admin/js/app.js' %}"></script>
 
-            <!-- Custom JS to load data and charts -->
-            <script>
-                // Handle sales chart filter change
-                document.getElementById('salesFilter').addEventListener('change', function() {
-                    updateSalesChart(this.value);
-                });
-
-                // Initialize the sales chart with Chart.js
-                var ctx = document.getElementById('salesChart').getContext('2d');
-                var salesChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['January', 'February', 'March', 'April', 'May', 'June'],  // Example data
-                        datasets: [{
-                            label: 'Sales',
-                            data: [10, 20, 30, 40, 50, 60],
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1
-                        }]
-                    }
-                });
-
-                // Update the sales chart when filter changes
-                function updateSalesChart(filter) {
-                    // Fetch new data based on the filter (yearly, monthly, etc.)
-                    // Replace the following with actual logic to get filtered data
-                    if (filter === 'monthly') {
-                        salesChart.data.labels = ['January', 'February', 'March'];
-                        salesChart.data.datasets[0].data = [50, 30, 80];
-                    } else if (filter === 'weekly') {
-                        salesChart.data.labels = ['Week 1', 'Week 2', 'Week 3'];
-                        salesChart.data.datasets[0].data = [10, 25, 45];
-                    } else {
-                        salesChart.data.labels = ['2019', '2020', '2021'];
-                        salesChart.data.datasets[0].data = [200, 300, 400];
-                    }
-                    salesChart.update();
-                }
-
-                // Load the top 10 best-selling products, categories, and brands
-                function loadTopSellingData() {
-                    // Replace this with AJAX calls to get actual data
-                    document.getElementById('top-selling-products').innerHTML = 'Top Selling Products Loaded!';
-                }
-
-                // Initial data load
-                loadTopSellingData();
-            </script>
+          
         </div>
     </div>
 </body>
