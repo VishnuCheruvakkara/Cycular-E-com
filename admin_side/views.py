@@ -283,8 +283,9 @@ def SellerLogout(request):
     return redirect('admin_side:seller-login')
 
 #############################   user management  ########################################################
-@never_cache
+
 @login_required(login_url='admin_side:seller_login')
+@never_cache
 def UserManagement(request):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -316,6 +317,7 @@ def UserManagement(request):
 #############################   category management  ########################################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def UserView(request,user_id):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -429,7 +431,8 @@ def OrderManagement(request):
 
 ########################## Views for handle the sales report  ####################
 
-
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def sales_report(request):
     # Fetching orders
     orders = Order.objects.all()
@@ -490,7 +493,8 @@ def sales_report(request):
 
 ########################  view for download sales reoprt   ##########################
 
-
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def generate_sales_report_pdf(orders, total_orders, total_sales, total_discounts, date_range=None, start_date=None, end_date=None):
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')

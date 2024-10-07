@@ -13,6 +13,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from cart.models import CartItem
 from wishlist.models import Wishlist
+from django.views.decorators.cache import never_cache
 
 from django.db.models import Q
 
@@ -21,6 +22,7 @@ from django.db.models import Q
 ###################### Product Management page Admin side #################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def ProductManagement(request):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -50,6 +52,7 @@ def ProductManagement(request):
 ###################### Add product page Admin side #################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def AddProduct(request):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -67,8 +70,8 @@ def AddProduct(request):
 
 
 ###################### Edit productpage Management page Admin side #################################
-
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def EditProduct(request,product_id):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -92,6 +95,8 @@ def EditProduct(request,product_id):
 
 ####################### delete product Admin side ########################################
 #note 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def DeleteProduct(request,product_id):
     product=get_object_or_404(Product,id=product_id)
     product.delete()
@@ -100,7 +105,8 @@ def DeleteProduct(request,product_id):
 
 ####################### image resize function Admin side ########################################
 
-
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def ResizeImage(image, max_width=800, max_height=600,filename=None):
     # Open the image file
     img = Image.open(image)
@@ -120,6 +126,7 @@ def ResizeImage(image, max_width=800, max_height=600,filename=None):
 ####################### add product varient Admin side ########################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def product_variant(request, product_id):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -171,6 +178,8 @@ def product_variant(request, product_id):
 
 ##################  Product soft-delete  Admin side ####################################
 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 @require_POST
 def toggle_product_status(request):
     product_id = request.POST.get('product_id')
@@ -185,6 +194,7 @@ def toggle_product_status(request):
 ##################  Product View Admin side ####################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def product_view(request,product_id):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -228,6 +238,7 @@ def product_view(request,product_id):
 ################## product category  page  Admin side ################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def category_management(request):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -257,6 +268,8 @@ def category_management(request):
 
 ##################### Delete Category Admin side ############################
 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def delete_category(request,category_id):
     category=get_object_or_404(Category,id=category_id)
     category.delete()
@@ -265,6 +278,8 @@ def delete_category(request,category_id):
 
 ##################### Delete Brand Admin side ##############################
 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def delete_brand(request,brand_id):
     brand=get_object_or_404(Brand,id=brand_id)
     brand.delete()
@@ -273,6 +288,8 @@ def delete_brand(request,brand_id):
 
 #################### Delete Size Admin side ########################
 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def delete_size(request,size_id):
     size=get_object_or_404(Size,id=size_id)
     size.delete()
@@ -281,6 +298,8 @@ def delete_size(request,size_id):
 
 ################### Delete Color Admin side ##########################
 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def delete_color(request,color_id):
     color=get_object_or_404(Color,id=color_id)
     color.delete()
@@ -291,6 +310,7 @@ def delete_color(request,color_id):
 ################## add category Admin Side ################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def add_category(request):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -315,6 +335,7 @@ def add_category(request):
 ################## edit category Admin Side Admin Side ################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def edit_category(request,category_id):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -342,6 +363,7 @@ def edit_category(request,category_id):
 ############################ add-brand Admin Side ##################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def add_brand(request):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -366,6 +388,7 @@ def add_brand(request):
 ############################ edit-brand Admin Side #################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def edit_brand(request,brand_id):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -392,6 +415,7 @@ def edit_brand(request,brand_id):
 ############################ add-size Admin Side ##################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def add_size(request):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -416,6 +440,7 @@ def add_size(request):
 ############################ edit-size Admin Side #################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def edit_size(request,size_id):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -441,6 +466,8 @@ def edit_size(request,size_id):
 
 ############################ add-color Admin Side ##################################d
 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def add_color(request):
     if request.method == 'POST':
         form = ColorForm(request.POST)
@@ -462,6 +489,7 @@ def add_color(request):
 ############################ edit-color Admin Side #################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def edit_color(request,color_id):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -486,6 +514,8 @@ def edit_color(request,color_id):
 
 ####################### delete product variant Admin side ########################################
 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def delete_product_variant(request,variant_id):
     variant=get_object_or_404(ProductVariant,id=variant_id)
     product_id=variant.product.id
@@ -497,6 +527,7 @@ def delete_product_variant(request,variant_id):
 ####################### edit variant Admin side ################################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def edit_variant(request, variant_id):
     if not request.user.is_superuser:
         return redirect('core:index')
@@ -585,9 +616,10 @@ def single_product_view(request, variant_id):
     return render(request, 'products/single-product.html', context)
 
 
-########################### product-variant-data-view #######################
+########################### product-variant-data-view admin-side #######################
 
 @login_required(login_url='admin_side:seller-login')
+@never_cache
 def product_variant_data(request,variant_id):
     if not request.user.is_superuser:
         return redirect('core:index')
