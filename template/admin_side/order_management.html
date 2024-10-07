@@ -76,9 +76,9 @@
                    
                 <div class="row">
                     <div class="col-12">
-                        <form class="mb-4" role="search">
+                        <form class="mb-4" role="search" method="GET" action="{% url 'admin_side:order-management' %}">
                             <div class="input-group col-md-6 px-0">
-                                <input class="form-control" type="search" placeholder="Search" aria-label="Search" required>
+                                <input class="form-control" type="search" name="search" placeholder="Search" aria-label="Search" value="{{ search_term }}" required>
                                 <div class="input-group-append">
                                     <button class="btn btn-outline-primary" type="submit">
                                         <i class="fa fa-search" aria-hidden="true"></i>

@@ -331,6 +331,11 @@ def UserView(request,user_id):
 @never_cache
 def OrderManagement(request):
     order_items = OrderItem.objects.all().order_by('-order__order_date')
+    # Check if there is a search term
+    search_term = request.GET.get('search', '')
+    if search_term:
+        order_items = order_items.filter(product_variant__product__name__icontains=search_term)
+
     paginator= Paginator(order_items,5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -428,6 +433,17 @@ def OrderManagement(request):
 def sales_report(request):
     # Fetching orders
     orders = Order.objects.all()
+    # Get the search query
+    query = request.GET.get('q', '')
+
+    customers=User.objects.filter(is_superuser=False)
+
+    if query:
+        customers = customers.filter(
+            Q(username__icontains=query) |Q(email__icontains=query)
+        )
+        # Filter orders by the customers matching the search query
+        orders = orders.filter(user__in=customers)
 
     # Apply filtering based on query parameters
     date_range = request.GET.get('date_range')
@@ -448,12 +464,17 @@ def sales_report(request):
         orders = orders.filter(order_date__gte=timezone.now() - timezone.timedelta(days=30))
     elif date_range == 'last_1_year':
         orders = orders.filter(order_date__gte=timezone.now() - timezone.timedelta(days=365))
-   
+    
     # Calculate totals
     total_orders = orders.count()
     total_sales = sum(order.total_price for order in orders)
     total_discounts = sum(order.coupon_discount_total for order in orders)
-   
+    
+    # Paginate the orders (based on Order model)
+    page_number = request.GET.get('page')
+    paginator = Paginator(orders, 10)  # Show 10 orders per page
+    paginated_orders = paginator.get_page(page_number)  # Change order_items to paginated_orders
+
     # Check if the user requested a PDF download
     if 'download_pdf' in request.GET:
         return generate_sales_report_pdf(orders, total_orders, total_sales, total_discounts, date_range, start_date, end_date)
@@ -462,7 +483,7 @@ def sales_report(request):
         'total_orders': total_orders,
         'total_sales': total_sales,
         'total_discounts': total_discounts,
-        'orders': orders,
+        'orders': paginated_orders,
     }
     return render(request, 'admin_side/admin_sales_report.html', context)
 
@@ -489,7 +510,7 @@ def generate_sales_report_pdf(orders, total_orders, total_sales, total_discounts
     styles = getSampleStyleSheet()
 
     # Add a logo (image), using your specified path
-    logo_path = 'static/assets/images/cycular/cycular-logo.png'  # Update to your logo path
+    logo_path = 'static/assets/images/cycular/cycular_black.png'  # Update to your logo path
     try:
         logo = Image(logo_path, width=100, height=100)
         logo.hAlign = 'CENTER'

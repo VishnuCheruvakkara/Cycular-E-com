@@ -17,7 +17,7 @@ from django.utils import timezone
 @never_cache
 def coupon_management(request):
     errors = {}
-    
+    search_term = request.GET.get('search', '') 
     if request.method == 'POST':
         code = request.POST.get('code')
         discount_value = request.POST.get('discount_value')
@@ -68,6 +68,8 @@ def coupon_management(request):
             messages.error(request, 'There were errors in your form.')
     
     coupon_list = Coupon.objects.filter(active=True, valid_until__gte=timezone.now()).order_by('valid_until')
+    if search_term:
+        coupon_list = coupon_list.filter(code__icontains=search_term)  # Filter by coupon code
     paginator = Paginator(coupon_list, 5)  # Show 10 coupons per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

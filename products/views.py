@@ -131,8 +131,6 @@ def product_variant(request, product_id):
             variant = form.save(commit=False)
             variant.product = product 
 
-          
-
             # Process and resize the cropped images
             for i in range(1, 4):
                 cropped_data = request.POST.get(f'image{i}_cropped_data')
