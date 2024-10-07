@@ -20,7 +20,6 @@ from wallet.models import Wallet,Transaction
 from products.models import Brand,Category,ProductVariant
 from django.db.models import Sum
 
-from django.db.models import Sum
 from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYear
 from django.utils import timezone
 import json
@@ -37,8 +36,6 @@ def SellerHome(request):
     # Check if the user is a superuser
     if not request.user.is_superuser:
         return redirect('core:index')
-    
-
     # User statistics
     user_count = User.objects.filter(is_superuser=False).count()
     active_user_count = User.objects.filter(is_superuser=False, is_active=True).count()
@@ -284,7 +281,7 @@ def SellerLogout(request):
 
 #############################   user management  ########################################################
 
-@login_required(login_url='admin_side:seller_login')
+@login_required(login_url='admin_side:seller-login')
 @never_cache
 def UserManagement(request):
     if not request.user.is_superuser:

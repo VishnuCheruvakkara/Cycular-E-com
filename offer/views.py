@@ -4,9 +4,13 @@ from .models import ProductVariantOffer, ProductVariant,Brand,BrandOffer
 from django.utils import timezone
 from django.http import JsonResponse
 import json
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
-
+#######################  offer page #####################
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def offer_page(request):
     product_variants = ProductVariant.objects.select_related('product', 'size','color').filter(status=True) 
     # Fetch product variant offers related to those variants
@@ -27,7 +31,8 @@ def offer_page(request):
 
 ############### add procut offer to the model  #################3
 
-
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def add_product_variant_offer(request):
     if request.method == 'POST':
         product_variant_id = request.POST.get('product_variant_id')
@@ -104,7 +109,8 @@ def add_product_variant_offer(request):
 
 ################ product variant offer  soft delete  ##############################
 
-
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def soft_delete_product_offer(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -119,6 +125,9 @@ def soft_delete_product_offer(request):
     return JsonResponse({'success': False, 'message': 'Invalid request.'})
 
 ####################  add brand offer  ###################
+
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def add_brand_offer(request):
     if request.method == 'POST':
         brand_id = request.POST.get('brand')
@@ -203,7 +212,8 @@ def add_brand_offer(request):
 
 #####################  soft delete of  #########################
 
-
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def soft_delete_brand_offer(request):
     if request.method == 'POST':
         data = json.loads(request.body)

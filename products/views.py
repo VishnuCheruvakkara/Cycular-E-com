@@ -14,8 +14,8 @@ from django.contrib.auth.decorators import login_required
 from cart.models import CartItem
 from wishlist.models import Wishlist
 from django.views.decorators.cache import never_cache
-
 from django.db.models import Q
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
 
@@ -84,7 +84,6 @@ def EditProduct(request,product_id):
             return redirect('products:product-management')
         else:
             messages.error(request, 'There was an error updating the product. Please check the form for errors.',extra_tags='admin')
-            
     else:
         form=ProductForm(instance=product)
     context={

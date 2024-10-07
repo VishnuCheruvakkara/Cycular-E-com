@@ -4,10 +4,11 @@
 <!--Get your own code at fontawesome.com-->
 <div class="main-wrapper">
     <div class="header">
-      
-            <a href="index-2.html" style="margin-left: 45%;">
-                <img src="{% static 'assets/images/cycular/cycular_black.png' %}" alt="Cycular Admin" style="width: 60px; height: auto;">
+        <div class="header-left">
+            <a href="{% url 'admin_side:seller-home' %}" class="logo">
+                <img src="{% static 'assets/images/cycular/cycular_white.png' %}"  width="55" height="55" alt=""> <span><b>Cycular</b></span>
             </a>
+        </div>
       
         <a id="toggle_btn" href="javascript:void(0);"><i class="fa fa-bars"></i></a>
         <a id="mobile_btn" class="mobile_btn float-left" href="#sidebar"><i class="fa fa-bars"></i></a>

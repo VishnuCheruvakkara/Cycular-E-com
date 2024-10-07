@@ -84,7 +84,8 @@ def coupon_management(request):
 
 ######################  edit button view function logic  ##########################
 
-
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def edit_coupon(request, coupon_id):
     errors = {}
     coupon = get_object_or_404(Coupon, id=coupon_id)
@@ -149,6 +150,8 @@ def edit_coupon(request, coupon_id):
 
 ####################  soft delete for the created coupon  #########################
 
+@login_required(login_url='admin_side:seller-login')
+@never_cache
 def delete_coupon(request, coupon_id):
     if request.method == 'POST':
         print(f"Received POST request to delete coupon {coupon_id}")
