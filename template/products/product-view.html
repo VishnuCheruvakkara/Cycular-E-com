@@ -1,5 +1,3 @@
-
-
 {% load static %}
 
 <!DOCTYPE html>
@@ -10,8 +8,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
-    <title>Category-page</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/img/cycular-favicon.ico' %}">
+    <title>Product View</title>
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
@@ -39,6 +37,9 @@
             <li class="breadcrumb-item active" aria-current="page">Product View</li>
         </ol>
     </nav>
+    {% block admin-messages%}
+    {% include 'partials/admin-message.html' %}
+    {% endblock %}
     <div class="col-sm-4 col-3">
         <h4 class="page-title" style="margin-left:-15px;">Product View</h4>
     </div>
@@ -86,9 +87,19 @@
             <a href="{% url 'products:product-variant' product.id %}" class="btn btn btn-primary btn-rounded float-right"><i class="fa fa-plus"></i> Add Variants</a>
         </div>
     </div>
-    {% block admin-messages%}
-    {% include 'partials/admin-message.html' %}
-    {% endblock %}
+
+    <form class="mb-4" role="search" method="GET" action="">
+        <div class="input-group col-md-6 px-0">
+            <input class="form-control" type="search" name="query" placeholder="Search Color, Size (e.g. Red, Medium)" aria-label="Search Color, Size">
+            <div class="input-group-append">
+                <button class="btn btn-outline-primary" type="submit">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+    
+   
     <div class="row">
         <div class="col-md-12">
             <div class="table-responsive">
@@ -98,6 +109,7 @@
                             <th>Sl.No</th>
                             <th>Image</th>
                             <th>Size</th>
+                            <th>Color</th>
                             <th style="text-align: center;">status</th>
                             <th style="text-align: center;">View</th>
                             <th class="text-right">Action</th>
@@ -109,6 +121,7 @@
                             <td>{{forloop.counter}}</td>
                             <td><img width="40" height="40" src="{{variant.image1.url }}" class="rounded-circle m-r-5" alt=""></td>
                             <td>{{variant.size}}</td>
+                            <td>{{variant.color}}</td>
                             <td style="text-align: center;">
                                 <button class="btn btn-sm">
                                     <span class="custom-badge status-{{ variant.status|yesno:'green,red' }}">

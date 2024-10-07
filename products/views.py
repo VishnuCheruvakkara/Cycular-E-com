@@ -13,8 +13,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from cart.models import CartItem
 from wishlist.models import Wishlist
-from offer.models import ProductVariantOffer,BrandOffer
-from decimal import Decimal, ROUND_DOWN
+
+from django.db.models import Q
 
 # Create your views here.
 
@@ -24,8 +24,15 @@ from decimal import Decimal, ROUND_DOWN
 def ProductManagement(request):
     if not request.user.is_superuser:
         return redirect('core:index')
-    products=Product.objects.all()
+    # Get the search query
+    query = request.GET.get('q', '')
 
+    products=Product.objects.all()
+        
+    if query:
+        products = products.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
     # Set up pagination.
     paginator = Paginator(products, 5)  
     page = request.GET.get('page')
@@ -185,7 +192,26 @@ def product_view(request,product_id):
         return redirect('core:index')
     product=get_object_or_404(Product,id=product_id)
     product_variants=product.product_variants.all()
-                                                                   
+    
+        
+    # Check for the search parameter
+    search_query = request.GET.get('query', '').strip()
+
+    # Initialize the filter conditions
+    filter_conditions = Q()
+
+    # Only proceed if the search query is not empty
+    if search_query:
+        # Split the search query by comma or space
+        search_terms = [term.strip() for term in search_query.split(',')]
+
+        for term in search_terms:
+            # Add conditions for color and size
+            filter_conditions |= Q(color__name__iexact=term) | Q(size__name__iexact=term)
+
+        # Apply the filter
+        product_variants = product_variants.filter(filter_conditions).distinct()
+    
     # Set up pagination.
     paginator = Paginator(product_variants, 5)  
     page = request.GET.get('page')

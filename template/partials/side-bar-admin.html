@@ -91,14 +91,11 @@
                 <a href="#" class="dropdown-toggle nav-link user-link" data-toggle="dropdown">
                     <span class="user-img">
                         <img class="rounded-circle" src="{% static 'admin/img/user.jpg' %}" width="24" alt="Admin">
-                        <span class="status online"></span>
+                    
                     </span>
                     <span>Admin</span>
                 </a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="profile.html">My Profile</a>
-                    <a class="dropdown-item" href="edit-profile.html">Edit Profile</a>
-                    <a class="dropdown-item" href="settings.html">Settings</a>
                     <a class="dropdown-item" href="{% url 'admin_side:seller-logout' %}">Logout</a>
                 </div>
             </li>
@@ -148,14 +145,9 @@
                         <a href="{% url 'admin_side:sales-report' %}"><i class="fas fa-chart-line"></i><span>Sales Report</span></a>
                     </li>
                     <li>
-                        <a href="departments.html"><i class="fa fa-check"></i> <span>Banner</span></a>
+                        <a href="{% url 'admin_side:seller-logout' %}"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
                     </li>
-                    <li>
-                        <a href="departments.html"><i class="fa fa-share-alt"></i> <span>Discount</span></a>
-                    </li>
-                    <li>
-                        <a href="settings.html"><i class="fa fa-cog"></i> <span>Settings</span></a>
-                    </li>
+                   
                 </ul>
             </div>
         </div>

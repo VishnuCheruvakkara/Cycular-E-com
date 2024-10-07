@@ -25,6 +25,7 @@ from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYea
 from django.utils import timezone
 import json
 from django.db.models.functions import TruncHour
+from django.db.models import Q
 
 
 #############################   seller home    ########################################################
@@ -48,11 +49,11 @@ def SellerHome(request):
     brand_count = Brand.objects.count()  # Count brands
     category_count = Category.objects.count()  # Count categories
 
-     # Query the top 10 best-selling products
+    # Query the top 10 best-selling products
     top_selling_products = (
         OrderItem.objects.filter(order_item_status='Delivered')
         .values('product_variant')
-        .annotate(total_quantity_sold=Sum('quantity'))
+        .annotate(total_quantity_sold=Sum('quantity'),total_revenue=Sum(F('quantity') * F('price')))
         .order_by('-total_quantity_sold')[:10]
     )
      # Print the total_quantity_sold for debugging
@@ -66,6 +67,7 @@ def SellerHome(request):
         product_variants.append({
             'variant': variant,
             'total_quantity_sold': item['total_quantity_sold'],
+            'total_revenue': item['total_revenue'],
             'color': variant.color,  # Add color
             'size': variant.size,     # Add size
         })
@@ -281,14 +283,21 @@ def SellerLogout(request):
     return redirect('admin_side:seller-login')
 
 #############################   user management  ########################################################
-
+@never_cache
 @login_required(login_url='admin_side:seller_login')
 def UserManagement(request):
     if not request.user.is_superuser:
         return redirect('core:index')
 
+    # Get the search query
+    query = request.GET.get('q', '')
+
     customers=User.objects.filter(is_superuser=False)
-   
+
+    if query:
+        customers = customers.filter(
+            Q(username__icontains=query) |Q(email__icontains=query)
+        )
     # Set up pagination.
     paginator = Paginator(customers, 5)  
     page = request.GET.get('page')

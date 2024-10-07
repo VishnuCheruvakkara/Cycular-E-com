@@ -9,8 +9,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
-    <title>Category-page</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/img/cycular-favicon.ico' %}">
+    <title>Product Management</title>
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
@@ -96,6 +96,18 @@
                         <a href="{% url 'products:add-product' %}" class="btn btn btn-primary btn-rounded float-right"><i class="fa fa-plus"></i> Add Products</a>
                     </div>
                 </div>
+                
+                <form class="mb-4" role="search" method="GET" action="{% url 'products:product-management' %}">
+                    <div class="input-group col-md-6 px-0">
+                        <input class="form-control" type="search" name="q" placeholder="Search" aria-label="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="submit">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
 				<div class="row">
 					<div class="col-md-12">
 						<div class="table-responsive">

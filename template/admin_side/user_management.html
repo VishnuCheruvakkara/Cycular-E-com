@@ -8,12 +8,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <link rel="shortcut icon" type="image/x-icon" href="admin/img/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/img/cycular-favicon.ico' %}">
     <title>User-management </title>
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+
+    
     <!--[if lt IE 9]>
 		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
 		<script src="{% static 'admin/js/respond.min.js' %}"></script>
@@ -41,9 +43,9 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <form class="mb-4" role="search">
+                        <form class="mb-4" role="search" method="GET" action="{% url 'admin_side:user-management' %}">
                             <div class="input-group col-md-6 px-0">
-                                <input class="form-control" type="search" placeholder="Search" aria-label="Search" required>
+                                <input class="form-control" type="search" name="q" placeholder="Search" aria-label="Search" >
                                 <div class="input-group-append">
                                     <button class="btn btn-outline-primary" type="submit">
                                         <i class="fa fa-search" aria-hidden="true"></i>
@@ -53,7 +55,7 @@
                         </form>
                     </div>
                 </div>
-            
+                
                 <div class="row">
                     <div class="col-12">
                         <div class="table-responsive">

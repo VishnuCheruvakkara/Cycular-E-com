@@ -5,8 +5,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
-    <title>Admin Dashboard</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/img/cycular-favicon.ico' %}">
+    <title>Admin Dashboard Cycular</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
@@ -77,7 +77,7 @@
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <div class="card shadow-sm p-4">
-                        <p class="mb-3">This chart displays the total sales over the selected time period for the delivered products. Use the options below to filter the data.</p>
+                        <p class="mb-3">This chart displays the total sales revenew over the selected time period for the delivered products. Use the options below to filter the data.</p>
                         
                         <!-- Filter Options Bar -->
                         <div class="d-flex justify-content-between mb-4">
@@ -106,7 +106,7 @@
                     data: {
                         labels: JSON.parse('{{ labels|escapejs }}'),  // X-axis: Time periods
                         datasets: [{
-                            label: 'Sales',
+                            label: 'Sales revenue',
                             data: JSON.parse('{{ data|escapejs }}'),  // Y-axis: Sales data
                             backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Light color
                             borderColor: 'rgba(75, 192, 192, 1)',  // Darker color
@@ -130,7 +130,7 @@
                             y: {
                                 title: {
                                     display: true,
-                                    text: 'Sales',
+                                    text: 'Sales Revenew (₹)',
                                     font: {
                                         size: 14
                                     }
@@ -154,7 +154,7 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(tooltipItem) {
-                                        return 'Sales: ' + tooltipItem.raw.toLocaleString(); // Format the sales numbers
+                                        return 'Sales revenue: ' + tooltipItem.raw.toLocaleString() +'₹'; // Format the sales numbers
                                     }
                                 }
                             }
@@ -183,6 +183,7 @@
                                             <th>Color</th>
                                             <th>Size</th>
                                             <th style="text-align: center;">Total Sold</th>
+                                            <th style="text-align: center;">Total Revenue</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -196,6 +197,7 @@
                                             <td>{{ product_variant.variant.color.name }}</td>
                                             <td>{{ product_variant.variant.size.name }}</td>
                                             <td style="text-align: center;">{{ product_variant.total_quantity_sold }}</td>
+                                            <td style="text-align: center;">{{ product_variant.total_revenue }} ₹</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
