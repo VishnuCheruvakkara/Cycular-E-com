@@ -23,9 +23,9 @@
                                 </a>
 
                                 <div class="banner-content">
-                                    <h4 class="banner-subtitle text-white"><a href="#">Your Guide To The World</a></h4><!-- End .banner-subtitle -->
-                                    <h2 class="banner-title text-white"><a href="#">Must-Read <br>Travel Books</a></h2><!-- End .banner-title -->
-                                    <a href="#" class="btn btn-outline-white-3 banner-link">Find out more<i class="icon-long-arrow-right"></i></a>
+                                    <h4 class="banner-subtitle text-white"><a href="#">Ride into Adventure</a></h4><!-- End .banner-subtitle -->
+                                    <h2 class="banner-title text-white"><a href="#">Discover Your Perfect Bike Today! <br></a></h2><!-- End .banner-title -->
+                                    <a href="{% url 'core:category-filter'%}"   class="btn btn-outline-white-3 banner-link">Find out more<i class="icon-long-arrow-right"></i></a>
                                 </div><!-- End .banner-content -->
                             </div><!-- End .banner -->
                         </div><!-- End .col-lg-6 -->
@@ -37,8 +37,8 @@
 
                                 <div class="banner-content banner-content-stretch">
                                     <h4 class="banner-subtitle text-white"><a href="#">New This Week</a></h4><!-- End .banner-subtitle -->
-                                    <h3 class="banner-title text-white"><a href="#">Discover Our <br>Best Romance <br>Books</a></h3><!-- End .banner-title -->
-                                    <a href="#" class="btn btn-outline-white-3 banner-link">Discover Now<i class="icon-long-arrow-right"></i></a>
+                                    <h3 class="banner-title text-white"><a href="#">Discover Our <br>MTB <br>Bikes</a></h3><!-- End .banner-title -->
+                                    <a href="{% url 'core:category-filter'%}"  class="btn btn-outline-white-3 banner-link">Discover Now<i class="icon-long-arrow-right"></i></a>
                                 </div><!-- End .banner-content -->
                             </div><!-- End .banner -->
                         </div><!-- End .col-lg-3 -->
@@ -50,9 +50,9 @@
                                 </a>
 
                                 <div class="banner-content">
-                                    <h4 class="banner-subtitle text-white d-lg-none d-xl-block"><a href="#">Deal Of The Day</a></h4><!-- End .banner-subtitle -->
-                                    <h3 class="banner-title text-white"><a href="#">20% Off Use <br>Code: <span>mybook</span></a></h3><!-- End .banner-title -->
-                                    <a href="#" class="btn btn-outline-white-3 banner-link">Shop Now<i class="icon-long-arrow-right"></i></a>
+                                    <h4 class="banner-subtitle text-white d-lg-none d-xl-block"><a href="#">Find Your Ride:</a></h4><!-- End .banner-subtitle -->
+                                    <h3 class="banner-title text-white"><a href="#">Performance <br>Comfort<span> and Style!</span></a></h3><!-- End .banner-title -->
+                                    <a href="{% url 'core:category-filter'%}"  class="btn btn-outline-white-3 banner-link">Shop Now<i class="icon-long-arrow-right"></i></a>
                                 </div><!-- End .banner-content -->
                             </div><!-- End .banner -->
 
@@ -62,9 +62,9 @@
                                 </a>
 
                                 <div class="banner-content">
-                                    <h4 class="banner-subtitle text-white d-lg-none d-xl-block"><a href="#">New Arrivals</a></h4><!-- End .banner-subtitle -->
-                                    <h3 class="banner-title text-white"><a href="#">Business <br>& Economics</a></h3><!-- End .banner-title -->
-                                    <a href="#" class="btn btn-outline-white-3 banner-link">Discover Now<i class="icon-long-arrow-right"></i></a>
+                                    <h4 class="banner-subtitle text-white d-lg-none d-xl-block"><a href="#">Feel the Speed</a></h4><!-- End .banner-subtitle -->
+                                    <h3 class="banner-title text-white"><a href="#">Embrace the Ride <br>Racing Bikes for Champions!</a></h3><!-- End .banner-title -->
+                                    <a href="{% url 'core:category-filter'%}"  class="btn btn-outline-white-3 banner-link">Discover Now<i class="icon-long-arrow-right"></i></a>
                                 </div><!-- End .banner-content -->
                             </div><!-- End .banner -->
                         </div><!-- End .col-lg-3 -->
@@ -81,7 +81,7 @@
                                     </span>
                                     <div class="icon-box-content">
                                         <h3 class="icon-box-title">Payment & Delivery</h3><!-- End .icon-box-title -->
-                                        <p>Free shipping for orders over $50</p>
+                                        <p>Free shipping for all orders</p>
                                     </div><!-- End .icon-box-content -->
                                 </div><!-- End .icon-box -->
                             </div><!-- End .col-sm-6 col-lg-3 -->
@@ -94,7 +94,7 @@
 
                                     <div class="icon-box-content">
                                         <h3 class="icon-box-title">Return & Refund</h3><!-- End .icon-box-title -->
-                                        <p>Free 100% money back guarantee</p>
+                                        <p>Trust full support</p>
                                     </div><!-- End .icon-box-content -->
                                 </div><!-- End .icon-box -->
                             </div><!-- End .col-sm-6 col-lg-3 -->
@@ -120,7 +120,7 @@
 
                                     <div class="icon-box-content">
                                         <h3 class="icon-box-title">Join Our Newsletter</h3><!-- End .icon-box-title -->
-                                        <p>10% off by subscribing to our newsletter</p>
+                                        <p>Get the instant notification </p>
                                     </div><!-- End .icon-box-content -->
                                 </div><!-- End .icon-box -->
                             </div><!-- End .col-sm-6 col-lg-3 -->
@@ -170,7 +170,9 @@
 
                                 {% for product_variant in product_variants %}
                                 <div class="product">
-                                    <span class="product-label label-sale">Sale</span>
+                                    {% if product_variant.get_discount_percentage != 0 %}
+                                    <span class="product-label label-sale" style="background-color:#1cc0a0"><b> Discount of {{product_variant.get_discount_percentage}}%</b></span>
+                                    {% endif %}
                                     <figure class="product-media">
                                         {% if product_variant.image1 %}
                                         <a href="{% url 'products:single-product-view' product_variant.id %}">
@@ -182,6 +184,15 @@
                                     </figure>
                                     
                                     <div class="product-body">
+                                        <div class="product-cat">
+
+                                            {% if product_variant.stock == 0 %}
+                                            <p class="text-danger"><b>out of stock</b></p>
+                                            {% elif product_variant.stock < 5 %}
+                                            <p><b>stock : {{product_variant.stock}} left </b></p>
+                                            {% endif %}
+                                           
+                                        </div><!-- End .product-cat -->
                                         <div class="product-cat" style="color:rgb(115, 114, 114)">
                                             From : <span>{{ product_variant.product.brand }}</span>
                                         </div>

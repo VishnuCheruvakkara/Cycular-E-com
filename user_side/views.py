@@ -114,7 +114,7 @@ def login_view(request):
                                extra_tags='user')
                 return redirect('user_side:sign-in')  # Fixed typo from 'idex' to 'index'
         else:
-            messages.warning(request, "Invalid email or password.................... Please try again.", extra_tags='user')
+            messages.warning(request, "Invalid email or password Please try again.", extra_tags='user')
     
     return render(request, 'user_side/sign-in.html')
 

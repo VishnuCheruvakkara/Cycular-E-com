@@ -13,12 +13,8 @@
     <meta name="description" content="Molla - Bootstrap eCommerce Template">
     <meta name="author" content="p-themes">
     <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png">
-    <link rel="manifest" href="assets/images/icons/site.html">
-    <link rel="mask-icon" href="assets/images/icons/safari-pinned-tab.svg" color="#666666">
-    <link rel="shortcut icon" href="assets/images/icons/favicon.ico">
+  
+    <link rel="shortcut icon" href="{% static 'assets/images/cycular/favicon-cycular-user.ico' %}">
     <meta name="apple-mobile-web-app-title" content="Molla">
     <meta name="application-name" content="Molla">
     <meta name="msapplication-TileColor" content="#cc9966">
@@ -70,40 +66,7 @@
                         </a>
                     </div><!-- End .header-left -->
 
-                    <div class="header-right">
-                        <div class="header-search header-search-extended header-search-visible header-search-no-radius">
-                            <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
-                            <form action="#" method="get">
-                                <div class="header-search-wrapper search-wrapper-wide">
-                                    <label for="q" class="sr-only">Search</label>
-                                    <input type="search" class="form-control" name="q" id="q" placeholder="Search product ..." required>
-
-                                    <div class="select-custom">
-                                        <select id="cat" name="cat">
-                                            <option value="">All Departments</option>
-                                            <option value="1">Fashion</option>
-                                            <option value="2">- Women</option>
-                                            <option value="3">- Men</option>
-                                            <option value="4">- Jewellery</option>
-                                            <option value="5">- Kids Fashion</option>
-                                            <option value="6">Electronics</option>
-                                            <option value="7">- Smart TVs</option>
-                                            <option value="8">- Cameras</option>
-                                            <option value="9">- Games</option>
-                                            <option value="10">Home &amp; Garden</option>
-                                            <option value="11">Motors</option>
-                                            <option value="12">- Cars and Trucks</option>
-                                            <option value="15">- Boats</option>
-                                            <option value="16">- Auto Tools &amp; Supplies</option>
-                                        </select>
-                                    </div><!-- End .select-custom -->
-                                    <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
-                                </div><!-- End .header-search-wrapper -->
-                            </form>
-                        </div><!-- End .header-search -->
-
-                        
-                        
+                    <div class="header-right">           
                         {% if user.is_authenticated %}
                         <div class="header-dropdown-link">
                             <div class="account">
@@ -145,15 +108,13 @@
                                     <p>Cart</p>
                                 </a>
 
-
-
-
-
-
-
                             </div><!-- End .cart-dropdown -->
                         </div>
                     </div><!-- End .header-right -->
+
+
+
+
                 </div><!-- End .container -->
             </div><!-- End .header-middle -->
 
@@ -162,27 +123,9 @@
                     <div style="background-color: #333; display: flex; width: 100%;">   
                         <div class="header-left">
                             <div class="dropdown category-dropdown">
-                                <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static" title="Browse Categories">
+                                <a href="#" class="dropdown-toggle" data-display="static" title="Browse Categories">
                                     Browse Categories
-                                </a>
-
-                                <div class="dropdown-menu">
-                                    <nav class="side-nav">
-                                        <ul class="menu-vertical sf-arrows">
-                                            <li class="item-lead"><a href="#">Best Books of 2018</a></li>
-                                            <li class="item-lead"><a href="#">New for 2019</a></li>
-                                            <li><a href="#">Art & Photography</a></li>
-                                            <li><a href="#">Biography</a></li>
-                                            <li><a href="#">Children's Books</a></li>
-                                            <li><a href="#">Crafts & Hobbies</a></li>
-                                            <li><a href="#">Fiction</a></li>
-                                            <li><a href="#">Food & Drink</a></li>
-                                            <li><a href="#">Graphic Novels, Anime & Manga</a></li>
-                                            <li><a href="#">Health & Fitness Books</a></li>
-                                            <li><a href="#">Young Adult</a></li>
-                                        </ul><!-- End .menu-vertical -->
-                                    </nav><!-- End .side-nav -->
-                                </div><!-- End .dropdown-menu -->
+                                </a>    
                             </div><!-- End .category-dropdown -->
                         </div><!-- End .header-left -->
 
@@ -190,18 +133,12 @@
                             
                             <nav class="main-nav">
 
-
-
-
-
-
-
-
                             </nav><!-- End .main-nav -->
+                            
                         </div>
 
                         <div class="header-right">
-                            <i class="la la-lightbulb-o"></i><p>Clearance Up to 30% Off</p>
+                            <i class="la la-lightbulb-o"></i><p>Free delivery</p>
                         </div><!-- End .header-right -->
                     </div>
                 </div><!-- End .container -->
@@ -247,7 +184,7 @@
             <div class="col-sm-12 col-lg-6 col-xl-5">
                 <div class="widget widget-about">
                     <a href="{% url 'core:index'%}" class="logo">
-                        <img src="{% static 'assets\images\cycular\cycular_black.png' %}" alt="Molla Logo" width="105" height="25">
+                        <img src="{% static 'assets\images\cycular\cycular_black.png' %}" alt="Cycular Logo" width="105" height="25">
                     </a>
                     <p>Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. </p>
                     
