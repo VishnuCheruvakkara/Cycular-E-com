@@ -29,7 +29,7 @@ from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle
 import os
-import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 import tempfile
 
@@ -91,10 +91,9 @@ def register_view(request):
 
 ###########################  login section #############################################
 
-@never_cache
 def login_view(request):
     if request.user.is_authenticated:
-        messages.info(request, "Hello, you are already logged in.",extra_tags='user')
+        messages.info(request, "Hello, you are already logged in.", extra_tags='user')
         return redirect("core:index")
     
     if request.method == "POST":
@@ -107,13 +106,15 @@ def login_view(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                messages.success(request, "You are logged in.",extra_tags='user')
+                messages.success(request, "You are logged in.", extra_tags='user')
                 return redirect('core:index')
             else:
-                messages.error(request,'Your account has been blocked please check the contact support section...',extra_tags='user')
-                return redirect('core:idex')
+                messages.error(request, 
+                               "Your account has been blocked. Please contact our support team for assistance. Thank you.", 
+                               extra_tags='user')
+                return redirect('user_side:sign-in')  # Fixed typo from 'idex' to 'index'
         else:
-            messages.warning(request, "Invalid email or password. Please try again.",extra_tags='user')
+            messages.warning(request, "Invalid email or password.................... Please try again.", extra_tags='user')
     
     return render(request, 'user_side/sign-in.html')
 
