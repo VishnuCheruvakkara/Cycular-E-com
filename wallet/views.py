@@ -91,7 +91,7 @@ def cancell_order_item(request, order_item_id):
                 wallet=wallet,
                 transaction_type='credit',
                 transaction_purpose='refund',
-                transaction_amount=Decimal(order_item.price),
+                transaction_amount=Decimal(order_item.effective_price()),
                 description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity}) was cancelled by User : {request.user}.",
             )
 

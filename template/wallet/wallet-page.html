@@ -38,7 +38,7 @@
                 <div class="wallet-summary text-center mb-5">
                     <h5 class="wallet-title">Wallet Balance</h5>
                     <div class="wallet-balance d-flex justify-content-center align-items-center">
-                        <span class="balance-amount display-4"  style="color:#1cc0a0"><b>₹ {{ wallet.balance }}</b></span>
+                        <span class="balance-amount display-4"  style="color:#1cc0a0"><b> {{ wallet.balance }} ₹</b></span>
                     </div>
                     
                 </div><!-- End .wallet-summary -->
@@ -69,7 +69,7 @@
                                     
                                     <td>{{ transaction.transaction_purpose|capfirst }}</td>
 
-                                    <td style="color:#1cc0a0"><b> ₹ {{ transaction.transaction_amount }}</b></td>
+                                    <td style="color:#1cc0a0"><b> {{ transaction.transaction_amount }} ₹</b></td>
 
                                     <td>{{ transaction.description }}</td>
                                    

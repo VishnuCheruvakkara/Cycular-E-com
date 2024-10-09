@@ -220,6 +220,7 @@ def check_out(request):
         'total_price':total_price,
         'addresses':addresses,
         'coupons':coupons,
+        'wallet_balance': wallet_balance,
     }
 
     return render(request,'payment/check-out.html',context)

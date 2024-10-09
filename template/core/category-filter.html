@@ -1062,6 +1062,30 @@
         document.addEventListener('DOMContentLoaded', updateCartCount);
 
     </script>
+    <!-- script for find the wish list count -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Function to fetch the wishlist count from the server
+            function updateWishlistCount() {
+                fetch("{% url 'wishlist:wishlist-count' %}", {
+                    method: "GET",
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',  // This makes it an AJAX request
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update the wishlist count on the page
+                    const wishlistCountElement = document.querySelector('.wishlist-count');
+                    wishlistCountElement.textContent = data.count;
+                })
+                .catch(error => console.error('Error fetching wishlist count:', error));
+            }
+        
+            // Call the function once the page loads
+            updateWishlistCount();
+        });
+    </script>
 
     <script>
         // Common SweetAlert function

@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import authenticate,login,logout
-from user_side.models import User 
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -26,6 +26,8 @@ import json
 from django.db.models.functions import TruncHour
 from django.db.models import Q
 
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 #############################   seller home    ########################################################
 
@@ -370,7 +372,7 @@ def OrderManagement(request):
                     wallet=wallet,
                     transaction_type='credit',
                     transaction_purpose='refund',
-                    transaction_amount=Decimal(order_item.price),
+                    transaction_amount=Decimal(order_item.effective_price()),
                     description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity})was cancelled by Cycular-Admin",
                 )
                 
@@ -407,7 +409,7 @@ def OrderManagement(request):
                 wallet=wallet,
                 transaction_type='credit',
                 transaction_purpose='returned',
-                transaction_amount=Decimal(order_item.price),
+                transaction_amount=Decimal(order_item.effective_price()),
                 description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity}) was returned by Cycular-Admin.",
             )
 
@@ -443,8 +445,9 @@ def sales_report(request):
             Q(username__icontains=query) |Q(email__icontains=query)
         )
         # Filter orders by the customers matching the search query
-        orders = orders.filter(user__in=customers)
-
+        if customers.exists():
+            orders = orders.filter(user__in=customers)
+            
     # Apply filtering based on query parameters
     date_range = request.GET.get('date_range')
     start_date = request.GET.get('start_date')
@@ -490,8 +493,7 @@ def sales_report(request):
 
 ########################  view for download sales reoprt   ##########################
 
-@login_required(login_url='admin_side:seller-login')
-@never_cache
+
 def generate_sales_report_pdf(orders, total_orders, total_sales, total_discounts, date_range=None, start_date=None, end_date=None):
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')

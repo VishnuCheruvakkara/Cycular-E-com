@@ -961,7 +961,7 @@ def request_return(request, order_item_id):
 def generate_invoice_pdf(order_item):
     # Set the file path with the current date and time as the filename
     temp_dir = tempfile.gettempdir()  # Get the temp directory
-    filename = f"invoice_{order_item.id}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    filename = f"invoice_{order_item.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     file_path = os.path.join(temp_dir, filename)
 
     # Create the PDF
@@ -1070,7 +1070,7 @@ def generate_invoice_pdf(order_item):
     pdf.drawString(50, 180, "For any issues, contact us at:")
     pdf.drawString(50, 160, "Phone: 123-456-7890")
     pdf.drawString(50, 140, "Address: 123 Cycle St, City Name, State, Zip Code")
-    pdf.drawString(50, 120, f"© {datetime.datetime.now().year} Cycular. All rights reserved.")
+    pdf.drawString(50, 120, f"© {datetime.now().year} Cycular. All rights reserved.")
 
     pdf.showPage()
     pdf.save()
