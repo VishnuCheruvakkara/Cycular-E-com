@@ -83,7 +83,7 @@ def cancell_order_item(request, order_item_id):
         # Check if the order was paid using 'cash on delivery'
         if order.payment_method != 'cash_on_delivery':
             # Add the order item price to the wallet balance
-            wallet.balance += Decimal(order_item.price)
+            wallet.balance += Decimal(order_item.effective_price())
             wallet.save()
 
             # Log the transaction

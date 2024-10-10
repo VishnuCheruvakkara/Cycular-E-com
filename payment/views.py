@@ -344,7 +344,7 @@ def order_success_page(request,order_id):
             wallet=wallet,
             transaction_type='null',
             transaction_purpose='purchase',
-            transaction_amount=order_item.price,
+            transaction_amount=order_item.effective_price(),
             description=f"{order_item.product_variant.product.name} Purchase via cash on delivery."
         )
             
@@ -419,7 +419,7 @@ def payment_success(request):
                     wallet=wallet,
                     transaction_type='null',
                     transaction_purpose='purchase',
-                    transaction_amount=order_item.price,
+                    transaction_amount=order_item.effective_price(),
                     description=f"{order_item.product_variant.product.name} Purchase via Razorpay"
                 )
             
