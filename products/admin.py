@@ -31,4 +31,3 @@ class ColorAdmin(admin.ModelAdmin):
 class ProductVariantAdmin(admin.ModelAdmin):
     list_display = ('product', 'size','color','price', 'image1', 'image2', 'image3','stock')
     list_filter = ('product', 'size')  # Removed color-related filter
-
