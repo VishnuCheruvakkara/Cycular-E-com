@@ -150,15 +150,34 @@
                                 <button type="button" id="image3-crop-button" class="btn btn-secondary" style="display: none;">Crop Image 3</button>
                                 <div id="image3-cropped-image" class="cropped-images"></div>
                             </div>
+
+                            <!-- Hidden field to store base64 cropped image data for Image 3 -->
+                            <input type="hidden" id="image3-cropped-data" name="image3_cropped_data">
+
+                            <!-- Image Upload Section for Image 4 -->
+                            <div class="form-group">
+                                <label for="id_image4">Image 4</label>
+                                {{ form.image4 }}
+                                {% if form.image4.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.image4.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <img id="image4-preview" style="max-width: 100%; display: none;">
+                                <button type="button" id="image4-crop-button" class="btn btn-secondary" style="display: none;">Crop Image 4</button>
+                                <div id="image4-cropped-image" class="cropped-images"></div>
+                            </div>
+
+                            <!-- Hidden field to store base64 cropped image data for Image 4 -->
+                            <input type="hidden" id="image4-cropped-data" name="image4_cropped_data">
                             
                             <div class="form-group">
                                 <label for="id_status">Status</label>
                                 {{ form.status }}
                                
                             </div>
-                        
-                            <!-- Hidden field to store base64 cropped image data for Image 3 -->
-                            <input type="hidden" id="image3-cropped-data" name="image3_cropped_data">
                         
                             <!-- Hidden Product Field -->
                             {{ form.product }}
@@ -273,7 +292,8 @@
         setupCropper('id_image1', 'image1-preview', 'image1-crop-button', 'image1-cropped-image', 'image1-cropped-data');
         setupCropper('id_image2', 'image2-preview', 'image2-crop-button', 'image2-cropped-image', 'image2-cropped-data');
         setupCropper('id_image3', 'image3-preview', 'image3-crop-button', 'image3-cropped-image', 'image3-cropped-data');
-    });
+        setupCropper('id_image4', 'image4-preview', 'image4-crop-button', 'image4-cropped-image', 'image4-cropped-data');
+  });
 </script>
 
 </body>

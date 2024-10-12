@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product,Size,ProductVariant,Category,Brand,Color,Review
+from .models import Product,Size,ProductVariant,Category,Brand,Color
 import re
 from django.utils.text import slugify
 import magic
@@ -109,6 +109,11 @@ class ProductVariantForm(forms.ModelForm):
         required=False,
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
+    image4 = forms.ImageField(  # New field for image4
+        label='Image 4',
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
+    )
     status = forms.BooleanField(
         label='Active',
         required=False,
@@ -126,6 +131,7 @@ class ProductVariantForm(forms.ModelForm):
             'image1',
             'image2',
             'image3',
+            'image4', 
             'status',
             'stock',
         ]
@@ -165,6 +171,7 @@ class ProductVariantForm(forms.ModelForm):
             'image1': cleaned_data.get("image1"),
             'image2': cleaned_data.get("image2"),
             'image3': cleaned_data.get("image3"),
+            'image4': cleaned_data.get("image4"),
         }
 
     
@@ -178,7 +185,7 @@ class ProductVariantForm(forms.ModelForm):
        
         max_size_mb = 2  # Maximum size in MB
 
-        for image_field in ['image1', 'image2', 'image3']:
+        for image_field in ['image1', 'image2', 'image3', 'image4']:
             image = cleaned_data.get(image_field)
             
             if not image:

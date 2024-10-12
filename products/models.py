@@ -63,6 +63,7 @@ class ProductVariant(models.Model):
     image1 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image2 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
     image3 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True)
+    image4 = models.ImageField(upload_to='product_variants/images/', blank=True, null=True) 
     status = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
     class Meta:
@@ -122,16 +123,3 @@ class ProductVariant(models.Model):
         savings = original_price - discounted_price
         return savings
     
-
-class Review(models.Model):
-    product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
-    rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    comment = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('product_variant', 'user')  # Prevent multiple reviews for the same product by the same user
-
-    def __str__(self):
-        return f"Review for {self.product_variant.product.name} by {self.user.username}"
