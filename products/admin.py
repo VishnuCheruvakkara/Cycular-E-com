@@ -35,6 +35,6 @@ class ProductVariantAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('product', 'user', 'rating', 'created_at')
-    list_filter = ('product', 'rating', 'created_at')
+    list_display = ('product_variant', 'user', 'rating', 'created_at')
+    list_filter = ('product_variant', 'rating', 'created_at')
     search_fields = ('user__username', 'product__name', 'comment')

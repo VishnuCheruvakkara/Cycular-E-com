@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product,Size,ProductVariant,Category,Brand,Color
+from .models import Product,Size,ProductVariant,Category,Brand,Color,Review
 import re
 from django.utils.text import slugify
 import magic
@@ -347,3 +347,4 @@ class ColorForm(forms.ModelForm):
                 'class': 'form'  # Add a class for styling
             }),
         }
+
