@@ -104,8 +104,7 @@ def DeleteProduct(request,product_id):
 
 ####################### image resize function Admin side ########################################
 
-@login_required(login_url='admin_side:seller-login')
-@never_cache
+
 def ResizeImage(image, max_width=800, max_height=600,filename=None):
     # Open the image file
     img = Image.open(image)
@@ -138,7 +137,7 @@ def product_variant(request, product_id):
             variant.product = product 
 
             # Process and resize the cropped images
-            for i in range(1, 4):
+            for i in range(1, 5):
                 cropped_data = request.POST.get(f'image{i}_cropped_data')
                 if cropped_data:
                     try:
@@ -531,19 +530,19 @@ def edit_variant(request, variant_id):
     if not request.user.is_superuser:
         return redirect('core:index')
     variant = get_object_or_404(ProductVariant, id=variant_id)
-    product = variant.product 
+    product = variant.product
     product_id = product.id
     
     if request.method == 'POST':
         form = ProductVariantForm(request.POST, request.FILES, instance=variant)
         
         if form.is_valid():
-          
             # Handling the cropped images
             image1_cropped_data = request.POST.get('image1_cropped_data')
             image2_cropped_data = request.POST.get('image2_cropped_data')
             image3_cropped_data = request.POST.get('image3_cropped_data')
-            
+            image4_cropped_data = request.POST.get('image4_cropped_data')  # Handling the 4th image
+
             if image1_cropped_data:
                 format, imgstr = image1_cropped_data.split(';base64,')
                 ext = format.split('/')[-1]
@@ -561,6 +560,12 @@ def edit_variant(request, variant_id):
                 ext = format.split('/')[-1]
                 image3_file = ContentFile(base64.b64decode(imgstr), name=f'{variant.product}_image3.{ext}')
                 variant.image3 = image3_file
+
+            if image4_cropped_data:  # New code for handling the 4th image
+                format, imgstr = image4_cropped_data.split(';base64,')
+                ext = format.split('/')[-1]
+                image4_file = ContentFile(base64.b64decode(imgstr), name=f'{variant.product}_image4.{ext}')
+                variant.image4 = image4_file  # Assuming your model has `image4` field
 
             variant.save()
             messages.success(request, 'Product Variant was edited successfully.', extra_tags='admin')

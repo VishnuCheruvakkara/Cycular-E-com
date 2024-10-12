@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/img/cycular-favicon.ico' %}">
-    <title>Edit Product Variants</title>
+    <title>Add Product variants</title>
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
@@ -26,9 +26,8 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home' %}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'products:product-management' %}">Product Page</a></li>
                     <li class="breadcrumb-item"><a href="{% url 'products:product-view' product.id %}">Products View</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Edit Products</li>
+                    <li class="breadcrumb-item active" aria-current="page">Add Product Variant</li>
                 </ol>
             </nav>
             {% block admin-messages%}
@@ -36,13 +35,13 @@
             {% endblock %}
             <div class="row">
                 <div class="col-sm-12">
-                    <h4 class="page-title">Edit Product Variants</h4>
+                    <h4 class="page-title">Add Product Variants</h4>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card-box">
-                        <h4 class="card-title">Edit the variant of the product "<span style="color:#f62d51;">{{ product.name }}</span>" down-below.</h4>
+                        <h4 class="card-title">Please fill in the following details to add a Variant to the product "<span style="color:#f62d51;">{{ product.name }}</span>":</h4>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                   
@@ -53,7 +52,6 @@
                                
                             </div>
                         
-                            
                         
                             <!-- Size Field -->
                             <div class="form-group">
@@ -68,7 +66,7 @@
                                 {% endif %}
                             </div>
 
-                             <!-- Color Field -->
+                             <!-- Size Field -->
                              <div class="form-group">
                                 <label for="id_color">Select Color</label>
                                 {{ form.color }}
@@ -152,10 +150,10 @@
                                 <button type="button" id="image3-crop-button" class="btn btn-secondary" style="display: none;">Crop Image 3</button>
                                 <div id="image3-cropped-image" class="cropped-images"></div>
                             </div>
-                        
+
                             <!-- Hidden field to store base64 cropped image data for Image 3 -->
                             <input type="hidden" id="image3-cropped-data" name="image3_cropped_data">
-                        
+
                             <!-- Image Upload Section for Image 4 -->
                             <div class="form-group">
                                 <label for="id_image4">Image 4</label>
@@ -174,17 +172,15 @@
 
                             <!-- Hidden field to store base64 cropped image data for Image 4 -->
                             <input type="hidden" id="image4-cropped-data" name="image4_cropped_data">
-
-
-                            <!-- Hidden Product Field -->
-                            {{ form.product }}
-
-                            <!-- Status Field (Always visible) -->
+                            
                             <div class="form-group">
                                 <label for="id_status">Status</label>
                                 {{ form.status }}
                                
                             </div>
+                        
+                            <!-- Hidden Product Field -->
+                            {{ form.product }}
                         
                             <button type="submit" class="btn btn-primary">Save Product Variant</button>
                             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_appointment">
@@ -297,7 +293,7 @@
         setupCropper('id_image2', 'image2-preview', 'image2-crop-button', 'image2-cropped-image', 'image2-cropped-data');
         setupCropper('id_image3', 'image3-preview', 'image3-crop-button', 'image3-cropped-image', 'image3-cropped-data');
         setupCropper('id_image4', 'image4-preview', 'image4-crop-button', 'image4-cropped-image', 'image4-cropped-data');
-    }); 
+  });
 </script>
 
 </body>
