@@ -50,7 +50,10 @@
                                 <li class="breadcrumb-item">
                                     <a href="{% url 'core:index' %}">Home</a>
                                 </li>
-                                <li class="breadcrumb-item active" aria-current="page">Wallet</li>
+                                <li class="breadcrumb-item">
+                                    <a  href="{% url 'user_side:user-dash-board' %}" >My Account</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">Order History</li>
                             </ol>
                         </div>
                         <div class="col text-right">
@@ -162,6 +165,7 @@
                             </thead>
                             <tbody>
                                 {% for order_item in order_items %}
+                                {% if order_item.order.order_status != 'Payment Failed' %}
                                 <tr>
                                     <td data-label="Sl No" style="text-align: center;">{{ forloop.counter }}</td>
                                     <td data-label="Product" style="min-width: 300px; text-align: center;">
@@ -242,7 +246,7 @@
                                             Invoice
                                         </button>
                                     </td>
-                               
+                                {% endif %}
                                 </tr>
 
                                   <!-- Bootstrap Modal for each order item -->

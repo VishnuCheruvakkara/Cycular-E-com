@@ -107,7 +107,84 @@ def add_product_variant_offer(request):
 
     return render(request, 'offer/offer-management.html', context)
 
-################ product variant offer  soft delete  ##############################
+
+################ edit product variant offer #########################
+
+@login_required(login_url='admin_side:seller-login')
+@never_cache
+def update_product_variant_offer(request, offer_id):
+    offer = get_object_or_404(ProductVariantOffer, id=offer_id)
+
+    # Get all necessary data for the offer management page
+    product_variants = ProductVariant.objects.filter(status=True)
+    product_variant_offers = ProductVariantOffer.objects.select_related('product_variant').filter(status=True)
+    brand_offers = BrandOffer.objects.filter(status=True)
+    brands = Brand.objects.filter(status=True)
+   
+
+    if request.method == 'POST':
+        # Get the data from the form
+        offer_name = request.POST.get('offer_name')
+        product_variant_id = request.POST.get('product_variant_id')
+        offer_percentage = request.POST.get('offer_percentage')
+        end_date = request.POST.get('end_date')
+
+        # Initialize a dictionary to hold error messages
+        product_offer_edit_error = {}
+
+        # Validate required fields
+        if not offer_name:
+            product_offer_edit_error['offer_name'] = "Offer name is required."
+        if not product_variant_id:
+            product_offer_edit_error['product_variant_id'] = "Product variant is required."
+        if not offer_percentage:
+            product_offer_edit_error['offer_percentage'] = "Offer percentage is required."
+        if not end_date:
+            product_offer_edit_error['end_date'] = "End date is required."
+        else:
+            try:
+                end_date_value = timezone.datetime.strptime(end_date, '%Y-%m-%d').date()
+                if end_date_value <= timezone.now().date():
+                    product_offer_edit_error['end_date'] = "End date must be greater than the current date."
+            except ValueError:
+                product_offer_edit_error['end_date'] = "Invalid date format. Please use YYYY-MM-DD."
+
+        # Check if there are validation errors
+        if product_offer_edit_error:
+            messages.error(request, "Please correct the error in the Edit product offer!")
+            return render(request, 'offer/offer-management.html', {
+                'offer': offer,
+                'product_offer_edit_error': product_offer_edit_error,
+                'product_variants': product_variants,  # Include product variants
+                'product_variant_offers': product_variant_offers,
+                'brand_offers': brand_offers,  # Include brand offers
+                'brands': brands,  # Include brands
+            })
+
+        # Update the offer instance with new data from the form
+        offer.offer_name = offer_name
+        offer.product_variant_id = product_variant_id
+        offer.discount_percentage = float(offer_percentage)  # Convert to float
+        offer.end_date = end_date_value
+
+        # Save the updated offer
+        offer.save()
+
+        # Add a success message
+        messages.success(request, "Offer updated successfully.")
+
+        # Redirect to a success page or the same page with a success message
+        return redirect('offer:offer-page')  # Replace with your success URL or view name
+
+    # Render the same page or a different one with the existing offer details (if needed)
+    return render(request, 'offer/offer-management.html', {
+        'offer': offer,
+        'product_variants': product_variants,
+        'brand_offers': brand_offers,
+        'brands': brands,
+    })
+
+################ product variant offer soft delete  ##############################
 
 @login_required(login_url='admin_side:seller-login')
 @never_cache
@@ -209,6 +286,87 @@ def add_brand_offer(request):
     brands = Brand.objects.all()
     brand_offers = BrandOffer.objects.filter(status=True)
     return render(request, 'offer/offer-management.html', {'brands': brands,'brand_offers': brand_offers})
+
+##################### edit brand offer  #####################
+
+@login_required(login_url='admin_side:seller-login')
+@never_cache
+def update_brand_offer(request, offer_id):
+    offer = get_object_or_404(BrandOffer, id=offer_id)
+    
+    # Get necessary data for the offer management page
+    product_variants = ProductVariant.objects.filter(status=True)
+    product_variant_offers = ProductVariantOffer.objects.select_related('product_variant').filter(status=True)
+    brands = Brand.objects.filter(status=True)
+    brand_offers = BrandOffer.objects.filter(status=True)
+    
+    if request.method == 'POST':
+        # Get the data from the form
+        offer_name = request.POST.get('offer_name')
+        offer_percentage = request.POST.get('offer_percentage')
+        end_date = request.POST.get('end_date')
+        brand_id = request.POST.get('brand')  # Get the brand from form
+        
+        # Initialize a dictionary to hold error messages
+        brand_offer_edit_error = {}
+        
+        # Validate required fields
+        if not offer_name:
+            brand_offer_edit_error['offer_name'] = "Offer name is required."
+        if not offer_percentage:
+            brand_offer_edit_error['offer_percentage'] = "Offer percentage is required."
+        if not end_date:
+            brand_offer_edit_error['end_date'] = "End date is required."
+        else:
+            try:
+                end_date_value = timezone.datetime.strptime(end_date, '%Y-%m-%d').date()
+                if end_date_value <= timezone.now().date():
+                    brand_offer_edit_error['end_date'] = "End date must be greater than the current date."
+            except ValueError:
+                brand_offer_edit_error['end_date'] = "Invalid date format. Please use YYYY-MM-DD."
+        
+        # Validate brand selection
+        if not brand_id:
+            brand_offer_edit_error['brand'] = "Please select a brand."
+        else:
+            try:
+                brand = Brand.objects.get(id=brand_id)
+            except Brand.DoesNotExist:
+                brand_offer_edit_error['brand'] = "Selected brand does not exist."
+
+        # Check if there are validation errors
+        if brand_offer_edit_error:
+            messages.error(request, "Please correct the errors in the Edit Brand Offer form!")
+            return render(request, 'offer/offer-management.html', {
+                'offer': offer,
+                'brand_offer_edit_error': brand_offer_edit_error,
+                'brands': brands,
+                'brand_offers': brand_offers,
+                'product_variants': product_variants,
+                'product_variant_offers': product_variant_offers,
+            })
+        
+        # Update the offer instance with new data from the form
+        offer.offer_name = offer_name
+        offer.discount_percentage = float(offer_percentage)  # Convert to float
+        offer.end_date = end_date_value
+        offer.brand = brand  # Update the brand
+        
+        # Save the updated offer
+        offer.save()
+        
+        # Add a success message
+        messages.success(request, "Brand offer updated successfully.")
+        
+        # Redirect to the same page or another page with a success message
+        return redirect('offer:offer-page')  # Replace with your desired URL
+    
+    # Render the page with the existing offer details (if needed)
+    return render(request, 'offer/offer-management.html', {
+        'offer': offer,
+        'brands': brands,
+        'brand_offers': brand_offers,
+    })
 
 #####################  soft delete of  #########################
 

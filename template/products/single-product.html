@@ -177,8 +177,8 @@
                                             <a class="product-gallery-item" href="#" data-image="{{ variant.image3.url }}" data-zoom-image="{{ variant.image3.url }}">
                                                 <img src="{{ variant.image3.url }}" alt="product with model">
                                             </a>
-                                            <a class="product-gallery-item" href="#" data-image="{{ variant.image3.url }}" data-zoom-image="{{ variant.image3.url }}">
-                                                <img src="{{ variant.image3.url }}" alt="product with model">
+                                            <a class="product-gallery-item" href="#" data-image="{{ variant.image4.url }}" data-zoom-image="{{ variant.image4.url }}">
+                                                <img src="{{ variant.image4.url }}" alt="product with model">
                                             </a>
                                         </div><!-- End .product-image-gallery -->
                                     </div><!-- End .row -->
@@ -298,6 +298,9 @@
                         </div><!-- End .row -->
                     </div><!-- End .product-details-top -->
 
+
+
+                    
                     <div class="product-details-tab">
                         <ul class="nav nav-pills justify-content-center" role="tablist">
                             <li class="nav-item">
@@ -310,79 +313,78 @@
                                 <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (2)</a>
                             </li>
                         </ul>
+                    
                         <div class="tab-content">
+                            <!-- Description Tab -->
                             <div class="tab-pane fade show active" id="product-desc-tab" role="tabpanel" aria-labelledby="product-desc-link">
                                 <div class="product-desc-content">
                                     <h3>Product Information</h3>
                                     <p>{{variant.product.description}}</p>
-                                </div><!-- End .product-desc-content -->
-                            </div><!-- .End .tab-pane -->
+                                </div>
+                            </div>
+                    
+                            <!-- Key Specification Tab -->
                             <div class="tab-pane fade" id="product-info-tab" role="tabpanel" aria-labelledby="product-info-link">
                                 <div class="product-desc-content">
                                     <h3>Key Specification</h3>
                                     <p>{{variant.product.key_specification}}</p>
-                                   
-
-                                   
-                                    <p><b>Size : </b></span>{{variant.size}}</p>
-                                    <p><b>Color : </b></span>{{variant.color}}</p>
-                            
-                                </div><!-- End .product-desc-content -->
-                            </div><!-- .End .tab-pane -->
-                           
-                            <div class="container mt-5">
-                                <div class="tab-content" id="product-tabContent">
-                                    <div class="tab-pane fade show active" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
-                                        <div class="reviews">
-                                            <h3>Reviews (2)</h3>
-                                            <!-- Existing reviews -->
-                                            <div class="review">
-                                                <div class="row no-gutters">
-                                                    <div class="col-auto">
-                                                        <h4><a href="#">Samanta J.</a></h4>
-                                                        <div class="ratings-container">
-                                                            <div class="ratings">
-                                                                <div class="ratings-val" style="width: 80%;"></div>
-                                                            </div>
-                                                        </div>
-                                                        <span class="review-date">6 days ago</span>
-                                                    </div>
-                                                    <div class="col">
-                                                        <h4>Good, perfect size</h4>
-                                                        <div class="review-content">
-                                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
-                                                        </div>
-                                                        <div class="review-action">
-                                                            <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
-                                                            <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                        </div>
+                                    <p><b>Size : </b>{{variant.size}}</p>
+                                    <p><b>Color : </b>{{variant.color}}</p>
+                                </div>
+                            </div>
+                    
+                            <!-- Reviews Tab -->
+                            <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
+                                <div class="reviews">
+                                    <h3>Reviews (2)</h3>
+                                    <!-- Existing reviews -->
+                                    <div class="review">
+                                        <div class="row no-gutters">
+                                            <div class="col-auto">
+                                                <h4><a href="#">Samanta J.</a></h4>
+                                                <div class="ratings-container">
+                                                    <div class="ratings">
+                                                        <div class="ratings-val" style="width: 80%;"></div>
                                                     </div>
                                                 </div>
+                                                <span class="review-date">6 days ago</span>
                                             </div>
-                            
-                                            <!-- Add new review form -->
-                                           <!-- Add new review form -->
-                                            <div class="new-review mt-5">
-                                                <h3>Add a Review</h3>
-                                                <form id="reviewForm">
-                                                    <!-- Review Heading Input -->
-                                                    <div class="form-group">
-                                                        <label for="reviewHeading">Review Heading</label>
-                                                        <input type="text" class="form-control" id="reviewHeading" placeholder="Enter review heading..." required>
-                                                    </div>
-                                                    <!-- Review Body (Textarea) -->
-                                                    <div class="form-group">
-                                                        <label for="reviewText">Review</label>
-                                                        <textarea class="form-control" id="reviewText" rows="3" placeholder="Write your review here..." required></textarea>
-                                                    </div>
-                                                    <button type="button" class="btn btn-primary" id="submitReviewBtn">Submit Review</button>
-                                                </form>
+                                            <div class="col">
+                                                <h4>Good, perfect size</h4>
+                                                <div class="review-content">
+                                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
+                                                </div>
+                                                <div class="review-action">
+                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
+                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                    
+                                    <!-- Add new review form -->
+                                    <div class="new-review mt-5">
+                                        <h3>Add a Review</h3>
+                                        <form id="reviewForm">
+                                            <!-- Review Heading Input -->
+                                            <div class="form-group">
+                                                <label for="reviewHeading">Review Heading</label>
+                                                <input type="text" class="form-control" id="reviewHeading" placeholder="Enter review heading..." required>
+                                            </div>
+                                            <!-- Review Body (Textarea) -->
+                                            <div class="form-group">
+                                                <label for="reviewText">Review</label>
+                                                <textarea class="form-control" id="reviewText" rows="3" placeholder="Write your review here..." required></textarea>
+                                            </div>
+                                            <button type="button" class="btn btn-primary" id="submitReviewBtn">Submit Review</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                            
+                        </div>
+                    </div>
+                    
+                    
                             <!-- Improved Modal for selecting star rating -->
                             <!-- Include SweetAlert CSS and JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.min.css">

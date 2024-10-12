@@ -337,17 +337,7 @@ def order_success_page(request,order_id):
     order_items=order.items.all()
 
    
-    order_address = getattr(order, 'order_address', None)
-    wallet = request.user.wallet
-    for order_item in order_items:
-        Transaction.objects.create(
-            wallet=wallet,
-            transaction_type='null',
-            transaction_purpose='purchase',
-            transaction_amount=order_item.effective_price(),
-            description=f"{order_item.product_variant.product.name} Purchase via cash on delivery."
-        )
-            
+    order_address = getattr(order, 'order_address', None)     
 
     # Pass order and address details to the template
     context = {

@@ -107,7 +107,8 @@
                                         <th>Offer Percentage</th>
                                         <th>Start Date</th>
                                         <th>End Date</th>
-                                        <th>Actions</th>
+                                        <th>Edit</th>
+                                        <th>Delete</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -120,9 +121,77 @@
                                         <td>{{ product_variant_offer.start_date }}</td>
                                         <td>{{ product_variant_offer.end_date }}</td>
                                         <td>
-                                            <button class="btn btn-danger delete-product-offer-btn" data-offer-id="{{ product_variant_offer.id }}">Delete Product Offer</button>
+                                            <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#editProductOfferModal{{ product_variant_offer.id }}">
+                                                <i class="fa fa-edit"></i> Edit Product Offer
+                                            </a>
+                                        </td>
+                                        
+                                        <td>
+                                            <button class="btn btn-danger delete-product-offer-btn" data-offer-id="{{ product_variant_offer.id }}"> <i class="fa fa-trash"></i> Delete Product Offer</button>
                                         </td>
                                     </tr>
+
+                                    <!-- Edit Product Variant Offer Modal -->
+                                            <div class="modal fade" id="editProductOfferModal{{ product_variant_offer.id }}" tabindex="-1" role="dialog" aria-labelledby="editProductOfferLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="editProductOfferLabel">Edit Product Variant Offer</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form method="POST" action="{% url 'offer:update-product-variant-offer' product_variant_offer.id %}">
+                                                                {% csrf_token %}
+                                                                <input type="hidden" name="offer_id" value="{{ product_variant_offer.id }}">
+                                                                
+                                                                <div class="form-group">
+                                                                    <label for="edit_offer_name">Offer Name</label>
+                                                                    <input type="text" class="form-control" name="offer_name" value="{{ product_variant_offer.offer_name }}" required>
+                                                                    {% if product_offer_edit_error.offer_name %}
+                                                                    <small class="text-danger">{{ product_offer_edit_error.offer_name }}</small>
+                                                                    {% endif %}
+                                                                </div>
+                                                                
+                                                                <div class="form-group">
+                                                                    <label for="edit_product_variant">Product Variant</label>
+                                                                    <select class="form-control" name="product_variant_id" required>
+                                                                        {% for variant in product_variants %}
+                                                                            <option value="{{ variant.id }}" {% if variant.id == product_variant_offer.product_variant.id %}selected{% endif %}>
+                                                                                {{ variant.product.name }} - {{ variant.size.name }} - {{ variant.color.name }}
+                                                                            </option>
+                                                                        {% endfor %}
+                                                                    </select>
+                                                                    {% if product_offer_edit_error.product_variant_id %}
+                                                                    <small class="text-danger">{{ product_offer_edit_error.product_variant_id }}</small>
+                                                                    {% endif %}
+                                                                </div>
+                                                                
+                                                                <div class="form-group">
+                                                                    <label for="edit_offer_percentage">Offer Percentage</label>
+                                                                    <input type="number" class="form-control" name="offer_percentage" min="1" max="100" value="{{ product_variant_offer.discount_percentage }}" required>
+                                                                    {% if product_offer_edit_error.offer_percentage %}
+                                                                    <small class="text-danger">{{ product_offer_edit_error.offer_percentage }}</small>
+                                                                    {% endif %}
+                                                                </div>
+                                                                
+                                                                <div class="form-group">
+                                                                    <label for="edit_end_date">End Date</label>
+                                                                    <input type="date" class="form-control" name="end_date" value="{{ product_variant_offer.end_date|date:'Y-m-d' }}" required>
+                                                                    {% if product_offer_edit_error.end_date %}
+                                                                    <small class="text-danger">{{ product_offer_edit_error.end_date }}</small>
+                                                                    {% endif %}
+                                                                </div>
+                                                                
+                                                                <button type="submit" class="btn btn-primary">Update Offer</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -156,7 +225,8 @@
                                         <th>Offer Percentage</th>
                                         <th>Start Date</th>
                                         <th>End Date</th>
-                                        <th>Actions</th>
+                                        <th>Edit</th>
+                                        <th>Delete</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -169,17 +239,88 @@
                                         <td>{{ brand_offer.start_date }}</td>
                                         <td>{{ brand_offer.end_date }}</td>
                                         <td>
+                                            <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#editBrandOfferModal{{ brand_offer.id }}">
+                                                <i class="fa fa-edit"></i> Edit Brand Offer
+                                            </a>
+                                        </td>
+                                        
+                                        <td>
                                             <button class="btn btn-danger delete-brand-offer-btn" data-offer-id="{{ brand_offer.id }}">Delete Brand Offer</button>
                                         </td>
                                         
                                     </tr>
+                                    
+                                    <!-- Edit Brand Offer Modal -->
+                                    <div class="modal fade" id="editBrandOfferModal{{ brand_offer.id }}" tabindex="-1" role="dialog" aria-labelledby="editBrandOfferLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editBrandOfferLabel">Edit Brand Offer</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form method="POST" action="{% url 'offer:edit-brand-offer' brand_offer.id %}">
+                                                        {% csrf_token %}
+                                                        <!-- Brand Dropdown -->
+                                                        <div class="form-group">
+                                                            <label for="brand">Brand</label>
+                                                            <select class="form-control" name="brand" required>
+                                                                <option value="" disabled {% if not brand_offer.brand_id %}selected{% endif %}>Select Brand</option>
+                                                                {% for brand in brands %}
+                                                                <option value="{{ brand.id }}" {% if brand.id == brand_offer.brand_id %}selected{% endif %}>
+                                                                    {{ brand.name }}
+                                                                </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                            {% if brand_offer_edit_error.brand %}
+                                                                <small class="text-danger">{{ brand_offer_edit_error.brand }}</small>
+                                                            {% endif %}
+                                                        </div>
+
+                                                        <!-- Offer Name Input -->
+                                                        <div class="form-group">
+                                                            <label for="offer_name">Offer Name</label>
+                                                            <input type="text" class="form-control" name="offer_name" value="{{ brand_offer.offer_name }}" required>
+                                                            {% if brand_offer_edit_error.offer_name %}
+                                                                <small class="text-danger">{{ brand_offer_edit_error.offer_name }}</small>
+                                                            {% endif %}
+                                                        </div>
+                                                        
+                                                        <!-- Offer Percentage Input -->
+                                                        <div class="form-group">
+                                                            <label for="offer_percentage">Offer Percentage</label>
+                                                            <input type="number" class="form-control" name="offer_percentage" min="1" max="100" value="{{ brand_offer.discount_percentage }}" required>
+                                                            {% if brand_offer_edit_error.offer_percentage %}
+                                                                <small class="text-danger">{{ brand_offer_edit_error.offer_percentage }}</small>
+                                                            {% endif %}
+                                                        </div>
+                                                        
+                                                        <!-- End Date Input -->
+                                                        <div class="form-group">
+                                                            <label for="end_date">End Date</label>
+                                                            <input type="date" class="form-control" name="end_date" value="{{ brand_offer.end_date|date:'Y-m-d' }}" required>
+                                                            {% if brand_offer_edit_error.end_date %}
+                                                                <small class="text-danger">{{ brand_offer_edit_error.end_date }}</small>
+                                                            {% endif %}
+                                                        </div>
+                                                        
+                                                        <!-- Submit Button -->
+                                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
