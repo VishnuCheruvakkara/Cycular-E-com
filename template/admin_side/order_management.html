@@ -3,7 +3,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
 <!-- appointments23:19-->
 <head>
     <meta charset="utf-8">
@@ -50,8 +49,7 @@
             box-shadow: none !important; 
         }
         
-        </style>
-
+    </style>
 </head>
 
 <body>
@@ -93,9 +91,6 @@
             
                 <div class="row">
                     <div class="col-12">
-
-
-
                         <div class="table-responsive">
                             <table class="table table-striped custom-table">
                                 <thead>
@@ -186,8 +181,7 @@
                                                         <option value="Product delivery on pending">Product delivery on pending</option>
                                                         <option value="Out for Delivery">Out for Delivery</option>
                                                         <option value="Delivered">Delivered</option>
-                                                  
-                                            
+                                                          
                                                     {% elif order_item.order_item_status == 'Delivered' %}
                                                         <!-- When order is delivered -->
                                                         <option value="Delivered" selected>Delivered</option>
@@ -208,8 +202,6 @@
                                             
                                         </td>
                                         
-                                       
-                                       
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -248,9 +240,7 @@
                                 </li>
                                 {% endif %}
                             </ul>
-                        </div>  
-                       
-                      
+                        </div>          
                     </div>
                 </div>
             </div>
@@ -258,8 +248,6 @@
     </div>
 </div>
     <div class="sidebar-overlay" data-reff=""></div>
-
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     {% for message in messages %}
@@ -286,7 +274,4 @@
     <script src="{% static 'admin/js/select2.min.js' %}"></script>
     <script src="{% static 'admin/js/app.js' %}"></script>
 </body>
-
-
-<!-- appointments23:20-->
 </html>

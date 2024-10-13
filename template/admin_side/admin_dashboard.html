@@ -11,8 +11,6 @@
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
-
-    
 </head>
 
 <body>
@@ -70,14 +68,7 @@
                     </div>
                 </div>
             </div>
-
-
-
             <!-- Sales Chart Section -->
-         
-           
-               
-       
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <div class="card shadow-sm p-4">
@@ -101,7 +92,6 @@
                 </div>
             </div>
             
-
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 var ctx = document.getElementById('salesChart').getContext('2d');
@@ -167,8 +157,6 @@
                 });
             </script>
 
-
-
             <!-- Top Selling Products -->
             <div class="row mt-4">
                 <div class="col-lg-12">
@@ -233,7 +221,6 @@
                 </div>
             </div>
 
-
                 <!-- Right side: Best-Selling Brands -->
                 <div class="col-md-6">
                     <div class="card">
@@ -247,14 +234,12 @@
                                     <h5 style="margin: 0; font-weight: bold; color: #333;">Brand: <span style="color:#009efb;">{{ brand.brand.name }}</span></h5>
                                     <p style="margin: 5px 0; font-size: 14px;"><b>Description:</b> {{ brand.description }}</p>
                                     <p style="margin: 5px 0; font-size: 14px;"><b>Total Sold:</b> {{ brand.total_quantity_sold }}</p>
-                                    
                                 </div>
                                 {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div class="sidebar-overlay" data-reff=""></div>
@@ -265,8 +250,6 @@
             <script src="{% static 'admin/js/Chart.bundle.js' %}"></script>
             <script src="{% static 'admin/js/chart.js' %}"></script>
             <script src="{% static 'admin/js/app.js' %}"></script>
-
-          
         </div>
     </div>
 </body>

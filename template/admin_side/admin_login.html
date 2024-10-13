@@ -1,10 +1,6 @@
 {% load static %}
-
-
 <!DOCTYPE html>
 <html lang="en">
-
-
 <!-- login23:11-->
 <head>
     <meta charset="utf-8">
@@ -19,7 +15,6 @@
 		<script src="{% static 'admin/js/respond.min.js' %}"></script>
 	<![endif]-->
 </head>
-
 <body>
     <div class="main-wrapper account-wrapper">
         <div class="account-page">
@@ -30,7 +25,6 @@
                             <img src="{% static 'assets/images/cycular/cycular_admin.png' %}" alt="" style="width: 125px; height: 125px;">
                         </a>
                     </div>
-                    
                     <form action=""  method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 						
@@ -59,7 +53,4 @@
     <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'admin/js/app.js' %}"></script>
 </body>
-
-
-<!-- login23:12-->
 </html>

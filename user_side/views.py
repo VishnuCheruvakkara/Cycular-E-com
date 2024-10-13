@@ -886,8 +886,6 @@ def request_return(request, order_item_id):
 
 ##########################  invoice pdf generator  #####################
 
-@login_required(login_url='user_side:sign-in')
-@never_cache
 def generate_invoice_pdf(order_item):
     # Set the file path with the current date and time as the filename
     temp_dir = tempfile.gettempdir()  # Get the temp directory

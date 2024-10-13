@@ -37,100 +37,95 @@
                         <h4 class="page-title"><b>Sales Report</b></h4>
                     </div>
                 </div>
-              
-                
-
-<div class="row mt-3">
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">Total Orders</h5>
-                <p class="card-text" id="total-orders">{{ total_orders }}</p>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">Total Sales</h5>
-                <p class="card-text" id="total-sales">{{ total_sales|floatformat:2 }} ₹</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">Total Discounts</h5>
-                <p class="card-text" id="total-discounts">{{ total_discounts|floatformat:2 }} ₹</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<div class="row mt-2">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Filter Sales Report</h5>
-                <form method="GET" action="{% url 'admin_side:sales-report' %}">
-                    <div class="form-group row align-items-center">
-                        <div class="col-md-4">
-                            <label for="date-range" class="col-form-label">Select Date Range:</label>
-                            <select class="form-control" id="date-range" name="date_range" onchange="toggleCustomDateInputs(this.value)">
-                                <option value="custom" {% if request.GET.date_range == 'custom' %}selected{% endif %}>Custom Date Range</option>
-                                <option value="last_1_day" {% if request.GET.date_range == 'last_1_day' %}selected{% endif %}>Last 1 Day</option>
-                                <option value="last_1_week" {% if request.GET.date_range == 'last_1_week' %}selected{% endif %}>Last 1 Week</option>
-                                <option value="last_1_month" {% if request.GET.date_range == 'last_1_month' %}selected{% endif %}>Last 1 Month</option>
-                                <option value="last_1_year" {% if request.GET.date_range == 'last_1_year' %}selected{% endif %}>Last 1 Year</option>
-                            </select>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Orders</h5>
+                                <p class="card-text" id="total-orders">{{ total_orders }}</p>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <label for="start-date" class="col-form-label">Start Date:</label>
-                            <input type="date" class="form-control" id="start-date" name="start_date" value="{{ request.GET.start_date }}">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="end-date" class="col-form-label">End Date:</label>
-                            <input type="date" class="form-control" id="end-date" name="end_date" value="{{ request.GET.end_date }}">
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Sales</h5>
+                                <p class="card-text" id="total-sales">{{ total_sales|floatformat:2 }} ₹</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-start mt-2">
-                        <button type="submit" class="btn btn-primary me-3">Apply Filter</button>
-                        <a href="#" id="download-pdf-button" class="btn btn-danger" style="margin-left: 20px;">
-                            Download PDF
-                        </a>
-                        
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Discounts</h5>
+                                <p class="card-text" id="total-discounts">{{ total_discounts|floatformat:2 }} ₹</p>
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+                </div>
 
-<script>
-function toggleCustomDateInputs(value) {
-    const startDateInput = document.getElementById('start-date');
-    const endDateInput = document.getElementById('end-date');
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Filter Sales Report</h5>
+                                <form method="GET" action="{% url 'admin_side:sales-report' %}">
+                                    <div class="form-group row align-items-center">
+                                        <div class="col-md-4">
+                                            <label for="date-range" class="col-form-label">Select Date Range:</label>
+                                            <select class="form-control" id="date-range" name="date_range" onchange="toggleCustomDateInputs(this.value)">
+                                                <option value="custom" {% if request.GET.date_range == 'custom' %}selected{% endif %}>Custom Date Range</option>
+                                                <option value="last_1_day" {% if request.GET.date_range == 'last_1_day' %}selected{% endif %}>Last 1 Day</option>
+                                                <option value="last_1_week" {% if request.GET.date_range == 'last_1_week' %}selected{% endif %}>Last 1 Week</option>
+                                                <option value="last_1_month" {% if request.GET.date_range == 'last_1_month' %}selected{% endif %}>Last 1 Month</option>
+                                                <option value="last_1_year" {% if request.GET.date_range == 'last_1_year' %}selected{% endif %}>Last 1 Year</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="start-date" class="col-form-label">Start Date:</label>
+                                            <input type="date" class="form-control" id="start-date" name="start_date" value="{{ request.GET.start_date }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="end-date" class="col-form-label">End Date:</label>
+                                            <input type="date" class="form-control" id="end-date" name="end_date" value="{{ request.GET.end_date }}">
+                                        </div>
+                                    </div>
 
-    if (value === 'custom') {
-        startDateInput.disabled = false;
-        endDateInput.disabled = false;
-    } else {
-        startDateInput.disabled = true;
-        endDateInput.disabled = true;
-    }
+                                    <div class="d-flex justify-content-start mt-2">
+                                        <button type="submit" class="btn btn-primary me-3">Apply Filter</button>
+                                        <a href="#" id="download-pdf-button" class="btn btn-danger" style="margin-left: 20px;">
+                                            Download PDF
+                                        </a>
+                                        
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    // Optional: Reset date inputs if not using custom range
-    if (value !== 'custom') {
-        startDateInput.value = '';
-        endDateInput.value = '';
-    }
-}
-</script>
+                <script>
+                function toggleCustomDateInputs(value) {
+                    const startDateInput = document.getElementById('start-date');
+                    const endDateInput = document.getElementById('end-date');
+
+                    if (value === 'custom') {
+                        startDateInput.disabled = false;
+                        endDateInput.disabled = false;
+                    } else {
+                        startDateInput.disabled = true;
+                        endDateInput.disabled = true;
+                    }
+
+                    // Optional: Reset date inputs if not using custom range
+                    if (value !== 'custom') {
+                        startDateInput.value = '';
+                        endDateInput.value = '';
+                    }
+                }
+                </script>
                 <div class="row">
                     <div class="col-12">
                         <form class="mb-4" role="search" method="GET" action="{% url 'admin_side:sales-report' %}">
@@ -144,10 +139,8 @@ function toggleCustomDateInputs(value) {
                             </div>
                         </form>
                     </div>
-                </div>
-            
+                </div>    
                 <!-- table area, down below... -->
-            
                 <div class="row">
                     <div class="col-12">
                         <div class="table-responsive">
@@ -180,37 +173,36 @@ function toggleCustomDateInputs(value) {
                                 </tbody>
                             </table>
                         </div>
-                    <!-- Pagination Controls -->
-                    <div class="d-flex justify-content-end">
-                        <ul class="pagination pagination-sm">
-                            {% if orders.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ orders.previous_page_number }}{% if date_range %}&date_range={{ date_range }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" tabindex="-1">Previous</a>
-                            </li>
-                            {% else %}
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
-                            </li>
-                            {% endif %}
+                        <!-- Pagination Controls -->
+                        <div class="d-flex justify-content-end">
+                            <ul class="pagination pagination-sm">
+                                {% if orders.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ orders.previous_page_number }}{% if date_range %}&date_range={{ date_range }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" tabindex="-1">Previous</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                                {% endif %}
 
-                            {% for num in orders.paginator.page_range %}
-                            <li class="page-item {% if orders.number == num %}active{% endif %}">
-                                <a class="page-link" href="?page={{ num }}{% if date_range %}&date_range={{ date_range }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">{{ num }}</a>
-                            </li>
-                            {% endfor %}
+                                {% for num in orders.paginator.page_range %}
+                                <li class="page-item {% if orders.number == num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}{% if date_range %}&date_range={{ date_range }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">{{ num }}</a>
+                                </li>
+                                {% endfor %}
 
-                            {% if orders.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ orders.next_page_number }}{% if date_range %}&date_range={{ date_range }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Next</a>
-                            </li>
-                            {% else %}
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                            {% endif %}
-                        </ul>
-                    </div>
-
+                                {% if orders.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ orders.next_page_number }}{% if date_range %}&date_range={{ date_range }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Next</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -245,7 +237,6 @@ function toggleCustomDateInputs(value) {
       }
     });
 });
-
     </script>
     <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
 	<script src="{% static 'admin/js/popper.min.js' %}"></script>

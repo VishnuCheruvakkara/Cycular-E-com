@@ -25,6 +25,8 @@ from django.db.models.functions import TruncHour
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 User = get_user_model()
+from django.urls import reverse
+
 
 #############################   seller home    ########################################################
 
@@ -312,77 +314,64 @@ def UserView(request,user_id):
 @never_cache
 def OrderManagement(request):
     order_items = OrderItem.objects.all().order_by('-order__order_date')
+    
     # Check if there is a search term
     search_term = request.GET.get('search', '')
     if search_term:
         order_items = order_items.filter(product_variant__product__name__icontains=search_term)
 
-    paginator= Paginator(order_items,5)
-    page_number = request.GET.get('page')
+    paginator = Paginator(order_items, 5)
+    page_number = request.GET.get('page', 1)  # Default to page 1 if no page number provided
     page_obj = paginator.get_page(page_number)
 
     if request.method == 'POST':
-        order_item_id=request.POST.get('order_item_id')
-        new_status=request.POST.get('status')
-        page_number=request.GET.get('page')
-        page_obj=paginator.get_page(page_number)
-        #update status of sepecific order item
-        order_item = OrderItem.objects.get(id=order_item_id)
-        order = order_item.order  
+        order_item_id = request.POST.get('order_item_id')
+        new_status = request.POST.get('status')
+        page_number = request.POST.get('page', page_number)  # Preserve page number in POST request
         
-        #if the status is cancell at that time we need to resotore the product count of the cancelled products.
+        # Update status of specific order item
+        order_item = OrderItem.objects.get(id=order_item_id)
+        order = order_item.order
+
+        # Handle stock restoration and refund for 'Cancelled'
         if new_status == 'Cancelled' and order_item.order_item_status != 'Cancelled':
-            #restore logic...
-            order_item.product_variant.stock=F('stock')+order_item.quantity
+            order_item.product_variant.stock = F('stock') + order_item.quantity
             order_item.product_variant.save()
 
-            # Fetch or create the user's wallet
             wallet, created = Wallet.objects.get_or_create(user=order.user)
 
-            # Check if the payment method was not 'cash_on_delivery'
             if order.payment_method != 'cash_on_delivery':
-                # Add the order item price to the wallet balance
                 wallet.balance += Decimal(order_item.price)
                 wallet.save()
 
-                # Log the transaction in the wallet
                 Transaction.objects.create(
                     wallet=wallet,
                     transaction_type='credit',
                     transaction_purpose='refund',
                     transaction_amount=Decimal(order_item.effective_price()),
-                    description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity})was cancelled by Cycular-Admin",
+                    description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity}) was cancelled by Cycular-Admin",
                 )
-                
-                # Add a success message for refund
-                messages.success(request, f"Order item {order_item.product_variant.product.name} cancelled and refunded to the User wallet.")
 
+                messages.success(request, f"Order item {order_item.product_variant.product.name} cancelled and refunded to the User wallet.")
             else:
-                # Log a 'null' transaction if it's Cash on Delivery
                 Transaction.objects.create(
                     wallet=wallet,
-                    transaction_type='null',  # Null transaction type to record but not affect balance
+                    transaction_type='null',
                     transaction_purpose='refund',
                     transaction_amount=Decimal(0),
                     description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity}) was cancelled by Cycular-Admin. COD order - no refund to wallet.",
                 )
-                # Add a message if payment was cash on delivery (no refund)
-                messages.info(request, f"Order item {order_item.product_variant.product.name} cancelled. No refund issued (Cash on Delivery) to the User.")
+                messages.info(request, f"Order item {order_item.product_variant.product.name} cancelled. No refund issued (Cash on Delivery).")
         
-         # If status is 'Returned', always refund the amount
+        # Handle 'Returned'
         elif new_status == 'Returned' and order_item.order_item_status != 'Returned':
-            # Restore stock for returned products
             order_item.product_variant.stock = F('stock') + order_item.quantity
             order_item.product_variant.save()
 
-            # Fetch or create the user's wallet
             wallet, created = Wallet.objects.get_or_create(user=order.user)
-
-            # Refund the amount to the wallet
             wallet.balance += Decimal(order_item.price)
             wallet.save()
 
-            # Log the return transaction
             Transaction.objects.create(
                 wallet=wallet,
                 transaction_type='credit',
@@ -391,33 +380,39 @@ def OrderManagement(request):
                 description=f"{order_item.product_variant.product.name} (Qty.{order_item.quantity}) was returned by Cycular-Admin.",
             )
 
-            # Add a success message for refund on return
             messages.success(request, f"Order item {order_item.product_variant.product.name} returned and refunded to the User wallet.")
 
         order_item.order_item_status = new_status
         order_item.save()
-        return redirect('admin_side:order-management')
-     # Define status choices directly from the model field
+
+        # Redirect back to the same page after status update
+        return redirect(f'{reverse("admin_side:order-management")}?page={page_number}')
+    
     status_choices = OrderItem._meta.get_field('order_item_status').choices
-    context={
-        'order_items':page_obj,
+    context = {
+        'order_items': page_obj,
         'status_choices': status_choices,
+        'current_page': page_number,  # Pass the current page to the context
     }
-    return render(request,'admin_side/order_management.html',context)
+    return render(request, 'admin_side/order_management.html', context)
 
 ########################## Views for handle the sales report  ####################
+
+from django.utils import timezone
+from datetime import datetime
 
 @login_required(login_url='admin_side:seller-login')
 @never_cache
 def sales_report(request):
     # Fetching orders
     orders = Order.objects.all()
+
     # Get the search query
     query = request.GET.get('q', '')
-    customers=User.objects.filter(is_superuser=False)
+    customers = User.objects.filter(is_superuser=False)
     if query:
         customers = customers.filter(
-            Q(username__icontains=query) |Q(email__icontains=query)
+            Q(username__icontains=query) | Q(email__icontains=query)
         )
         # Filter orders by the customers matching the search query
         if customers.exists():
@@ -425,15 +420,22 @@ def sales_report(request):
             
     # Apply filtering based on query parameters
     date_range = request.GET.get('date_range')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
 
     # Filter based on date range selection
-    if date_range == 'custom' and start_date and end_date:
-        # Convert string dates to datetime objects
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
-        orders = orders.filter(order_date__range=[start_date, end_date])
+    if date_range == 'custom' and start_date_str and end_date_str:
+        try:
+            # Convert string dates to datetime objects
+            start_date = timezone.make_aware(datetime.strptime(start_date_str, '%Y-%m-%d'))
+            end_date = timezone.make_aware(datetime.strptime(end_date_str, '%Y-%m-%d'), timezone=timezone.get_current_timezone())
+            
+            # Include the end date in the filter range by adding a day to it
+            orders = orders.filter(order_date__range=[start_date, end_date + timezone.timedelta(days=1)])
+        except ValueError:
+            # Handle invalid date formats
+            start_date = None
+            end_date = None
     elif date_range == 'last_1_day':
         orders = orders.filter(order_date__gte=timezone.now() - timezone.timedelta(days=1))
     elif date_range == 'last_1_week':
@@ -451,7 +453,7 @@ def sales_report(request):
     # Paginate the orders (based on Order model)
     page_number = request.GET.get('page')
     paginator = Paginator(orders, 10)  # Show 10 orders per page
-    paginated_orders = paginator.get_page(page_number)  # Change order_items to paginated_orders
+    paginated_orders = paginator.get_page(page_number)
 
     # Check if the user requested a PDF download
     if 'download_pdf' in request.GET:

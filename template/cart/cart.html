@@ -51,9 +51,7 @@
 			}
 		}
 	</style>
-	
 </head>
-
 <body>
         <main class="main mt-2" >
         	<div class="page-header text-center" style="background-image: url({% static 'assets/images/page-header-bg.jpg' %})">
@@ -76,7 +74,6 @@
 						<div id="total-cart-items" class="cart-summary">
 							Total Products in Cart : <span id="total-products">0</span>
 						</div>
-
 
 						{% if total_quantity == 0 %}
 						<div class="cta">
@@ -208,8 +205,6 @@
 					
 				})
 		{% endfor %}
-
-
 	function confirmDeletion(cartItemId) {
         Swal.fire({
             title: 'Are you sure?',
@@ -233,10 +228,6 @@
             }
         });
 	}
-	
-
-
-
 
 	function updateCartTotal(overallTotal) {
 		const totalPriceElement = document.querySelector('.cart-total-price');
@@ -361,7 +352,5 @@
 document.addEventListener('DOMContentLoaded', updateTotalProductsCount);
 
 </script>
-
 </body>
-
 {% endblock %}

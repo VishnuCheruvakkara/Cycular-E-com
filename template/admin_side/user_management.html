@@ -3,8 +3,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
-<!-- appointments23:19-->
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
@@ -14,12 +12,6 @@
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
-
-    
-    <!--[if lt IE 9]>
-		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
-		<script src="{% static 'admin/js/respond.min.js' %}"></script>
-	<![endif]-->
 </head>
 
 <body>
@@ -55,7 +47,6 @@
                         </form>
                     </div>
                 </div>
-                
                 <div class="row">
                     <div class="col-12">
                         <div class="table-responsive">
@@ -94,7 +85,6 @@
                                         </td>
                                     </tr>
 
-
                                     <!-- Confirmation Modal -->
                                     <div id="confirm-modal-{{ user.id }}" class="modal fade delete-modal" role="dialog">
                                     <div class="modal-dialog modal-dialog-centered">
@@ -109,7 +99,6 @@
                                             </div>
                                         </div>
                                     </div>
-                            
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -214,7 +203,4 @@
 
      </script>
 </body>
-
-
-<!-- appointments23:20-->
 </html>
