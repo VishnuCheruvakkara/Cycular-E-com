@@ -7,9 +7,13 @@ import json
 from captcha.models import CaptchaStore
 from captcha.helpers import captcha_image_url
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 
 #######################  wallet-page  ###################
 
+@login_required(login_url='user_side:sign-in')
+@never_cache
 def wallet_page(request):
  
     wallet, created = Wallet.objects.get_or_create(user=request.user)
@@ -22,8 +26,10 @@ def wallet_page(request):
     }
     return render(request, 'wallet/wallet-page.html', context)
 
-##########################  orderitem cacelling logic   ####################
+##########################  orderitem cancelling logic   ####################
 
+@login_required(login_url='user_side:sign-in')
+@never_cache
 def cancell_order_item(request, order_item_id):
     # Ensure it's a POST request for safety
     if request.method == 'POST':
@@ -96,6 +102,7 @@ def cancell_order_item(request, order_item_id):
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 #######################  order cancell captcha controll  ##################
+
 
 def captcha_image_view(request):
     new_key = CaptchaStore.generate_key()  # Generate a unique CAPTCHA key

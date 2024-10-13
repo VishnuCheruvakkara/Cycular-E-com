@@ -520,6 +520,8 @@ def password_change_resend_otp_view(request):
 #Adress management section down below...
 #########################  add address view  ####################
 
+@login_required(login_url='user_side:sign-in')
+@never_cache
 def add_address(request):
 
     errors = {}  # Dictionary to hold error messages
@@ -836,8 +838,10 @@ def forget_password_set(request):
 
     return render(request, 'user_side/forget-password-3.html', {'error_message_password_forget': error_message_password_forget})
 
-########################### to show the orderd product detail page based on the orderitem ##########################
+########################### to show the orderd product detail history page based on the orderitem ##########################
 
+@login_required(login_url='user_side:sign-in')
+@never_cache
 def order_item_details(request):
     if request.user.is_authenticated:
         order_items = OrderItem.objects.filter(order__user=request.user).order_by('-order__order_date')
@@ -881,6 +885,9 @@ def request_return(request, order_item_id):
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 ##########################  invoice pdf generator  #####################
+
+@login_required(login_url='user_side:sign-in')
+@never_cache
 def generate_invoice_pdf(order_item):
     # Set the file path with the current date and time as the filename
     temp_dir = tempfile.gettempdir()  # Get the temp directory
@@ -1002,6 +1009,8 @@ def generate_invoice_pdf(order_item):
 
 ###########################  invoice pdf download button logic   ##############################
 
+@login_required(login_url='user_side:sign-in')
+@never_cache
 def download_invoice_item(request, order_item_id):
     try:
         # Fetch the specific order item by its ID

@@ -16,9 +16,11 @@ from datetime import datetime,time
 from wallet.models import Wallet
 from django.views.decorators.cache import never_cache
 import razorpay
+from django.contrib.auth.decorators import login_required
 
 #####################  check out page  #################
 
+@login_required(login_url='user_side:sign-in')
 def check_out(request):
     #retrive the current user's cart
   
@@ -215,6 +217,7 @@ def check_out(request):
 
 ############################  add address in check out page.  ###################
 
+@login_required(login_url='user_side:sign-in')
 def add_address_checkout(request):
 
     errors = {}  # Dictionary to hold error messages
@@ -315,6 +318,7 @@ def add_address_checkout(request):
 
 ###################  order success page  ###########################
 
+@login_required(login_url='user_side:sign-in')
 def order_success_page(request,order_id):
     # Fetch the order using the order_id
     order = get_object_or_404(Order, id=order_id, user=request.user)
@@ -331,6 +335,7 @@ def order_success_page(request,order_id):
 
 ##################### Razor pay payment views logic  ###########################
 
+@login_required(login_url='user_side:sign-in')
 @never_cache
 def create_razorpay_order(request, order_id):
  
@@ -359,6 +364,7 @@ def create_razorpay_order(request, order_id):
 
 ###################  payment success page by razor pay  #####################
 
+@login_required(login_url='user_side:sign-in')
 def payment_success(request):
     razorpay_payment_id = request.GET.get('razorpay_payment_id')
     order_id = request.GET.get('order_id')
@@ -408,6 +414,7 @@ def payment_success(request):
 
 ####################### payment-cancell  ############################
 
+@login_required(login_url='user_side:sign-in')
 def payment_cancel(request):
     # Get the order ID from the request
     order_id = request.GET.get('order_id')
@@ -439,6 +446,7 @@ def payment_cancel(request):
 
 ####################### apply coupon logic  #######################
 
+@login_required(login_url='user_side:sign-in')
 def apply_coupon_view(request):
 
     if request.method == "POST":
