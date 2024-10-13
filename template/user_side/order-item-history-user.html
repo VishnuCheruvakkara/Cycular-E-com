@@ -136,23 +136,12 @@
                     </div>
                     {% else %}
                     <!-- Light green message box for no pending payments -->
-                    <div class="alert alert-success mt-3" style="background-color:#1cc0a0 ; color: rgb(255, 255, 255); padding: 15px; border-radius: 5px; text-align: center;">
+                    <div class="alert alert-success mt-3" style="background-color:#f2f2f2; color:#1cc0a0; padding: 15px; border-radius: 5px; text-align: center;">
                         <strong>No pending payments found.</strong>
                     </div>
                     {% endif %}
                 </div>
                 
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -171,108 +160,93 @@
                         <table class="table responsive-table">
                             <thead>
                                 <tr>
-                                    <th style="text-align: center;">Sl No</th>
-                                    <th style="text-align: center;">Product</th>
-                                    <th style="text-align: center;">Payment Method</th>
-                                    <th style="text-align: center;">Order Date</th>
-                                    <th style="text-align: center;">Offer</th>
-                                    <th style="text-align: center;">Coupon Info</th>
-                                    <th style="text-align: center;">Actual Price</th>
-                                    <th style="text-align: center;">Coupon Discount</th>
-                                    <th style="text-align: center;">Paid</th>
-                                    <th style="text-align: center;">Status</th>
-                                    <th style="text-align: center;">Actions</th>
-                                    <th style="text-align: center;">Invoice</th>
+                                    <th>Sl No</th>
+                                    <th>Product</th>
+                                    <th>Payment Method</th>
+                                    <th>Order Date</th>
+                                    <th>Offer</th>
+                                    <th>Coupon Info</th>
+                                    <th>Actual Price</th>
+                                    <th>Coupon Discount</th>
+                                    <th>Paid</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                    <th>Invoice</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for order_item in order_items %}
                                 {% if order_item.order.order_status != 'Payment Failed' %}
                                 <tr>
-                                    <td data-label="Sl No" style="text-align: center;">{{ forloop.counter }}</td>
-                                    <td data-label="Product" style="min-width: 300px; text-align: center;">
-                                        <div style="display: flex; align-items: center; justify-content: center;">
-                                            <div>
+                                    <td data-label="Sl No">{{ forloop.counter }}</td>
+                                    <td data-label="Product" class="product-cell">
+                                        <div class="product-info">
+                                            <div class="product-image">
                                                 <a href="{% url 'products:single-product-view' order_item.product_variant.id %}">
-                                                    <img src="{{ order_item.product_variant.image1.url }}"
-                                                        alt="{{ order_item.product_variant.product.name }}"
-                                                        style="width: 50px; height: 50px; object-fit: cover;">
+                                                    <img src="{{ order_item.product_variant.image1.url }}" alt="{{ order_item.product_variant.product.name }}">
                                                 </a>
                                             </div>
-                                            <div style="text-align: left; margin-left: 10px;">
+                                            <div class="product-details">
                                                 <strong>{{ order_item.product_variant.product.name }}</strong><br>
-                                                <span style="color:#fd4f4f;font-size:10px;"><b>(Qty.{{ order_item.quantity }})</b></span>
-                                                <small style="color: #6c757d;">
+                                                <span class="quantity">(Qty.{{ order_item.quantity }})</span>
+                                                <small class="variant-info">
                                                     ({{ order_item.product_variant.color.name }} - {{ order_item.product_variant.size.name }})
                                                 </small>
                                             </div>
                                         </div>
                                     </td>
-                                    <td data-label="Payment Method" style="text-align: center;">{{ order_item.order.get_payment_method_display }}</td>
-                                    <td data-label="Order Date" style="text-align: center;">{{ order_item.order.order_date }}</td>
-                                    <td data-label="Offer" style="text-align: center;">
+                                    <td data-label="Payment Method">{{ order_item.order.get_payment_method_display }}</td>
+                                    <td data-label="Order Date">{{ order_item.order.order_date }}</td>
+                                    <td data-label="Offer">
                                         {% if order_item.product_variant.get_discount_percentage > 0 %}
-                                            Offer of {{ order_item.product_variant.get_discount_percentage }}%. You saved  : {{ order_item.product_variant.get_savings_amount|floatformat:2}} ₹<br>
+                                            Offer of {{ order_item.product_variant.get_discount_percentage }}%. You saved: {{ order_item.product_variant.get_savings_amount|floatformat:2}} ₹
                                         {% else %}
                                             No Offers Available
                                         {% endif %}
                                     </td>
-                                    <td data-label="Coupon Info" style="text-align: center;">
+                                    <td data-label="Coupon Info">
                                         {% if order_item.coupon_discount_price == 0 %}
                                             Coupon not applied
                                         {% else %}
                                             {{ order_item.coupon_info }}
                                         {% endif %}
                                     </td>
-                                    <td data-label="Actual Price" style="text-align: center;">{{ order_item.product_variant.price }} ₹</td>
-                                    <td data-label="Coupon Discount" style="text-align: center;">{{ order_item.coupon_discount_price }} ₹</td>
-                                    <td data-label="Paid" style="text-align: center;">{{ order_item.effective_price|floatformat:2 }} ₹</td>
-                                    <td data-label="Status" style="text-align: center;"><b>{{ order_item.order_item_status }}</b></td>
-                                   
-                                    <td data-label="Actions" style="text-align: center;">
-                                        <!-- Cancel button logic -->
+                                    <td data-label="Actual Price">{{ order_item.product_variant.price }} ₹</td>
+                                    <td data-label="Coupon Discount">{{ order_item.coupon_discount_price }} ₹</td>
+                                    <td data-label="Paid">{{ order_item.effective_price|floatformat:2 }} ₹</td>
+                                    <td data-label="Status"><b>{{ order_item.order_item_status }}</b></td>
+                                    <td data-label="Actions">
                                         {% if order_item.order_item_status == 'Order placed' or order_item.order_item_status == 'Processing' or order_item.order_item_status == 'Shipped' %}
-                                            <button 
-                                                style="width: 90px; color: white; background-color: rgb(253, 79, 79); border: none; border-radius: 5px;" 
-                                                class="cancel-order-item-btn"
-                                                data-url="{% url 'wallet:cancell-order-item' order_item.id %}">
+                                            <button class="cancel-order-item-btn" data-url="{% url 'wallet:cancell-order-item' order_item.id %}">
                                                 Cancel
                                             </button>
                                         {% elif order_item.order_item_status == 'Cancelled' %}
-                                            <button 
-                                                style="width: 90px; color: white; background-color: gray; border: none; border-radius: 5px;" 
-                                                class="cancel-order-item-btn" 
-                                                disabled 
-                                                data-toggle="tooltip" 
-                                                title="This product has already been cancelled">
+                                            <button class="cancelled-btn" disabled title="This product has already been cancelled">
                                                 Cancelled
                                             </button>
                                         {% endif %}
                                         
-                                        <!-- Return button logic -->
                                         {% if order_item.order_item_status == 'Delivered' %}
-                                            <button class="return-btn" data-order-item-id="{{ order_item.id }}" 
-                                                style="background-color: yellow; border: none; color: black; cursor: pointer; border-radius: 5px;">
+                                            <button class="return-btn" data-order-item-id="{{ order_item.id }}">
                                                 Return
                                             </button>
                                         {% elif order_item.order_item_status == 'Return Requested' %}
-                                            <span style="color: rgb(255, 255, 255); background-color: gray; padding: 5px 10px; border-radius: 5px;">Requested</span>
+                                            <span class="return-requested">Requested</span>
                                         {% elif order_item.order_item_status == 'Returned' %}
-                                            <span style="color: rgb(255, 255, 255); background-color: rgba(11, 165, 31, 0.79); padding: 5px 10px; border-radius: 5px; ">Returned</span>
+                                            <span class="returned">Returned</span>
                                         {% endif %}
                                     </td>
-                                    <td data-label="Invoice" style="text-align: center; " >
-                                        <button 
-                                            style="width: 90px; color: white; background-color: rgb(79, 145, 253); border: none; border-radius: 5px;"
-                                            data-toggle="modal" data-target="#invoiceModal-{{ order_item.id }}">
+                                    <td data-label="Invoice">
+                                        <button class="invoice-btn" data-toggle="modal" data-target="#invoiceModal-{{ order_item.id }}">
                                             Invoice
                                         </button>
                                     </td>
-                                {% endif %}
                                 </tr>
+                                {% endif %}
 
-                                  <!-- Bootstrap Modal for invice of each order item -->
-                                  <div class="modal fade ml-4" id="invoiceModal-{{ order_item.id }}" tabindex="-1" aria-labelledby="invoiceModalLabel-{{ order_item.id }}" aria-hidden="true">
+                                
+                                  <!-- Bootstrap Modal for invoice of each order item -->
+                                  <div class="modal fade ml-4 mt-1" id="invoiceModal-{{ order_item.id }}" tabindex="-1" aria-labelledby="invoiceModalLabel-{{ order_item.id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -383,6 +357,139 @@
                         </table>
                     </div>
                 </div>
+                
+                <style>
+                .table-container {
+                    overflow-x: auto;
+                }
+                .responsive-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                .responsive-table th, .responsive-table td {
+                    padding: 10px;
+                    text-align: left;
+                    border-bottom: 1px solid #ddd;
+                }
+                .responsive-table th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                .product-cell {
+                    min-width: 250px;
+                }
+                .product-info {
+                    display: flex;
+                    align-items: center;
+                }
+                .product-image img {
+                    width: 50px;
+                    height: 50px;
+                    object-fit: cover;
+                    margin-right: 10px;
+                }
+                .product-details {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .quantity {
+                    color: #fd4f4f;
+                    font-size: 10px;
+                    font-weight: bold;
+                }
+                .variant-info {
+                    color: #6c757d;
+                }
+                .cancel-order-item-btn, .invoice-btn {
+                    width: 90px;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                    margin: 2px;
+                    cursor: pointer;
+                }
+                .cancel-order-item-btn {
+                    background-color: rgb(253, 79, 79);
+                }
+                .cancelled-btn {
+                    width: 90px;
+                    color: white;
+                    background-color: gray;
+                    border: none;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                    margin: 2px;
+                }
+                .return-btn {
+                    background-color: yellow;
+                    border: none;
+                    color: black;
+                    cursor: pointer;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                    margin: 2px;
+                }
+                .return-requested, .returned {
+                    color: rgb(255, 255, 255);
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                    display: inline-block;
+                    margin: 2px;
+                }
+                .return-requested {
+                    background-color: gray;
+                }
+                .returned {
+                    background-color: rgba(11, 165, 31, 0.79);
+                }
+                .invoice-btn {
+                    background-color: rgb(79, 145, 253);
+                }
+                
+                @media screen and (max-width: 768px) {
+                    .responsive-table thead {
+                        display: none;
+                    }
+                    .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+                        display: block;
+                        width: 100%;
+                    }
+                    .responsive-table tr {
+                        margin-bottom: 15px;
+                        border: 1px solid #ddd;
+                    }
+                    .responsive-table td {
+                        text-align: right;
+                        padding-left: 50%;
+                        position: relative;
+                    }
+                    .responsive-table td::before {
+                        content: attr(data-label);
+                        position: absolute;
+                        left: 6px;
+                        width: 45%;
+                        padding-right: 10px;
+                        white-space: nowrap;
+                        text-align: left;
+                        font-weight: bold;
+                    }
+                    .product-info {
+                        flex-direction: row;
+                        justify-content: flex-end;
+                    }
+                    .product-image {
+                        order: 2;
+                        margin-left: 10px;
+                    }
+                    .product-details {
+                        order: 1;
+                        text-align: right;
+                    }
+                }
+                </style>
+
+
 
 
 
