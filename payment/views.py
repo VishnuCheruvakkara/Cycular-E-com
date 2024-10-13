@@ -14,6 +14,7 @@ from decimal import Decimal,ROUND_DOWN
 from django.utils import timezone
 from datetime import datetime,time
 from wallet.models import Wallet
+from django.views.decorators.cache import never_cache
  
 import razorpay
 
@@ -68,6 +69,16 @@ def check_out(request):
 
     if request.method == 'POST':
         payment_method=request.POST.get('payment_method') 
+        # Check if payment method is selected
+        if not payment_method:
+            messages.error(request, 'Please select a payment method before proceeding.')
+            return render(request, 'payment/check-out.html', {
+                'cart_items': cart_items,
+                'total_price': total_price,
+                'addresses': addresses,
+                'coupons': coupons,
+                'wallet_balance': wallet_balance,
+            })
         # Check if any item in the cart exceeds ₹1000
         if total_price-discount_amount> 1000:
             if payment_method == 'cash_on_delivery':
@@ -77,6 +88,7 @@ def check_out(request):
                     'total_price': total_price,
                     'addresses': addresses,
                     'coupons':coupons,
+                    'wallet_balance': wallet_balance,
                 })
         try:
             #get address id
@@ -89,6 +101,9 @@ def check_out(request):
                     'cart_items': cart_items,
                     'total_price': total_price,
                     'addresses': addresses,
+                    'coupons':coupons,
+                    'wallet_balance': wallet_balance,
+                    
                 })
             selected_address=Address.objects.get(id=address_id)
 
@@ -114,6 +129,8 @@ def check_out(request):
                         'cart_items': cart_items,
                         'total_price': total_price,
                         'addresses': addresses,
+                        'coupons':coupons,
+                        'wallet_balance': wallet_balance,
                     })
                 
                 # Deduct wallet balance only after confirmation
@@ -350,13 +367,13 @@ def order_success_page(request,order_id):
 ##################### Razor pay payment views logic  ###########################
 
 # views.py
-
+@never_cache
 def create_razorpay_order(request, order_id):
  
     order = get_object_or_404(Order, id=order_id)
     client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
 
-    payment_amount = int(order.total_price * 100)  # Convert to paisa
+    payment_amount = int(order.paid_amount() * 100)  # Convert to paisa
     payment_currency = 'INR'
 
     razorpay_order = client.order.create({
@@ -378,11 +395,6 @@ def create_razorpay_order(request, order_id):
     return render(request, 'payment/razorpay_payment.html', context)
 
 
-
-
-
-
-
 ###################  payment success page by razor pay  #####################
 
 def payment_success(request):
@@ -402,6 +414,17 @@ def payment_success(request):
             order.save()
             # Clear the cart only if the payment is successful
             cart.items.all().delete()
+
+            # Handle coupon usage if applied
+            applied_coupon = request.session.get('applied_coupon', None)
+            if applied_coupon:
+                coupon = Coupon.objects.get(code=applied_coupon['coupon_code'])
+                coupon_usage, created = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
+                coupon_usage.is_used = True
+                coupon_usage.save()
+
+                # Remove the coupon from the session
+                del request.session['applied_coupon']
 
             wallet = request.user.wallet
             for order_item in order_items:
@@ -436,7 +459,16 @@ def payment_cancel(request):
     order.order_status = 'Payment Failed'
     order.save()
     cart.items.all().delete()
+    # Handle coupon usage if applied
+    applied_coupon = request.session.get('applied_coupon', None)
+    if applied_coupon:
+        coupon = Coupon.objects.get(code=applied_coupon['coupon_code'])
+        coupon_usage, created = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
+        coupon_usage.is_used = True
+        coupon_usage.save()
 
+        # Remove the coupon from the session
+        del request.session['applied_coupon']
 
     # Provide feedback to the user
     messages.warning(request, 'Your payment has been failed.Try to complete payment from the order history page.')

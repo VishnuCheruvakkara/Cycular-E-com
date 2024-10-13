@@ -107,47 +107,61 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 Library -->
 
 <script>
-    document.getElementById('pay-button').onclick = function () {
-        
-        var options = {
-            "key": document.getElementById('razorpay_key_id').value,
-            "amount": document.getElementById('razorpay_amount').value,
-            "currency": "INR",
-            "name": "Cycular",
-            "description": "Test Transaction", 
-            "order_id": document.getElementById('razorpay_order_id').value,
-            "handler": function (response) {
-                // Handle payment success
+
+document.getElementById('pay-button').onclick = function () {
+    // Disable the button after it's clicked
+    document.getElementById('pay-button').disabled = true;
+    
+    var options = {
+        "key": document.getElementById('razorpay_key_id').value,
+        "amount": document.getElementById('razorpay_amount').value,
+        "currency": "INR",
+        "name": "Cycular",
+        "description": "Test Transaction", 
+        "order_id": document.getElementById('razorpay_order_id').value,
+        "handler": function (response) {
+            // Handle payment success
+            Swal.fire({
+                title: 'Payment Successful!',
+                text: 'Your order has been placed successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Redirect to the success page after clicking OK
                 window.location.href = "{% url 'payment:payment-success' %}?razorpay_payment_id=" + response.razorpay_payment_id + "&order_id={{ order_id }}";
-            },
-            "prefill": {
-                "name": "{{ request.user.username }}",
-                "email": "{{ request.user.email }}",
-                "contact": "{{ request.user.profile.phone_number }}"
-            },
-            "theme": { "color": "#3399cc" },
+            });
+        },
+        "prefill": {
+            "name": "{{ request.user.username }}",
+            "email": "{{ request.user.email }}",
+            "contact": "{{ request.user.profile.phone_number }}"
+        },
+        "theme": { "color": "#3399cc" },
+        
+        // Event when the Razorpay modal is closed without completing payment
+        "modal": {
+            "ondismiss": function() {
+                // Re-enable the button if the user dismisses the Razorpay modal
+                document.getElementById('pay-button').disabled = false;
 
-            // Event when the Razorpay modal is closed without completing payment
-            "modal": {
-                "ondismiss": function() {
-                    // Show SweetAlert when user closes the modal
-                    Swal.fire({
-                        title: 'Payment Failed',
-                        text: 'It seems you have not completed the payment. Your order is marked as pending.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        // Redirect to a payment failure page after user closes the alert
-                        window.location.href = "{% url 'payment:payment-cancel' %}?order_id={{ order_id }}";
-                    });
-                }
-            },
-        };
-
-        var rzp = new Razorpay(options);
-        rzp.open();
-       
+                // Show SweetAlert when user closes the modal
+                Swal.fire({
+                    title: 'Payment Failed',
+                    text: 'It seems you have not completed the payment. Your order is marked as pending.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Redirect to a payment failure page after user closes the alert
+                    window.location.href = "{% url 'payment:payment-cancel' %}?order_id={{ order_id }}";
+                });
+            }
+        },
     };
+
+    var rzp = new Razorpay(options);
+    rzp.open();
+};
+
 </script>
 
 

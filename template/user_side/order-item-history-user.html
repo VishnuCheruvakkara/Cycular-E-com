@@ -143,6 +143,28 @@
                 </div>
                 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <div class="success-message" style="margin-top: 30px;">
                     <h4>Order History</h4>
                     <div class="table-container">
@@ -239,7 +261,7 @@
                                             <span style="color: rgb(255, 255, 255); background-color: rgba(11, 165, 31, 0.79); padding: 5px 10px; border-radius: 5px; ">Returned</span>
                                         {% endif %}
                                     </td>
-                                    <td data-label="Invoice" style="text-align: center; width:125px">
+                                    <td data-label="Invoice" style="text-align: center; " >
                                         <button 
                                             style="width: 90px; color: white; background-color: rgb(79, 145, 253); border: none; border-radius: 5px;"
                                             data-toggle="modal" data-target="#invoiceModal-{{ order_item.id }}">
@@ -249,8 +271,8 @@
                                 {% endif %}
                                 </tr>
 
-                                  <!-- Bootstrap Modal for each order item -->
-                                  <div class="modal fade" id="invoiceModal-{{ order_item.id }}" tabindex="-1" aria-labelledby="invoiceModalLabel-{{ order_item.id }}" aria-hidden="true">
+                                  <!-- Bootstrap Modal for invice of each order item -->
+                                  <div class="modal fade ml-4" id="invoiceModal-{{ order_item.id }}" tabindex="-1" aria-labelledby="invoiceModalLabel-{{ order_item.id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -361,6 +383,14 @@
                         </table>
                     </div>
                 </div>
+
+
+
+
+
+
+
+                
                 
             </main>
             
