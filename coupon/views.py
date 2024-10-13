@@ -9,8 +9,6 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.utils import timezone
 
-# Create your views here.
-
 ############################  admin coupen page  ##########################
 
 @login_required(login_url='admin_side:seller-login')
@@ -80,7 +78,6 @@ def coupon_management(request):
     }
    
     return render(request, 'coupon/coupon-management.html',context)
-
 
 ######################  edit button view function logic  ##########################
 
@@ -154,7 +151,6 @@ def edit_coupon(request, coupon_id):
 @never_cache
 def delete_coupon(request, coupon_id):
     if request.method == 'POST':
-        print(f"Received POST request to delete coupon {coupon_id}")
         try:
             coupon = Coupon.objects.get(id=coupon_id)
             

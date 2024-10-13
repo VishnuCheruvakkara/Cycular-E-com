@@ -4,14 +4,14 @@ from .models import Cart,CartItem
 from django.contrib import messages
 from django.http import JsonResponse
 import json
-# Create your views here.
+from django.contrib.auth.decorators import login_required
+
 ##################   main cart page...   ########################
 
+@login_required(login_url='user_side:sign-in') 
 def cart(request):
     if not request.user.is_authenticated:
         return redirect('core:index')
-    
-
     cart, created = Cart.objects.get_or_create(user=request.user)
 
     cart_items=cart.items.all()
@@ -19,7 +19,6 @@ def cart(request):
     overall_total = sum(item.subtotal for item in cart_items)
     total_quantity=sum(item.quantity for item in cart_items)
  
-
     context={
         'carts':cart,
         'cart_items':cart_items,
@@ -45,7 +44,6 @@ def add_to_cart(request):
     product_variant=get_object_or_404(ProductVariant,id=product_variant_id)
 
     # Check if the stock is zero
-   
     if action == 'add':
           # Check if the product variant has stock available
         if product_variant.stock <= 0:
@@ -74,6 +72,7 @@ def add_to_cart(request):
 
 ##############################  update the count of item in the add to cart button in home page  ########################
 
+@login_required(login_url='user_side:sign-in')
 def get_cart_count(request):
     if not request.user.is_authenticated:
         return JsonResponse({'status': 'error', 'message': 'User not authenticated'}, status=401)
@@ -88,15 +87,16 @@ def get_cart_count(request):
 
 ##########################  remove product from  cart with page reload  ##########################
 
+@login_required(login_url='user_side:sign-in')
 def remove_from_cart(request,cart_item_id):
     cart_item=get_object_or_404(CartItem,id=cart_item_id)
     cart_item.delete()
     messages.success(request, 'Item successfully removed from your cart.')
     return redirect('cart:cart-page')
- 
 
 ######################## update cart quantity of a product based on the count and stock  ###################
 
+@login_required(login_url='user_side:sign-in')
 def update_cart_item_quantity(request, cart_item_id):
     if not request.user.is_authenticated:
         return JsonResponse({'status': 'error', 'message': 'User not authenticated'}, status=401)

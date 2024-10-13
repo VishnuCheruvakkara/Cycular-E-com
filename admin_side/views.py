@@ -1,6 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import authenticate,login,logout
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -19,18 +18,15 @@ from decimal import Decimal
 from wallet.models import Wallet,Transaction
 from products.models import Brand,Category,ProductVariant
 from django.db.models import Sum
-
-from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYear
+from django.db.models.functions import TruncDay, TruncMonth
 from django.utils import timezone
 import json
 from django.db.models.functions import TruncHour
 from django.db.models import Q
-
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
 #############################   seller home    ########################################################
-
 
 @login_required(login_url='admin_side:seller-login')
 @never_cache
@@ -55,11 +51,8 @@ def SellerHome(request):
         .annotate(total_quantity_sold=Sum('quantity'),total_revenue=Sum(F('quantity') * F('price')))
         .order_by('-total_quantity_sold')[:10]
     )
-     # Print the total_quantity_sold for debugging
-    for item in top_selling_products:
-        print(f"Product Variant ID: {item['product_variant']}, Total Quantity Sold: {item['total_quantity_sold']}")
-    
-     # Prepare a list of product variants with their total quantity sold
+  
+    # Prepare a list of product variants with their total quantity sold
     product_variants = []
     for item in top_selling_products:
         variant = ProductVariant.objects.get(id=item['product_variant'])
@@ -70,8 +63,6 @@ def SellerHome(request):
             'color': variant.color,  # Add color
             'size': variant.size,     # Add size
         })
-    print(product_variants)
-    # Prepare context for rendering
 
     # Query the top 10 best-selling categories
     top_selling_categories = (
@@ -107,9 +98,6 @@ def SellerHome(request):
             'total_quantity_sold': item['total_quantity_sold'],
             'description': brand.description,
         })
-
-
-    
 
     # Get filter option (default is 'month')
     filter_option = request.GET.get('filter', 'month')
@@ -225,13 +213,6 @@ def SellerHome(request):
 
         data = [data_dict[label] for label in labels]
 
-    # Debugging: Print order_data to check results
-    print(f"Filter Option: {filter_option}")
-    print(f"Order Data: {list(order_data)}")  # Print actual data for debugging
-    print(f"Labels: {labels}")
-    print(f"Data: {data}")
-        
-   
     context = {
         'user_count': user_count,
         'product_variant_count': product_variant_count,
@@ -291,13 +272,12 @@ def UserManagement(request):
 
     # Get the search query
     query = request.GET.get('q', '')
-
     customers=User.objects.filter(is_superuser=False)
-
     if query:
         customers = customers.filter(
             Q(username__icontains=query) |Q(email__icontains=query)
         )
+
     # Set up pagination.
     paginator = Paginator(customers, 5)  
     page = request.GET.get('page')
@@ -361,8 +341,6 @@ def OrderManagement(request):
 
             # Check if the payment method was not 'cash_on_delivery'
             if order.payment_method != 'cash_on_delivery':
-              
-
                 # Add the order item price to the wallet balance
                 wallet.balance += Decimal(order_item.price)
                 wallet.save()
@@ -421,7 +399,6 @@ def OrderManagement(request):
         return redirect('admin_side:order-management')
      # Define status choices directly from the model field
     status_choices = OrderItem._meta.get_field('order_item_status').choices
-
     context={
         'order_items':page_obj,
         'status_choices': status_choices,
@@ -437,9 +414,7 @@ def sales_report(request):
     orders = Order.objects.all()
     # Get the search query
     query = request.GET.get('q', '')
-
     customers=User.objects.filter(is_superuser=False)
-
     if query:
         customers = customers.filter(
             Q(username__icontains=query) |Q(email__icontains=query)
@@ -490,9 +465,7 @@ def sales_report(request):
     }
     return render(request, 'admin_side/admin_sales_report.html', context)
 
-
 ########################  view for download sales reoprt   ##########################
-
 
 def generate_sales_report_pdf(orders, total_orders, total_sales, total_discounts, date_range=None, start_date=None, end_date=None):
     # Create the HttpResponse object with the appropriate PDF headers.

@@ -2,7 +2,6 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .forms import UserRegisterForm
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login,authenticate,logout
-
 from django.contrib import messages
 from django.conf import settings
 import random
@@ -16,12 +15,9 @@ from django.http import JsonResponse
 import re
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from django.utils.crypto import get_random_string
 from .models import Address
 from django.views.decorators.cache import never_cache
 from orders.models import Order,OrderItem
-
-
 from django.http import FileResponse, Http404
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -30,15 +26,11 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle
 import os
 from datetime import datetime, timedelta
-from io import BytesIO
 import tempfile
-
-
 User = get_user_model()
-# Create your views here.
-
 
 ###########################  user sign-up  #####################################
+
 import uuid
 
 def generate_unique_session_key():
@@ -52,9 +44,6 @@ def register_view(request):
             email=form.cleaned_data.get('email')
             username=form.cleaned_data.get('username')
             password=form.cleaned_data.get('password1')
-            
-            # #checker
-            print(email,password,username)
 
             session_key=generate_unique_session_key() #custom function called for generate the session key : above
 
@@ -70,10 +59,6 @@ def register_view(request):
                 'password':password,
             }
 
-            # # checker
-            print("Session data after storing:", request.session[session_key])
-
-
             send_otp_email(email,otp,username)
             request.session['user_registration_data']=session_key
             messages.success(request, 'OTP has been sent to your email.')
@@ -84,7 +69,6 @@ def register_view(request):
 
     context={
         'form':form,
-     
     }
    
     return render(request,"user_side/sign-up.html",context)
@@ -118,7 +102,6 @@ def login_view(request):
     
     return render(request, 'user_side/sign-in.html')
 
-
 ###########################  logout section  #########################################
 
 def logout_view(request):
@@ -136,23 +119,6 @@ def otp_view(request):
     session_key=request.session.get('user_registration_data')
     session_data=request.session.get(session_key)
 
-    # # Debugging print statements
-    # print("Session data before retrieving password:", session_data)
-    
-    # # Attempt to retrieve the password from the session data
-    # password = session_data.get('password')
-    # print("Retrieved password:", password)
-
-
-    # email=session_data.get('email')
-    # username=session_data.get('username')
-    # password=session_data.get('password')
-
-    # print(email,username,password)
-
-    # session_key=request.session.get('user_registration_data')
-
-    #################################################
 
     if (not session_key) or (session_key not in request.session):
         messages.error(request, 'No data found. Please sign-up again.')
@@ -184,35 +150,13 @@ def otp_view(request):
             username=session_data.get('username')
             password=request.POST.get('password1')
 
-#############################################
-            #checker
-                    
-            # Debugging print statements
-            print("Session data before retrieving password:", session_data)
-            
             # Attempt to retrieve the password from the session data
             password = session_data.get('password')
-            print("Retrieved password:", password)
-
-            print("Password before creating user:", password)
-            ##############################################################
-
+            
             user=User.objects.create_user(username=username,email=email,password=password)
 
-            ##############################################################
-            
-            #checker``
-            # Print the stored password (note: this will be a hashed value, not the raw password)
-            print("Stored password (hashed):", user.password)
-                     
-            # Debugging print statements
-            print("Session data before retrieving password:", session_data)
-            
             # Attempt to retrieve the password from the session data
             password = session_data.get('password')
-            print("Retrieved password:", password)
-
-########################################################
 
             user.save()
             if user is not None:
@@ -319,7 +263,6 @@ def change_username(request):
             errors['username']='Username contain atleast 3 letters.'
         elif User.objects.filter(username=new_username).exclude(username=current_username).exists():
             errors['username']='This username is already taken.'
-            
 
         if not errors:
             user=request.user
@@ -330,7 +273,6 @@ def change_username(request):
         else:
             show_modal=True
             #dont close modal when there is any validation error found
-
 
     context={
         'errors':errors,
@@ -444,12 +386,9 @@ def email_change_resend_otp_view(request):
         messages.success(request, 'New OTP has been sent to your email address.')
         return redirect('user_side:email-change-otp-view')  # Redirect to the OTP verification page
     
- 
-
 ##########################  update the password of the logined user  ##################################
 
 password_context={}
-
 
 @login_required(login_url='user_side:sign-in')
 @never_cache
@@ -497,8 +436,6 @@ def password_change_view(request):
         if not user.check_password(current_password):
             messages.error(request, 'Current password is incorrect.')
             return redirect('user_side:user-dash-board')
-        
-    
 
         # Generate and send OTP to user's email
         otp = random.randint(100000, 999999)
@@ -580,10 +517,7 @@ def password_change_resend_otp_view(request):
     messages.success(request, 'A new OTP has been sent to your email address.')
     return redirect('user_side:password-change-otp-view')  # Redirect to the OTP verification page
 
-
-
 #Adress management section down below...
-
 #########################  add address view  ####################
 
 def add_address(request):
@@ -592,7 +526,6 @@ def add_address(request):
 
     # Fetch all addresses of the logged-in user
     addresses = Address.objects.filter(user=request.user)
-
 
     if request.method == 'POST':
         address_line = request.POST.get('address_line', '').strip()
@@ -681,12 +614,11 @@ def add_address(request):
     context = {
         'errors': errors,
         'addresses':addresses,
-       
     }
 
     return render(request, 'user_side/user-dash-board.html', context)
-#######################  edit address  ##########################
 
+#######################  edit address  ##########################
 
 @login_required(login_url='user_side:sign-in')
 @never_cache
@@ -708,18 +640,14 @@ def edit_address(request, address_id):
         address.save()
         messages.success(request, 'Address updated successfully.')
         
-        
         return redirect('user_side:user-dash-board')  
-
-
+    
     context = {
         'address': address,  # Pass the address object to pre-fill form fields
     }
     return render(request, 'user_side/user-dash-board.html', context)
 
-
 #########################  delete user address  ######################3
-
 
 @login_required(login_url='user_side:sign-in')
 @never_cache
@@ -738,8 +666,6 @@ def delete_address(request, address_id):
     return redirect('user_side:user-dash-board')
 
 ################### forget password section  ######################
-
-
 
 # This dictionary is used to store forget password-related information temporarily
 forget_context = {}
@@ -783,7 +709,6 @@ def forget_password(request):
         return redirect('user_side:forget-password-otp')
 
     return render(request, 'user_side/forget-password-1.html')
-
 
 ############################   forget password otp send page   #########################
 
@@ -934,7 +859,6 @@ def order_item_details(request):
 
 ############################  return product dynamically  ########################
 
-
 def request_return(request, order_item_id):
     if request.method == 'POST':
         try:
@@ -955,7 +879,6 @@ def request_return(request, order_item_id):
             return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
-
 
 ##########################  invoice pdf generator  #####################
 def generate_invoice_pdf(order_item):
@@ -1077,9 +1000,7 @@ def generate_invoice_pdf(order_item):
 
     return file_path
 
-
 ###########################  invoice pdf download button logic   ##############################
-
 
 def download_invoice_item(request, order_item_id):
     try:

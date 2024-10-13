@@ -7,9 +7,6 @@ from products.models import Category,Brand,Size,Color
 from django.db.models import Min,Max,Count,Q
 from wishlist.models import Wishlist
 
-
-# Create your views here.
-
 #######################  user home-side #####################################
 
 @never_cache
@@ -36,8 +33,6 @@ def category_filter(request):
     else:
         user_wishlist_ids=set()
 
-
-
     sort_by = request.GET.get('sortby','default')
 
    # Get and filter out empty values
@@ -52,8 +47,6 @@ def category_filter(request):
     # Get the search term from the GET parameters
     search_query = request.GET.get('search', '').strip()
 
-    
-
     product_variants = ProductVariant.objects.filter(status=True)
 
     # Fetch the price range from the database
@@ -66,7 +59,6 @@ def category_filter(request):
             Q(product__description__icontains=search_query)
         )
   
-
     # Apply category filter if any categories are selected
     if selected_categories:
         product_variants=product_variants.filter(product__category_id__in=selected_categories)
@@ -83,7 +75,6 @@ def category_filter(request):
     if Min_price and Max_price:
         product_variants = product_variants.filter(price__gte=Min_price, price__lte=Max_price)
 
-   
     #Fetch all the active categories...
     categories = Category.objects.annotate(
         product_variant_count=Count('products__product_variants', filter=Q(products__product_variants__status=True))
@@ -92,7 +83,6 @@ def category_filter(request):
     brands = Brand.objects.filter(status=True)
     sizes = Size.objects.filter(status=True)
     colors = Color.objects.filter(status=True) 
-
 
     # Apply sorting
     if sort_by == 'increase':
@@ -106,8 +96,6 @@ def category_filter(request):
     elif sort_by == 'alpha-decrease':
         product_variants = product_variants.order_by(Lower('product__name').desc())  # Z-A
 
-
-    
     paginator = Paginator(product_variants, 8)  
     page = request.GET.get('page')
 
@@ -136,8 +124,6 @@ def category_filter(request):
         'selected_max_price': Max_price,
         'search_query': search_query,
         'user_wishlist_ids': user_wishlist_ids,
-    
-        
     }
     return render(request, 'core/category-filter.html', context)
 

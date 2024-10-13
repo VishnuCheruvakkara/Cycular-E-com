@@ -1,5 +1,5 @@
 from django.shortcuts import render,get_object_or_404,redirect
-from cart.models import Cart,CartItem
+from cart.models import Cart
 from user_side.models import Address
 from orders.models import OrderAddress,Order,OrderItem
 import re
@@ -10,16 +10,13 @@ from wallet.models import Transaction
 from coupon.models import Coupon,CouponUsage
 import json
 from django.http import JsonResponse
-from decimal import Decimal,ROUND_DOWN
+from decimal import Decimal
 from django.utils import timezone
 from datetime import datetime,time
 from wallet.models import Wallet
 from django.views.decorators.cache import never_cache
- 
 import razorpay
 
-
-# Create your views here.
 #####################  check out page  #################
 
 def check_out(request):
@@ -47,7 +44,7 @@ def check_out(request):
    
     # Calculate the total price of products
     total_price = sum(Decimal(item.subtotal) for item in cart_items)
-    print("Total price : ",total_price)
+  
     #get the data from the sessiion directly, that was stored with the help of javascript...
     applied_coupon=request.session.get('applied_coupon',None)
     if applied_coupon:
@@ -57,7 +54,6 @@ def check_out(request):
         valid_until = applied_coupon.get('valid_until')
         discount_amount = Decimal(applied_coupon.get('discount_amount', '0'))  # Convert from string to Decimal
         coupon_grand_total = Decimal(applied_coupon.get('coupon_grand_total', '0'))  # Convert from string to Decimal
-      
 
     if total_price == 0:
         messages.info(request,'Your cart is empty.Please add products to the cart before proceeding to checkout.')
@@ -102,12 +98,11 @@ def check_out(request):
                     'total_price': total_price,
                     'addresses': addresses,
                     'coupons':coupons,
-                    'wallet_balance': wallet_balance,
-                    
+                    'wallet_balance': wallet_balance,      
                 })
             selected_address=Address.objects.get(id=address_id)
 
-              # Create a detailed description of items purchased
+            # Create a detailed description of items purchased
             item_descriptions = []
             for item in cart_items:
                 item_descriptions.append(f"{item.product_variant.product.name}: {item.product_variant.size} (Qty: {item.quantity})")
@@ -146,16 +141,14 @@ def check_out(request):
                     description=f"Wallet payment for order : {item_details}"
                 )
 
-
             order=Order.objects.create(
                 user=request.user,
                 payment_method=payment_method,
                 total_price=total_price,
                 coupon_discount_total=discount_amount,
-              
             )
 
-             #save the address to the table 
+            #save the address to the table 
             order_address=OrderAddress.objects.create(
                 order=order,
                 address_line=selected_address.address_line,
@@ -169,13 +162,9 @@ def check_out(request):
                 item_subtotal = Decimal(item.subtotal)
                 total_price_decimal = Decimal(total_price) 
 
-                print("subtotal:item.subtotal",item.subtotal)
                 item_proportion = (item_subtotal / total_price_decimal)
-                print("item_proportion",item_proportion)
-                # here is some problem 
-                print("discount_amount is : ",discount_amount)
                 item_discount = ((item_proportion)* discount_amount)
-                print("item_discount",item_discount)
+               
                 # to decreace stock count of product when user buy it
                 product_variant = item.product_variant
                 if product_variant.stock >= item.quantity:
@@ -192,23 +181,10 @@ def check_out(request):
                     coupon_discount_price=item_discount,
                     coupon_info=f"{discount_value}% of {coupon_code} coupon applied.Discount of {item_discount:.2f} ₹"
                 )
-                # Printing the stored data
-                print(f"Stored OrderItem Data:")
-                print(f"Order ID: {order_item.order.id}")
-                print(f"Product Variant: {order_item.product_variant}")
-                print(f"Quantity: {order_item.quantity}")
-                print(f"Price (subtotal): {order_item.price}")
-                print(f"Coupon Discount Price: {order_item.coupon_discount_price}")
-                print(f"Coupon Info: {order_item.coupon_info}")
-                
-                print(f"Discount amount: {discount_amount}")
-                print(f"Final total price after discount: {total_price}")
-
-          
+            
             # check whether user select the razorpay for payment
             if payment_method == 'razorpay':
                 return redirect(reverse('payment:razorpay-order', args=[order.id]))
-           
            
             # Clear the cart after successful purchase
             cart.items.all().delete()
@@ -222,15 +198,10 @@ def check_out(request):
                 coupon_usage.save()
                 del request.session['applied_coupon']
             
-            
             messages.success(request,'Order was placed successfully. Details are added to the order-history...')
             return redirect(reverse('payment:order-success-page',args=[order.id]))
         except Exception as e:
-            # Log the exception
-            print(f"Error: {e}")
             messages.error(request, 'An error occurred while placing the order.')
-   
- 
    
     context={
         'cart_items':cart_items,
@@ -246,13 +217,10 @@ def check_out(request):
 
 def add_address_checkout(request):
 
-    print("add address check out works")
-
     errors = {}  # Dictionary to hold error messages
 
     # Fetch all addresses of the logged-in user
     addresses = Address.objects.filter(user=request.user)
-
 
     if request.method == 'POST':
         address_line = request.POST.get('address_line', '').strip()
@@ -341,7 +309,6 @@ def add_address_checkout(request):
     context = {
         'errors': errors,
         'addresses':addresses,
-       
     }
 
     return render(request, 'payment/check-out.html', context)
@@ -352,7 +319,6 @@ def order_success_page(request,order_id):
     # Fetch the order using the order_id
     order = get_object_or_404(Order, id=order_id, user=request.user)
     order_items=order.items.all()
-
    
     order_address = getattr(order, 'order_address', None)     
 
@@ -363,10 +329,8 @@ def order_success_page(request,order_id):
     }
     return render(request,'payment/order-success-page.html',context)
 
-
 ##################### Razor pay payment views logic  ###########################
 
-# views.py
 @never_cache
 def create_razorpay_order(request, order_id):
  
@@ -385,7 +349,6 @@ def create_razorpay_order(request, order_id):
     order.razorpay_order_id = razorpay_order['id']
     order.save()
   
-
     context = {
         'razorpay_key_id': settings.RAZORPAY_API_KEY,
         'razorpay_order_id': razorpay_order['id'],
@@ -393,7 +356,6 @@ def create_razorpay_order(request, order_id):
         'order_id': order.id,
     }
     return render(request, 'payment/razorpay_payment.html', context)
-
 
 ###################  payment success page by razor pay  #####################
 
@@ -436,7 +398,6 @@ def payment_success(request):
                     description=f"{order_item.product_variant.product.name} Purchase via Razorpay"
                 )
             
-            
             messages.success(request, 'Payment successful and order placed successfully!')
         else:
             messages.error(request, 'Payment failed.')
@@ -475,7 +436,6 @@ def payment_cancel(request):
 
     # Render the cancellation template with order details
     return render(request, 'payment/razorpay-cancell-page.html', {'order': order})
-
 
 ####################### apply coupon logic  #######################
 
@@ -530,14 +490,7 @@ def apply_coupon_view(request):
                 'discount_amount': str(discount_amount_float),  # Convert to str for consistent formatting
                 'coupon_grand_total': str(coupon_grand_total_float),  # Convert to str for consistent formatting
             }
-            
-            # Print the session values for debugging
-            print("Applied Coupon Session Data:")
-            print(f"Coupon Code: {request.session['applied_coupon']['coupon_code']}")
-            print(f"Discount Value: {request.session['applied_coupon']['discount_value']}")
-            print(f"Valid Until: {request.session['applied_coupon']['valid_until']}")
-            print(f"Discount Amount: {request.session['applied_coupon']['discount_amount']}")
-            print(f"Coupon Grand Total: {request.session['applied_coupon']['coupon_grand_total']}")
+          
             return JsonResponse({
                 'message': f'Coupon applied! You saved {discount_amount:.2f} ₹',
                 'coupon_code': coupon.code,

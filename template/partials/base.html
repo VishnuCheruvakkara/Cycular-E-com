@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Cycular Home</title>
+    <title>{% block title %}Cycular Home{% endblock %}</title> <!-- Title block -->
     <meta name="keywords" content="HTML5 Template">
     <meta name="description" content="Molla - Bootstrap eCommerce Template">
     <meta name="author" content="p-themes">
@@ -84,7 +84,7 @@
                                     <p>login/signup</p>
                                 </a>
                             </div><!-- End .compare-dropdown -->
-                        {% endif %}
+                        {% endif %} 
 
                             <div class="wishlist">
                                 <a href="{% url 'wishlist:wishlist-page' %}" title="Wishlist">

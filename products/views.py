@@ -17,8 +17,6 @@ from django.views.decorators.cache import never_cache
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
 
-# Create your views here.
-
 ###################### Product Management page Admin side #################################
 
 @login_required(login_url='admin_side:seller-login')
@@ -68,8 +66,8 @@ def AddProduct(request):
         form = ProductForm()
     return render(request, 'products/add-product.html', {'form': form})
 
-
 ###################### Edit productpage Management page Admin side #################################
+
 @login_required(login_url='admin_side:seller-login')
 @never_cache
 def EditProduct(request,product_id):
@@ -93,7 +91,7 @@ def EditProduct(request,product_id):
     return render(request,'products/edit-product.html',context)
 
 ####################### delete product Admin side ########################################
-#note 
+
 @login_required(login_url='admin_side:seller-login')
 @never_cache
 def DeleteProduct(request,product_id):
@@ -103,7 +101,6 @@ def DeleteProduct(request,product_id):
     return redirect('products:product-management')
 
 ####################### image resize function Admin side ########################################
-
 
 def ResizeImage(image, max_width=800, max_height=600,filename=None):
     # Open the image file
@@ -198,7 +195,6 @@ def product_view(request,product_id):
         return redirect('core:index')
     product=get_object_or_404(Product,id=product_id)
     product_variants=product.product_variants.all()
-    
         
     # Check for the search parameter
     search_query = request.GET.get('query', '').strip()
@@ -253,7 +249,6 @@ def category_management(request):
     sizes = Size.objects.all()
     colors= Color.objects.all()
    
-    
     context = {
         'categories': categories,
         'brands': brands,
@@ -303,7 +298,6 @@ def delete_color(request,color_id):
     color.delete()
     messages.success(request,'Color deleted successfully.',extra_tags='admin')
     return redirect('products:category-add')
-
 
 ################## add category Admin Side ################################
 
@@ -357,7 +351,6 @@ def edit_category(request,category_id):
     }
     return render(request,'products/add-category.html',context)
 
-
 ############################ add-brand Admin Side ##################################
 
 @login_required(login_url='admin_side:seller-login')
@@ -374,7 +367,6 @@ def add_brand(request):
             return redirect('products:category-add')
         else:
             messages.error(request,'Please correct the error,try again!',extra_tags='admin')
-           
     else:
         form = BrandForm()
     context={
@@ -461,7 +453,6 @@ def edit_size(request,size_id):
     }
     return render(request,'products/add-size.html',context)
 
-
 ############################ add-color Admin Side ##################################d
 
 @login_required(login_url='admin_side:seller-login')
@@ -482,7 +473,6 @@ def add_color(request):
         'heading': 'Add New Color',  # Set a heading for the page
     }
     return render(request, 'products/add-color.html', context)
-
 
 ############################ edit-color Admin Side #################################
 
@@ -520,7 +510,6 @@ def delete_product_variant(request,variant_id):
     variant.delete()
     messages.success(request, 'Selected Product Variant was successfully deleted.',extra_tags='admin}')
     return redirect('products:product-view',product_id=product_id)
-
 
 ####################### edit variant Admin side ################################
 
@@ -584,7 +573,6 @@ def edit_variant(request, variant_id):
 
 ######################## single product view User side  #########################
 
-
 def single_product_view(request, variant_id):
     variant = get_object_or_404(ProductVariant, id=variant_id)
     available_variants = ProductVariant.objects.filter(product=variant.product).values('id', 'size__name', 'color__name').distinct()
@@ -631,7 +619,6 @@ def product_variant_data(request,variant_id):
     context={
         'variant':variant,
         'product':variant.product,
-       
     }
     return render(request,'products/product-variant-data-view.html',context)
 

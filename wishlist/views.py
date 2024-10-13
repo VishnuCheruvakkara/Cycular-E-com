@@ -1,12 +1,13 @@
 from django.shortcuts import render,get_object_or_404,redirect
 from .models import Wishlist
-from products.models import Product,ProductVariant
+from products.models import ProductVariant
 from django.contrib import messages
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
-# Create your views here.
 #####################  wish list page    ##################
 
+@login_required(login_url='user_side:sign-in')
 def wishlist_page(request):
     if request.user.is_authenticated:
         wishlist_items=Wishlist.objects.filter(user=request.user)
@@ -16,7 +17,6 @@ def wishlist_page(request):
         'wishlist_items':wishlist_items,
     }
     return render(request,'wishlist/wishlist-page.html',context)
-
 
 #####################  add product to the wish list   ####################
 
@@ -55,6 +55,7 @@ def add_to_wishlist(request):
 
 ########################  delete product from wishlist  ########################
 
+@login_required(login_url='user_side:sign-in')
 def delete_wishlist(request,wishlist_id):
     wishlist=get_object_or_404(Wishlist,id=wishlist_id)
     wishlist.delete()
@@ -63,6 +64,7 @@ def delete_wishlist(request,wishlist_id):
 
 ###################  Show wish list count dynamiccally using fetch api  #######################
 
+@login_required(login_url='user_side:sign-in')
 def wishlist_count(request):
     # Get the count of wishlist items for the logged-in user
     count = Wishlist.objects.filter(user=request.user).count()

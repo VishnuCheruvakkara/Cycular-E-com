@@ -1,5 +1,4 @@
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
+from django.shortcuts import get_object_or_404, render
 from .models import Wallet, Transaction
 from orders.models import OrderItem
 from django.http import JsonResponse
@@ -8,12 +7,8 @@ import json
 from captcha.models import CaptchaStore
 from captcha.helpers import captcha_image_url
 from django.utils import timezone
-# Create your views here.
-
-
 
 #######################  wallet-page  ###################
-
 
 def wallet_page(request):
  
@@ -21,13 +16,11 @@ def wallet_page(request):
     
     transactions = wallet.transactions.all().order_by('-created_at')
 
-   
     context = {
         "wallet": wallet,
         "transactions": transactions,
     }
     return render(request, 'wallet/wallet-page.html', context)
-
 
 ##########################  orderitem cacelling logic   ####################
 
@@ -38,17 +31,11 @@ def cancell_order_item(request, order_item_id):
         data = json.loads(request.body)
         captcha_response = data.get('captcha_response')
         captcha_key = data.get('captcha_key')
-        # Debugging information
-        print(f"Received CAPTCHA key: {captcha_key}")
-        print(f"Received CAPTCHA response: {captcha_response}")
-
+      
         # Validate CAPTCHA
         try:
             # Query by hashkey (adjust according to your CaptchaStore model)
             captcha_store = CaptchaStore.objects.get(hashkey=captcha_key)
-            
-            # Debugging information
-            print(f"Stored CAPTCHA response: {captcha_store.response}")
             
             # Validate the response
             if captcha_store.response.upper() != captcha_response:
@@ -56,9 +43,6 @@ def cancell_order_item(request, order_item_id):
         
         except CaptchaStore.DoesNotExist:
             return JsonResponse({'error': 'CAPTCHA key not found'}, status=400)
-
-
-
 
         # Get the order item to be cancelled
         order_item = get_object_or_404(OrderItem, id=order_item_id)
@@ -110,7 +94,6 @@ def cancell_order_item(request, order_item_id):
         })
     # If not a POST request, return a bad request response
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
-
 
 #######################  order cancell captcha controll  ##################
 

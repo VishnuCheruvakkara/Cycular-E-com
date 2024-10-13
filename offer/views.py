@@ -7,8 +7,8 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 
-# Create your views here.
 #######################  offer page #####################
+
 @login_required(login_url='admin_side:seller-login')
 @never_cache
 def offer_page(request):
@@ -18,8 +18,6 @@ def offer_page(request):
     brands = Brand.objects.filter(status=True)
     brand_offers = BrandOffer.objects.filter(status=True)
 
-
-    
     context = {
         'product_variants': product_variants,
         'product_variant_offers': product_variant_offers,
@@ -75,7 +73,6 @@ def add_product_variant_offer(request):
                 },
                 'product_variant_offers': product_variant_offers,
                 'brands': brands, 
-                
             })
 
         try:
@@ -107,7 +104,6 @@ def add_product_variant_offer(request):
 
     return render(request, 'offer/offer-management.html', context)
 
-
 ################ edit product variant offer #########################
 
 @login_required(login_url='admin_side:seller-login')
@@ -121,7 +117,6 @@ def update_product_variant_offer(request, offer_id):
     brand_offers = BrandOffer.objects.filter(status=True)
     brands = Brand.objects.filter(status=True)
    
-
     if request.method == 'POST':
         # Get the data from the form
         offer_name = request.POST.get('offer_name')
@@ -268,7 +263,6 @@ def add_brand_offer(request):
                     'brand_id': brand_id,
                     'offer_percentage': offer_percentage,
                     'end_date': end_date,
-                    
                 }
             })
 
