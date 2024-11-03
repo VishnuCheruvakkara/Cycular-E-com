@@ -190,15 +190,11 @@ class ProductVariantForm(forms.ModelForm):
             
             if not image:
                 self.add_error(image_field, f"{image_field.replace('image', 'Image ')} is required.")
-                print(f"{image_field} is missing.")
+             
             else:
                 if image.size > max_size_mb * 1024 * 1024:  # Convert MB to bytes
                     self.add_error(image_field, f"The size of {image_field.replace('image', 'Image ')} should not exceed {max_size_mb} MB.")
-                    print(f"{image_field} is too large: {image.size} bytes.")
-                else:
-                    print(f"{image_field} is within size limits: {image.size} bytes.")
-       
-        
+               
         return cleaned_data
     
   

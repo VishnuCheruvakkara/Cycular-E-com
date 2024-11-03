@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app  # Mount the current directory to /app in the container
+      
+    ports:
+      - "8000:8000"  # Expose port 8000
+      
+    env_file: .env  # Load environment variables from .env file
+    depends_on:
+      - db  # Wait for the database to be ready before starting Django
+    restart: unless-stopped  # Restart the container unless it's explicitly stopped
+
+  db:
+    image: postgres:14  # Use the PostgreSQL image
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persist database data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}  # Use values from .env
+      POSTGRES_USER: ${POSTGRES_USER}  # Use values from .env
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # Use values from .env
+    ports:
+      - "5432:5432"
+    restart: unless-stopped  # Restart the database container unless stopped
+
+volumes:
+  postgres_data:  # Define a named volume for PostgreSQL data

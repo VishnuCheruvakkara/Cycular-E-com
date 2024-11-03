@@ -1,0 +1,13 @@
+# Environments
+.env
+
+/images
+
+
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+media

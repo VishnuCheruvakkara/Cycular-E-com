@@ -398,12 +398,10 @@ def OrderManagement(request):
 
 ########################## Views for handle the sales report  ####################
 
-from django.utils import timezone
-from datetime import datetime
-
-@login_required(login_url='admin_side:seller-login')
-@never_cache
 def sales_report(request):
+    # Set the default start date to today
+    start_date = datetime.today().date()  # Default to today
+    end_date = None  # Initialize end_date to None
     # Fetching orders
     orders = Order.objects.all()
 
@@ -468,6 +466,10 @@ def sales_report(request):
     return render(request, 'admin_side/admin_sales_report.html', context)
 
 ########################  view for download sales reoprt   ##########################
+
+
+
+
 
 def generate_sales_report_pdf(orders, total_orders, total_sales, total_discounts, date_range=None, start_date=None, end_date=None):
     # Create the HttpResponse object with the appropriate PDF headers.
