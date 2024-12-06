@@ -3,7 +3,7 @@
 **Cycular-E-com** is an e-commerce platform designed for selling cycles. It features both user-side functionality for a smooth shopping experience and admin-side management tools for tracking and managing sales, products, and users. This project serves as my first comprehensive e-commerce application, created using Django, PostgreSQL, and various other technologies.
 
 **Watch the Demo**
-[Watch the Demo](https://www.youtube.com/watch?v=example)
+[Watch the Demo](https://www.linkedin.com/posts/vishnu-cheruvakkara-231b8b235_webdevelopment-ecommerce-python-activity-7264316221553020928-oIZA?utm_source=share&utm_medium=member_desktop)
 
 
 ## Key Features
