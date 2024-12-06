@@ -44,7 +44,7 @@ To get started with **Cycular-E-com**, follow these steps:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/VishnuCheruvakkara/Cycular-E-com.git
+   https://github.com/VishnuCheruvakkara/Cycular-E-com.git
    cd cycular-ecom
 2. **Install required dependencies::**
    ```bash
