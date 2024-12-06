@@ -46,3 +46,21 @@ To get started with **Cycular-E-com**, follow these steps:
    ```bash
    git clone https://github.com/your-username/cycular-ecom.git
    cd cycular-ecom
+2. **Install required dependencies::**
+   ```bash
+   pip install -r requirements.txt
+3. **Set up environment variables:**
+   Configure your database credentials and third-party API keys in the .env file (refer to the .env.example for a template).
+4. **Run database migrations:**
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+5. **Clone the repository:**
+   ```bash
+   python manage.py runserver
+6. **Visit the site at:**
+    Open your browser and go to http://127.0.0.1:8000 to see the application in action.
+   
+### Development Notes
+This project is still a work in progress and not fully containerized with Docker.
+For local development, the application is set up using Python and PostgreSQL directly. Docker support will be added in the future for more seamless deployment.
