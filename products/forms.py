@@ -1,8 +1,6 @@
 from django import forms
 from .models import Product,Size,ProductVariant,Category,Brand,Color
 import re
-from django.utils.text import slugify
-import magic
 
 #####################  product form  ###################
 class ProductForm(forms.ModelForm):

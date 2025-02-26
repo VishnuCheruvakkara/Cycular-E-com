@@ -1,22 +1,39 @@
-version: '3.8'
+version: '3.9'
 
 services:
   django:
     build: .
     container_name: django
-    command: python manage.py runserver 0.0.0.0:8000  # This runs the Django dev server; adjust if you're using Gunicorn
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     volumes:
       - .:/usr/src/app  
+      - .env:/usr/src/app/.env  # Mount the .env file
     ports:
-      - "8000:8000"  # Expose port 8000 for the Django app
+      - "8000:8000"
     depends_on:
-      - pgdb  # Ensure the DB container starts before Django
-   
+      - pgdb
+    environment:
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=cycular_ecommerce.settings
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=pgdb
+      
+    restart: always
 
   pgdb:
-    image: postgres  # Use PostgreSQL version 14
+    image: postgres:latest
     container_name: pgdb
+    restart: always
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}  # Load DB name from .env file
-      POSTGRES_USER: ${POSTGRES_USER}  # Load DB user from .env file
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # Load DB password from .env file
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
