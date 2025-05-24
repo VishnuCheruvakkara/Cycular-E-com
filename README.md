@@ -58,8 +58,7 @@ To get started with **Cycular-E-com**, follow these steps:
 5. **Clone the repository:**
    ```bash
    python manage.py runserver
-6. **Visit the site at:**
-    Open your browser and go to http://127.0.0.1:8000 to see the application in action.
+
    
 ### Development Notes
 This project is still a work in progress and not fully containerized with Docker.
