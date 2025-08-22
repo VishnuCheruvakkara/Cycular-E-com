@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ".env"
-          target: "/home/cheruvakkarav/Cycular-E-com/.env"
+          target: "/home/cheruvakkarav/Cycular-E-com"
           overwrite: true
           strip_components: 0
 
