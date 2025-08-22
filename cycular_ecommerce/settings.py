@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env=environ.Env(
     DEBUG=(bool,False)
 )
+
 # Reading .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
@@ -196,7 +197,7 @@ EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = env('EMAIL_PORT')
 EMAIL_USE_TLS =env.bool('EMAIL_USE_TLS',default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER') # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')    # Replace with your Gmail app password
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # Replace with your Gmail app password
 
 # Ensure session cookies are only sent over HTTPS
 SESSION_COOKIE_SECURE = True
