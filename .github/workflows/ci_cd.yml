@@ -42,3 +42,4 @@ jobs:
             pip install --cache-dir=/home/cheruvakkarav/.cache/pip -r requirements.txt                        
             python manage.py collectstatic --noinput 
             sudo systemctl restart gunicorn
+            
