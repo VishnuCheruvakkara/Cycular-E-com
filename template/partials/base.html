@@ -4,66 +4,38 @@
 
 
 <!-- molla/index-20.html  22 Nov 2019 10:01:15 GMT -->
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{% block title %}Cycular Home{% endblock %}</title> <!-- Title block -->
-    <meta name="keywords" content="HTML5 Template">
-    <meta name="description" content="Molla - Bootstrap eCommerce Template">
-    <meta name="author" content="p-themes">
-    <!-- Favicon -->
-  
-    <link rel="shortcut icon" href="{% static 'assets/images/cycular/favicon-cycular-user.ico' %}">
-    <meta name="apple-mobile-web-app-title" content="Molla">
-    <meta name="application-name" content="Molla">
-    <meta name="msapplication-TileColor" content="#cc9966">
-    <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
-    <meta name="theme-color" content="#ffffff">
-    <link rel="stylesheet" href="{% static 'assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css' %}">
-    <!-- Plugins CSS File -->
-    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/plugins/owl-carousel/owl.carousel.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/plugins/magnific-popup/magnific-popup.css' %}">
-    <!-- Main CSS File -->
-    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/skins/skin-demo-20.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/demos/demo-20.css' %}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.elevatezoom/3.0.8/jquery.elevateZoom.min.js"></script>
- 
-</head>
+
 
 <body>
     <div class="page-wrapper">
         <header class="header header-12">
-                <div class="header-top">
-                    <div class="container">
-                       
+            <div class="header-top">
+                <div class="container">
 
-                        <div class="header-right">
 
-                            {% if user.is_authenticated %}
-                                <ul style="margin-top: 10px;">
-                                    <a href="{% url 'user_side:sign-out' %}" >Log-out</a>
-                                </ul>
-                            {% endif %}
-                        </div><!-- End .header-right -->
+                    <div class="header-right">
 
-                    </div><!-- End .container -->
-                </div><!-- End .header-top -->
+                        {% if user.is_authenticated %}
+                        <ul style="margin-top: 10px;">
+                            <a href="{% url 'user_side:sign-out' %}">Log-out</a>
+                        </ul>
+                        {% endif %}
+                    </div><!-- End .header-right -->
+
+                </div><!-- End .container -->
+            </div><!-- End .header-top -->
 
             <div class="header-middle">
                 <div class="container">
                     <div class="header-left">
-                       
+
                         <a href="{% url 'core:index'%}" class="logo">
-                            <img src="{% static 'assets\images\cycular\cycular_mix.png' %}" alt="Molla Logo" width="105" height="25">
+                            <img src="{% static 'assets\images\cycular\cycular_mix.png' %}" alt="Molla Logo" width="105"
+                                height="25">
                         </a>
                     </div><!-- End .header-left -->
 
-                    <div class="header-right">           
+                    <div class="header-right">
                         {% if user.is_authenticated %}
                         <div class="header-dropdown-link">
                             <div class="account">
@@ -74,35 +46,35 @@
                                     <p> My Account</p>
                                 </a>
                             </div><!-- End .compare-dropdown -->
-                        {% else %}
-                        <div class="header-dropdown-link">
-                            <div class="account">
-                                <a href="{% url 'user_side:sign-in' %}" title="My account">
-                                    <div class="icon">
-                                        <i class="icon-user"></i>
-                                    </div>
-                                    <p>login/signup</p>
-                                </a>
-                            </div><!-- End .compare-dropdown -->
-                        {% endif %} 
+                            {% else %}
+                            <div class="header-dropdown-link">
+                                <div class="account">
+                                    <a href="{% url 'user_side:sign-in' %}" title="My account">
+                                        <div class="icon">
+                                            <i class="icon-user"></i>
+                                        </div>
+                                        <p>login/signup</p>
+                                    </a>
+                                </div><!-- End .compare-dropdown -->
+                                {% endif %}
 
-                            <div class="wishlist">
-                                <a href="{% url 'wishlist:wishlist-page' %}" title="Wishlist">
-                                    <div class="icon">
-                                        <i class="icon-heart-o"></i>
-                                        <span class="wishlist-count badge">0</span>
-                                    </div>
-                                    <p>Wishlist</p>
-                                </a>
-                            </div><!-- End .compare-dropdown -->
+                                <div class="wishlist">
+                                    <a href="{% url 'wishlist:wishlist-page' %}" title="Wishlist">
+                                        <div class="icon">
+                                            <i class="icon-heart-o"></i>
+                                            <span class="wishlist-count badge">0</span>
+                                        </div>
+                                        <p>Wishlist</p>
+                                    </a>
+                                </div><!-- End .compare-dropdown -->
 
-                            <div class="dropdown cart-dropdown">
-                                <a href="{% url 'cart:cart-page' %}" class="dropdown-toggle" ">
-                                    <div class="icon">
+                                <div class="dropdown cart-dropdown">
+                                    <a href="{% url 'cart:cart-page' %}" class="dropdown-toggle" ">
+                                    <div class=" icon">
                                         <i class="icon-shopping-cart"></i>
                                         <span class="cart-count">0</span>
-                                    </div>
-                                    <p>Cart</p>
+                                </div>
+                                <p>Cart</p>
                                 </a>
 
                             </div><!-- End .cart-dropdown -->
@@ -125,148 +97,157 @@
         {% endif %}
      -->
 
-{% block content %}
+        {% block content %}
 
 
-{% endblock content %}
+        {% endblock content %}
 
-<!-- footer starts... -->
-<div class="cta-newsletter text-center pt-6 pb-7">
-    <div class="container">
-        <span class="cta-icon"><i class="icon-envelope"></i></span>
-        <h3 class="title">Subscribe for Our Newsletter</h3><!-- End .title -->
-        <p class="title-desc">Learn about new offers and get more deals by joining our newsletter</p><!-- End .title-desc -->
-        
-        <form action="#">
-            <div class="input-group">
-                <input type="email" class="form-control" placeholder="Enter your Email Address" aria-label="Email Adress" aria-describedby="newsletter-btn" required>
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="submit" id="newsletter-btn"><span>SUBSCRIBE</span><i class="icon-long-arrow-right"></i></button>
-                </div><!-- .End .input-group-append -->
-            </div><!-- .End .input-group -->
-        </form>
-    </div><!-- End .container -->
-</div><!-- End .cta-newsletter -->
-</main><!-- End .main -->
+        <!-- footer starts... -->
+        <div class="cta-newsletter text-center pt-6 pb-7">
+            <div class="container">
+                <span class="cta-icon"><i class="icon-envelope"></i></span>
+                <h3 class="title">Subscribe for Our Newsletter</h3><!-- End .title -->
+                <p class="title-desc">Learn about new offers and get more deals by joining our newsletter</p>
+                <!-- End .title-desc -->
 
-<footer class="footer footer-2">
-<div class="footer-middle">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12 col-lg-6 col-xl-5">
-                <div class="widget widget-about">
-                    <div class="logo-and-description">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 ">
-                           
-                                <a href="{% url 'core:index' %}" class="logo">
-                                    <img src="{% static 'assets/images/cycular/cycular_black.png' %}" alt="Cycular logo" class="img-fluid" width="105" height="25">
-                                </a>
-                           
-                            </div>
-                            <div class="col-md-8">
-                                <!-- Used text-start to align the text to the left and reduced column width -->
-                                <p class="mt-md-0 text-start">
-                                   © 2024 Cycular. All rights reserved. Discover high-quality bicycles for every adventure, and join our community of cycling enthusiasts today!
-                                </p>
+                <form action="#">
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Enter your Email Address"
+                            aria-label="Email Adress" aria-describedby="newsletter-btn" required>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit" id="newsletter-btn"><span>SUBSCRIBE</span><i
+                                    class="icon-long-arrow-right"></i></button>
+                        </div><!-- .End .input-group-append -->
+                    </div><!-- .End .input-group -->
+                </form>
+            </div><!-- End .container -->
+        </div><!-- End .cta-newsletter -->
+        </main><!-- End .main -->
+
+        <footer class="footer footer-2">
+            <div class="footer-middle">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 col-lg-6 col-xl-5">
+                            <div class="widget widget-about">
+                                <div class="logo-and-description">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-4 ">
+
+                                            <a href="{% url 'core:index' %}" class="logo">
+                                                <img src="{% static 'assets/images/cycular/cycular_black.png' %}"
+                                                    alt="Cycular logo" class="img-fluid" width="105" height="25">
+                                            </a>
+
+                                        </div>
+                                        <div class="col-md-8">
+                                            <!-- Used text-start to align the text to the left and reduced column width -->
+                                            <p class="mt-md-0 text-start">
+                                                © 2024 Cycular. All rights reserved. Discover high-quality bicycles for
+                                                every adventure, and join our community of cycling enthusiasts today!
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="widget-about-info ">
+                                    <div class="row">
+                                        <div class="col-sm-6 col-md-4">
+                                            <span class="widget-about-title">Got Question? Call us 24/7</span>
+                                            <a href="tel:123456789">+0123 456 789</a>
+                                        </div>
+                                        <div class="col-sm-6 col-md-8">
+                                            <span class="widget-about-title">Payment Method</span>
+                                            Razor Pay
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    
-                    <div class="widget-about-info ">
-                        <div class="row">
-                            <div class="col-sm-6 col-md-4">
-                                <span class="widget-about-title">Got Question? Call us 24/7</span>
-                                <a href="tel:123456789">+0123 456 789</a>
-                            </div>
-                            <div class="col-sm-6 col-md-8">
-                                <span class="widget-about-title">Payment Method</span>
-                                Razor Pay
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
 
 
-            <div class="col-lg-6 col-xl-7">
-                <div class="row">
-                    <div class="col-sm-4">
-                        <div class="widget">
-                            <h4 class="widget-title">Information</h4><!-- End .widget-title -->
+                        <div class="col-lg-6 col-xl-7">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="widget">
+                                        <h4 class="widget-title">Information</h4><!-- End .widget-title -->
 
-                            <ul class="widget-list">
-                                <li><a href="about.html">About Cycular</a></li>
-                                <li><a href="#">How to shop on Cycular</a></li>
-                                <li><a href="faq.html">FAQ</a></li>
-                                <li><a href="contact.html">Contact us</a></li>
-                                <li><a href="login.html">Log in</a></li>
-                            </ul><!-- End .widget-list -->
-                        </div><!-- End .widget -->
-                    </div><!-- End .col-sm-4 col-lg-3 -->
+                                        <ul class="widget-list">
+                                            <li><a href="about.html">About Cycular</a></li>
+                                            <li><a href="#">How to shop on Cycular</a></li>
+                                            <li><a href="faq.html">FAQ</a></li>
+                                            <li><a href="contact.html">Contact us</a></li>
+                                            <li><a href="login.html">Log in</a></li>
+                                        </ul><!-- End .widget-list -->
+                                    </div><!-- End .widget -->
+                                </div><!-- End .col-sm-4 col-lg-3 -->
 
-                    <div class="col-sm-4">
-                        <div class="widget">
-                            <h4 class="widget-title">Customer Service</h4><!-- End .widget-title -->
+                                <div class="col-sm-4">
+                                    <div class="widget">
+                                        <h4 class="widget-title">Customer Service</h4><!-- End .widget-title -->
 
-                            <ul class="widget-list">
-                                <li><a href="#">Payment Methods</a></li>
-                                <li><a href="#">Money-back guarantee!</a></li>
-                                <li><a href="#">Returns</a></li>
-                                <li><a href="#">Shipping</a></li>
-                                <li><a href="#">Terms and conditions</a></li>
-                                <li><a href="#">Privacy Policy</a></li>
-                            </ul><!-- End .widget-list -->
-                        </div><!-- End .widget -->
-                    </div><!-- End .col-sm-4 col-lg-3 -->
+                                        <ul class="widget-list">
+                                            <li><a href="#">Payment Methods</a></li>
+                                            <li><a href="#">Money-back guarantee!</a></li>
+                                            <li><a href="#">Returns</a></li>
+                                            <li><a href="#">Shipping</a></li>
+                                            <li><a href="#">Terms and conditions</a></li>
+                                            <li><a href="#">Privacy Policy</a></li>
+                                        </ul><!-- End .widget-list -->
+                                    </div><!-- End .widget -->
+                                </div><!-- End .col-sm-4 col-lg-3 -->
 
-                    <div class="col-sm-4">
-                        <div class="widget">
-                            <h4 class="widget-title">My Account</h4><!-- End .widget-title -->
+                                <div class="col-sm-4">
+                                    <div class="widget">
+                                        <h4 class="widget-title">My Account</h4><!-- End .widget-title -->
 
-                            <ul class="widget-list">
-                                <li><a href="login.html">Sign In</a></li>
-                                <li><a href="cart.html">View Cart</a></li>
-                                <li><a href="wishlist.html">My Wishlist</a></li>
-                                <li><a href="#">Track My Order</a></li>
-                                <li><a href="#">Help</a></li>
-                            </ul><!-- End .widget-list -->
-                        </div><!-- End .widget -->
-                    </div><!-- End .col-sm-4 col-lg-2 -->
-                </div><!-- End .row -->
-            </div><!-- End .col-lg-6 col-xl-7 -->
-        </div><!-- End .row -->
-    </div><!-- End .container -->
-</div><!-- End .footer-middle -->
+                                        <ul class="widget-list">
+                                            <li><a href="login.html">Sign In</a></li>
+                                            <li><a href="cart.html">View Cart</a></li>
+                                            <li><a href="wishlist.html">My Wishlist</a></li>
+                                            <li><a href="#">Track My Order</a></li>
+                                            <li><a href="#">Help</a></li>
+                                        </ul><!-- End .widget-list -->
+                                    </div><!-- End .widget -->
+                                </div><!-- End .col-sm-4 col-lg-2 -->
+                            </div><!-- End .row -->
+                        </div><!-- End .col-lg-6 col-xl-7 -->
+                    </div><!-- End .row -->
+                </div><!-- End .container -->
+            </div><!-- End .footer-middle -->
 
-<div class="footer-bottom">
-    <div class="container">
-        <p class="footer-copyright" style="margin-top:6px">Copyright © 2024 Cycular. All Rights Reserved.</p><!-- End .footer-copyright -->
-        <ul class="footer-menu">
-            <li><a href="#">Terms Of Use</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-        </ul><!-- End .footer-menu -->
+            <div class="footer-bottom">
+                <div class="container">
+                    <p class="footer-copyright" style="margin-top:6px">Copyright © 2024 Cycular. All Rights Reserved.
+                    </p><!-- End .footer-copyright -->
+                    <ul class="footer-menu">
+                        <li><a href="#">Terms Of Use</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul><!-- End .footer-menu -->
 
-        <div class="social-icons ">
-            <span class="social-label">Social Media</span>
-         
-                <a href="#" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
-                <a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
-                <a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
-                <a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
-                <a href="#" class="social-icon" target="_blank" title="Pinterest"><i class="icon-pinterest"></i></a>
+                    <div class="social-icons ">
+                        <span class="social-label">Social Media</span>
 
-        </div><!-- End .soial-icons -->
-    </div><!-- End .container -->
-</div><!-- End .footer-bottom -->
-</footer><!-- End .footer -->
+                        <a href="#" class="social-icon" target="_blank" title="Facebook"><i
+                                class="icon-facebook-f"></i></a>
+                        <a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
+                        <a href="#" class="social-icon" target="_blank" title="Instagram"><i
+                                class="icon-instagram"></i></a>
+                        <a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
+                        <a href="#" class="social-icon" target="_blank" title="Pinterest"><i
+                                class="icon-pinterest"></i></a>
+
+                    </div><!-- End .soial-icons -->
+                </div><!-- End .container -->
+            </div><!-- End .footer-bottom -->
+        </footer><!-- End .footer -->
 
 
 
 
-<button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+        <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
 
 
@@ -275,74 +256,72 @@
 
 
 
-<!-- scripts for other page base access, downbelow... -->
-<!-- script for find the wish list count -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Function to fetch the wishlist count from the server
-        function updateWishlistCount() {
-            fetch("{% url 'wishlist:wishlist-count' %}", {
-                method: "GET",
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',  // This makes it an AJAX request
+        <!-- scripts for other page base access, downbelow... -->
+        <!-- script for find the wish list count -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Function to fetch the wishlist count from the server
+                function updateWishlistCount() {
+                    fetch("{% url 'wishlist:wishlist-count' %}", {
+                        method: "GET",
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',  // This makes it an AJAX request
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            // Update the wishlist count on the page
+                            const wishlistCountElement = document.querySelector('.wishlist-count');
+                            wishlistCountElement.textContent = data.count;
+                        })
+                        .catch(error => console.error('Error fetching wishlist count:', error));
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Update the wishlist count on the page
-                const wishlistCountElement = document.querySelector('.wishlist-count');
-                wishlistCountElement.textContent = data.count;
-            })
-            .catch(error => console.error('Error fetching wishlist count:', error));
-        }
-    
-        // Call the function once the page loads
-        updateWishlistCount();
-    });
-</script>
-    
-<script>
-    // Function to update cart count
-    function updateCartCount() {
-        fetch('{% url "cart:cart-count" %}', {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': '{{ csrf_token }}'
+
+                // Call the function once the page loads
+                updateWishlistCount();
+            });
+        </script>
+
+        <script>
+            // Function to update cart count
+            function updateCartCount() {
+                fetch('{% url "cart:cart-count" %}', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            document.querySelector('.cart-count').textContent = data.count;
+                        } else {
+                            console.error('Failed to fetch cart count:', data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                document.querySelector('.cart-count').textContent = data.count;
-            } else {
-                console.error('Failed to fetch cart count:', data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
 
-    // Call the updateCartCount function when the page loads
-    document.addEventListener('DOMContentLoaded', updateCartCount);
+            // Call the updateCartCount function when the page loads
+            document.addEventListener('DOMContentLoaded', updateCartCount);
 
-</script>
+        </script>
 
-<!-- Plugins JS File -->
-<script src="{% static 'assets/js/jquery.min.js' %}"></script>
-<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'assets/js/jquery.hoverIntent.min.js' %}"></script>
-<script src="{% static 'assets/js/jquery.waypoints.min.js' %}"></script>
-<script src="{% static 'assets/js/superfish.min.js' %}"></script>
-<script src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
-<script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
-<!-- Main JS File -->
-<script src="{% static 'assets/js/main.js' %}"></script>
-<script src="{% static 'assets/js/demos/demo-20.js' %}"></script>
+        <!-- Plugins JS File -->
+        <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+        <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'assets/js/jquery.hoverIntent.min.js' %}"></script>
+        <script src="{% static 'assets/js/jquery.waypoints.min.js' %}"></script>
+        <script src="{% static 'assets/js/superfish.min.js' %}"></script>
+        <script src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
+        <script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
+        <!-- Main JS File -->
+        <script src="{% static 'assets/js/main.js' %}"></script>
+        <script src="{% static 'assets/js/demos/demo-20.js' %}"></script>
 </body>
 
 
 <!-- molla/index-20.html  22 Nov 2019 10:01:31 GMT -->
+
 </html>
-
-
-

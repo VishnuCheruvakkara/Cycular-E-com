@@ -17,7 +17,7 @@ jobs:
         run: echo "${{ vars.ENV_FILE }}" > .env
 
       # Step 2: Copy .env securely to VM
-      - name: Copy .env to VM
+      - name: Copy .env securely to VM
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.HOST }}
@@ -25,6 +25,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ".env"
           target: "/home/cheruvakkarav/Cycular-E-com"
+          overwrite: true
+          strip_components: 0
 
       # Step 3: SSH into VM and deploy
       - name: Deploy via SSH
@@ -40,3 +42,4 @@ jobs:
             pip install --cache-dir=/home/cheruvakkarav/.cache/pip -r requirements.txt                        
             python manage.py collectstatic --noinput 
             sudo systemctl restart gunicorn
+            
