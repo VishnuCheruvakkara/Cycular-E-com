@@ -3,7 +3,7 @@
 **Cycular-E-com** is an e-commerce platform designed for selling cycles. It features both user-side functionality for a smooth shopping experience and admin-side management tools for tracking and managing sales, products, and users. This project serves as my first comprehensive e-commerce application, created using Django, PostgreSQL, and various other technologies.
 
 <p align="center">
-  <img src="./README_assets/home_page.png" alt="AgriFlow Logo" width="100%" style="border-radius: 16px;" />
+  <img src="./README_assets/cycularhomepage.jpg" alt="AgriFlow Logo" width="100%" style="border-radius: 16px;" />
 </p>
 
 <p align="center">
@@ -74,4 +74,5 @@ To get started with **Cycular-E-com**, follow these steps:
 ### Development Notes
 This project is still a work in progress and not fully containerized with Docker.
 For local development, the application is set up using Python and PostgreSQL directly. Docker support will be added in the future for more seamless deployment.
+
 
