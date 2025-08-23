@@ -14,6 +14,7 @@
   <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank">
     <img alt="Watch Demo Video" src="https://img.shields.io/badge/%20Demo%20Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
   </a>
+  &nbsp;
    <a href="https://www.linkedin.com/posts/vishnu-cheruvakkara-231b8b235_webdevelopment-ecommerce-python-activity-7264316221553020928-oIZA?utm_source=share&utm_medium=member_desktop&rcm=ACoAADq6p4UB7yZEvBWQ6nbkRJlURS5jqlFv_yI" target="_blank">
     <img alt="Connect on LinkedIn" src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=logmein&logoColor=white" />
   </a>
@@ -77,6 +78,7 @@ To get started with **Cycular-E-com**, follow these steps:
 ### Development Notes
 This project is still a work in progress and not fully containerized with Docker.
 For local development, the application is set up using Python and PostgreSQL directly. Docker support will be added in the future for more seamless deployment.
+
 
 
 
