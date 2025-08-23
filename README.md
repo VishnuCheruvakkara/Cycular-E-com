@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://agriflow.space" target="_blank">
+  <a href="https://cycular.shop" target="_blank">
     <img alt="View Live Project" src="https://img.shields.io/badge/%20Live%20Demo-00C853?style=for-the-badge&logo=vercel&logoColor=white" />
   </a>
   &nbsp;
