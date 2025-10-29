@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ".env"
-          target: "/home/cheruvakkarav/Cycular-E-com"
+          target: "/home/haiworldworld/Cycular-E-com"
           overwrite: true
           strip_components: 0
 
@@ -36,10 +36,10 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/cheruvakkarav/Cycular-E-com
+            cd /home/haiworldworld/Cycular-E-com
             git fetch origin
             git reset --hard origin/production   # Forcefully match GitHub
             source venv/bin/activate
-            pip install --cache-dir=/home/cheruvakkarav/.cache/pip -r requirements.txt
+            pip install --cache-dir=/home/haiworldworld/.cache/pip -r requirements.txt
             python manage.py collectstatic --noinput
             sudo systemctl restart gunicorn
