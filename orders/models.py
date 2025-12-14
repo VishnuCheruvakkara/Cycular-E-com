@@ -33,6 +33,7 @@ class Order(models.Model):
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='Pending Payment')
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     coupon_discount_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    razorpay_payment_id = models.CharField(max_length=255, null=True, blank=True)
    
 
     def __str__(self):

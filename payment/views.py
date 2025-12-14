@@ -314,33 +314,49 @@ def create_razorpay_order(request, order_id):
 def payment_success(request):
     razorpay_payment_id = request.GET.get('razorpay_payment_id')
     order_id = request.GET.get('order_id')
+
     order = get_object_or_404(Order, id=order_id)
-    order_items=order.items.all()
-    #retrive the current user's cart
-    cart=get_object_or_404(Cart,user=request.user)
-    
-    # Verify the payment 
-    client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
+    order_items = order.items.all()
+    cart = get_object_or_404(Cart, user=request.user)
+
+    # BLOCK DOUBLE PAYMENT
+    if order.razorpay_payment_id:
+        messages.warning(
+            request,
+            'This order was already paid. Extra payment attempt detected.'
+        )
+        return render(request, 'payment/razorpay-success-page.html', {'order': order})
+
+    client = razorpay.Client(
+        auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY)
+    )
+
     try:
         payment = client.payment.fetch(razorpay_payment_id)
+
         if payment['status'] == 'captured':
-            if order.order_status != 'Order placed':
-                order.order_status = 'Order placed'
-                order.save()
-            # Clear the cart only if the payment is successful
+
+            # LOCK THE ORDER
+            order.razorpay_payment_id = razorpay_payment_id
+            order.order_status = 'Order placed'
+            order.save()
+
+            # Clear cart
             cart.items.all().delete()
 
-            # Handle coupon usage if applied
-            applied_coupon = request.session.get('applied_coupon', None)
+            # Handle coupon usage
+            applied_coupon = request.session.get('applied_coupon')
             if applied_coupon:
                 coupon = Coupon.objects.get(code=applied_coupon['coupon_code'])
-                coupon_usage, created = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
+                coupon_usage, _ = CouponUsage.objects.get_or_create(
+                    user=request.user,
+                    coupon=coupon
+                )
                 coupon_usage.is_used = True
                 coupon_usage.save()
-
-                # Remove the coupon from the session
                 del request.session['applied_coupon']
 
+            # Wallet transaction log
             wallet = request.user.wallet
             for order_item in order_items:
                 Transaction.objects.create(
@@ -350,12 +366,20 @@ def payment_success(request):
                     transaction_amount=order_item.effective_price(),
                     description=f"{order_item.product_variant.product.name} Purchase via Razorpay"
                 )
-            
-            messages.success(request, 'Payment successful and order placed successfully!')
+
+            messages.success(
+                request,
+                'Payment successful and order placed successfully!'
+            )
+
         else:
             messages.error(request, 'Payment failed.')
+
     except Exception as e:
-        messages.error(request, 'An error occurred while verifying the payment.')
+        messages.error(
+            request,
+            'An error occurred while verifying the payment.'
+        )
 
     return render(request, 'payment/razorpay-success-page.html', {'order': order})
 
