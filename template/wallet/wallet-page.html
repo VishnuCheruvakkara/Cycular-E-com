@@ -68,7 +68,7 @@
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                   
-                                    <td>{{ transaction.transaction_type|capfirst }}</td>
+                                    <td>{{ transaction.get_transaction_type_display| capfirst }}</td>
                                     
                                     <td>{{ transaction.transaction_purpose|capfirst }}</td>
 

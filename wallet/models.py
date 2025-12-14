@@ -17,9 +17,9 @@ class Wallet(models.Model):
 # Transaction Model
 class Transaction(models.Model):
     TRANSACTION_TYPES = (
-        ('credit', 'Credit'),
-        ('debit', 'Debit'),
-        ('null','Null')
+        ('credit', 'Money Added'),
+        ('debit', 'Money Deducted'),
+        ('null', 'No Wallet Change'),
     )
 
     TRANSACTION_PURPOSES = (

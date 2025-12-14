@@ -534,7 +534,11 @@
 						<button class="btn btn-primary btn-sm mt-2 mb-3" id="showCouponsBtn">Show All Available Coupons</button>
 
 						<!-- Off-Canvas for Available Coupons -->
-						<div id="couponCanvas" class="offcanvas">
+
+
+
+
+					    <div id="couponCanvas" class="offcanvas">
 							<div class="offcanvas-header">
 								<h5 class="offcanvas-title">Available Coupons</h5>
 								<button id="closeBtn" class="btn-close"><i class="fa fa-close"></i></button>
@@ -543,47 +547,73 @@
 							<div class="offcanvas-body">
 								<div class="coupon-list">
 									{% for coupon in coupons %}
-									<div class="card" data-expiry="{{ coupon.valid_until|date:"Y-m-d H:i:s" }}">
+									<div class="card {% if coupon.id in used_coupon_ids %}used-coupon{% endif %}"
+										data-expiry="{{ coupon.valid_until|date:'Y-m-d H:i:s' }}">
+										
 										<div class="main">
 											<div class="co-img">
 												<img src="https://i.pinimg.com/originals/c7/84/67/c78467db9ff497393cb548a48f02d451.png" alt="">
 											</div>
 											<div class="vertical"></div>
 											<div class="content">
-												<h2>{{ coupon.code }}</h2>
+												<h2>
+													{{ coupon.code }}
+													<span class="coupon-status"></span>
+												</h2>
 												<h1>{{ coupon.discount_value }}% <span>Coupon</span></h1>
 												<p>Valid till {{ coupon.valid_until|date:"d F Y" }}</p>
 											</div>
 										</div>
+
 										<div class="copy-button">
 											<input id="copyvalue{{ forloop.counter }}" type="text" readonly value="{{ coupon.code }}" />
-											<button onclick="copyIt('copyvalue{{ forloop.counter }}')" class="copybtn">COPY</button>
+											<button onclick="copyIt('copyvalue{{ forloop.counter }}')" class="copybtn">
+												COPY
+											</button>
 										</div>
 									</div>
 									{% endfor %}
 								</div>
 							</div>
+
 							<script>
 								document.addEventListener('DOMContentLoaded', function () {
-									const now = new Date(); // Current date and time
+									const now = new Date();
 
 									document.querySelectorAll('.card').forEach(card => {
-										const expiryDate = new Date(card.dataset.expiry); // Get the expiry date from data attribute
-										
+										const expiryDate = new Date(card.dataset.expiry);
+										const statusSpan = card.querySelector('.coupon-status');
+										const copyBtn = card.querySelector('.copybtn');
+
+										// EXPIRED coupon
 										if (expiryDate < now) {
-											// Disable or style the coupon if it's expired
-											card.querySelector('.copy-button button').disabled = true; // Disable the copy button
-											card.style.opacity = '0.4'; // Make the card look faded
-											card.style.pointerEvents = 'none'; // Prevent clicks on the card
+											card.style.opacity = '0.4';
+											card.style.pointerEvents = 'none';
+											copyBtn.disabled = true;
+
+											statusSpan.innerText = ' (EXPIRED)';
+											statusSpan.style.color = '#6c757d';
+											statusSpan.style.fontWeight = '600';
+										}
+
+										// USED coupon (but not expired)
+										else if (card.classList.contains('used-coupon')) {
+											card.style.opacity = '0.6';
+											copyBtn.disabled = true;
+
+											statusSpan.innerText = ' (USED)';
+											statusSpan.style.color = '#dc3545'; // red
+											statusSpan.style.fontWeight = '600';
 										}
 									});
 								});
-
 							</script>
-							
-
 						</div>
-					
+
+
+
+
+
 						<!-- Coupon Applied Section -->
 						<div class="coupon-container"></div>
 
@@ -779,19 +809,6 @@
 										</div><!-- End .container -->
 									
 										   
-
-
-
-
-
-
-
-
-
-
-
-
-
 										  
 										</div><!-- End .accordion -->
 

@@ -923,6 +923,15 @@ def generate_invoice_pdf(order_item):
     pdf.drawString(50, 660, f"Order ID: {order_item.id}")
     pdf.drawString(50, 640, f"Order Date: {order.order_date.strftime('%Y-%m-%d')}")
 
+    # Order status
+    status = order_item.order_item_status
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.setFillColor(colors.red)   # RED color
+    pdf.drawString(50, 620, f"Product Status: {status}")
+
+    # Reset color back to normal
+    pdf.setFillColor(colors.black)
+
     # Draw the shipping address
     shipping_address = (
         f"Order Address: {order_address.address_line}, "
@@ -930,7 +939,7 @@ def generate_invoice_pdf(order_item):
         f"{order_address.country}, {order_address.postal_code}"
     )
     address_lines = shipping_address.split(", ")
-    y_position = 610  # Adjusted starting y position for address
+    y_position = 605  # Adjusted starting y position for address
 
     for line in address_lines:
         pdf.drawString(50, y_position, line)
@@ -958,7 +967,7 @@ def generate_invoice_pdf(order_item):
 
     # Draw the table on the canvas
     table.wrapOn(pdf, 50, 480)  # Adjust the position of the table as necessary
-    table.drawOn(pdf, 50, 480)
+    table.drawOn(pdf, 50, 460)
 
     # Right side for pricing and discount details
     y_position = 420  # Adjusted starting position for pricing details

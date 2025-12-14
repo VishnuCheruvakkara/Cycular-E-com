@@ -17,8 +17,10 @@ from wallet.models import Wallet
 from django.views.decorators.cache import never_cache
 import razorpay
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 
 #####################  check out page  #################
+
 
 @login_required(login_url='user_side:sign-in')
 def check_out(request):
@@ -32,7 +34,11 @@ def check_out(request):
     cart_items=cart.items.all() #items is the related name
     total_price=sum(item.subtotal for item in cart_items)
     coupons = Coupon.objects.filter(active=True).order_by('-valid_until')
-    
+    used_coupon_ids = CouponUsage.objects.filter(
+        user=request.user,
+        is_used=True
+    ).values_list('coupon_id', flat=True)
+
     # Fetch wallet for the current user
     wallet,created = Wallet.objects.get_or_create(user=request.user)
     wallet_balance = wallet.balance
@@ -76,6 +82,7 @@ def check_out(request):
                 'addresses': addresses,
                 'coupons': coupons,
                 'wallet_balance': wallet_balance,
+                'used_coupon_ids': used_coupon_ids,
             })
         # Check if any item in the cart exceeds ₹1000
         if total_price-discount_amount> 1000:
@@ -87,130 +94,146 @@ def check_out(request):
                     'addresses': addresses,
                     'coupons':coupons,
                     'wallet_balance': wallet_balance,
+                    'used_coupon_ids': used_coupon_ids,
                 })
         try:
-            #get address id
-            address_id=request.POST.get('selected_address')
+            with transaction.atomic():
+                #get address id
+                address_id=request.POST.get('selected_address')
 
-            # Check if an address was selected
-            if not address_id:
-                messages.error(request, 'Please select a delivery address before proceeding.')
-                return render(request, 'payment/check-out.html', {
-                    'cart_items': cart_items,
-                    'total_price': total_price,
-                    'addresses': addresses,
-                    'coupons':coupons,
-                    'wallet_balance': wallet_balance,      
-                })
-            selected_address=Address.objects.get(id=address_id)
-
-            # Create a detailed description of items purchased
-            item_descriptions = []
-            for item in cart_items:
-                item_descriptions.append(f"{item.product_variant.product.name}: {item.product_variant.size} (Qty: {item.quantity})")
-            
-            item_details = ', '.join(item_descriptions)
-
-            # Calculate total price and wallet deduction
-            total_price = sum(Decimal(item.subtotal) for item in cart_items)
-
-            if coupon_grand_total != 0 :
-                val=coupon_grand_total
-            else:
-                val=total_price
-            # Handle wallet payment
-            if payment_method == 'wallet':
-                if wallet_balance < val:
-                    messages.error(request, f'Insufficient wallet balance to complete the purchase. Current balance is: {wallet_balance} ₹. Choose any other payment option.')
+                # Check if an address was selected
+                if not address_id:
+                    messages.error(request, 'Please select a delivery address before proceeding.')
                     return render(request, 'payment/check-out.html', {
                         'cart_items': cart_items,
                         'total_price': total_price,
                         'addresses': addresses,
                         'coupons':coupons,
-                        'wallet_balance': wallet_balance,
+                        'wallet_balance': wallet_balance, 
+                        'used_coupon_ids': used_coupon_ids,     
                     })
+                selected_address=Address.objects.get(id=address_id)
+
+                # Create a detailed description of items purchased
+                item_descriptions = []
+                for item in cart_items:
+                    item_descriptions.append(f"{item.product_variant.product.name}: {item.product_variant.size} (Qty: {item.quantity})")
                 
-                # Deduct wallet balance only after confirmation
-                wallet.balance -=  val
-                wallet.save()
+                item_details = ', '.join(item_descriptions)
 
-                # Create a new Transaction entry for the wallet
-                Transaction.objects.create(
-                    wallet=wallet,
-                    transaction_type='debit',
-                    transaction_purpose='purchase',
-                    transaction_amount = val,
-                    description=f"Wallet payment for order : {item_details}"
-                )
+                # Calculate total price and wallet deduction
+                total_price = sum(Decimal(item.subtotal) for item in cart_items)
 
-            order=Order.objects.create(
-                user=request.user,
-                payment_method=payment_method,
-                total_price=total_price,
-                coupon_discount_total=discount_amount,
-            )
-
-            #save the address to the table 
-            order_address=OrderAddress.objects.create(
-                order=order,
-                address_line=selected_address.address_line,
-                city=selected_address.city,
-                state=selected_address.state,
-                country=selected_address.country,
-                postal_code=selected_address.postal_code,
-                phone_number=selected_address.phone_number,
-            )
-            for item in cart_items:
-                item_subtotal = Decimal(item.subtotal)
-                total_price_decimal = Decimal(total_price) 
-
-                item_proportion = (item_subtotal / total_price_decimal)
-                item_discount = ((item_proportion)* discount_amount)
-               
-                # to decreace stock count of product when user buy it
-                product_variant = item.product_variant
-                if product_variant.stock >= item.quantity:
-                    product_variant.stock -= item.quantity
-                    product_variant.save()  # Save the updated stock count
+                if coupon_grand_total != 0 :
+                    val=coupon_grand_total
                 else:
-                    messages.error(request, f"Not enough stock for {product_variant.product.name}.")
-                    return redirect('cart:cart-view')  # Redirect if stock is insufficient
-                order_item=OrderItem.objects.create(
-                    order=order,
-                    product_variant=item.product_variant,
-                    quantity=item.quantity,
-                    price=item.subtotal,
-                    coupon_discount_price=item_discount,
-                    coupon_info=f"{discount_value}% of {coupon_code} coupon applied.Discount of {item_discount:.2f} ₹"
+                    val=total_price
+                # Handle wallet payment
+                if payment_method == 'wallet':
+                    if wallet_balance < val:
+                        messages.error(request, f'Insufficient wallet balance to complete the purchase. Current balance is: {wallet_balance} ₹. Choose any other payment option.')
+                        return render(request, 'payment/check-out.html', {
+                            'cart_items': cart_items,
+                            'total_price': total_price,
+                            'addresses': addresses,
+                            'coupons':coupons,
+                            'wallet_balance': wallet_balance,
+                        })
+                    
+                    # Deduct wallet balance only after confirmation
+                    wallet.balance -=  val
+                    wallet.save()
+
+                    # Create a new Transaction entry for the wallet
+                    Transaction.objects.create(
+                        wallet=wallet,
+                        transaction_type='debit',
+                        transaction_purpose='purchase',
+                        transaction_amount = val,
+                        description=f"Wallet payment for order : {item_details}"
+                    )
+
+                order=Order.objects.create(
+                    user=request.user,
+                    payment_method=payment_method,
+                    total_price=total_price,
+                    coupon_discount_total=discount_amount,
                 )
+
+                #save the address to the table 
+                order_address=OrderAddress.objects.create(
+                    order=order,
+                    address_line=selected_address.address_line,
+                    city=selected_address.city,
+                    state=selected_address.state,
+                    country=selected_address.country,
+                    postal_code=selected_address.postal_code,
+                    phone_number=selected_address.phone_number,
+                )
+                for item in cart_items:
+                    item_subtotal = Decimal(item.subtotal)
+                    total_price_decimal = Decimal(total_price) 
+
+                    item_proportion = (item_subtotal / total_price_decimal)
+                    item_discount = ((item_proportion)* discount_amount)
+                
+                    # to decreace stock count of product when user buy it
+                    product_variant = item.product_variant
+                    if product_variant.stock >= item.quantity:
+                        product_variant.stock -= item.quantity
+                        product_variant.save()  # Save the updated stock count
+                    else:
+                        messages.error(request, f"Not enough stock for {product_variant.product.name}.")
+                        return redirect('cart:cart-view')  # Redirect if stock is insufficient
+                    order_item=OrderItem.objects.create(
+                        order=order,
+                        product_variant=item.product_variant,
+                        quantity=item.quantity,
+                        price=item.subtotal,
+                        coupon_discount_price=item_discount,
+                        coupon_info=f"{discount_value}% of {coupon_code} coupon applied.Discount of {item_discount:.2f} ₹"
+                    )
+                
+                # check whether user select the razorpay for payment
+                if payment_method == 'razorpay':
+                    return redirect(reverse('payment:razorpay-order', args=[order.id]))
             
-            # check whether user select the razorpay for payment
-            if payment_method == 'razorpay':
-                return redirect(reverse('payment:razorpay-order', args=[order.id]))
-           
-            # Clear the cart after successful purchase
-            cart.items.all().delete()
-            if 'applied_coupon' in request.session:
-                # Get the coupon object
-                coupon = Coupon.objects.get(code=applied_coupon['coupon_code'])
-                # Fetch or create the CouponUsage instance for the user
-                coupon_usage, created = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
-                # Mark the coupon as used
-                coupon_usage.is_used = True
-                coupon_usage.save()
-                del request.session['applied_coupon']
-            
-            messages.success(request,'Order was placed successfully. Details are added to the order-history...')
-            return redirect(reverse('payment:order-success-page',args=[order.id]))
+                # Clear the cart after successful purchase
+                cart.items.all().delete()
+                if 'applied_coupon' in request.session:
+                    # Get the coupon object
+                    coupon = Coupon.objects.get(code=applied_coupon['coupon_code'])
+                    # Fetch or create the CouponUsage instance for the user
+                    coupon_usage, created = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
+                    # Mark the coupon as used
+                    coupon_usage.is_used = True
+                    coupon_usage.save()
+                    del request.session['applied_coupon']
+                
+                messages.success(request,'Order was placed successfully. Details are added to the order-history...')
+                return redirect(reverse('payment:order-success-page',args=[order.id]))
         except Exception as e:
             messages.error(request, 'An error occurred while placing the order.')
-   
+            return render(
+                request,
+                'payment/check-out.html',
+                {
+                    'cart_items': cart_items,
+                    'total_price': total_price,
+                    'addresses': addresses,
+                    'coupons': coupons,
+                    'wallet_balance': wallet_balance,
+                    'used_coupon_ids': used_coupon_ids,
+                    'applied_coupon': applied_coupon,
+                }
+            )
     context={
         'cart_items':cart_items,
         'total_price':total_price,
         'addresses':addresses,
         'coupons':coupons,
         'wallet_balance': wallet_balance,
+        'used_coupon_ids': used_coupon_ids,
     }
 
     return render(request,'payment/check-out.html',context)

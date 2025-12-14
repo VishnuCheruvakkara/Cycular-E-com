@@ -284,6 +284,7 @@
                                                                 <p><strong>Quantity:</strong></p>
                                                                 <p><strong>Order Date:</strong></p>
                                                                 <p><strong>Payment Method:</strong></p>
+                                                                <p><strong>Status:</strong></p>
                                                                 <p><strong>Actual Price:</strong></p>
                                                                 <p><strong>Coupon Discount:</strong></p>
                                                                 <p><strong>Offer Discount:</strong></p>
@@ -294,6 +295,9 @@
                                                                 <p>{{ order_item.quantity }}</p>
                                                                 <p>{{ order_item.order.order_date }}</p>
                                                                 <p>{{ order_item.order.get_payment_method_display }}</p>
+                                                                <p style="color: red; font-weight: bold;">
+                                                                    {{ order_item.order_item_status }}
+                                                                </p>
                                                                 <p>{{ order_item.product_variant.price }} ₹</p>
                                                                 <p>-{{ order_item.coupon_discount_price }} ₹</p>
                                                                 <p>-{{ order_item.product_variant.get_savings_amount|floatformat:2 }} ₹</p>
@@ -322,7 +326,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                  </div>
+
+
                                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                                 <script>
                                     document.querySelectorAll(".download-invoice-button").forEach(button => {
