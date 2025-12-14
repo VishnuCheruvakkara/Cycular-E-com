@@ -52,14 +52,13 @@ def get_checkout_context(user, errors=None):
         'discount_value': discount_value,
     }
     return context
-
 @login_required(login_url='user_side:sign-in')
 def check_out(request):
     request.user._request = request
     context = get_checkout_context(request.user)
 
     if context['total_price'] == 0:
-        messages.info(request,'Your cart is empty.Please add products to the cart before proceeding to checkout.')
+        messages.info(request,'Your cart is empty. Please add products to the cart before proceeding to checkout.')
         return render(request, 'payment/check-out.html', {
             'cart_items': context['cart_items'],
             'total_price': context['total_price'],
@@ -71,19 +70,24 @@ def check_out(request):
         if not payment_method:
             messages.error(request, 'Please select a payment method before proceeding.')
             return render(request, 'payment/check-out.html', context)
+
         if context['total_price'] - context['discount_amount'] > 1000 and payment_method == 'cash_on_delivery':
             messages.error(request, 'Cash on delivery is not available for products priced above ₹1000.')
             return render(request, 'payment/check-out.html', context)
+
         try:
             address_id = request.POST.get('selected_address')
             if not address_id:
                 messages.error(request, 'Please select a delivery address before proceeding.')
                 return render(request, 'payment/check-out.html', context)
             selected_address = Address.objects.get(id=address_id)
+
             item_descriptions = [f"{item.product_variant.product.name}: {item.product_variant.size} (Qty: {item.quantity})" for item in context['cart_items']]
             item_details = ', '.join(item_descriptions)
             total_price = sum(Decimal(item.subtotal) for item in context['cart_items'])
             val = context['coupon_grand_total'] if context['coupon_grand_total'] != 0 else total_price
+
+            # Wallet payment handling
             if payment_method == 'wallet':
                 if context['wallet_balance'] < val:
                     messages.error(request, f'Insufficient wallet balance to complete the purchase. Current balance is: {context["wallet_balance"]} ₹. Choose any other payment option.')
@@ -98,54 +102,81 @@ def check_out(request):
                     transaction_amount=val,
                     description=f"Wallet payment for order : {item_details}"
                 )
-            order = Order.objects.create(
+
+            # Check if there is an existing pending order
+            existing_order = Order.objects.filter(
                 user=request.user,
-                payment_method=payment_method,
-                total_price=total_price,
-                coupon_discount_total=context['discount_amount'],
-            )
-            order_address = OrderAddress.objects.create(
-                order=order,
-                address_line=selected_address.address_line,
-                city=selected_address.city,
-                state=selected_address.state,
-                country=selected_address.country,
-                postal_code=selected_address.postal_code,
-                phone_number=selected_address.phone_number,
-            )
-            for item in context['cart_items']:
-                item_subtotal = Decimal(item.subtotal)
-                total_price_decimal = Decimal(total_price)
-                item_proportion = (item_subtotal / total_price_decimal)
-                item_discount = ((item_proportion) * context['discount_amount'])
-                product_variant = item.product_variant
-                if product_variant.stock >= item.quantity:
-                    product_variant.stock -= item.quantity
-                    product_variant.save()
-                else:
-                    messages.error(request, f"Not enough stock for {product_variant.product.name}.")
-                    return redirect('cart:cart-view')
-                OrderItem.objects.create(
-                    order=order,
-                    product_variant=item.product_variant,
-                    quantity=item.quantity,
-                    price=item.subtotal,
-                    coupon_discount_price=item_discount,
-                    coupon_info=f"{context['discount_value']}% of {context['coupon_code']} coupon applied.Discount of {item_discount:.2f} ₹"
+                order_status='Pending Payment'
+            ).first()
+
+            if existing_order:
+                order = existing_order
+            else:
+                # Create new order
+                order = Order.objects.create(
+                    user=request.user,
+                    payment_method=payment_method,
+                    total_price=total_price,
+                    coupon_discount_total=context['discount_amount'],
+                    order_status='Pending Payment'
                 )
+
+                OrderAddress.objects.create(
+                    order=order,
+                    address_line=selected_address.address_line,
+                    city=selected_address.city,
+                    state=selected_address.state,
+                    country=selected_address.country,
+                    postal_code=selected_address.postal_code,
+                    phone_number=selected_address.phone_number,
+                )
+
+            # Create order items if they do not exist yet
+            if not order.items.exists():
+                for item in context['cart_items']:
+                    item_subtotal = Decimal(item.subtotal)
+                    total_price_decimal = Decimal(total_price)
+                    item_proportion = (item_subtotal / total_price_decimal)
+                    item_discount = ((item_proportion) * context['discount_amount'])
+                    product_variant = item.product_variant
+
+                    if product_variant.stock >= item.quantity:
+                        product_variant.stock -= item.quantity
+                        product_variant.save()
+                    else:
+                        messages.error(request, f"Not enough stock for {product_variant.product.name}.")
+                        return redirect('cart:cart-view')
+
+                    OrderItem.objects.create(
+                        order=order,
+                        product_variant=item.product_variant,
+                        quantity=item.quantity,
+                        price=item.subtotal,
+                        coupon_discount_price=item_discount,
+                        coupon_info=f"{context['discount_value']}% of {context['coupon_code']} coupon applied. Discount of {item_discount:.2f} ₹"
+                    )
+
+            # Redirect to Razorpay if selected
             if payment_method == 'razorpay':
                 return redirect(reverse('payment:razorpay-order', args=[order.id]))
+
+            # Clear cart after successful order placement
             cart, _ = Cart.objects.get_or_create(user=request.user)
             cart.items.all().delete()
+
+            # Handle coupon usage
             if 'applied_coupon' in request.session:
                 coupon = Coupon.objects.get(code=context['applied_coupon']['coupon_code'])
                 coupon_usage, _ = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
                 coupon_usage.is_used = True
                 coupon_usage.save()
                 del request.session['applied_coupon']
+
             messages.success(request,'Order was placed successfully. Details are added to the order-history...')
-            return redirect(reverse('payment:order-success-page',args=[order.id]))
+            return redirect(reverse('payment:order-success-page', args=[order.id]))
+
         except Exception as e:
+            print(e)  # Optional: for debugging
             messages.error(request, 'An error occurred while placing the order.')
             return render(request, 'payment/check-out.html', context)
 
@@ -250,6 +281,11 @@ def order_success_page(request,order_id):
 def create_razorpay_order(request, order_id):
  
     order = get_object_or_404(Order, id=order_id)
+
+    if order.order_status == 'Order placed':
+        messages.info(request, 'This order is already paid.')
+        return redirect('payment:order-success-page', order.id)
+
     client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
 
     payment_amount = int(order.paid_amount() * 100)  # Convert to paisa
@@ -288,8 +324,9 @@ def payment_success(request):
     try:
         payment = client.payment.fetch(razorpay_payment_id)
         if payment['status'] == 'captured':
-            order.order_status = 'Order placed'
-            order.save()
+            if order.order_status != 'Order placed':
+                order.order_status = 'Order placed'
+                order.save()
             # Clear the cart only if the payment is successful
             cart.items.all().delete()
 
