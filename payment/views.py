@@ -21,146 +21,90 @@ from django.contrib.auth.decorators import login_required
 
 #####################  check out page  #################
 
+def get_checkout_context(user, errors=None):
+    cart, _ = Cart.objects.get_or_create(user=user)
+    cart_items = cart.items.all()
+    total_price = sum(Decimal(item.subtotal) for item in cart_items)
+    addresses = Address.objects.filter(user=user)
+    coupons = Coupon.objects.filter(active=True).order_by('-valid_until')
+    used_coupon_ids = CouponUsage.objects.filter(user=user, is_used=True).values_list('coupon_id', flat=True)
+    wallet, _ = Wallet.objects.get_or_create(user=user)
+    wallet_balance = wallet.balance
+    applied_coupon = user._request.session.get('applied_coupon', None) if hasattr(user, "_request") else None
+
+    discount_amount = Decimal(applied_coupon.get('discount_amount', '0')) if applied_coupon else 0
+    coupon_grand_total = Decimal(applied_coupon.get('coupon_grand_total', '0')) if applied_coupon else 0
+    coupon_code = applied_coupon.get('coupon_code') if applied_coupon else None
+    discount_value = applied_coupon.get('discount_value', 0) if applied_coupon else 0
+
+    context = {
+        'errors': errors or {},
+        'addresses': addresses,
+        'cart_items': cart_items,
+        'total_price': total_price,
+        'coupons': coupons,
+        'wallet_balance': wallet_balance,
+        'used_coupon_ids': used_coupon_ids,
+        'applied_coupon': applied_coupon,
+        'discount_amount': discount_amount,
+        'coupon_grand_total': coupon_grand_total,
+        'coupon_code': coupon_code,
+        'discount_value': discount_value,
+    }
+    return context
 
 @login_required(login_url='user_side:sign-in')
 def check_out(request):
-    #retrive the current user's cart
-  
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    
-    #to take all address
-    addresses=Address.objects.filter(user=request.user)
-    #retrive all items for the current user cart
-    cart_items=cart.items.all() #items is the related name
-    total_price=sum(item.subtotal for item in cart_items)
-    coupons = Coupon.objects.filter(active=True).order_by('-valid_until')
-    used_coupon_ids = CouponUsage.objects.filter(
-        user=request.user,
-        is_used=True
-    ).values_list('coupon_id', flat=True)
+    request.user._request = request
+    context = get_checkout_context(request.user)
 
-    # Fetch wallet for the current user
-    wallet,created = Wallet.objects.get_or_create(user=request.user)
-    wallet_balance = wallet.balance
-   
-    item_discount=0
-    discount_value=0
-    discount_amount=0
-    coupon_code=None
-    item_proportion=0
-    coupon_grand_total=0
-   
-    # Calculate the total price of products
-    total_price = sum(Decimal(item.subtotal) for item in cart_items)
-  
-    #get the data from the sessiion directly, that was stored with the help of javascript...
-    applied_coupon=request.session.get('applied_coupon',None)
-    if applied_coupon:
-        # Access each value from the session
-        coupon_code = applied_coupon.get('coupon_code')
-        discount_value = applied_coupon.get('discount_value',0)
-        valid_until = applied_coupon.get('valid_until')
-        discount_amount = Decimal(applied_coupon.get('discount_amount', '0'))  # Convert from string to Decimal
-        coupon_grand_total = Decimal(applied_coupon.get('coupon_grand_total', '0'))  # Convert from string to Decimal
-
-    if total_price == 0:
+    if context['total_price'] == 0:
         messages.info(request,'Your cart is empty.Please add products to the cart before proceeding to checkout.')
         return render(request, 'payment/check-out.html', {
-            'cart_items': cart_items,
-            'total_price': total_price,
-            'addresses': addresses,
+            'cart_items': context['cart_items'],
+            'total_price': context['total_price'],
+            'addresses': context['addresses'],
         })
 
     if request.method == 'POST':
-        payment_method=request.POST.get('payment_method') 
-        # Check if payment method is selected
+        payment_method = request.POST.get('payment_method')
         if not payment_method:
             messages.error(request, 'Please select a payment method before proceeding.')
-            return render(request, 'payment/check-out.html', {
-                'cart_items': cart_items,
-                'total_price': total_price,
-                'addresses': addresses,
-                'coupons': coupons,
-                'wallet_balance': wallet_balance,
-                'used_coupon_ids': used_coupon_ids,
-            })
-        # Check if any item in the cart exceeds ₹1000
-        if total_price-discount_amount> 1000:
-            if payment_method == 'cash_on_delivery':
-                messages.error(request, 'Cash on delivery is not available for products priced above ₹1000.')
-                return render(request, 'payment/check-out.html', {
-                    'cart_items': cart_items,
-                    'total_price': total_price,
-                    'addresses': addresses,
-                    'coupons':coupons,
-                    'wallet_balance': wallet_balance,
-                    'used_coupon_ids': used_coupon_ids,
-                })
+            return render(request, 'payment/check-out.html', context)
+        if context['total_price'] - context['discount_amount'] > 1000 and payment_method == 'cash_on_delivery':
+            messages.error(request, 'Cash on delivery is not available for products priced above ₹1000.')
+            return render(request, 'payment/check-out.html', context)
         try:
-            #get address id
-            address_id=request.POST.get('selected_address')
-
-            # Check if an address was selected
+            address_id = request.POST.get('selected_address')
             if not address_id:
                 messages.error(request, 'Please select a delivery address before proceeding.')
-                return render(request, 'payment/check-out.html', {
-                    'cart_items': cart_items,
-                    'total_price': total_price,
-                    'addresses': addresses,
-                    'coupons':coupons,
-                    'wallet_balance': wallet_balance, 
-                    'used_coupon_ids': used_coupon_ids,     
-                })
-            selected_address=Address.objects.get(id=address_id)
-
-            # Create a detailed description of items purchased
-            item_descriptions = []
-            for item in cart_items:
-                item_descriptions.append(f"{item.product_variant.product.name}: {item.product_variant.size} (Qty: {item.quantity})")
-            
+                return render(request, 'payment/check-out.html', context)
+            selected_address = Address.objects.get(id=address_id)
+            item_descriptions = [f"{item.product_variant.product.name}: {item.product_variant.size} (Qty: {item.quantity})" for item in context['cart_items']]
             item_details = ', '.join(item_descriptions)
-
-            # Calculate total price and wallet deduction
-            total_price = sum(Decimal(item.subtotal) for item in cart_items)
-
-            if coupon_grand_total != 0 :
-                val=coupon_grand_total
-            else:
-                val=total_price
-            # Handle wallet payment
+            total_price = sum(Decimal(item.subtotal) for item in context['cart_items'])
+            val = context['coupon_grand_total'] if context['coupon_grand_total'] != 0 else total_price
             if payment_method == 'wallet':
-                if wallet_balance < val:
-                    messages.error(request, f'Insufficient wallet balance to complete the purchase. Current balance is: {wallet_balance} ₹. Choose any other payment option.')
-                    return render(request, 'payment/check-out.html', {
-                        'cart_items': cart_items,
-                        'total_price': total_price,
-                        'addresses': addresses,
-                        'coupons':coupons,
-                        'wallet_balance': wallet_balance,
-                    })
-                
-                # Deduct wallet balance only after confirmation
-                wallet.balance -=  val
+                if context['wallet_balance'] < val:
+                    messages.error(request, f'Insufficient wallet balance to complete the purchase. Current balance is: {context["wallet_balance"]} ₹. Choose any other payment option.')
+                    return render(request, 'payment/check-out.html', context)
+                wallet = Wallet.objects.get(user=request.user)
+                wallet.balance -= val
                 wallet.save()
-
-                # Create a new Transaction entry for the wallet
                 Transaction.objects.create(
                     wallet=wallet,
                     transaction_type='debit',
                     transaction_purpose='purchase',
-                    transaction_amount = val,
+                    transaction_amount=val,
                     description=f"Wallet payment for order : {item_details}"
                 )
-
-            order=Order.objects.create(
+            order = Order.objects.create(
                 user=request.user,
                 payment_method=payment_method,
                 total_price=total_price,
-                coupon_discount_total=discount_amount,
+                coupon_discount_total=context['discount_amount'],
             )
-
-            #save the address to the table 
-            order_address=OrderAddress.objects.create(
+            order_address = OrderAddress.objects.create(
                 order=order,
                 address_line=selected_address.address_line,
                 city=selected_address.city,
@@ -169,84 +113,48 @@ def check_out(request):
                 postal_code=selected_address.postal_code,
                 phone_number=selected_address.phone_number,
             )
-            for item in cart_items:
+            for item in context['cart_items']:
                 item_subtotal = Decimal(item.subtotal)
-                total_price_decimal = Decimal(total_price) 
-
+                total_price_decimal = Decimal(total_price)
                 item_proportion = (item_subtotal / total_price_decimal)
-                item_discount = ((item_proportion)* discount_amount)
-               
-                # to decreace stock count of product when user buy it
+                item_discount = ((item_proportion) * context['discount_amount'])
                 product_variant = item.product_variant
                 if product_variant.stock >= item.quantity:
                     product_variant.stock -= item.quantity
-                    product_variant.save()  # Save the updated stock count
+                    product_variant.save()
                 else:
                     messages.error(request, f"Not enough stock for {product_variant.product.name}.")
-                    return redirect('cart:cart-view')  # Redirect if stock is insufficient
-                order_item=OrderItem.objects.create(
+                    return redirect('cart:cart-view')
+                OrderItem.objects.create(
                     order=order,
                     product_variant=item.product_variant,
                     quantity=item.quantity,
                     price=item.subtotal,
                     coupon_discount_price=item_discount,
-                    coupon_info=f"{discount_value}% of {coupon_code} coupon applied.Discount of {item_discount:.2f} ₹"
+                    coupon_info=f"{context['discount_value']}% of {context['coupon_code']} coupon applied.Discount of {item_discount:.2f} ₹"
                 )
-            
-            # check whether user select the razorpay for payment
             if payment_method == 'razorpay':
                 return redirect(reverse('payment:razorpay-order', args=[order.id]))
-           
-            # Clear the cart after successful purchase
+            cart, _ = Cart.objects.get_or_create(user=request.user)
             cart.items.all().delete()
             if 'applied_coupon' in request.session:
-                # Get the coupon object
-                coupon = Coupon.objects.get(code=applied_coupon['coupon_code'])
-                # Fetch or create the CouponUsage instance for the user
-                coupon_usage, created = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
-                # Mark the coupon as used
+                coupon = Coupon.objects.get(code=context['applied_coupon']['coupon_code'])
+                coupon_usage, _ = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
                 coupon_usage.is_used = True
                 coupon_usage.save()
                 del request.session['applied_coupon']
-            
             messages.success(request,'Order was placed successfully. Details are added to the order-history...')
             return redirect(reverse('payment:order-success-page',args=[order.id]))
         except Exception as e:
             messages.error(request, 'An error occurred while placing the order.')
-            return render(
-                request,
-                'payment/check-out.html',
-                {
-                    'cart_items': cart_items,
-                    'total_price': total_price,
-                    'addresses': addresses,
-                    'coupons': coupons,
-                    'wallet_balance': wallet_balance,
-                    'used_coupon_ids': used_coupon_ids,
-                    'applied_coupon': applied_coupon,
-                }
-            )
-    context={
-        'cart_items':cart_items,
-        'total_price':total_price,
-        'addresses':addresses,
-        'coupons':coupons,
-        'wallet_balance': wallet_balance,
-        'used_coupon_ids': used_coupon_ids,
-    }
+            return render(request, 'payment/check-out.html', context)
 
-    return render(request,'payment/check-out.html',context)
-
-############################  add address in check out page.  ###################
+    return render(request,'payment/check-out.html', context)
 
 @login_required(login_url='user_side:sign-in')
 def add_address_checkout(request):
-
-    errors = {}  # Dictionary to hold error messages
-
-    # Fetch all addresses of the logged-in user
-    addresses = Address.objects.filter(user=request.user)
-
+    request.user._request = request
+    errors = {}
     if request.method == 'POST':
         address_line = request.POST.get('address_line', '').strip()
         city = request.POST.get('city', '').strip()
@@ -255,16 +163,12 @@ def add_address_checkout(request):
         postal_code = request.POST.get('postal_code', '').strip()
         phone_number = request.POST.get('phone_number', '').strip()
         is_default = request.POST.get('is_default') == 'on'
-
-        # Validation for Address Line
         if not address_line:
             errors['address_line'] = 'Address line is required.'
         elif len(address_line) < 5 or len(address_line) > 100:
             errors['address_line'] = 'Address line must be between 5 and 100 characters.'
         elif re.search(r'[^a-zA-Z0-9\s,.-]', address_line):
             errors['address_line'] = 'Address line contains invalid characters.'
-
-        # Validation for City
         if not city:
             errors['city'] = 'City is required.'
         elif len(city) > 50:
@@ -273,8 +177,6 @@ def add_address_checkout(request):
             errors['city'] = 'City must only contain letters, spaces, or hyphens.'
         elif any(char.isdigit() for char in city):
             errors['city'] = 'City name cannot contain numbers.'
-
-        # Validation for State
         if not state:
             errors['state'] = 'State is required.'
         elif len(state) > 50:
@@ -283,8 +185,6 @@ def add_address_checkout(request):
             errors['state'] = 'State must only contain letters, spaces, or hyphens.'
         elif any(char.isdigit() for char in state):
             errors['state'] = 'State name cannot contain numbers.'
-
-        # Validation for Country
         if not country:
             errors['country'] = 'Country is required.'
         elif len(country) > 50:
@@ -293,16 +193,12 @@ def add_address_checkout(request):
             errors['country'] = 'Country must only contain letters, spaces, or hyphens.'
         elif any(char.isdigit() for char in country):
             errors['country'] = 'Country name cannot contain numbers.'
-
-        # Validation for Postal Code
         if not postal_code:
             errors['postal_code'] = 'Postal code is required.'
         elif not re.match(r'^\d{4,10}$', postal_code):
             errors['postal_code'] = 'Postal code must be between 4 and 10 digits and contain only numbers.'
         elif len(postal_code) > 10:
             errors['postal_code'] = 'Postal code is too long (max 10 digits).'
-
-        # Validation for Phone Number with Mandatory Country Code
         if not phone_number:
             errors['phone_number'] = 'Phone number is required.'
         elif not re.match(r'^\+\d{1,4}\d{6,10}$', phone_number):
@@ -312,8 +208,6 @@ def add_address_checkout(request):
             )
         elif phone_number[0] != '+':
             errors['phone_number'] = 'Phone number must start with a "+" followed by the country code.'
-
-        # If no errors, create the address
         if not errors:
             Address.objects.create(
                 user=request.user,
@@ -328,14 +222,8 @@ def add_address_checkout(request):
             messages.success(request, 'Address added successfully.')
             return redirect('payment:check-out')
         else:
-           
             messages.error(request, 'Please correct the errors in Add address form.')
-
-    context = {
-        'errors': errors,
-        'addresses':addresses,
-    }
-
+    context = get_checkout_context(request.user, errors=errors)
     return render(request, 'payment/check-out.html', context)
 
 ###################  order success page  ###########################
