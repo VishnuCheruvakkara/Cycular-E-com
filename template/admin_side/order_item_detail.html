@@ -1,0 +1,265 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/img/cycular-favicon.ico' %}">
+    <title>Order Item Details</title>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/select2.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
+</head>
+
+<body>
+
+{% include 'partials/side-bar-admin.html' %}
+
+<div class="page-wrapper">
+    <div class="content container-fluid">
+
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'admin_side:seller-home' %}">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'admin_side:order-management' %}">Order Management</a>
+                        </li>
+                        <li class="breadcrumb-item active">Order Item Detail</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <h4 class="page-title"><b>Order Item Details</b></h4>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+
+                <!-- PRODUCT DETAILS SECTION -->
+                <h5 class="mb-2">Product Details</h5>
+                <div class="table-responsive mb-3">
+                    <table class="table table-striped custom-table">
+                        <tbody>
+                            <tr>
+                                <th style="width:30%">Product Images</th>
+                                <td>
+                                    {% if order_item.product_variant.image1 %}
+                                        <img src="{{ order_item.product_variant.image1.url }}" class="img-thumbnail mr-2" style="width:100px;">
+                                    {% endif %}
+                                    {% if order_item.product_variant.image2 %}
+                                        <img src="{{ order_item.product_variant.image2.url }}" class="img-thumbnail mr-2" style="width:100px;">
+                                    {% endif %}
+                                    {% if order_item.product_variant.image3 %}
+                                        <img src="{{ order_item.product_variant.image3.url }}" class="img-thumbnail mr-2" style="width:100px;">
+                                    {% endif %}
+                                    {% if order_item.product_variant.image4 %}
+                                        <img src="{{ order_item.product_variant.image4.url }}" class="img-thumbnail mr-2" style="width:100px;">
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Product Name</th>
+                                <td>{{ order_item.product_variant.product.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Brand</th>
+                                <td>{{ order_item.product_variant.product.brand.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Color</th>
+                                <td>{{ order_item.product_variant.color.name|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Size</th>
+                                <td>{{ order_item.product_variant.size.name|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Quantity</th>
+                                <td>{{ order_item.quantity }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- OFFER & DISCOUNT DETAILS SECTION -->
+                <h5 class="mb-2">Offer & Discount Details</h5>
+                <div class="table-responsive mb-3">
+                    <table class="table table-striped custom-table">
+                        <tbody>
+                            <tr>
+                                <th>Product Variant Offer</th>
+                                <td>
+                                    {% with order_item.product_variant.variant_offers.first as offer %}
+                                        {% if offer %}
+                                            {{ offer.offer_name }} ({{ offer.discount_percentage }}%)
+                                        {% else %}
+                                            No Offer Applied
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Brand Offer</th>
+                                <td>
+                                    {% with order_item.product_variant.product.brand.brand_offers.first as offer %}
+                                        {% if offer %}
+                                            {{ offer.offer_name }} ({{ offer.discount_percentage }}%)
+                                        {% else %}
+                                            No Offer Applied
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Original Product Price</th>
+                                <td>
+                                    ₹ {{ order_item.original_price|floatformat:2 }} (for 1 product)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Offer Discount Amount</th>
+                                <td>
+                                    {% if order_item.offer_discount_amount > 0 %}
+                                        − ₹ {{ order_item.offer_discount_amount|floatformat:2 }} (for {{ order_item.quantity }} product{% if order_item.quantity > 1 %}s{% endif %})
+                                    {% else %}
+                                        ₹ 0.00
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Price After Offer</th>
+                                <td>
+                                   ₹ {{ order_item.price_after_offer|floatformat:2 }} (for {{ order_item.quantity }} product{% if order_item.quantity > 1 %}s{% endif %})
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- COUPON DETAILS SECTION -->
+                <h5 class="mb-2">Coupon Details</h5>
+                <div class="table-responsive mb-3">
+                    <table class="table table-striped custom-table">
+                        <tbody>
+                            <tr>
+                                <th>Coupon Used</th>
+                                <td>
+                                    {% if order_item.coupon_discount_price > 0 %}
+                                        {{ order_item.coupon_info }}
+                                    {% else %}
+                                        No Coupon Used
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Coupon Discount</th>
+                                <td>
+                                    {% if order_item.coupon_discount_price > 0 %}
+                                        − ₹ {{ order_item.coupon_discount_price|floatformat:2 }}
+                                    {% else %}
+                                        ₹ 0.00
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Final Amount Paid</th>
+                                <td><b>₹ {{ order_item.final_payable_amount|floatformat:2 }}</b></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAYMENT & ORDER DETAILS SECTION -->
+                <h5 class="mb-2">Payment & Order Details</h5>
+                <div class="table-responsive mb-3">
+                    <table class="table table-striped custom-table">
+                        <tbody>
+                            <tr>
+                                <th>Order ID</th>
+                                <td>{{ order_item.order.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Order Item Status</th>
+                                <td>
+                                    <span class="badge badge-info">
+                                        {{ order_item.order_item_status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Payment Method</th>
+                                <td>{{ order_item.order.get_payment_method_display }}</td>
+                            </tr>
+                            <tr>
+                                <th>Order Date</th>
+                                <td>{{ order_item.order.order_date|date:"d-m-Y h:i:s A" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- USER & DELIVERY DETAILS SECTION -->
+                <h5 class="mb-2">User & Delivery Details</h5>
+                <div class="table-responsive mb-3">
+                    <table class="table table-striped custom-table">
+                        <tbody>
+                            <tr>
+                                <th>User</th>
+                                <td>{{ order_item.order.user }}</td>
+                            </tr>
+                            <tr>
+                                <th>Delivery Address</th>
+                                <td>
+                                    {% if order_item.order.order_address %}
+                                        {{ order_item.order.order_address.address_line }}<br>
+                                        {{ order_item.order.order_address.city }},
+                                        {{ order_item.order.order_address.state }}<br>
+                                        {{ order_item.order.order_address.postal_code }}<br>
+                                        Phone: {{ order_item.order.order_address.phone_number }}
+                                    {% else %}
+                                        No address available
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if order_item.cancelled_message %}
+                            <tr>
+                                <th>Cancel / Return Message</th>
+                                <td>{{ order_item.cancelled_message }}</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <a href="{% url 'admin_side:order-management' %}" class="btn btn-secondary btn-sm mt-3">
+                    ← Back to Order List
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="sidebar-overlay"></div>
+
+<script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'admin/js/popper.min.js' %}"></script>
+<script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+<script src="{% static 'admin/js/select2.min.js' %}"></script>
+<script src="{% static 'admin/js/app.js' %}"></script>
+
+</body>
+</html>

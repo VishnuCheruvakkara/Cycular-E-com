@@ -3,6 +3,7 @@ from django.conf import settings
 from products.models import ProductVariant,Brand,Category
 from django.utils import timezone
 from django.core.validators import MinValueValidator
+from decimal import Decimal
 
 # Create your models here.
 
@@ -81,6 +82,38 @@ class OrderItem(models.Model):
     def effective_price(self):
         """Calculate the effective price after discount."""
         return self.price - self.coupon_discount_price
+    
+    @property
+    def original_price(self):
+        """
+        Actual product price before any offer
+        """
+        return self.product_variant.price
+
+    @property
+    def price_after_offer(self):
+        """
+        Price stored at order time (after offer, before coupon)
+        """
+        return self.price
+
+    @property
+    def offer_discount_amount(self):
+        """
+        Difference between original price and offer-applied price
+        """
+        if self.original_price and self.price:
+            total_original = self.original_price * self.quantity  # total for all items
+            diff = total_original - self.price
+            return diff if diff > 0 else Decimal('0.00')
+        return Decimal('0.00')
+
+    @property
+    def final_payable_amount(self):
+        """
+        Final amount after offer + coupon
+        """
+        return self.price_after_offer - (self.coupon_discount_price or Decimal('0.00'))
 #address for the orderd products
 # ...
 class OrderAddress(models.Model):

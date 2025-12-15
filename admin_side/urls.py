@@ -11,4 +11,5 @@ urlpatterns=[
     path('user-view/<int:user_id>',views.UserView,name='user-view'),
     path('order-management/',views.OrderManagement,name='order-management'),
     path('sales-report/',views.sales_report, name='sales-report'),
+    path('order-item/<int:order_item_id>/',views.order_item_detail, name='order-item-detail'),
 ]

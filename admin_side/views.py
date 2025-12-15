@@ -468,9 +468,6 @@ def sales_report(request):
 ########################  view for download sales reoprt   ##########################
 
 
-
-
-
 def generate_sales_report_pdf(orders, total_orders, total_sales, total_discounts, date_range=None, start_date=None, end_date=None):
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
@@ -573,3 +570,29 @@ def generate_sales_report_pdf(orders, total_orders, total_sales, total_discounts
     response.write(pdf_data)
 
     return response
+
+##########################  admin side full order view page section ###################
+
+def order_item_detail(request, order_item_id):
+    order_item = get_object_or_404(
+        OrderItem.objects.select_related(
+            'order',
+            'order__user',
+            'order__order_address',
+            'product_variant',
+            'product_variant__product',
+            'product_variant__color',
+            'product_variant__size',
+            'product_variant__product__brand',
+        ).prefetch_related(
+            'product_variant__variant_offers',
+            'product_variant__product__brand__brand_offers'
+        ),
+        id=order_item_id
+    )
+
+    return render(
+        request,
+        'admin_side/order_item_detail.html',
+        {'order_item': order_item}
+    )
