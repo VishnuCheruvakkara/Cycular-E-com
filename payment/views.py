@@ -52,6 +52,7 @@ def get_checkout_context(user, errors=None):
         'discount_value': discount_value,
     }
     return context
+
 @login_required(login_url='user_side:sign-in')
 def check_out(request):
     request.user._request = request
@@ -92,16 +93,7 @@ def check_out(request):
                 if context['wallet_balance'] < val:
                     messages.error(request, f'Insufficient wallet balance to complete the purchase. Current balance is: {context["wallet_balance"]} ₹. Choose any other payment option.')
                     return render(request, 'payment/check-out.html', context)
-                wallet = Wallet.objects.get(user=request.user)
-                wallet.balance -= val
-                wallet.save()
-                Transaction.objects.create(
-                    wallet=wallet,
-                    transaction_type='debit',
-                    transaction_purpose='purchase',
-                    transaction_amount=val,
-                    description=f"Wallet payment for order : {item_details}"
-                )
+                
 
             # Check if there is an existing pending order
             existing_order = Order.objects.filter(
@@ -144,8 +136,11 @@ def check_out(request):
                         product_variant.stock -= item.quantity
                         product_variant.save()
                     else:
-                        messages.error(request, f"Not enough stock for {product_variant.product.name}.")
-                        return redirect('cart:cart-view')
+                        messages.error(
+                            request,
+                            f"Sorry! '{product_variant.product.name}' is out of stock or the quantity exceeds available stock ({product_variant.stock} left)."
+                        )
+                        return redirect('cart:cart-page') 
 
                     OrderItem.objects.create(
                         order=order,
@@ -155,6 +150,18 @@ def check_out(request):
                         coupon_discount_price=item_discount,
                         coupon_info=f"{context['discount_value']}% of {context['coupon_code']} coupon applied. Discount of {item_discount:.2f} ₹"
                     )
+
+            if payment_method == 'wallet':
+                wallet = Wallet.objects.get(user=request.user)
+                wallet.balance -= val
+                wallet.save()
+                Transaction.objects.create(
+                    wallet=wallet,
+                    transaction_type='debit',
+                    transaction_purpose='purchase',
+                    transaction_amount=val,
+                    description=f"Wallet payment for order : {item_details}"
+                )
 
             # Redirect to Razorpay if selected
             if payment_method == 'razorpay':

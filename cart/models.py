@@ -19,26 +19,23 @@ class Cart(models.Model):
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=0)
-    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    discounted_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-
+    quantity = models.PositiveIntegerField(default=1)
+  
     def __str__(self):
         return f"{self.product_variant.product.name} (x{self.quantity})"
     
-    def save(self, *args, **kwargs):
-        # Get the discounted price from the product variant
-        discounted_price = self.product_variant.get_discounted_price()
-        
-        # Calculate subtotal based on the discounted price if it exists
-        if discounted_price < self.product_variant.price:
-            self.subtotal = self.quantity * discounted_price
-        else:
-            self.subtotal = self.quantity * float(self.product_variant.price)
+    @property
+    def discounted_price(self):
+        discounted = self.product_variant.get_discounted_price()
+        return discounted if discounted < self.product_variant.price else self.product_variant.price
 
-        # Optionally update the discount amount if a discount exists
-        self.discount_amount = (self.product_variant.price - discounted_price) * self.quantity if discounted_price < self.product_variant.price else Decimal(0)
-        
-        # Call the parent save method
-        super().save(*args, **kwargs)
+    @property
+    def discount_amount(self):
+        discounted = self.product_variant.get_discounted_price()
+        if discounted < self.product_variant.price:
+            return (self.product_variant.price - discounted) * self.quantity
+        return Decimal('0.00')
+
+    @property
+    def subtotal(self):
+        return self.discounted_price * self.quantity

@@ -243,6 +243,18 @@
 		const availableStock = parseInt(quantityInput.dataset.maxQuantity, 10);
 		const url = "{% url 'cart:update-cart-item-quantity' 0 %}".replace('0', cartItemId);
 
+		if (isNaN(quantity) || quantity <= 0) {
+			Swal.fire({
+				icon: 'error',
+				title: 'Invalid Quantity',
+				text: 'Quantity must be at least 1.',
+				confirmButtonText: 'OK'
+			}).then(() => {
+				quantityInput.value = 1; // reset to safe value
+			});
+			return;
+		}
+		
 		// Check if quantity exceeds the allowed limit
 		if (quantity > maxQuantityLimit) {
 			quantityInput.value = maxQuantityLimit; // Reset to maximum allowed limit
