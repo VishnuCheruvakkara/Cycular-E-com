@@ -126,7 +126,28 @@
                                     {% for product in products %}
 									<tr>
                                         <td>{{forloop.counter}}</td>
-										<td><img width="40" height="40" src="{{product.product_variants.first.image1.url }}" class="rounded-circle m-r-5" alt=""></td>
+										<td>
+                                            {% with variant=product.product_variants.first %}
+                                                {% if variant and variant.image1 %}
+                                                    <img
+                                                        width="40"
+                                                        height="40"
+                                                        src="{{ variant.image1.url }}"
+                                                        class="rounded-circle m-r-5"
+                                                        alt="{{ product.name }}"
+                                                    >
+                                                {% else %}
+                                                    <img
+                                                        width="40"
+                                                        height="40"
+                                                        src="{% static 'admin/img/no-product-image.png' %}"
+                                                        class="rounded-circle m-r-5"
+                                                        alt="No image"
+                                                    >
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+
 										<td>{{product.name}}</td>
                                         <td style="text-align: center;">
                                             <button class="btn btn-sm toggle-status" data-product-id="{{ product.id }}" data-status="{{ product.status }}" data-toggle="modal" data-target="#confirm-modal-{{ product.id }}">
