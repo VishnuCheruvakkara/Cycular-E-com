@@ -183,7 +183,7 @@
 	                					</tbody>
 	                				</table><!-- End .table table-summary -->
 
-	                				<a href="{% url 'payment:check-out' %}" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
+	                				<a href="{% url 'payment:check-out' %}" id="proceed-to-checkout" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
 	                			</div><!-- End .summary -->
 
 		            			<a href="{% url 'core:category-filter' %}" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span> </a>
@@ -362,7 +362,27 @@
 
 // Initial update of the total number of products when the page loads
 document.addEventListener('DOMContentLoaded', updateTotalProductsCount);
-
 </script>
+
+<script>
+document.getElementById('proceed-to-checkout')?.addEventListener('click', function (e) {
+
+    const outOfStockCount = {{ out_of_stock_items|length }};
+
+    if (outOfStockCount > 0) {
+        e.preventDefault(); // stop redirect
+
+        const items = "{{ out_of_stock_items|join:', ' }}";
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Out of Stock!',
+            text: `Please remove these items before proceeding: ${items}`,
+            confirmButtonText: 'OK'
+        });
+    }
+});
+</script>
+
 </body>
 {% endblock %}

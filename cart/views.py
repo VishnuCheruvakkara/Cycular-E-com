@@ -16,6 +16,12 @@ def cart(request):
 
     cart_items=cart.items.all()
 
+    out_of_stock_items = [
+        item.product_variant.product.name
+        for item in cart_items
+        if item.quantity > item.product_variant.stock
+    ]
+
     overall_total = sum(item.subtotal for item in cart_items)
     total_quantity=sum(item.quantity for item in cart_items)
  
@@ -24,6 +30,7 @@ def cart(request):
         'cart_items':cart_items,
         'overall_total': overall_total,
         'total_quantity':total_quantity,
+        'out_of_stock_items': out_of_stock_items,
 
     }
     return render(request,'cart/cart.html',context)
