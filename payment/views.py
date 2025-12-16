@@ -455,7 +455,7 @@ def apply_coupon_view(request):
 
             # Check if the total price is less than ₹3000
             if total_price < 3000:
-                return JsonResponse({ 'error': 'Coupon are applicable for the product price less than 3000 ₹'}, status=400)
+                return JsonResponse({ 'error': 'Coupon are not applicable for the product price less than 3000 ₹'}, status=400)
             
             total_price_decimal = Decimal(total_price)
             discount_amount=((Decimal(coupon.discount_value)) / 100) * total_price_decimal
@@ -490,3 +490,23 @@ def apply_coupon_view(request):
             return JsonResponse({'error': 'Invalid or inactive coupon code, Check the available coupon'}, status=400)
 
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
+
+######################### Cancell coupon logic #########################
+
+@login_required(login_url='user_side:sign-in')
+def remove_coupon_view(request):
+    if request.method == "POST":
+        if 'applied_coupon' in request.session:
+            del request.session['applied_coupon']
+
+        cart = get_object_or_404(Cart, user=request.user)
+        cart_items = cart.items.all()
+        total_price = sum(Decimal(item.subtotal) for item in cart_items)
+
+        return JsonResponse({
+            'message': 'Coupon removed successfully',
+            'total_price': f'{total_price:.2f}',
+            'discount_amount': '0.00'
+        })
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)

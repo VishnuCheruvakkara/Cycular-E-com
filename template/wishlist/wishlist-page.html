@@ -76,7 +76,20 @@
                                     {% endif %}
                                 </td>
                                 <td class="action-col">
-                                    <button class="btn btn-block btn-outline-primary-2 btn-product btn-cart" data-product-id="{{ wishlist_item.product_variant.id }}" onclick="addToCart(this)">Add to Cart</button>
+                                   <button class="btn btn-block btn-outline-primary-2 btn-product btn-cart"
+                                        data-product-id="{{ wishlist_item.product_variant.id }}"
+                                        onclick="addToCart(this)"
+                                        {% if wishlist_item.product_variant.id in cart_product_ids %}
+                                            style="background-color: grey; color: white;"
+                                            disabled
+                                        {% endif %}>
+                                        {% if wishlist_item.product_variant.id in cart_product_ids %}
+                                            Remove from Cart
+                                        {% else %}
+                                            Add to Cart
+                                        {% endif %}
+                                    </button>
+
                                 </td>
                                 <td class="remove-col">
                                     <form id="remove-wishlist-form-{{ wishlist_item.id }}" method="post" action="{% url 'wishlist:delete-wishlist' wishlist_item.id %}">

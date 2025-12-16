@@ -4,6 +4,7 @@ from products.models import ProductVariant
 from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from cart.models import Cart
 
 #####################  wish list page    ##################
 
@@ -13,8 +14,20 @@ def wishlist_page(request):
         wishlist_items=Wishlist.objects.filter(user=request.user)
     else:
         wishlist_items=[]
+        
+    cart_product_ids = []
+
+    try:
+        cart = Cart.objects.get(user=request.user)
+        cart_product_ids = list(
+            cart.items.values_list('product_variant_id', flat=True)
+        )
+    except Cart.DoesNotExist:
+        pass
+
     context={
         'wishlist_items':wishlist_items,
+        'cart_product_ids': cart_product_ids,
     }
     return render(request,'wishlist/wishlist-page.html',context)
 
@@ -69,3 +82,4 @@ def wishlist_count(request):
     # Get the count of wishlist items for the logged-in user
     count = Wishlist.objects.filter(user=request.user).count()
     return JsonResponse({'count': count})
+
