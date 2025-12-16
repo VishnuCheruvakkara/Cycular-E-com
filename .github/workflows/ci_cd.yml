@@ -41,5 +41,6 @@ jobs:
             git reset --hard origin/production   # Forcefully match GitHub
             source venv/bin/activate
             pip install --cache-dir=/home/haiworldworld/.cache/pip -r requirements.txt
+            python manage.py migrate --noinput
             python manage.py collectstatic --noinput
             sudo systemctl restart gunicorn
