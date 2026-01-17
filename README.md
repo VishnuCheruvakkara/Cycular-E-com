@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://cycular.shop" target="_blank">
+  <a href="https://cycular.agriflow.space" target="_blank">
     <img alt="View Live Project" src="https://img.shields.io/badge/%20Live%20Demo-1dc0a0?style=for-the-badge&logo=vercel&logoColor=white" />
   </a>
   &nbsp;
@@ -78,6 +78,7 @@ To get started with **Cycular-E-com**, follow these steps:
 ### Development Notes
 This project is still a work in progress and not fully containerized with Docker.
 For local development, the application is set up using Python and PostgreSQL directly. Docker support will be added in the future for more seamless deployment.
+
 
 
 
