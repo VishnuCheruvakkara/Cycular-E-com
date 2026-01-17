@@ -11,3 +11,8 @@
 __pycache__/
 local_settings.py
 media
+
+### Docker 
+
+Dockerfile
+docker-compose.yml
