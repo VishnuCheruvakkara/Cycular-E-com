@@ -67,6 +67,31 @@
         cursor: pointer;
         /* For Firefox */
     }
+    /* Make entire slider show pointer */
+    #price-range-slider {
+        cursor: pointer;
+    }
+
+    /* Make slider track clickable */
+    #price-range-slider .noUi-connect,
+    #price-range-slider .noUi-base {
+        cursor: pointer;
+    }
+
+    /* MOST IMPORTANT: slider handles */
+    #price-range-slider .noUi-handle {
+    cursor: pointer;
+    }
+
+    /* Cursor for sorting UI */
+    .toolbox-right,
+    .toolbox-sort,
+    .toolbox-sort label,
+    .toolbox-sort select,
+    #sortby {
+        cursor: pointer;
+    }
+
     </style>
 </head>
 <body>
@@ -185,44 +210,48 @@
                 				</div><!-- End .toolbox-left -->
 
                 				<div class="toolbox-right">
-                					<div class="toolbox-sort">
-                						<label for="sortby">Sort by:</label>
-                						<div class="select-custom">
-											<!-- Sorting Dropdown -->
-                                            <form method="GET" action="{% url 'core:category-filter' %}">
-                                                <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
-                                                <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
-                                                <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
-                                                <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
-                                                <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
-                                                
-                                                <select name="sortby" id="sortby" class="form-control" onchange="this.form.submit()">
-                                                    <option value="default">Sort By</option>
-                                                    <option value="increase" {% if sort_by == 'increase' %}selected{% endif %}>Price : Low to High</option>
-                                                    <option value="decrease" {% if sort_by == 'decrease' %}selected{% endif %}>Price : High to Low</option>
-                                                    <option value="new" {% if sort_by == 'new' %}selected{% endif %}>New Arrivals</option>
-                                                    <option value="alpha-increase" {% if sort_by == 'alpha-increase' %}selected{% endif %}>aA - zZ</option>
-                                                    <option value="alpha-decrease" {% if sort_by == 'alpha-decrease' %}selected{% endif %}>zZ - aA</option>
-                                                </select>
-                                            </form>
-										</div>
-                					</div><!-- End .toolbox-sort -->
-                				</div><!-- End .toolbox-right -->
+                                <div class="toolbox-sort">
+                                    <label for="sortby">Sort by:</label>
+
+                                    <div class="select-custom">
+                                        <select
+                                            name="sortby"
+                                            id="sortby"
+                                            class="form-control"
+                                            onchange="handleSortChange(this)"
+                                        >
+                                            <option value="default">Sort By</option>
+                                            <option value="increase" {% if sort_by == 'increase' %}selected{% endif %}>
+                                                Price : Low to High
+                                            </option>
+                                            <option value="decrease" {% if sort_by == 'decrease' %}selected{% endif %}>
+                                                Price : High to Low
+                                            </option>
+                                            <option value="new" {% if sort_by == 'new' %}selected{% endif %}>
+                                                New Arrivals
+                                            </option>
+                                            <option value="alpha-increase" {% if sort_by == 'alpha-increase' %}selected{% endif %}>
+                                                aA - zZ
+                                            </option>
+                                            <option value="alpha-decrease" {% if sort_by == 'alpha-decrease' %}selected{% endif %}>
+                                                zZ - aA
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                 			</div><!-- End .toolbox -->
 
                             <!-- product show  -->
 
-
-                            <!-- search bar -->
-                            <form id="price-filter-form" method="get" action="{% url 'core:category-filter' %}">
-                                <div class="input-group mb-3">
-                                    <input type="text" name="search" class="form-control" placeholder="Search products..." aria-label="Search" value="{{ search_query }}">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary" type="submit">Search</button>
-                                    </div>
+                            <!-- search bar - PART OF MAIN FORM -->
+                            <div class="input-group mb-3">
+                                <input type="text" name="search" id="search-input" class="form-control" placeholder="Search products..." aria-label="Search" value="{{ search_query }}" form="main-filter-form">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit" form="main-filter-form">Search</button>
                                 </div>
-                                <!-- Existing filters and buttons -->
-                            </form>
+                            </div>
                  
 
 
@@ -310,7 +339,7 @@
                                     <!-- Previous Page Link -->
                                     {% if product_variants.has_previous %}
                                     <li class="page-item">
-                                        <a class="page-link page-link-prev" href="?page={{ product_variants.previous_page_number }}" aria-label="Previous">
+                                        <a class="page-link page-link-prev" href="?page={{ product_variants.previous_page_number }}&{{ request.GET.urlencode }}" aria-label="Previous">
                                             <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span> Prev
                                         </a>
                                     </li>
@@ -325,14 +354,14 @@
                                     <!-- Page Numbers -->
                                     {% for num in product_variants.paginator.page_range %}
                                     <li class="page-item {% if product_variants.number == num %}active{% endif %}">
-                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        <a class="page-link" href="?page={{ num }}&{{ request.GET.urlencode }}">{{ num }}</a>
                                     </li>
                                     {% endfor %}
 
                                     <!-- Next Page Link -->
                                     {% if product_variants.has_next %}
                                     <li class="page-item">
-                                        <a class="page-link page-link-next" href="?page={{ product_variants.next_page_number }}" aria-label="Next">
+                                        <a class="page-link page-link-next" href="?page={{ product_variants.next_page_number }}&{{ request.GET.urlencode }}" aria-label="Next">
                                             Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
                                         </a>
                                     </li>
@@ -347,260 +376,171 @@
                             </nav>
                 		</div><!-- End .col-lg-9 -->
 
+                        <aside class="col-lg-3 order-lg-first">
+                            <div class="sidebar sidebar-shop">
 
+                                <div class="widget widget-clean">
+                                    <label>Filters:</label>
+                                    <a href="#" id="clean-all-button" class="sidebar-filter-clear">
+                                        <i class="fa fa-refresh"></i> Clean All
+                                    </a>
+                                </div>
 
-                		<aside class="col-lg-3 order-lg-first">
+                                <!-- ===================== SINGLE FILTER FORM - THIS IS THE MAIN FORM ===================== -->
+                                <form method="get" action="{% url 'core:category-filter' %}" id="main-filter-form">
 
-                                <div class="sidebar sidebar-shop">
-                                    <div class="widget widget-clean">
-                                        <label>Filters:</label>
-                                        <a href="#" id="clean-all-button" class="sidebar-filter-clear"><i class="fa fa-refresh" aria-hidden="true"></i> Clean All</a>
-                                    </div><!-- End .widget widget-clean -->
-                                
+                                    <!-- Hidden field for sort -->
+                                    <input type="hidden" name="sortby" id="hidden-sortby" value="{{ sort_by }}">
+
+                                    <!-- ================= CATEGORY ================= -->
                                     <div class="widget widget-collapsible">
-                                        <!-- Corrected Form Tag -->
-                                        <form method="get" action="{% url 'core:category-filter' %}">
-
-                                             <!-- Hidden fields to preserve existing query parameters -->
-                                            <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
-                                            <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
-                                            <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
-                                            <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
-                                            <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
-                                            <h3 class="widget-title">
-                                                <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
-                                                    Category
-                                                </a>
-                                            </h3><!-- End .widget-title -->
-                                
-                                            <div class="collapse show" id="widget-1">
-                                                <div class="widget-body">
-                                                    <div class="filter-items filter-items-count">
-                                                        {% for category in categories %}
-                                                        <div class="filter-item">
-                                                            <div class="custom-control custom-checkbox">
-                                                                <input type="checkbox" class="custom-control-input category-checkbox" id="cat-{{ category.id }}" name="categories" value="{{ category.id }}" {% if category.id|stringformat:"s" in selected_categories %}checked{% endif %}>
-                                                                <label class="custom-control-label" for="cat-{{ category.id }}">{{ category.name }}</label>
-                                                            </div><!-- End .custom-checkbox -->
-                                                            <span class="item-count">{{ category.product_variant_count }}</span>
-                                                        </div><!-- End .filter-item -->
-                                                        {% endfor %}
-                                                    </div><!-- End .filter-items -->
-                                                </div><!-- End .widget-body -->
-                                            </div><!-- End .collapse -->
-                                            <button type="submit" class="btn btn-primary">Filter Category</button>
-                                        </form>
-                                    </div><!-- End .widget -->
-
-        						<!-- Brand Filter -->
-                                <div class="widget widget-collapsible">
-                                   
-                                    <form method="get" action="{% url 'core:category-filter' %}">
-                                    <!-- Hidden fields to preserve existing query parameters -->
-                                    <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
-                                    <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
-                                    <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
-                                    <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
-                                    <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
-
                                         <h3 class="widget-title">
-                                            <a data-toggle="collapse" href="#widget-3" role="button" aria-expanded="true" aria-controls="widget-3">
+                                            <a data-toggle="collapse" href="#filter-category" role="button" aria-expanded="true">
+                                                Category
+                                            </a>
+                                        </h3>
+
+                                        <div class="collapse show" id="filter-category">
+                                            <div class="widget-body">
+                                                <div class="filter-items filter-items-count">
+                                                    {% for category in categories %}
+                                                    <div class="filter-item">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input category-checkbox" id="cat-{{ category.id }}" name="categories" value="{{ category.id }}" {% if category.id|stringformat:"s" in selected_categories %}checked{% endif %}>
+                                                            <label class="custom-control-label" for="cat-{{ category.id }}">{{ category.name }}</label>
+                                                        </div><!-- End .custom-checkbox -->
+                                                        <span class="item-count">{{ category.product_variant_count }}</span>
+                                                    </div><!-- End .filter-item -->
+                                                    {% endfor %}
+                                                </div><!-- End .filter-items -->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ================= BRAND ================= -->
+                                    <div class="widget widget-collapsible">
+                                        <h3 class="widget-title">
+                                            <a data-toggle="collapse" href="#filter-brand" role="button" aria-expanded="true">
                                                 Brand
                                             </a>
-                                        </h3><!-- End .widget-title -->
+                                        </h3>
 
-                                        <div class="collapse show" id="widget-3">
+                                        <div class="collapse show" id="filter-brand">
                                             <div class="widget-body">
-                                                <div class="filter-items">
-                                                    {% for brand in brands %}
-                                                    <div class="filter-item">
-                                                        <div class="custom-control custom-checkbox">
-                                                            <input type="checkbox" class="custom-control-input" id="brand-{{brand.id}}" name="brands" value="{{ brand.id }}" {% if brand.id|stringformat:"s" in selected_brands %}checked{% endif %}>
-                                                            <label class="custom-control-label" for="brand-{{brand.id}}">{{brand.name}}</label>
-                                                        </div><!-- End .custom-checkbox -->
-                                                    </div><!-- End .filter-item -->
-                                                    {% endfor %}
-                                                </div><!-- End .filter-items -->
-                                            </div><!-- End .widget-body -->
-                                        </div><!-- End .collapse -->
+                                                {% for brand in brands %}
+                                                <div class="custom-control custom-checkbox">
+                                                    <input
+                                                        type="checkbox"
+                                                        class="custom-control-input"
+                                                        id="brand-{{ brand.id }}"
+                                                        name="brands"
+                                                        value="{{ brand.id }}"
+                                                        {% if brand.id|stringformat:"s" in selected_brands %}checked{% endif %}
+                                                    >
+                                                    <label class="custom-control-label" for="brand-{{ brand.id }}">
+                                                        {{ brand.name }}
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                        <!-- Submit Button -->
-                                        <button type="submit" class="btn btn-primary">Filter Brand</button>
-                                    </form><!-- Ensure form closes here -->
-                                </div><!-- End .widget -->
-
-
-                                
-                                <!-- Size Filter -->
-                                <div class="widget widget-collapsible">
-                                    <!-- Correct placement of the form opening tag -->
-                                    <form method="get" action="{% url 'core:category-filter' %}">
-                                         <!-- Hidden fields to preserve existing query parameters -->
-                                        <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
-                                        <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
-                                        <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
-                                        <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
-                                        <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
+                                    <!-- ================= SIZE ================= -->
+                                    <div class="widget widget-collapsible">
                                         <h3 class="widget-title">
-                                            <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="true" aria-controls="widget-2">
+                                            <a data-toggle="collapse" href="#filter-size" role="button" aria-expanded="true">
                                                 Size
                                             </a>
-                                        </h3><!-- End .widget-title -->
+                                        </h3>
 
-                                        <div class="collapse show" id="widget-2">
+                                        <div class="collapse show" id="filter-size">
                                             <div class="widget-body">
-                                                <div class="filter-items">
-                                                    {% for size in sizes %}
-                                                    <div class="filter-item">
-                                                        <div class="custom-control custom-checkbox">
-                                                            <input type="checkbox" class="custom-control-input" id="size-{{ size.id }}" name="sizes" value="{{ size.id }}" {% if size.id|stringformat:"s" in selected_sizes %}checked{% endif %}>
-                                                            <label class="custom-control-label" for="size-{{ size.id }}">{{ size }}</label>
-                                                        </div><!-- End .custom-checkbox -->
-                                                    </div><!-- End .filter-item -->
-                                                    {% endfor %}
-                                                </div><!-- End .filter-items -->
-                                            </div><!-- End .widget-body -->
-                                        </div><!-- End .collapse -->
-                                        
-                                        <!-- Submit Button -->
-                                        <button type="submit" class="btn btn-primary">Filter Size</button>
-                                    </form><!-- Ensure form closes here -->
-                                </div><!-- End .widget -->
+                                                {% for size in sizes %}
+                                                <div class="custom-control custom-checkbox">
+                                                    <input
+                                                        type="checkbox"
+                                                        class="custom-control-input"
+                                                        id="size-{{ size.id }}"
+                                                        name="sizes"
+                                                        value="{{ size.id }}"
+                                                        {% if size.id|stringformat:"s" in selected_sizes %}checked{% endif %}
+                                                    >
+                                                    <label class="custom-control-label" for="size-{{ size.id }}">
+                                                        {{ size }}
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                <!-- Color Filter -->
-                                <div class="widget widget-collapsible">
-                                    <!-- Correct placement of the form opening tag -->
-                                    <form method="get" action="{% url 'core:category-filter' %}">
-                                        <!-- Hidden fields to preserve existing query parameters -->
-                                        <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
-                                        <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
-                                        <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
-                                        <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
-                                        <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
-                                        <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
-
-                                        <!-- Color Filter Section -->
+                                    <!-- ================= COLOR ================= -->
+                                    <div class="widget widget-collapsible">
                                         <h3 class="widget-title">
-                                            <a data-toggle="collapse" href="#widget-3" role="button" aria-expanded="true" aria-controls="widget-3">
+                                            <a data-toggle="collapse" href="#filter-color" role="button" aria-expanded="true">
                                                 Color
                                             </a>
-                                        </h3><!-- End .widget-title -->
+                                        </h3>
 
-                                        <div class="collapse show" id="widget-3">
+                                        <div class="collapse show" id="filter-color">
                                             <div class="widget-body">
-                                                <div class="filter-items">
-                                                    {% for color in colors %}
-                                                    <div class="filter-item">
-                                                        <div class="custom-control custom-checkbox">
-                                                            <input type="checkbox" class="custom-control-input" id="color-{{ color.id }}" name="colors" value="{{ color.id }}" {% if color.id|stringformat:"s" in selected_colors %}checked{% endif %}>
-                                                            <label class="custom-control-label" for="color-{{ color.id }}">{{ color.name }}</label>
-                                                        </div><!-- End .custom-checkbox -->
-                                                    </div><!-- End .filter-item -->
-                                                    {% endfor %}
-                                                </div><!-- End .filter-items -->
-                                            </div><!-- End .widget-body -->
-                                        </div><!-- End .collapse -->
+                                                {% for color in colors %}
+                                                <div class="custom-control custom-checkbox">
+                                                    <input
+                                                        type="checkbox"
+                                                        class="custom-control-input"
+                                                        id="color-{{ color.id }}"
+                                                        name="colors"
+                                                        value="{{ color.id }}"
+                                                        {% if color.id|stringformat:"s" in selected_colors %}checked{% endif %}
+                                                    >
+                                                    <label class="custom-control-label" for="color-{{ color.id }}">
+                                                        {{ color.name }}
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                        <!-- Submit Button -->
-                                        <button type="submit" class="btn btn-primary">Filter Colors</button>
-                                    </form><!-- Ensure form closes here -->
-                                </div><!-- End .widget -->
+                                    <!-- ================= PRICE ================= -->
+                                    <div class="widget widget-collapsible">
+                                        <h3 class="widget-title">
+                                            <a data-toggle="collapse" href="#filter-price" role="button" aria-expanded="true">
+                                                Price
+                                            </a>
+                                        </h3>
 
+                                        <div class="collapse show" id="filter-price">
+                                            <div class="widget-body">
+                                                <div class="price-filter-text mb-2">
+                                                    Price Range: <span id="price-range-display"></span>
+                                                </div>
 
-                                <!-- Price filter -->
-                                <div class="widget widget-collapsible">
-                                    <h3 class="widget-title">
-                                        <a data-toggle="collapse" href="#price-widget" role="button" aria-expanded="true" aria-controls="price-widget">
-                                            Price
-                                        </a>
-                                    </h3><!-- End .widget-title -->
+                                                <div id="price-range-slider"></div>
 
-                                    <div class="collapse show" id="price-widget">
-                                        <div class="widget-body">
-                                            <form id="price-filter-form" method="get" action="{% url 'core:category-filter' %}">
-                                                 <!-- Hidden fields to preserve existing query parameters -->
-                                                <input type="hidden" name="categories" value="{{ request.GET.categories|join:',' }}">
-                                                <input type="hidden" name="sizes" value="{{ request.GET.sizes|join:',' }}">
-                                                <input type="hidden" name="brands" value="{{ request.GET.brands|join:',' }}">
-                                                <input type="hidden" name="sortby" id="sortby-hidden" value="{{ request.GET.sortby }}">
-                                                <div class="price-filter">
-                                                    <div class="price-filter-text">
-                                                        Price Range: <span id="price-range-display"></span>
-                                                    </div><!-- End .price-filter-text -->
+                                                <input type="hidden" name="min_price" id="hidden-min-price"
+                                                    value="{{ selected_min_price }}">
+                                                <input type="hidden" name="max_price" id="hidden-max-price"
+                                                    value="{{ selected_max_price }}">
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                                    <div id="price-range-slider" class="slider-container"></div><!-- End .slider-container -->
+                                    <!-- ================= APPLY FILTERS BUTTON ================= -->
+                                    <button type="submit" class="btn btn-primary btn-block mt-3">
+                                        Apply Filters
+                                    </button>
 
-                                                    <!-- Hidden fields for min and max price -->
-                                                    <input type="hidden" name="min_price" id="hidden-min-price">
-                                                    <input type="hidden" name="max_price" id="hidden-max-price">
+                                </form>
+                                <!-- ===================== END MAIN FORM ===================== -->
 
-                                                    <button type="submit" class="btn btn-primary mt-5"> Filter Price </button>
-                                                </div><!-- End .price-filter -->
-                                            </form><!-- End form -->
-                                        </div><!-- End .widget-body -->
-                                    </div><!-- End .collapse -->
-                                </div><!-- End .widget -->
-
-
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function() {
-                                        var slider = document.getElementById('price-range-slider');
-                                        var priceRangeText = document.getElementById('price-range-display');
-                                        var minPriceInput = document.getElementById('hidden-min-price');
-                                        var maxPriceInput = document.getElementById('hidden-max-price');
-                                        var form = document.getElementById('price-filter-form');
-    
-                                        // Global fixed min and max range for the slider
-                                        var globalMinPrice = parseFloat('{{ price_range.min_price|default:"4998.00" }}');
-                                        var globalMaxPrice = parseFloat('{{ price_range.max_price|default:"20000.00" }}');
-    
-                                        // Initialize the slider with global min and max prices
-                                        noUiSlider.create(slider, {
-                                            start: [globalMinPrice, globalMaxPrice],
-                                            connect: true,
-                                            range: {
-                                                'min': globalMinPrice,
-                                                'max': globalMaxPrice,
-                                            },
-                                            step: 800,
-                                            tooltips: true
-                                        });
-    
-                                        // Update display and hidden fields when the slider value changes
-                                        slider.noUiSlider.on('update', function(values) {
-                                            var minValue = parseFloat(values[0]);
-                                            var maxValue = parseFloat(values[1]);
-                                            priceRangeText.textContent = '₹' + minValue.toFixed(2) + ' - ₹' + maxValue.toFixed(2);
-    
-                                            // Update hidden fields with current slider values
-                                            minPriceInput.value = minValue.toFixed(2);
-                                            maxPriceInput.value = maxValue.toFixed(2);
-                                        });
-    
-                                        // Set the current range based on the URL parameters or defaults
-                                        var urlParams = new URLSearchParams(window.location.search);
-                                        var urlMinPrice = parseFloat(urlParams.get('min_price')) || globalMinPrice;
-                                        var urlMaxPrice = parseFloat(urlParams.get('max_price')) || globalMaxPrice;
-    
-                                        // Ensure slider always shows global min and max as range but sets the handles to the filtered range
-                                        slider.noUiSlider.set([Math.max(globalMinPrice, urlMinPrice), Math.min(globalMaxPrice, urlMaxPrice)]);
-    
-                                        // Initial update
-                                        priceRangeText.textContent = '₹' + urlMinPrice.toFixed(2) + ' - ₹' + urlMaxPrice.toFixed(2);
-    
-                                        // Set initial hidden field values
-                                        minPriceInput.value = urlMinPrice.toFixed(2);
-                                        maxPriceInput.value = urlMaxPrice.toFixed(2);
-                                    });
-                                    </script>
-    
+                            </div>
+                        </aside>
 
 
-
-                             
-
-                			</div><!-- End .sidebar sidebar-shop -->
-                		</aside><!-- End .col-lg-3 -->
+                		
                 	</div><!-- End .row -->
                 </div><!-- End .container -->
             </div><!-- End .page-content -->
@@ -723,8 +663,6 @@
     </div><!-- End .page-wrapper -->
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
-   
-
 
     <!-- Plugins JS File -->
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>
@@ -741,211 +679,269 @@
     <script src="{% static 'assets/js/main.js' %}"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // Function to update cart count
-        function updateCartCount() {
-            fetch('{% url "cart:cart-count" %}', {
-                method: 'GET',
+    
+<!-- NEW JAVASCRIPT FOR SORT FUNCTIONALITY -->
+<script>
+    // Handle sort dropdown change
+    function handleSortChange(selectElement) {
+        // Update hidden field in main form
+        document.getElementById('hidden-sortby').value = selectElement.value;
+        // Submit the main form
+        document.getElementById('main-filter-form').submit();
+    }
+</script>
+
+<!-- PRICE SLIDER SCRIPT (UPDATED) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var slider = document.getElementById('price-range-slider');
+    var priceRangeText = document.getElementById('price-range-display');
+    var minPriceInput = document.getElementById('hidden-min-price');
+    var maxPriceInput = document.getElementById('hidden-max-price');
+
+    // Global fixed min and max range for the slider
+    var globalMinPrice = parseFloat('{{ price_range.min_price|default:"4998.00" }}');
+    var globalMaxPrice = parseFloat('{{ price_range.max_price|default:"20000.00" }}');
+
+    // Initialize the slider with global min and max prices
+    noUiSlider.create(slider, {
+        start: [globalMinPrice, globalMaxPrice],
+        connect: true,
+        range: {
+            'min': globalMinPrice,
+            'max': globalMaxPrice,
+        },
+        step: 800,
+        tooltips: true
+    });
+
+    // Update display and hidden fields when the slider value changes
+    slider.noUiSlider.on('update', function(values) {
+        var minValue = parseFloat(values[0]);
+        var maxValue = parseFloat(values[1]);
+        priceRangeText.textContent = '₹' + minValue.toFixed(2) + ' - ₹' + maxValue.toFixed(2);
+
+        // Update hidden fields with current slider values
+        minPriceInput.value = minValue.toFixed(2);
+        maxPriceInput.value = maxValue.toFixed(2);
+    });
+
+    // Set the current range based on the URL parameters or defaults
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlMinPrice = parseFloat(urlParams.get('min_price')) || globalMinPrice;
+    var urlMaxPrice = parseFloat(urlParams.get('max_price')) || globalMaxPrice;
+
+    // Ensure slider always shows global min and max as range but sets the handles to the filtered range
+    slider.noUiSlider.set([Math.max(globalMinPrice, urlMinPrice), Math.min(globalMaxPrice, urlMaxPrice)]);
+
+    // Initial update
+    priceRangeText.textContent = '₹' + urlMinPrice.toFixed(2) + ' - ₹' + urlMaxPrice.toFixed(2);
+
+    // Set initial hidden field values
+    minPriceInput.value = urlMinPrice.toFixed(2);
+    maxPriceInput.value = urlMaxPrice.toFixed(2);
+});
+</script>
+
+<script>
+    // Function to update cart count
+    function updateCartCount() {
+        fetch('{% url "cart:cart-count" %}', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.querySelector('.cart-count').textContent = data.count;
+            } else {
+                console.error('Failed to fetch cart count:', data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Call the updateCartCount function when the page loads
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+
+</script>
+<!-- script for find the wish list count -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Function to fetch the wishlist count from the server
+        function updateWishlistCount() {
+            fetch("{% url 'wishlist:wishlist-count' %}", {
+                method: "GET",
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-Requested-With': 'XMLHttpRequest',  // This makes it an AJAX request
                 }
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'success') {
-                    document.querySelector('.cart-count').textContent = data.count;
-                } else {
-                    console.error('Failed to fetch cart count:', data.message);
-                }
+                // Update the wishlist count on the page
+                const wishlistCountElement = document.querySelector('.wishlist-count');
+                wishlistCountElement.textContent = data.count;
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error fetching wishlist count:', error));
         }
+    
+        // Call the function once the page loads
+        updateWishlistCount();
+    });
+</script>
 
-        // Call the updateCartCount function when the page loads
-        document.addEventListener('DOMContentLoaded', updateCartCount);
-
-    </script>
-    <!-- script for find the wish list count -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Function to fetch the wishlist count from the server
-            function updateWishlistCount() {
-                fetch("{% url 'wishlist:wishlist-count' %}", {
-                    method: "GET",
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',  // This makes it an AJAX request
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Update the wishlist count on the page
-                    const wishlistCountElement = document.querySelector('.wishlist-count');
-                    wishlistCountElement.textContent = data.count;
-                })
-                .catch(error => console.error('Error fetching wishlist count:', error));
-            }
-        
-            // Call the function once the page loads
-            updateWishlistCount();
+<script>
+    // Common SweetAlert function
+    function showAlert(title, message, icon = 'info', buttonText = 'OK') {
+        swal.fire({
+            title: title,
+            text: message,
+            icon: icon, // can be 'success', 'error', 'warning', or 'info'
+            confirmButtonText: buttonText,
         });
-    </script>
+    }
 
-    <script>
-        // Common SweetAlert function
-        function showAlert(title, message, icon = 'info', buttonText = 'OK') {
-            swal.fire({
-                title: title,
-                text: message,
-                icon: icon, // can be 'success', 'error', 'warning', or 'info'
-                confirmButtonText: buttonText,
-            });
+    // Function to update the button state and style
+    function updateButtonState(button, isAdded) {
+        if (isAdded) {
+            button.textContent = 'Remove from Cart'; // Change text to "Remove from Cart"
+            button.style.backgroundColor = 'grey'; // Change button color to grey
+            button.style.color = 'white'; // Set text color to white for better contrast
+        } else {
+            button.textContent = 'Add to Cart';
+            button.style.backgroundColor = ''; // Reset to default color
+            button.style.color = ''; // Reset text color
         }
+    }
+    function addToCart(button){
+        const productId=button.getAttribute('data-product-id');
 
-        // Function to update the button state and style
-        function updateButtonState(button, isAdded) {
-            if (isAdded) {
-                button.textContent = 'Remove from Cart'; // Change text to "Remove from Cart"
-                button.style.backgroundColor = 'grey'; // Change button color to grey
-                button.style.color = 'white'; // Set text color to white for better contrast
+        // Check if button is already in "Added to Cart" state
+        const isAlreadyAdded = button.textContent === 'Remove from Cart';
+
+        // Toggle state based on the current state
+        const action = isAlreadyAdded ? 'remove' : 'add';
+
+        fetch('{% url "cart:add-to-cart" %}',{
+            method:'POST',
+            headers:{
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: new URLSearchParams({
+                'product_variant_id': productId,
+                'action': action 
+            })
+        })
+        .then(response => {
+            if (response.status === 401) {
+                // User is not logged in
+                return response.json().then(data => {
+                    showAlert('Login Required', data.message, 'warning', 'OK');
+                    throw new Error('Unauthorized'); // Stop further processing
+                });
+            } else if (response.ok) {
+                return response.json();
             } else {
-                button.textContent = 'Add to Cart';
-                button.style.backgroundColor = ''; // Reset to default color
-                button.style.color = ''; // Reset text color
+                throw new Error('Unexpected response');
             }
-        }
-        function addToCart(button){
-            const productId=button.getAttribute('data-product-id');
-
-            // Check if button is already in "Added to Cart" state
-            const isAlreadyAdded = button.textContent === 'Remove from Cart';
-
-            // Toggle state based on the current state
-            const action = isAlreadyAdded ? 'remove' : 'add';
-
-            fetch('{% url "cart:add-to-cart" %}',{
-                method:'POST',
-                headers:{
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: new URLSearchParams({
-                    'product_variant_id': productId,
-                    'action': action 
-                })
-            })
-            .then(response => {
-                if (response.status === 401) {
-                    // User is not logged in
-                    return response.json().then(data => {
-                        showAlert('Login Required', data.message, 'warning', 'OK');
-                        throw new Error('Unauthorized'); // Stop further processing
-                    });
-                } else if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Unexpected response');
-                }
-            })
-        
-            .then(data => {
-                if (data.status === 'success') {
-                    updateButtonState(button, action === 'add');
-                    showAlert('Success!', data.message, 'success','OK'); // Show success message
-                    updateCartCount();
-                } else {
-                    showAlert('Notice', data.message || 'An error occurred. Please try again.', 'info','OK'); 
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                if (error.message !== 'Unauthorized') {
-                    showAlert('Error', 'An error occurred. Please try again.', 'error', 'OK');
-                }
-            });
-        }
-    </script>
-    <!-- add to wishlist  -->
-    <script>
-        $(document).on("click", ".add-to-wishlist", function() {
-            let product_variant_id = $(this).attr("data-product-item");
-            let this_val = $(this);
-        
-            // Check if the button says "Go to wishlist"
-            if (this_val.text().trim() === "Go to wishlist") {
-                // Redirect to the wishlist page
-                window.location.href = "/wishlist/";  // Replace with your actual wishlist URL
-                return;
+        })
+    
+        .then(data => {
+            if (data.status === 'success') {
+                updateButtonState(button, action === 'add');
+                showAlert('Success!', data.message, 'success','OK'); // Show success message
+                updateCartCount();
+            } else {
+                showAlert('Notice', data.message || 'An error occurred. Please try again.', 'info','OK'); 
             }
-        
-            // Perform the AJAX call if the product is not yet added to wishlist
-            $.ajax({
-                url: "/wishlist/add-to-wishlist",
-                data: { 
-                    "id": product_variant_id 
-                },
-                dataType: "json",
-                beforeSend: function() {
-                    console.log("Adding to wishlist...");
-                },
-                success: function(response) {
-                    if (response.bool === true) {
-                        // Change button text to "Go to wishlist"
-                        this_val.html("Go to wishlist");
-        
-                        // SweetAlert for success
-                        Swal.fire({
-                            title: 'Added to Wishlist',
-                            text: response.message,  // Message from server
-                            icon: 'success',
-                            confirmButtonText: 'Ok'
-                        });
-                    } else {
-                        // SweetAlert for login required
-                        Swal.fire({
-                            title: 'Login Required',
-                            text: response.message,  // Message from server
-                            icon: 'info',  // 'info' or 'error'
-                            confirmButtonText: 'Login',
-                            preConfirm: function() {
-                                window.location.href = "{% url 'user_side:sign-in' %}" ;  // Redirect to login page
-                            }
-                        });
-                    }
-                },
-                error: function() {
-                    // SweetAlert for general error
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if (error.message !== 'Unauthorized') {
+                showAlert('Error', 'An error occurred. Please try again.', 'error', 'OK');
+            }
+        });
+    }
+</script>
+<!-- add to wishlist  -->
+<script>
+    $(document).on("click", ".add-to-wishlist", function() {
+        let product_variant_id = $(this).attr("data-product-item");
+        let this_val = $(this);
+    
+        // Check if the button says "Go to wishlist"
+        if (this_val.text().trim() === "Go to wishlist") {
+            // Redirect to the wishlist page
+            window.location.href = "/wishlist/";  // Replace with your actual wishlist URL
+            return;
+        }
+    
+        // Perform the AJAX call if the product is not yet added to wishlist
+        $.ajax({
+            url: "/wishlist/add-to-wishlist",
+            data: { 
+                "id": product_variant_id 
+            },
+            dataType: "json",
+            beforeSend: function() {
+                console.log("Adding to wishlist...");
+            },
+            success: function(response) {
+                if (response.bool === true) {
+                    // Change button text to "Go to wishlist"
+                    this_val.html("Go to wishlist");
+    
+                    // SweetAlert for success
                     Swal.fire({
-                        title: 'Error!',
-                        text: 'Something went wrong. Please try again later.',
-                        icon: 'error',
+                        title: 'Added to Wishlist',
+                        text: response.message,  // Message from server
+                        icon: 'success',
                         confirmButtonText: 'Ok'
                     });
+                } else {
+                    // SweetAlert for login required
+                    Swal.fire({
+                        title: 'Login Required',
+                        text: response.message,  // Message from server
+                        icon: 'info',  // 'info' or 'error'
+                        confirmButtonText: 'Login',
+                        preConfirm: function() {
+                            window.location.href = "{% url 'user_side:sign-in' %}" ;  // Redirect to login page
+                        }
+                    });
                 }
-            });
+            },
+            error: function() {
+                // SweetAlert for general error
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                });
+            }
         });
-    </script>
-         
-    <script>
-        // JavaScript to handle the Clean All button click event
-        document.addEventListener('DOMContentLoaded', function() {
-            const cleanAllButton = document.getElementById('clean-all-button');
-            
-            cleanAllButton.addEventListener('click', function(event) {
-                event.preventDefault(); // Prevent default link behavior
-                
-                // Get the base URL without query parameters
-                const baseUrl = window.location.origin + window.location.pathname;
-                
-                // Redirect to the base URL to clear all filters
-                window.location.href = baseUrl;
-            });
-        });
-    </script>
+    });
+</script>
+     
+<script>
+    // JavaScript to handle the Clean All button click event
+    document.addEventListener('DOMContentLoaded', function() {
+        const cleanAllButton = document.getElementById('clean-all-button');
         
-</body>
-
-
-<!-- molla/category-4cols.html  22 Nov 2019 10:02:55 GMT -->
-</html>
+        cleanAllButton.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default link behavior
+            
+            // Get the base URL without query parameters
+            const baseUrl = window.location.origin + window.location.pathname;
+            
+            // Redirect to the base URL to clear all filters
+            window.location.href = baseUrl;
+        });
+    });
+</script>
