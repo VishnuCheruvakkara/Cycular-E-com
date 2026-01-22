@@ -4,6 +4,8 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from decimal import Decimal
+from django.db.models import Avg, Count
+
 
 class Brand(models.Model):
     name = models.CharField(max_length=100)
@@ -32,6 +34,20 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_review_stats(self):
+        """
+        Returns a dictionary with average rating and total reviews
+        Example: {'avg_rating': 4.2, 'total_reviews': 12}
+        """
+        stats = self.reviews.aggregate(
+            avg_rating=Avg('rating'),
+            total_reviews=Count('id')
+        )
+        return {
+            'avg_rating': stats['avg_rating'] or 0,
+            'total_reviews': stats['total_reviews']
+        }
 
 class Size(models.Model):
     name = models.CharField(max_length=50)

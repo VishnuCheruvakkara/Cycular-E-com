@@ -1,4 +1,4 @@
-{% load static %}
+{% load static multiply custom_filters %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -301,13 +301,17 @@
                                                 <div class="product-price">
                                                     ₹ {{product_variant.price}}
                                                 </div><!-- End .product-price -->
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 0%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                    <span class="ratings-text">( 0 Reviews )</span>
-                                                </div><!-- End .rating-container -->
-
+                                                {% with stats=product_variant.product.get_review_stats %}
+                                                    <div class="ratings-container">
+                                                        <div class="ratings">
+                                                            <div class="ratings-val"
+                                                                style="width: {{ stats.avg_rating|floatformat:1|mul:20 }}%;"></div>
+                                                        </div>
+                                                        <span class="ratings-text">
+                                                            ( {{ stats.total_reviews }} Reviews )
+                                                        </span>
+                                                    </div>
+                                                    {% endwith %}
                                                 <div class="product-nav product-nav-thumbs">
                                                     <a class="active">
                                                         <img src="{{ product_variant.image1.url}}" alt="product desc">

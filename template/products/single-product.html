@@ -1,4 +1,4 @@
-{% load static multiply %}
+{% load static multiply custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -54,6 +54,16 @@
         .review h5 {
          font-weight: 600;
         }
+
+        .review-title,
+        .review-username,
+        .review-text {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+        }
+
 
        
     </style>
@@ -200,12 +210,12 @@
                                     </div><!-- End .product-content -->
 
 
-                                    <div class="ratings-container">
+                                     <div class="ratings-container">
                                         <div class="ratings">
-                                            <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                                        </div><!-- End .ratings -->
-                                        <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
-                                    </div><!-- End .rating-container -->
+                                            <div class="ratings-val" style="width: {{ review_stats.avg_rating|mul:20 }}%;"></div>
+                                        </div>
+                                        <span class="ratings-text">( {{ review_stats.total_reviews }} Review{{ review_stats.total_reviews|pluralize }} )</span>
+                                    </div>
 
                                     <div class="product-price">
                                         {% if discounted_price < original_price %}
@@ -349,7 +359,7 @@
 
                                             <!-- LEFT: user + rating -->
                                             <div class="col-md-3 col-12 mb-2">
-                                                <h5 class="mb-1">{{ review.user.username }}</h5>
+                                                <h6 class="mb-1">{{ review.user.username }}</h6>
 
                                                 <div class="ratings-container mb-1">
                                                     <div class="ratings">
@@ -365,7 +375,7 @@
 
                                             <!-- RIGHT: review content -->
                                             <div class="col-md-9 col-12">
-                                                <h5>{{ review.title }}</h5>
+                                                <h6>{{ review.title }}</h6>
                                                 <p class="mb-2">{{ review.review }}</p>
                                             </div>
 
@@ -498,20 +508,34 @@ $(document).ready(function() {
     }
 
     // Handle the review button click
-    $('#submitReviewBtn').on('click', function() {
-        const reviewHeading = $('#reviewHeading').val().trim();
-        const reviewText = $('#reviewText').val().trim();
+    $('#submitReviewBtn').on('click', function () {
+    const reviewHeading = $('#reviewHeading').val().trim();
+    const reviewText = $('#reviewText').val().trim();
 
-        if (reviewHeading && reviewText) {
-            $('#ratingModal').modal('show'); // Show the modal if both fields are filled
-        } else {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Oops...',
-                text: 'Please fill out both fields before submitting your review!',
-            });
-        }
+    // Regex to block HTML / scripts / special chars
+    const invalidRegex = /[<>()[\]{}]|script/i;
+
+    if (!reviewHeading || !reviewText) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Please fill out both fields before submitting your review!'
+        });
+        return;
+    }
+
+    if (invalidRegex.test(reviewHeading) || invalidRegex.test(reviewText)) {
+        Swal.fire({
+            icon: 'error',
+            text: 'Invalid characters found. Try again.'
+        });
+        return;
+    }
+
+    // If everything is valid
+    $('#ratingModal').modal('show');
     });
+
 
     
     $('#submitRating').on('click', async function () {
@@ -668,12 +692,22 @@ $(document).ready(function() {
                                 <div class="product-price">
                                     ₹ {{related_variant.price}}
                                 </div><!-- End .product-price -->
-                                <div class="ratings-container">
-                                    <div class="ratings">
-                                        <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
-                                    </div><!-- End .ratings -->
-                                    <span class="ratings-text">( 2 Reviews )</span>
-                                </div><!-- End .rating-container -->
+
+                                {% with stats=related_variants_stats|dict_get:related_variant.id %}
+                                    <div class="ratings-container">
+                                        <div class="ratings">
+                                            <div class="ratings-val" style="width: {{ stats.avg_rating|mul:20 }}%;"></div>
+                                        </div>
+                                        <span class="ratings-text">
+                                            ( {{ stats.total_reviews }} Review{{ stats.total_reviews|pluralize }} )
+                                        </span>
+                                    </div>
+                                {% endwith %}
+
+
+
+                                
+                                <!-- End .rating-container -->
 
                                
                             </div><!-- End .product-body -->

@@ -616,11 +616,21 @@ def single_product_view(request, variant_id):
 
         can_review = has_purchased and not has_reviewed
 
+    review_stats = product.get_review_stats()
+
+    # Review stats for related variants
+    related_variants_stats = {}
+    for rv in related_variants:
+        stats = rv.product.get_review_stats()
+        related_variants_stats[rv.id] = stats
+
+
    
     context = {
         'variant': variant,
         'available_variants': available_variants,
         'related_variants': related_variants,
+        'related_variants_stats': related_variants_stats,
         'cart_item_exists': cart_item_exists,
         'wishlist_item_exists': wishlist_item_exists,
         'max_discount_percentage': max_discount_percentage,  # Pass the maximum discount percentage
@@ -630,6 +640,7 @@ def single_product_view(request, variant_id):
         'has_reviewed': has_reviewed,
         'has_purchased': has_purchased,
         'can_review': can_review,
+        'review_stats': review_stats,
     }
     
     return render(request, 'products/single-product.html', context)

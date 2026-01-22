@@ -1,6 +1,6 @@
 {% extends 'partials/base.html' %}
 {% block content %}
-{% load static %}
+{% load static multiply custom_filters %}
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert/dist/sweetalert.min.css">
 </head>
@@ -205,12 +205,18 @@
                                            
                                         </div>
                                         <div class="product-footer">
-                                            <div class="ratings-container">
-                                                <div class="ratings">
-                                                    <div class="ratings-val" style="width: 80%;"></div>
+                                           {% with stats=product_variant.product.get_review_stats %}
+                                                <div class="ratings-container">
+                                                    <div class="ratings">
+                                                        <div class="ratings-val"
+                                                            style="width: {{ stats.avg_rating|floatformat:1|mul:20 }}%;"></div>
+                                                    </div>
+                                                    <span class="ratings-text">
+                                                        ( {{ stats.total_reviews }} Reviews )
+                                                    </span>
                                                 </div>
-                                                <span class="ratings-text">( 10 Reviews )</span>
-                                            </div>
+                                            {% endwith %}
+
                                             <div class="product-action">
                                                 <button class="btn-product btn-cart" data-product-id="{{ product_variant.id }}" onclick="addToCart(this)">Add to Cart</button>
                                                 {% if product_variant.id in user_wishlsit_ids %}
