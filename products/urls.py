@@ -14,6 +14,7 @@ urlpatterns=[
     path('category-add/',views.category_management,name='category-add'),
 
     path('single-product-view/<int:variant_id>',views.single_product_view,name='single-product-view'),
+    path("add-review/", views.add_product_review, name="add-product-review"),
 
     path('category-delete/<int:category_id>',views.delete_category,name='category-delete'),
     path('brand-delete/<int:brand_id>',views.delete_brand,name='brand-delete'),

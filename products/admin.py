@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Brand, Category, Product, Size,Color,ProductVariant
+from .models import Brand, Category, Product, Size,Color,ProductVariant,ProductReview
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
@@ -31,3 +31,11 @@ class ColorAdmin(admin.ModelAdmin):
 class ProductVariantAdmin(admin.ModelAdmin):
     list_display = ('product', 'size','color','price', 'image1', 'image2', 'image3','stock')
     list_filter = ('product', 'size')  # Removed color-related filter
+
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = ('product', 'user', 'rating', 'title', 'is_approved', 'created_at')
+    list_filter = ('rating', 'is_approved', 'created_at')
+    search_fields = ('product__name', 'user__email', 'title', 'review')
+    readonly_fields = ('created_at',)
+    ordering = ('-created_at',)

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static multiply %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -50,6 +50,12 @@
         .star-rating .star.active {
             color: #ffc107;
         }
+
+        .review h5 {
+         font-weight: 600;
+        }
+
+       
     </style>
 </head>
 
@@ -308,7 +314,7 @@
                                 <a class="nav-link" id="product-info-link" data-toggle="tab" href="#product-info-tab" role="tab" aria-controls="product-info-tab" aria-selected="false">Key Specification</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (2)</a>
+                                <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews ({{ reviews.count }})</a>
                             </li>
                         </ul>
                     
@@ -331,60 +337,102 @@
                                 </div>
                             </div>
                     
+                            
                             <!-- Reviews Tab -->
                             <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
                                 <div class="reviews">
-                                    <h3>Reviews (2)</h3>
-                                    <!-- Existing reviews -->
-                                    <div class="review">
-                                        <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">Samanta J.</a></h4>
-                                                <div class="ratings-container">
+                                    <h3>Reviews ({{ reviews.count }})</h3>
+
+                                    {% for review in reviews %}
+                                    <div class="review border-bottom pb-3 mb-3">
+                                        <div class="row">
+
+                                            <!-- LEFT: user + rating -->
+                                            <div class="col-md-3 col-12 mb-2">
+                                                <h5 class="mb-1">{{ review.user.username }}</h5>
+
+                                                <div class="ratings-container mb-1">
                                                     <div class="ratings">
-                                                        <div class="ratings-val" style="width: 80%;"></div>
+                                                        <div class="ratings-val"
+                                                            style="width: {{ review.rating|mul:20 }}%;"></div>
                                                     </div>
                                                 </div>
-                                                <span class="review-date">6 days ago</span>
+
+                                                <small class="text-muted">
+                                                    {{ review.created_at|timesince }} ago
+                                                </small>
                                             </div>
-                                            <div class="col">
-                                                <h4>Good, perfect size</h4>
-                                                <div class="review-content">
-                                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
-                                                </div>
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div>
+
+                                            <!-- RIGHT: review content -->
+                                            <div class="col-md-9 col-12">
+                                                <h5>{{ review.title }}</h5>
+                                                <p class="mb-2">{{ review.review }}</p>
                                             </div>
+
                                         </div>
                                     </div>
-                    
-                                    <!-- Add new review form -->
-                                    <div class="new-review mt-5">
-                                        <h3>Add a Review</h3>
-                                        <form id="reviewForm">
-                                            <!-- Review Heading Input -->
-                                            <div class="form-group">
-                                                <label for="reviewHeading">Review Heading</label>
-                                                <input type="text" class="form-control" id="reviewHeading" placeholder="Enter review heading..." required>
-                                            </div>
-                                            <!-- Review Body (Textarea) -->
-                                            <div class="form-group">
-                                                <label for="reviewText">Review</label>
-                                                <textarea class="form-control" id="reviewText" rows="3" placeholder="Write your review here..." required></textarea>
-                                            </div>
-                                            <button type="button" class="btn btn-primary" id="submitReviewBtn">Submit Review</button>
-                                        </form>
-                                    </div>
+                                    {% empty %}
+                                        <p>No reviews yet. Be the first to review this product!</p>
+                                    {% endfor %}
                                 </div>
+
+                                <!-- ================= ADD REVIEW SECTION ================= -->
+
+                                {% if user.is_authenticated %}
+
+                                    {% if can_review %}
+                                        <!-- USER PURCHASED & NOT REVIEWED -->
+                                        <div class="new-review mt-5">
+                                            <h5>Add a Review</h5>
+                                            <form id="reviewForm">
+                                                <div class="form-group">
+                                                    <label for="reviewHeading">Review Heading</label>
+                                                    <input type="text" class="form-control" id="reviewHeading"
+                                                        placeholder="Enter review heading..." required>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="reviewText">Review</label>
+                                                    <textarea class="form-control" id="reviewText" rows="3"
+                                                            placeholder="Write your review here..." required></textarea>
+                                                </div>
+
+                                                <button type="button" class="btn btn-primary" id="submitReviewBtn">
+                                                    Submit Review
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    {% elif has_reviewed %}
+                                        <!-- USER ALREADY REVIEWED -->
+                                        <div >
+                                            You have already reviewed this product.
+                                        </div>
+
+                                    {% else %}
+                                        <!-- USER NOT PURCHASED -->
+                                        <div >
+                                            Only users who purchased and received this product can leave a review.<a href="{% url 'core:category-filter'%}"> View all products </a>
+                                        </div>
+                                    {% endif %}
+
+                                {% else %}
+                                    <!-- USER NOT LOGGED IN -->
+                                    <div >
+                                        Please <a href="{% url 'user_side:sign-in' %}">login</a> to write a review.
+                                    </div>
+                                {% endif %}
+
                             </div>
+
+
+
                         </div>
                     </div>
                     
-                    
-                            <!-- Improved Modal for selecting star rating -->
-                            <!-- Include SweetAlert CSS and JS -->
+            
+                    <!-- Improved Modal for selecting star rating -->
+                    <!-- Include SweetAlert CSS and JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -465,24 +513,71 @@ $(document).ready(function() {
         }
     });
 
-    // Handle the rating submission
-    $('#submitRating').on('click', function() {
+    
+    $('#submitRating').on('click', async function () {
+    try {
         let reviewText = $('#reviewText').val().trim();
         let reviewHeading = $('#reviewHeading').val().trim();
 
-        // Simulating a submission with SweetAlert
-        Swal.fire({
-            icon: 'success',
-            title: 'Thank you!',
-            text: `You rated ${selectedRating} stars with heading: "${reviewHeading}" and your review: "${reviewText}"`,
-        }).then(() => {
-            // Reset form and rating after submission
-            $('#reviewForm')[0].reset();
-            selectedRating = 0;
-            highlightStars(0);
-            $(this).prop('disabled', true);
-            $('#ratingModal').modal('hide'); // Close the modal
+        if (!selectedRating || !reviewText || !reviewHeading) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete',
+                text: 'Please select a rating, add a title, and write your review.'
+            });
+            return;
+        }
+
+        const variantId = "{{ variant.id }}";
+
+        const response = await fetch("{% url 'products:add-product-review' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: new URLSearchParams({
+                variant_id: variantId,
+                rating: selectedRating,
+                title: reviewHeading,
+                review: reviewText
+            })
         });
+
+        if (!response.ok) {
+            throw new Error('Request failed');
+        }
+
+        const data = await response.json();
+
+        if (data.status === "success") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thank you!',
+                text: 'Your review has been submitted successfully.'
+            }).then(() => {
+                $('#reviewForm')[0].reset();
+                selectedRating = 0;
+                highlightStars(0);
+                $('#submitRating').prop('disabled', true);
+                $('#ratingModal').modal('hide');
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Unable to submit',
+                text: 'Your review could not be submitted.'
+            });
+        }
+
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Something went wrong',
+            text: 'Please login and try again.'
+        });
+    }
     });
 
     // Reset rating when modal is closed
@@ -592,25 +687,6 @@ $(document).ready(function() {
                 </div><!-- End .container -->
             </div><!-- End .page-content -->
         </main><!-- End .main -->
-
-        
-<!-- footer starts... -->
-<div class="cta-newsletter text-center pt-6 pb-7">
-    <div class="container">
-        <span class="cta-icon"><i class="icon-envelope"></i></span>
-        <h3 class="title">Subscribe for Our Newsletter</h3><!-- End .title -->
-        <p class="title-desc">Learn about new offers and get more deals by joining our newsletter</p><!-- End .title-desc -->
-        
-        <form action="#">
-            <div class="input-group">
-                <input type="email" class="form-control" placeholder="Enter your Email Address" aria-label="Email Adress" aria-describedby="newsletter-btn" required>
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="submit" id="newsletter-btn"><span>SUBSCRIBE</span><i class="icon-long-arrow-right"></i></button>
-                </div><!-- .End .input-group-append -->
-            </div><!-- .End .input-group -->
-        </form>
-    </div><!-- End .container -->
-</div><!-- End .cta-newsletter -->
 </main><!-- End .main -->
 
 <footer class="footer footer-2">

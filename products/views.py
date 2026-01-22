@@ -2,13 +2,14 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .forms import ProductForm,ProductVariantForm,CategoryForm,BrandForm,SizeForm,ColorForm
 from django.contrib import messages
 from .models import Product,ProductVariant
+from orders.models import OrderItem
 from django.http import JsonResponse
 import base64
 from django.core.files.base import ContentFile
 from io import BytesIO
 from PIL import Image
 from django.views.decorators.http import require_POST
-from .models import Category,Brand,Size,Color
+from .models import Category,Brand,Size,Color,ProductReview
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from cart.models import CartItem
@@ -16,6 +17,7 @@ from wishlist.models import Wishlist
 from django.views.decorators.cache import never_cache
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
+from django.db import IntegrityError
 
 ###################### Product Management page Admin side #################################
 
@@ -593,6 +595,27 @@ def single_product_view(request, variant_id):
         request.user.is_authenticated and 
         Wishlist.objects.filter(user=request.user, product_variant=variant).exists()
     )
+
+    reviews = variant.product.reviews.all().order_by('-created_at')
+
+    
+    has_reviewed = False
+    has_purchased = False
+    can_review = False
+
+    if request.user.is_authenticated:
+        has_reviewed = variant.product.reviews.filter(
+            user=request.user
+        ).exists()
+
+        has_purchased = OrderItem.objects.filter(
+            order__user=request.user,
+            order_item_status='Delivered',
+            product_variant__product=variant.product
+        ).exists()
+
+        can_review = has_purchased and not has_reviewed
+
    
     context = {
         'variant': variant,
@@ -603,6 +626,10 @@ def single_product_view(request, variant_id):
         'max_discount_percentage': max_discount_percentage,  # Pass the maximum discount percentage
         'discounted_price': discounted_price,  # Add discounted price
         'original_price': variant.price,  # Add original price
+        'reviews': reviews, 
+        'has_reviewed': has_reviewed,
+        'has_purchased': has_purchased,
+        'can_review': can_review,
     }
     
     return render(request, 'products/single-product.html', context)
@@ -622,5 +649,54 @@ def product_variant_data(request,variant_id):
     }
     return render(request,'products/product-variant-data-view.html',context)
 
+
+###########################  Review system userside #########################
+
+@login_required(login_url='user_side:sign-in')
+def add_product_review(request):
+    try:
+        product_variant_id = request.POST.get("variant_id")
+        rating = int(request.POST.get("rating"))
+        title = request.POST.get("title").strip()
+        review_text = request.POST.get("review").strip()
+
+        if not all([product_variant_id, rating, title, review_text]):
+            return JsonResponse({
+                "status": "error",
+                "message": "All fields are required."
+            }, status=400)
+
+        if rating < 1 or rating > 5:
+            return JsonResponse({
+                "status": "error",
+                "message": "Rating must be between 1 and 5."
+            }, status=400)
+
+        variant = get_object_or_404(ProductVariant, id=product_variant_id)
+
+        ProductReview.objects.create(
+            product=variant.product,
+            user=request.user,
+            rating=rating,
+            title=title,
+            review=review_text
+        )
+
+        return JsonResponse({
+            "status": "success",
+            "message": "Review submitted successfully."
+        })
+
+    except IntegrityError:
+        return JsonResponse({
+            "status": "error",
+            "message": "You have already reviewed this product."
+        }, status=409)
+
+    except Exception:
+        return JsonResponse({
+            "status": "error",
+            "message": "Something went wrong. Please try again."
+        }, status=500)
 
 
