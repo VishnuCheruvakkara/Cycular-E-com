@@ -15,6 +15,9 @@ urlpatterns=[
 
     path('single-product-view/<int:variant_id>',views.single_product_view,name='single-product-view'),
     path("add-review/", views.add_product_review, name="add-product-review"),
+    path("review/delete/", views.delete_review, name="delete-review"),
+    path("review/edit/", views.edit_review, name="edit-review"),
+
 
     path('category-delete/<int:category_id>',views.delete_category,name='category-delete'),
     path('brand-delete/<int:brand_id>',views.delete_brand,name='brand-delete'),

@@ -374,10 +374,31 @@
                                             </div>
 
                                             <!-- RIGHT: review content -->
-                                            <div class="col-md-9 col-12">
+                                           <div class="col-md-9 col-12">
                                                 <h6>{{ review.title }}</h6>
                                                 <p class="mb-2">{{ review.review }}</p>
+
+                                                {% if user.is_authenticated and review.user == user %}
+                                                    <div class="mt-2">
+                                                        <button 
+                                                            class="btn btn-sm btn-outline-primary edit-review-btn"
+                                                            data-review-id="{{ review.id }}"
+                                                            data-title="{{ review.title }}"
+                                                            data-review="{{ review.review }}"
+                                                        >
+                                                            Edit
+                                                        </button>
+
+                                                        <button 
+                                                            class="btn btn-sm btn-outline-danger delete-review-btn"
+                                                            data-review-id="{{ review.id }}"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                {% endif %}
                                             </div>
+
 
                                         </div>
                                     </div>
@@ -386,7 +407,7 @@
                                     {% endfor %}
                                 </div>
 
-                                <!-- ================= ADD REVIEW SECTION ================= -->
+                                <!-- ================= REVIEW SECTION ================= -->
 
                                 {% if user.is_authenticated %}
 
@@ -482,135 +503,238 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 <script>
-$(document).ready(function() {
+
+    /***********************
+ * REUSABLE VALIDATION
+ ***********************/
+function validateReviewInput(title, review) {
+    const invalidRegex = /[<>()[\]{}]|script/i;
+
+    if (!title || !review) {
+        return "Please fill out both title and review.";
+    }
+
+    if (invalidRegex.test(title) || invalidRegex.test(review)) {
+        return "Invalid characters detected. Please remove special characters.";
+    }
+
+    return null; // valid
+}
+
+$(document).ready(function () {
     let selectedRating = 0;
 
-    // Handle star hover and click
     $('.star-rating .star').hover(
-        function() {
+        function () {
             let currentRating = parseInt($(this).data('rating'));
             highlightStars(currentRating);
         },
-        function() {
+        function () {
             highlightStars(selectedRating);
         }
-    ).click(function() {
+    ).click(function () {
         selectedRating = parseInt($(this).data('rating'));
         highlightStars(selectedRating);
         $('#submitRating').prop('disabled', false);
     });
 
     function highlightStars(rating) {
-        $('.star-rating .star').each(function() {
+        $('.star-rating .star').each(function () {
             let starRating = parseInt($(this).data('rating'));
             $(this).toggleClass('active', starRating <= rating);
         });
     }
 
-    // Handle the review button click
     $('#submitReviewBtn').on('click', function () {
-    const reviewHeading = $('#reviewHeading').val().trim();
-    const reviewText = $('#reviewText').val().trim();
+        const reviewHeading = $('#reviewHeading').val().trim();
+        const reviewText = $('#reviewText').val().trim();
 
-    // Regex to block HTML / scripts / special chars
-    const invalidRegex = /[<>()[\]{}]|script/i;
+        const error = validateReviewInput(reviewHeading, reviewText);
 
-    if (!reviewHeading || !reviewText) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Oops...',
-            text: 'Please fill out both fields before submitting your review!'
-        });
-        return;
-    }
-
-    if (invalidRegex.test(reviewHeading) || invalidRegex.test(reviewText)) {
-        Swal.fire({
-            icon: 'error',
-            text: 'Invalid characters found. Try again.'
-        });
-        return;
-    }
-
-    // If everything is valid
-    $('#ratingModal').modal('show');
-    });
-
-
-    
-    $('#submitRating').on('click', async function () {
-    try {
-        let reviewText = $('#reviewText').val().trim();
-        let reviewHeading = $('#reviewHeading').val().trim();
-
-        if (!selectedRating || !reviewText || !reviewHeading) {
+        if (error) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Incomplete',
-                text: 'Please select a rating, add a title, and write your review.'
+                title: 'Oops...',
+                text: error
             });
             return;
         }
 
-        const variantId = "{{ variant.id }}";
-
-        const response = await fetch("{% url 'products:add-product-review' %}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: new URLSearchParams({
-                variant_id: variantId,
-                rating: selectedRating,
-                title: reviewHeading,
-                review: reviewText
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Request failed');
-        }
-
-        const data = await response.json();
-
-        if (data.status === "success") {
-            Swal.fire({
-                icon: 'success',
-                title: 'Thank you!',
-                text: 'Your review has been submitted successfully.'
-            }).then(() => {
-                $('#reviewForm')[0].reset();
-                selectedRating = 0;
-                highlightStars(0);
-                $('#submitRating').prop('disabled', true);
-                $('#ratingModal').modal('hide');
-                location.reload();
-            });
-        } else {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Unable to submit',
-                text: 'Your review could not be submitted.'
-            });
-        }
-
-    } catch (error) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Something went wrong',
-            text: 'Please login and try again.'
-        });
-    }
+        $('#ratingModal').modal('show');
     });
 
-    // Reset rating when modal is closed
+  
+    $('#submitRating').on('click', async function () {
+        try {
+            let reviewHeading = $('#reviewHeading').val().trim();
+            let reviewText = $('#reviewText').val().trim();
+
+            if (!selectedRating) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Incomplete',
+                    text: 'Please select a rating.'
+                });
+                return;
+            }
+
+            const error = validateReviewInput(reviewHeading, reviewText);
+            if (error) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Input',
+                    text: error
+                });
+                return;
+            }
+
+            const variantId = "{{ variant.id }}";
+
+            const response = await fetch("{% url 'products:add-product-review' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    variant_id: variantId,
+                    rating: selectedRating,
+                    title: reviewHeading,
+                    review: reviewText
+                })
+            });
+
+            if (!response.ok) throw new Error("Request failed");
+
+            const data = await response.json();
+
+            if (data.status === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thank you!',
+                    text: 'Your review has been submitted successfully.'
+                }).then(() => {
+                    $('#reviewForm')[0].reset();
+                    selectedRating = 0;
+                    highlightStars(0);
+                    $('#submitRating').prop('disabled', true);
+                    $('#ratingModal').modal('hide');
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Unable to submit',
+                    text: 'Your review could not be submitted.'
+                });
+            }
+
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Something went wrong',
+                text: 'Please login and try again.'
+            });
+        }
+    });
+
+  
     $('#ratingModal').on('hidden.bs.modal', function () {
         selectedRating = 0;
         highlightStars(0);
         $('#submitRating').prop('disabled', true);
     });
 });
+
+$(document).on("click", ".delete-review-btn", function () {
+    let reviewId = $(this).data("review-id");
+
+    Swal.fire({
+        title: "Delete review?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("{% url 'products:delete-review' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({ review_id: reviewId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    Swal.fire("Deleted!", "Your review was removed.", "success")
+                        .then(() => location.reload());
+                }
+            });
+        }
+    });
+});
+
+$(document).on("click", ".edit-review-btn", function () {
+    let reviewId = $(this).data("review-id");
+    let oldTitle = $(this).data("title");
+    let oldReview = $(this).data("review");
+
+    Swal.fire({
+        title: "Edit Review",
+        html: `
+            <div class="text-start">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Review Title</label>
+                    <input id="edit-title" class="form-control" value="${oldTitle}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Your Review</label>
+                    <textarea id="edit-review" class="form-control" rows="4">${oldReview}</textarea>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: "Update",
+        focusConfirm: false,
+        preConfirm: () => {
+            const title = document.getElementById("edit-title").value.trim();
+            const review = document.getElementById("edit-review").value.trim();
+
+            const error = validateReviewInput(title, review);
+            if (error) {
+                Swal.showValidationMessage(error);
+                return false;
+            }
+
+            return { title, review };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("{% url 'products:edit-review' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    review_id: reviewId,
+                    title: result.value.title,
+                    review: result.value.review
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    Swal.fire("Updated!", "Review updated successfully.", "success")
+                        .then(() => location.reload());
+                }
+            });
+        }
+    });
+});
+
 </script>
 
                         </div><!-- End .tab-content -->

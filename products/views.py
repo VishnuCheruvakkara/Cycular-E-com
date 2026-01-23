@@ -710,4 +710,42 @@ def add_product_review(request):
             "message": "Something went wrong. Please try again."
         }, status=500)
 
+###################### 
 
+@login_required
+def delete_review(request):
+    if request.method == "POST":
+        review_id = request.POST.get("review_id")
+
+        review = get_object_or_404(
+            ProductReview,
+            id=review_id,
+            user=request.user
+        )
+
+        review.delete()
+        return JsonResponse({"status": "success"})
+
+    return JsonResponse({"status": "error"}, status=400)
+
+
+@login_required
+def edit_review(request):
+    if request.method == "POST":
+        review_id = request.POST.get("review_id")
+        title = request.POST.get("title")
+        review_text = request.POST.get("review")
+
+        review = get_object_or_404(
+            ProductReview,
+            id=review_id,
+            user=request.user
+        )
+
+        review.title = title
+        review.review = review_text
+        review.save()
+
+        return JsonResponse({"status": "success"})
+
+    return JsonResponse({"status": "error"}, status=400)
