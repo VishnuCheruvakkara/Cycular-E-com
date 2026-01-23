@@ -343,7 +343,7 @@
                                     <!-- Previous Page Link -->
                                     {% if product_variants.has_previous %}
                                     <li class="page-item">
-                                        <a class="page-link page-link-prev" href="?page={{ product_variants.previous_page_number }}&{{ request.GET.urlencode }}" aria-label="Previous">
+                                        <a class="page-link page-link-prev" href="?page={{ product_variants.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}" aria-label="Previous">
                                             <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span> Prev
                                         </a>
                                     </li>
@@ -358,14 +358,18 @@
                                     <!-- Page Numbers -->
                                     {% for num in product_variants.paginator.page_range %}
                                     <li class="page-item {% if product_variants.number == num %}active{% endif %}">
-                                        <a class="page-link" href="?page={{ num }}&{{ request.GET.urlencode }}">{{ num }}</a>
+                                       <a class="page-link" href="?page={{ num }}{% if query_string %}&{{ query_string }}{% endif %}">
+                                            {{ num }}
+                                        </a>
                                     </li>
                                     {% endfor %}
 
                                     <!-- Next Page Link -->
                                     {% if product_variants.has_next %}
                                     <li class="page-item">
-                                        <a class="page-link page-link-next" href="?page={{ product_variants.next_page_number }}&{{ request.GET.urlencode }}" aria-label="Next">
+                                            <a class="page-link page-link-next"
+                                                href="?page={{ product_variants.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}"
+                                                aria-label="Next">
                                             Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
                                         </a>
                                     </li>

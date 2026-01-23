@@ -6,6 +6,7 @@ from django.db.models.functions import Lower
 from products.models import Category,Brand,Size,Color
 from django.db.models import Min,Max,Count,Q
 from wishlist.models import Wishlist
+from urllib.parse import urlencode
 
 #######################  user home-side #####################################
 
@@ -107,6 +108,11 @@ def category_filter(request):
         paginated_variants = paginator.page(paginator.num_pages)
 
     product_variant_counts = product_variants.count()
+    
+    querydict = request.GET.copy()
+    querydict.pop('page', None)
+    query_string = querydict.urlencode()
+
     context = {
         'product_variants': paginated_variants,  # Pass paginated variants to the template
         'product_variant_counts': product_variant_counts,  # Total count of product variants
@@ -124,6 +130,7 @@ def category_filter(request):
         'selected_max_price': Max_price,
         'search_query': search_query,
         'user_wishlist_ids': user_wishlist_ids,
+        'query_string': query_string,
     }
     return render(request, 'core/category-filter.html', context)
 

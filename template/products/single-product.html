@@ -242,16 +242,22 @@
                                 <div class="details-filter-row details-row-size">
                                     <label for="variant">Variant:</label>
                                     <div class="select-custom">
-                                        <select name="variant" id="variant" class="form-control" onchange="location = this.value;">
-                                            <option value="" selected="selected">Select a variant</option>
-                                            {% for variant in available_variants %}
-                                                <option value="{% url 'products:single-product-view' variant.id %}">
-                                                    {{ variant.color__name }} - {{ variant.size__name }}
+                                        <select name="variant"
+                                                id="variant"
+                                                class="form-control"
+                                                onchange="location = this.value;">
+
+                                            {% for v in available_variants %}
+                                                <option value="{% url 'products:single-product-view' v.id %}"
+                                                        {% if v.id == variant.id %}selected{% endif %}>
+                                                    {{ v.color__name }} - {{ v.size__name }}
                                                 </option>
                                             {% endfor %}
+
                                         </select>
-                                    </div><!-- End .select-custom -->
-                                </div><!-- End .details-filter-row -->
+                                    </div>
+                                </div>
+
                                 
                                     
                                         <!-- This is where the stock information will be displayed -->
@@ -299,13 +305,7 @@
                                             <a href="#">{{variant.size}}</a>
                                         </div><!-- End .product-cat -->
 
-                                        <div class="social-icons social-icons-sm">
-                                            <span class="social-label">Share:</span>
-                                            <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
-                                            <a href="#" class="social-icon" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
-                                            <a href="#" class="social-icon" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
-                                            <a href="#" class="social-icon" title="Pinterest" target="_blank"><i class="icon-pinterest"></i></a>
-                                        </div>
+                                      
                                     </div><!-- End .product-details-footer -->
                                 </div><!-- End .product-details -->
                             </div><!-- End .col-md-6 -->
