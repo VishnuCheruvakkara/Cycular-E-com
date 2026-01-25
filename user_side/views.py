@@ -28,6 +28,8 @@ import os
 from datetime import datetime, timedelta
 import tempfile
 User = get_user_model()
+from .validation import validate_address_data
+
 
 ###########################  user sign-up  #####################################
 
@@ -525,97 +527,27 @@ def password_change_resend_otp_view(request):
 def add_address(request):
 
     errors = {}  # Dictionary to hold error messages
+    form_data = {}
 
     # Fetch all addresses of the logged-in user
     addresses = Address.objects.filter(user=request.user)
 
     if request.method == 'POST':
-        address_line = request.POST.get('address_line', '').strip()
-        city = request.POST.get('city', '').strip()
-        state = request.POST.get('state', '').strip()
-        country = request.POST.get('country', '').strip()
-        postal_code = request.POST.get('postal_code', '').strip()
-        phone_number = request.POST.get('phone_number', '').strip()
-        is_default = request.POST.get('is_default') == 'on'
-
-        # Validation for Address Line
-        if not address_line:
-            errors['address_line'] = 'Address line is required.'
-        elif len(address_line) < 5 or len(address_line) > 100:
-            errors['address_line'] = 'Address line must be between 5 and 100 characters.'
-        elif re.search(r'[^a-zA-Z0-9\s,.-]', address_line):
-            errors['address_line'] = 'Address line contains invalid characters.'
-
-        # Validation for City
-        if not city:
-            errors['city'] = 'City is required.'
-        elif len(city) > 50:
-            errors['city'] = 'City name is too long (max 50 characters).'
-        elif not re.match(r'^[a-zA-Z\s\-]+$', city):
-            errors['city'] = 'City must only contain letters, spaces, or hyphens.'
-        elif any(char.isdigit() for char in city):
-            errors['city'] = 'City name cannot contain numbers.'
-
-        # Validation for State
-        if not state:
-            errors['state'] = 'State is required.'
-        elif len(state) > 50:
-            errors['state'] = 'State name is too long (max 50 characters).'
-        elif not re.match(r'^[a-zA-Z\s\-]+$', state):
-            errors['state'] = 'State must only contain letters, spaces, or hyphens.'
-        elif any(char.isdigit() for char in state):
-            errors['state'] = 'State name cannot contain numbers.'
-
-        # Validation for Country
-        if not country:
-            errors['country'] = 'Country is required.'
-        elif len(country) > 50:
-            errors['country'] = 'Country name is too long (max 50 characters).'
-        elif not re.match(r'^[a-zA-Z\s\-]+$', country):
-            errors['country'] = 'Country must only contain letters, spaces, or hyphens.'
-        elif any(char.isdigit() for char in country):
-            errors['country'] = 'Country name cannot contain numbers.'
-
-        # Validation for Postal Code
-        if not postal_code:
-            errors['postal_code'] = 'Postal code is required.'
-        elif not re.match(r'^\d{4,10}$', postal_code):
-            errors['postal_code'] = 'Postal code must be between 4 and 10 digits and contain only numbers.'
-        elif len(postal_code) > 10:
-            errors['postal_code'] = 'Postal code is too long (max 10 digits).'
-
-        # Validation for Phone Number with Mandatory Country Code
-        if not phone_number:
-            errors['phone_number'] = 'Phone number is required.'
-        elif not re.match(r'^\+\d{1,4}\d{6,10}$', phone_number):
-            errors['phone_number'] = (
-                'Phone number must start with a "+" followed by 1-4 digits for the country code '
-                'and then 6-10 digits for the phone number itself.'
-            )
-        elif phone_number[0] != '+':
-            errors['phone_number'] = 'Phone number must start with a "+" followed by the country code.'
-
+        errors, data = validate_address_data(request.POST)
+        form_data = request.POST
         # If no errors, create the address
         if not errors:
-            Address.objects.create(
-                user=request.user,
-                address_line=address_line,
-                city=city,
-                state=state,
-                country=country,
-                postal_code=postal_code,
-                phone_number=phone_number,
-                is_default=is_default
-            )
+            Address.objects.create(user=request.user, **data)
             messages.success(request, 'Address added successfully.')
             return redirect('user_side:user-dash-board')
         else:
-           
             messages.error(request, 'Please correct the errors in Add address form.')
 
     context = {
         'errors': errors,
+        'form_data': form_data,
         'addresses':addresses,
+        'open_add_address_modal': bool(errors)
     }
 
     return render(request, 'user_side/user-dash-board.html', context)
@@ -625,31 +557,31 @@ def add_address(request):
 @login_required(login_url='user_side:sign-in')
 @never_cache
 def edit_address(request, address_id):
-    # Fetch the address object based on the given ID and ensure it belongs to the current user
     address = get_object_or_404(Address, id=address_id, user=request.user)
+    edit_errors = {}
 
     if request.method == 'POST':
-        # Update address fields from the form
-        address.address_line = request.POST.get('address_line')
-        address.city = request.POST.get('city')
-        address.state = request.POST.get('state')
-        address.country = request.POST.get('country')
-        address.postal_code = request.POST.get('postal_code')
-        address.phone_number = request.POST.get('phone_number')
-        address.is_default = request.POST.get('is_default') == 'on'  # Checkbox handling for default address
+        errors, data = validate_address_data(request.POST)
 
-        # Save the updated address
-        address.save()
-        messages.success(request, 'Address updated successfully.')
-        
-        return redirect('user_side:user-dash-board')  
-    
+        if not errors:
+            for field, value in data.items():
+                setattr(address, field, value)
+            address.save()
+            messages.success(request, 'Address updated successfully.')
+            return redirect('user_side:user-dash-board')
+        else:
+            edit_errors = {address_id: errors}
+            messages.error(request, 'Please correct the errors in Edit address form.')
+
+    # Only pass edit_address_id if there are errors
     context = {
-        'address': address,  # Pass the address object to pre-fill form fields
+        'addresses': Address.objects.filter(user=request.user),
+        'edit_errors': edit_errors,
+        'edit_address_id': address_id if edit_errors else None,
     }
     return render(request, 'user_side/user-dash-board.html', context)
 
-#########################  delete user address  ######################3
+#########################  delete user address  ######################
 
 @login_required(login_url='user_side:sign-in')
 @never_cache

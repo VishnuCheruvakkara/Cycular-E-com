@@ -1,11 +1,11 @@
 {% extends 'partials/base.html' %}
 {% block title %}Cycular user dash-board{% endblock %}
-{% load static %}
+{% load static dict_extras %}
 
 {% block content %}
 <head>
     <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.6.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- SweetAlert CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -199,16 +199,7 @@
                                     
 
 
-
-
-
-
-                                    
-
-
-
-
-                                    <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
+                                    <div class="tab-pane fade {% if edit_address_id %}show active{% endif %}" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
                                       <div class="address-header d-flex justify-content-between align-items-center mb-3">
                                             <p class="mb-0">The following addresses will be used on the checkout page by default.</p>
                                             <a href="" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#userAddAddressModal">
@@ -250,7 +241,7 @@
 
                                             <!-- Edit Address Modal -->
                                             <div class="modal fade custom-modal-width" id="editAddressModal{{ address.id }}" tabindex="-1" aria-labelledby="editAddressModalLabel{{ address.id }}" aria-hidden="true">
-                                                <div class="modal-dialog modal-lg">
+                                                <div class="modal-dialog " role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
                                                             <h5 class="modal-title" id="editAddressModalLabel{{ address.id }}">Edit Address</h5>
@@ -258,43 +249,88 @@
                                                                 <span aria-hidden="true">&times;</span>
                                                             </button>
                                                         </div>
+
                                                         <div class="modal-body">
-                                                            <form method="POST" action="{% url 'user_side:edit-address' address.id %}">
+                                                            {% with address_errors=edit_errors|get_item:address.id %}
+                                                            
+                                                            <form id="editAddressForm{{ address.id }}" method="POST" action="{% url 'user_side:edit-address' address.id %}">
                                                                 {% csrf_token %}
+
                                                                 <!-- Populate form fields with existing address data -->
-                                                                <div class="mb-3 col-md-12">
+
+                                                                <div class="form-group col-md-12">
                                                                     <label for="address_line_{{ address.id }}" class="form-label">Address Line</label>
-                                                                    <input type="text" name="address_line" class="form-control" id="address_line_{{ address.id }}" value="{{ address.address_line }}" required>
+                                                                    <input type="text" name="address_line" class="form-control"
+                                                                        id="address_line_{{ address.id }}"
+                                                                        value="{{ address.address_line }}" required>
+                                                                    {% if address_errors.address_line %}
+                                                                        <div class="text-danger">{{ address_errors.address_line }}</div>
+                                                                    {% endif %}
                                                                 </div>
-                                                                <div class="mb-3 col-md-12">
+
+                                                                <div class="form-group col-md-12">
                                                                     <label for="city_{{ address.id }}" class="form-label">City</label>
-                                                                    <input type="text" name="city" class="form-control" id="city_{{ address.id }}" value="{{ address.city }}" required>
+                                                                    <input type="text" name="city" class="form-control"
+                                                                        id="city_{{ address.id }}"
+                                                                        value="{{ address.city }}" required>
+                                                                    {% if address_errors.city %}
+                                                                        <div class="text-danger">{{ address_errors.city }}</div>
+                                                                    {% endif %}
                                                                 </div>
-                                                                <div class="mb-3 col-md-12">
+
+                                                                <div class="form-group col-md-12">
                                                                     <label for="state_{{ address.id }}" class="form-label">State</label>
-                                                                    <input type="text" name="state" class="form-control" id="state_{{ address.id }}" value="{{ address.state }}" required>
+                                                                    <input type="text" name="state" class="form-control"
+                                                                        id="state_{{ address.id }}"
+                                                                        value="{{ address.state }}" required>
+                                                                    {% if address_errors.state %}
+                                                                        <div class="text-danger">{{ address_errors.state }}</div>
+                                                                    {% endif %}
                                                                 </div>
-                                                                <div class="mb-3 col-md-12">
+
+                                                                <div class="form-group col-md-12">
                                                                     <label for="country_{{ address.id }}" class="form-label">Country</label>
-                                                                    <input type="text" name="country" class="form-control" id="country_{{ address.id }}" value="{{ address.country }}" required>
+                                                                    <input type="text" name="country" class="form-control"
+                                                                        id="country_{{ address.id }}"
+                                                                        value="{{ address.country }}" required>
+                                                                    {% if address_errors.country %}
+                                                                        <div class="text-danger">{{ address_errors.country }}</div>
+                                                                    {% endif %}
                                                                 </div>
-                                                                <div class="mb-3 col-md-12">
+
+                                                                <div class="form-group col-md-12">
                                                                     <label for="postal_code_{{ address.id }}" class="form-label">Postal Code</label>
-                                                                    <input type="text" name="postal_code" class="form-control" id="postal_code_{{ address.id }}" value="{{ address.postal_code }}" required>
+                                                                    <input type="text" name="postal_code" class="form-control"
+                                                                        id="postal_code_{{ address.id }}"
+                                                                        value="{{ address.postal_code }}" required>
+                                                                    {% if address_errors.postal_code %}
+                                                                        <div class="text-danger">{{ address_errors.postal_code }}</div>
+                                                                    {% endif %}
                                                                 </div>
-                                                                <div class="mb-3 col-md-12">
+
+                                                                <div class="form-group col-md-12">
                                                                     <label for="phone_number_{{ address.id }}" class="form-label">Phone Number</label>
-                                                                    <input type="text" name="phone_number" class="form-control" id="phone_number_{{ address.id }}" value="{{ address.phone_number }}" required>
+                                                                    <input type="text" name="phone_number" class="form-control"
+                                                                        id="phone_number_{{ address.id }}"
+                                                                        value="{{ address.phone_number }}" required>
+                                                                    {% if address_errors.phone_number %}
+                                                                        <div class="text-danger">{{ address_errors.phone_number }}</div>
+                                                                    {% endif %}
                                                                 </div>
+
                                                                 <div class="d-flex justify-content-center mt-3">
                                                                     <button type="submit" class="btn btn-primary mb-1">Update Address</button>
                                                                 </div>
                                                             </form>
+
+                                                            {% endwith %}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            {% endfor %}                                                                 
+
+                                            {% endfor %}    
+                                                                                  
                                         </div>
                                     </div>
 
@@ -359,51 +395,47 @@
                             {% csrf_token %}
                             <div class="form-group col-md-12 ">
                                 <label for="address_line">Address Line</label>
-                                <input type="text" name="address_line" class="form-control" required>
+                                <input type="text" name="address_line" class="form-control" value="{{ form_data.address_line|default:'' }}" required>
                                 {% if errors.address_line %}
                                 <div class="text-danger">{{ errors.address_line }}</div>
                                 {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="city">City</label>
-                                <input type="text" name="city" class="form-control" required>
+                                <input type="text" name="city" class="form-control" value="{{ form_data.city|default:'' }}" 8required>
                                 {% if errors.city %}
                                 <div class="text-danger">{{ errors.city }}</div>
                                 {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="state">State</label>
-                                <input type="text" name="state" class="form-control" required>
+                                <input type="text" name="state" class="form-control" value="{{ form_data.state|default:'' }}" required>
                                 {% if errors.state %}
                                 <div class="text-danger">{{ errors.state }}</div>
                                 {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="country">Country</label>
-                                <input type="text" name="country" class="form-control" required>
+                                <input type="text" name="country" class="form-control" value="{{ form_data.country|default:'' }}" required>
                                 {% if errors.country %}
                                 <div class="text-danger">{{ errors.country }}</div>
                                 {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="postal_code">Postal Code</label>
-                                <input type="text" name="postal_code" class="form-control" required>
+                                <input type="text" name="postal_code" class="form-control" value="{{ form_data.postal_code|default:'' }}" required>
                                 {% if errors.postal_code %}
                                 <div class="text-danger">{{ errors.postal_code }}</div>
                                  {% endif %}
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="phone_number">Phone Number</label>
-                                <input type="text" name="phone_number" class="form-control">
+                                <input type="text" name="phone_number" value="{{ form_data.phone_number|default:'' }}" class="form-control">
                                 {% if errors.phone_number %}
                                 <div class="text-danger">{{ errors.phone_number }}</div>
                                 {% endif %}
                             </div>
-                            <div class="form-group col-md-12">
-                                <label for="is_default">Default Address</label>
-                                <input type="checkbox" name="is_default">
-                            
-                            </div>
+                           
                             <div class="d-flex justify-content-center mt-3">
                                 <button type="submit" class="btn btn-primary mb-1">Add Address</button>
                             </div>
@@ -413,6 +445,7 @@
             </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
         <script>
         {% for message in messages %}
             swal.fire({
@@ -422,6 +455,15 @@
             })
         {% endfor %}
         </script>
+        {% if open_add_address_modal %}
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    $('#userAddAddressModal').modal('show');
+                });
+            </script>
+        {% endif %}
+       
+
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // Select all cancel links
@@ -482,8 +524,7 @@
     </script>
 
     <!-- Plugins JS File -->
-    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
-    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+   
     <script src="{% static 'assets/js/jquery.hoverIntent.min.js' %}"></script>
     <script src="{% static 'assets/js/jquery.waypoints.min.js' %}"></script>
     <script src="{% static 'assets/js/superfish.min.js' %}"></script>
@@ -493,10 +534,9 @@
     <!-- Main JS File -->
     <script src="{% static 'assets/js/main.js' %}"></script>
    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 
     <!-- for the sweet alert  -->
 
@@ -544,8 +584,22 @@
         document.body.classList.add('fade-in-visible');
     });
 </script>
-  
 
+   {% if edit_address_id %}
+    <script>
+        $(document).ready(function () {
+            const modalId = '#editAddressModal{{ edit_address_id }}';
+
+            if ($(modalId).length) {
+                $(modalId).modal({
+                    backdrop: 'static',
+                    keyboard: false,
+                    show: true
+                });
+            }
+        });
+    </script>
+    {% endif %}   
 </body>
 
 

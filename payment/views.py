@@ -19,6 +19,7 @@ import razorpay
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.views.decorators.http import require_POST
+from user_side.validation import validate_address_data
 
 #####################  check out page  #################
 
@@ -257,77 +258,10 @@ def add_address_checkout(request):
     form_data = {}
     
     if request.method == 'POST':
-        address_line = request.POST.get('address_line', '').strip()
-        city = request.POST.get('city', '').strip()
-        state = request.POST.get('state', '').strip()
-        country = request.POST.get('country', '').strip()
-        postal_code = request.POST.get('postal_code', '').strip()
-        phone_number = request.POST.get('phone_number', '').strip()
-        is_default = request.POST.get('is_default') == 'on'
-
-        form_data = {
-            'address_line': address_line,
-            'city': city,
-            'state': state,
-            'country': country,
-            'postal_code': postal_code,
-            'phone_number': phone_number,
-            'is_default': is_default,
-        }
-
-        if not address_line:
-            errors['address_line'] = 'Address line is required.'
-        elif len(address_line) < 5 or len(address_line) > 100:
-            errors['address_line'] = 'Address line must be between 5 and 100 characters.'
-        elif re.search(r'[^a-zA-Z0-9\s,.-]', address_line):
-            errors['address_line'] = 'Address line contains invalid characters.'
-        if not city:
-            errors['city'] = 'City is required.'
-        elif len(city) > 50:
-            errors['city'] = 'City name is too long (max 50 characters).'
-        elif not re.match(r'^[a-zA-Z\s\-]+$', city):
-            errors['city'] = 'City must only contain letters, spaces, or hyphens.'
-        elif any(char.isdigit() for char in city):
-            errors['city'] = 'City name cannot contain numbers.'
-        if not state:
-            errors['state'] = 'State is required.'
-        elif len(state) > 50:
-            errors['state'] = 'State name is too long (max 50 characters).'
-        elif not re.match(r'^[a-zA-Z\s\-]+$', state):
-            errors['state'] = 'State must only contain letters, spaces, or hyphens.'
-        elif any(char.isdigit() for char in state):
-            errors['state'] = 'State name cannot contain numbers.'
-        if not country:
-            errors['country'] = 'Country is required.'
-        elif len(country) > 50:
-            errors['country'] = 'Country name is too long (max 50 characters).'
-        elif not re.match(r'^[a-zA-Z\s\-]+$', country):
-            errors['country'] = 'Country must only contain letters, spaces, or hyphens.'
-        elif any(char.isdigit() for char in country):
-            errors['country'] = 'Country name cannot contain numbers.'
-        if not postal_code:
-            errors['postal_code'] = 'Postal code is required.'
-        elif not re.match(r'^\d{4,10}$', postal_code):
-            errors['postal_code'] = 'Postal code must be between 4 and 10 digits and contain only numbers.'
-        elif len(postal_code) > 10:
-            errors['postal_code'] = 'Postal code is too long (max 10 digits).'
-        if not phone_number:
-            errors['phone_number'] = 'Phone number is required.'
-        elif not re.match(r'^\+\d{8,15}$', phone_number):
-            errors['phone_number'] = 'Enter a valid phone number starting with + and digits only.'
+        errors, form_data = validate_address_data(request.POST)
 
         if not errors:
-            Address.objects.create(
-                user=request.user,
-                address_line=address_line,
-                city=city,
-                state=state,
-                country=country,
-                postal_code=postal_code,
-                phone_number=phone_number,
-                is_default=is_default
-            )
-
+            Address.objects.create(user=request.user, **form_data)
             messages.success(request, 'Address added successfully.')
             return redirect('payment:check-out')
         else:
