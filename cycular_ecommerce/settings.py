@@ -49,6 +49,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #app for google validation
     'social_django',
+    #Third party app
+    "cloudinary",
+    "cloudinary_storage",
     #Custom app  
     'core',  
     'user_side',
@@ -158,10 +161,6 @@ STATICFILES_DIRS=[
     os.path.join(BASE_DIR,"static"),
 ]
 
-MEDIA_URL='/media/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR,"media")
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -253,3 +252,11 @@ SECURE_PROXY_SSL_HEADER = (
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = env.bool(
     "SOCIAL_AUTH_REDIRECT_IS_HTTPS", default=True
 )
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": env("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": env("CLOUDINARY_API_KEY"),
+    "API_SECRET": env("CLOUDINARY_API_SECRET"),
+}
