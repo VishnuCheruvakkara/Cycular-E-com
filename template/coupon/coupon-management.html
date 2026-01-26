@@ -3,7 +3,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
 <!-- appointments23:19-->
 <head>
     <meta charset="utf-8">
@@ -18,6 +17,7 @@
     <style>
          /* Custom modal background shade */
          .modal-backdrop {
+
             background-color: rgba(0, 0, 0, 0.652); /* Adjust opacity as needed */
         }
     </style>
@@ -91,7 +91,7 @@
                     <div class="col-12">
                         <form class="mb-4" role="search" method="GET" action="{% url 'coupon:coupon-management' %}">
                             <div class="input-group col-md-6 px-0">
-                                <input class="form-control" type="search" name="search" placeholder="Search" aria-label="Search" value="{{ search_term }}" required>
+                                <input class="form-control" type="search" name="search" placeholder="Search" aria-label="Search" value="{{ search_term }}" >
                                 <div class="input-group-append">
                                     <button class="btn btn-outline-primary" type="submit">
                                         <i class="fa fa-search" aria-hidden="true"></i>
@@ -127,36 +127,54 @@
                             <!-- Coupon Form -->
                             <form method="post" action="{% url 'coupon:coupon-management' %}">
                                 {% csrf_token %}
+                                <input type="hidden" name="add_coupon" value="1">
                                 <div class="modal-body">
                                     <div class="form-group">
                                         <label for="couponName">Coupon code</label>
-                                        <input  name="code" type="text" class="form-control" id="couponCod" placeholder="Enter coupon code" required>
+                                        <input  name="code" type="text" class="form-control" id="couponCod" placeholder="Enter coupon code" value="{{ old_data.code|default:'' }}" required>
                                         <!-- Error message for code -->
-                                        {% if errors.code %}
-                                            <small class="text-danger">{{ errors.code }}</small><br>
+                                        {% if add_errors.code %}
+                                            <small class="text-danger">{{ add_errors.code }}</small><br>
                                         {% endif %}
                                     </div>
                                     
                                     <div class="form-group">
                                         <label for="couponAmount">Coupon Amount (%)</label>
-                                        <input name="discount_value" type="number" class="form-control" id="couponAmount" min="0" max="100" placeholder="Enter discount percentage" required>
-                                        {% if errors.discount_value %}
-                                            <small class="text-danger">{{ errors.discount_value }}</small><br>
+                                        <input name="discount_value" type="number" class="form-control" id="couponAmount" min="0" max="100" placeholder="Enter discount percentage" value="{{ old_data.discount_value|default:'' }}" required>
+                                        {% if add_errors.discount_value %}
+                                            <small class="text-danger">{{ add_errors.discount_value }}</small><br>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="minPurchase">Minimum Purchase Amount</label>
+                                        <input type="number" name="min_purchase_amount" class="form-control" id="minPurchase" min="1" placeholder="Enter minimum purchase amount" value="{{ old_data.min_purchase_amount|default:'' }}" required>
+                                        {% if add_errors.min_purchase_amount %}
+                                            <small class="text-danger">{{ add_errors.min_purchase_amount }}</small><br>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="maxDiscount">Maximum Discount Amount</label>
+                                        <input type="number" name="max_discount_amount" class="form-control" id="maxDiscount" min="1" placeholder="Enter maximum discount amount" value="{{ old_data.max_discount_amount|default:'' }}" required>
+                                        {% if add_errors.max_discount_amount %}
+                                            <small class="text-danger">{{ add_errors.max_discount_amount }}</small><br>
                                         {% endif %}
                                     </div>
 
                                     <div class="form-group">
                                         <label for="validDate">Valid Until  <i class="fa fa-calendar"></i></label>
-                                        <input name="valid_until" type="text" class="form-control" id="validDate" placeholder="Select a valid date" required>
-                                        {% if errors.valid_until %}
-                                            <small class="text-danger">{{ errors.valid_until }}</small><br>
+                                        <input name="valid_until" type="text" class="form-control" id="validDate" placeholder="Select a valid date" value="{{ old_data.valid_until|default:'' }}" required>
+                                        {% if add_errors.valid_until %}
+                                            <small class="text-danger">{{ add_errors.valid_until }}</small><br>
                                         {% endif %}
                                     </div>
+
                                     <div class="form-group description-field">
                                         <label for="description">Description <i class="fa fa-info-circle"></i></label>
-                                        <textarea name="description" class="form-control" id="description" placeholder="Enter description" required></textarea>
-                                        {% if errors.description %}
-                                            <small class="text-danger">{{ errors.description }}</small><br>
+                                        <textarea name="description" class="form-control" id="description" placeholder="Enter description" required>{{ old_data.description|default:'' }}</textarea>
+                                        {% if add_errors.description %}
+                                            <small class="text-danger">{{ add_errors.description }}</small><br>
                                         {% endif %}
                                     </div>
                                 
@@ -232,33 +250,59 @@
                                                         <div class="form-group">
                                                             <label for="couponCode">Coupon Code</label>
                                                             <input type="text" class="form-control" id="couponCode" name="code" value="{{ coupon.code }}" required>
-                                                            {% if errors.code %}
-                                                            <small class="text-danger">{{ errors.code }}</small><br>
+                                                            {% if edit_coupon_id == coupon.id %}
+                                                                {% if edit_errors.code %}
+                                                                <small class="text-danger">{{ edit_errors.code }}</small><br>
+                                                                {% endif %}
                                                             {% endif %}
                                                         </div>
                                                         <div class="form-group">
                                                             <label for="discountValue">Discount Value (%)</label>
                                                             <input type="number" class="form-control" id="discountValue" name="discount_value" value="{{coupon.discount_value}}" min="0" max="100" required>
-                                                            {% if errors.discount_value %}
-                                                            <small class="text-danger">{{ errors.discount_value }}</small><br>
+                                                            {% if edit_coupon_id == coupon.id %}
+                                                                {% if edit_errors.discount_value %}
+                                                                <small class="text-danger">{{ edit_errors.discount_value }}</small><br>
+                                                                {% endif %}
                                                             {% endif %}
                                                         </div>
                                                     
-                                                       
+                                                       <div class="form-group">
+                                                            <label for="minPurchase">Minimum Purchase Amount</label>
+                                                            <input type="number" name="min_purchase_amount" class="form-control" id="minPurchase" min="1" value="{{ coupon.min_purchase_amount }}" required>
+                                                            {% if edit_coupon_id == coupon.id %}
+                                                                {% if edit_errors.min_purchase_amount %}
+                                                                    <small class="text-danger">{{ edit_errors.min_purchase_amount }}</small><br>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label for="maxDiscount">Maximum Discount Amount</label>
+                                                            <input type="number" name="max_discount_amount" class="form-control" id="maxDiscount" min="1" value="{{ coupon.max_discount_amount }}" required>
+                                                            {% if edit_coupon_id == coupon.id %}
+                                                                {% if edit_errors.max_discount_amount %}
+                                                                    <small class="text-danger">{{ edit_errors.max_discount_amount }}</small><br>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </div>
 
                                                         <div class="form-group">
                                                             <label for="validDate">Valid Until <i class="fa fa-calendar"></i></label>
                                                             <input name="valid_until" type="text" class="form-control" id="validDate" placeholder="Select a valid date" value="{{coupon.valid_until|date:'d-m-Y'}}" required>
-                                                            {% if errors.valid_until %}
-                                                                <small class="text-danger">{{errors.valid_until}}</small><br>
+                                                            {% if edit_coupon_id == coupon.id %}
+                                                                {% if edit_errors.valid_until %}
+                                                                    <small class="text-danger">{{edit_errors.valid_until}}</small><br>
+                                                                {% endif %}
                                                             {% endif %}
                                                         </div>
 
                                                         <div class="form-group">
                                                             <label for="description">Description</label>
                                                             <textarea class="form-control" id="description" name="description" required>{{ coupon.description }}</textarea>
-                                                            {% if errors.description %}
-                                                            <small class="text-danger">{{ errors.description}}</small><br>
+                                                            {% if edit_coupon_id == coupon.id %}
+                                                                {% if edit_errors.description %}
+                                                                <small class="text-danger">{{ edit_errors.description}}</small><br>
+                                                                {% endif %}
                                                             {% endif %}
                                                         </div>
                                                     </div>
@@ -363,10 +407,6 @@
     });
   </script>
 
-
-
-
-
   <!-- script for the change the coupon status, down below... -->
   
 <script>
@@ -456,7 +496,24 @@
         });
     }
 </script>
- 
+
+
+<script>
+    $(document).ready(function() {
+        {% if add_errors %}
+            $('#couponModal').modal('show');
+        {% endif %}
+    });
+</script>
+<script>
+$(document).ready(function() {
+    {% if edit_coupon_id %}
+        $('#editCouponModal{{ edit_coupon_id }}').modal('show');
+    {% endif %}
+});
+</script>
+
+
 </body>
 
 <!-- appointments23:20-->
