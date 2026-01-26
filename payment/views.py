@@ -20,6 +20,8 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.views.decorators.http import require_POST
 from user_side.validation import validate_address_data
+from django.contrib.messages import get_messages
+
 
 #####################  check out page  #################
 
@@ -123,75 +125,61 @@ def check_out(request):
 
             # ATOMIC BLOCK 
             with transaction.atomic():
+                
+                order_status = 'Pending Payment' if payment_method == 'razorpay' else 'Order placed'
 
-                # Get or create pending order
-                order = Order.objects.filter(
+                order = Order.objects.create(
                     user=request.user,
-                    order_status='Pending Payment'
-                ).first()
+                    payment_method=payment_method,
+                    total_price=total_price,
+                    coupon_discount_total=context['discount_amount'],
+                    order_status=order_status
+                )
 
-                # Razorpay lock: prevent switching payment method ( for cancelled payments )
-                if order and order.payment_method == 'razorpay' and payment_method != 'razorpay':
-                    messages.error(
-                        request,
-                        "You have an incomplete Razorpay payment. "
-                        "Please complete the payment using Razorpay."
-                    )
-                    raise ValueError("Payment method locked to Razorpay")
-
-                if not order:
-                    order = Order.objects.create(
-                        user=request.user,
-                        payment_method=payment_method,
-                        total_price=total_price,
-                        coupon_discount_total=context['discount_amount'],
-                        order_status='Pending Payment'
-                    )
-
-                    OrderAddress.objects.create(
-                        order=order,
-                        address_line=selected_address.address_line,
-                        city=selected_address.city,
-                        state=selected_address.state,
-                        country=selected_address.country,
-                        postal_code=selected_address.postal_code,
-                        phone_number=selected_address.phone_number,
-                    )
+                OrderAddress.objects.create(
+                    order=order,
+                    address_line=selected_address.address_line,
+                    city=selected_address.city,
+                    state=selected_address.state,
+                    country=selected_address.country,
+                    postal_code=selected_address.postal_code,
+                    phone_number=selected_address.phone_number,
+                )
 
                 # Create order items once
-                if not order.items.exists():
-                    for item in context['cart_items']:
-                        product_variant = item.product_variant
+               
+                for item in context['cart_items']:
+                    product_variant = item.product_variant
 
-                        if product_variant.stock < item.quantity:
-                            raise ValueError(
-                                f"{product_variant.product.name} is out of stock "
-                                f"({product_variant.stock} left)"
-                            )
-                        if payment_method in ['wallet', 'cash_on_delivery']:
-                            product_variant.stock -= item.quantity
-                            product_variant.save()
-
-                        # Reduce stock immediately for Wallet / COD
-                        item_subtotal = Decimal(item.subtotal)
-                        item_discount = (
-                            (item_subtotal / Decimal(total_price))
-                            * context['discount_amount']
-                        ) if total_price else Decimal('0')
-
-
-                        OrderItem.objects.create(
-                            order=order,
-                            product_variant=product_variant,
-                            quantity=item.quantity,
-                            price=item.subtotal,
-                            coupon_discount_price=item_discount,
-                            coupon_info=(
-                                f"{context['discount_value']}% of "
-                                f"{context['coupon_code']} coupon applied. "
-                                f"Discount {item_discount:.2f} ₹"
-                            )
+                    if product_variant.stock < item.quantity:
+                        raise ValueError(
+                            f"{product_variant.product.name} is out of stock "
+                            f"({product_variant.stock} left)"
                         )
+                    if payment_method in ['wallet', 'cash_on_delivery']:
+                        product_variant.stock -= item.quantity
+                        product_variant.save()
+
+                    # Reduce stock immediately for Wallet / COD
+                    item_subtotal = Decimal(item.subtotal)
+                    item_discount = (
+                        (item_subtotal / Decimal(total_price))
+                        * context['discount_amount']
+                    ) if total_price else Decimal('0')
+
+
+                    OrderItem.objects.create(
+                        order=order,
+                        product_variant=product_variant,
+                        quantity=item.quantity,
+                        price=item.subtotal,
+                        coupon_discount_price=item_discount,
+                        coupon_info=(
+                            f"{context['discount_value']}% of "
+                            f"{context['coupon_code']} coupon applied. "
+                            f"Discount {item_discount:.2f} ₹"
+                        )
+                    )
 
                 # Wallet payment
                 if payment_method == 'wallet':
@@ -217,6 +205,9 @@ def check_out(request):
 
             # Clear cart ONLY for wallet / COD
             if payment_method in ['wallet', 'cash_on_delivery']:
+                order.order_status = 'Order placed'
+                order.save()
+
                 cart = Cart.objects.get(user=request.user)
                 cart.items.all().delete()
 
@@ -294,7 +285,7 @@ def order_success_page(request,order_id):
 @never_cache
 def create_razorpay_order(request, order_id):
  
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Order, id=order_id,user=request.user)
 
     if order.order_status == 'Order placed':
         messages.info(request, 'This order is already paid.')
@@ -329,79 +320,103 @@ def payment_success(request):
     razorpay_payment_id = request.GET.get('razorpay_payment_id')
     order_id = request.GET.get('order_id')
 
-    order = get_object_or_404(Order, id=order_id)
-    order_items = order.items.all()
-    cart = get_object_or_404(Cart, user=request.user)
-
-    # BLOCK DOUBLE PAYMENT
-    if order.razorpay_payment_id:
-        messages.warning(
-            request,
-            'This order was already paid. Extra payment attempt detected.'
-        )
-        return render(request, 'payment/razorpay-success-page.html', {'order': order})
-
     client = razorpay.Client(
         auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY)
     )
 
     try:
-        payment = client.payment.fetch(razorpay_payment_id)
+        with transaction.atomic():
 
-        if payment['status'] == 'captured':
-
-            # REDUCE STOCK 
-            for order_item in order_items:
-                product_variant = order_item.product_variant
-                if product_variant.stock < order_item.quantity:
-                    messages.error(
-                        request,
-                        f"Sorry, {product_variant.product.name} is out of stock. Payment cannot be processed."
-                    )
-                    # Optionally, you could trigger a refund here
-                    return render(request, 'payment/razorpay-success-page.html', {'order': order})
-
-                product_variant.stock -= order_item.quantity
-                product_variant.save()
-
-            # LOCK THE ORDER 
-            order.razorpay_payment_id = razorpay_payment_id
-            order.order_status = 'Order placed'
-            order.save()
-
-            # CLEAR CART
-            cart.items.all().delete()
-
-            # HANDLE COUPON USAGE
-            applied_coupon = request.session.get('applied_coupon')
-            if applied_coupon:
-                coupon = Coupon.objects.get(code=applied_coupon['coupon_code'])
-                coupon_usage, _ = CouponUsage.objects.get_or_create(
-                    user=request.user,
-                    coupon=coupon
-                )
-                coupon_usage.is_used = True
-                coupon_usage.save()
-                del request.session['applied_coupon']
-
-            # WALLET TRANSACTION LOG
-            wallet = request.user.wallet
-            for order_item in order_items:
-                Transaction.objects.create(
-                    wallet=wallet,
-                    transaction_type='null',
-                    transaction_purpose='purchase',
-                    transaction_amount=order_item.effective_price(),
-                    description=f"{order_item.product_variant.product.name} Purchase via Razorpay"
-                )
-
-            messages.success(
-                request,
-                'Payment successful and order placed successfully!'
+            # LOCK ORDER ROW
+            order = Order.objects.select_for_update().get(
+                id=order_id,
+                user=request.user
             )
 
-        else:
-            messages.error(request, 'Payment failed.')
+            order_items = order.items.all()
+            cart = get_object_or_404(Cart, user=request.user)
+
+            # BLOCK DOUBLE PAYMENT
+            if order.razorpay_payment_id:
+                messages.warning(
+                    request,
+                    'This order was already paid. Extra payment attempt detected.'
+                )
+                return render(
+                    request,
+                    'payment/razorpay-success-page.html',
+                    {'order': order}
+                )
+
+            payment = client.payment.fetch(razorpay_payment_id)
+
+            if payment['status'] == 'captured':
+                # Clear all message 
+                storage = get_messages(request)
+                for _ in storage:
+                        pass
+
+                # REDUCE STOCK
+                for order_item in order_items:
+                    product_variant = order_item.product_variant
+
+                    if product_variant.stock < order_item.quantity:
+                        messages.error(
+                            request,
+                            f"Sorry, {product_variant.product.name} is out of stock. Payment cannot be processed."
+                        )
+                        return render(
+                            request,
+                            'payment/razorpay-success-page.html',
+                            {'order': order}
+                        )
+
+                    product_variant.stock -= order_item.quantity
+                    product_variant.save()
+
+                # LOCK THE ORDER
+                order.razorpay_payment_id = razorpay_payment_id
+                order.order_status = 'Order placed'
+                order.save()
+
+                # CLEAR CART
+                cart.items.all().delete()
+
+                # HANDLE COUPON USAGE
+                applied_coupon = request.session.get('applied_coupon')
+                if applied_coupon:
+                    coupon = Coupon.objects.get(
+                        code=applied_coupon['coupon_code']
+                    )
+                    coupon_usage, _ = CouponUsage.objects.get_or_create(
+                        user=request.user,
+                        coupon=coupon
+                    )
+                    coupon_usage.is_used = True
+                    coupon_usage.save()
+                    del request.session['applied_coupon']
+
+                # WALLET TRANSACTION LOG
+                wallet = request.user.wallet
+                for order_item in order_items:
+                    Transaction.objects.create(
+                        wallet=wallet,
+                        transaction_type='null',
+                        transaction_purpose='purchase',
+                        transaction_amount=order_item.effective_price(),
+                        description=(
+                            f"{order_item.product_variant.product.name} "
+                            f"Purchase via Razorpay"
+                        )
+                    )
+
+                messages.success(
+                    request,
+                    'Payment successful and order placed successfully!'
+                )
+
+            else:
+                messages.error(request, 'Payment failed.')
 
     except Exception as e:
         messages.error(
@@ -409,7 +424,11 @@ def payment_success(request):
             'An error occurred while verifying the payment.'
         )
 
-    return render(request, 'payment/razorpay-success-page.html', {'order': order})
+    return render(
+        request,
+        'payment/razorpay-success-page.html',
+        {'order': order}
+    )
 
 
 ####################### payment-cancell  ############################
@@ -421,6 +440,12 @@ def payment_cancel(request):
 
     # Retrieve the order using the order ID
     order = get_object_or_404(Order, id=order_id)
+
+    # Clear old messages
+    storage = get_messages(request)
+    for _ in storage:
+        pass
+
     cart=get_object_or_404(Cart,user=request.user)
 
     # Update the order status to 'Cancelled'
@@ -439,7 +464,7 @@ def payment_cancel(request):
         del request.session['applied_coupon']
 
     # Provide feedback to the user
-    messages.warning(request, 'Your payment has been failed.Try to complete payment from the order history page.')
+    messages.info(request, 'Your payment has been failed.Try to complete payment from the order history page.')
 
     # Render the cancellation template with order details
     return render(request, 'payment/razorpay-cancell-page.html', {'order': order})
