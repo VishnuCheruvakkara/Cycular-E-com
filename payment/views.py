@@ -445,71 +445,94 @@ def payment_cancel(request):
     return render(request, 'payment/razorpay-cancell-page.html', {'order': order})
 
 ####################### apply coupon logic  #######################
-
 @login_required(login_url='user_side:sign-in')
 def apply_coupon_view(request):
 
     if request.method == "POST":
-        data=json.loads(request.body)
-        coupon_code=data.get('coupon_code')
-        #get the total price...
-        cart=get_object_or_404(Cart,user=request.user)
-        cart_items=cart.items.all()
-        total_price=sum(item.subtotal for item in cart_items)
-        # Check if the cart is empty
-        if total_price == 0:
-            return JsonResponse({'error': 'Your cart is empty. Please add products to the cart to apply a coupon.'}, status=400)
-        try:
-            coupon = Coupon.objects.get(code=coupon_code,active=True)
-            # Ensure the expiration time is 12:00 PM on the valid_until date
-            expiration_time = timezone.make_aware(
-                datetime.combine(coupon.valid_until.date(), time(12, 0))
-            )
+        data = json.loads(request.body)
+        coupon_code = data.get('coupon_code')
 
-            # Check if the coupon is expired (after 12:00 PM on the expiration date)
+        # Get cart & total
+        cart = get_object_or_404(Cart, user=request.user)
+        cart_items = cart.items.all()
+        total_price = sum(Decimal(item.subtotal) for item in cart_items)
+
+        # Empty cart check
+        if total_price == 0:
+            return JsonResponse({
+                'error': 'Your cart is empty. Please add products to the cart to apply a coupon.'
+            }, status=400)
+
+        try:
+            coupon = Coupon.objects.get(code=coupon_code, active=True)
+
+            # Expiry check (end of day)
+            expiration_time = timezone.make_aware(
+                datetime.combine(coupon.valid_until.date(), time(23, 59, 59))
+            )
             if timezone.now() > expiration_time:
                 return JsonResponse({'error': 'This coupon has expired.'}, status=400)
-            
-            # Check if the user has already used the coupon
-            coupon_usage, created = CouponUsage.objects.get_or_create(user=request.user, coupon=coupon)
-            if coupon_usage.is_used:
-                return JsonResponse({'error': 'You have already used this coupon.'}, status=400)
 
-            # Check if the total price is less than ₹3000
-            if total_price < 3000:
-                return JsonResponse({ 'error': 'Coupon are not applicable for the product price less than 3000 ₹'}, status=400)
-            
-            total_price_decimal = Decimal(total_price)
-            discount_amount=((Decimal(coupon.discount_value)) / 100) * total_price_decimal
-            valid_until_str = coupon.valid_until.strftime('%B %d, %Y')
-            coupon_grand_total=total_price_decimal-discount_amount
-            # Store the coupon details in the session
-            # Check if the discount results in a grand total less than ₹3000 after applying the coupon
-            if coupon_grand_total < 3000:
+            # Already used check
+            coupon_usage, _ = CouponUsage.objects.get_or_create(
+                user=request.user,
+                coupon=coupon
+            )
+            if coupon_usage.is_used:
                 return JsonResponse({
-                    'error': f'Coupon : "{coupon.code}" is not applicable for this product, Try any other Coupon less than {coupon.discount_value}%.'}, status=400)
-            discount_amount_float = float(discount_amount)
-            coupon_grand_total_float = float(coupon_grand_total)
-            
+                    'error': 'You have already used this coupon.'
+                }, status=400)
+
+            # Min purchase check (NO hard coding)
+            if total_price < coupon.min_purchase_amount:
+                return JsonResponse({
+                    'error': f'Coupon valid only for orders above ₹{coupon.min_purchase_amount}'
+                }, status=400)
+
+            # Calculate discount
+            discount_amount = (
+                Decimal(coupon.discount_value) / 100
+            ) * total_price
+
+            # Max discount cap
+            if coupon.max_discount_amount:
+                discount_amount = min(
+                    discount_amount,
+                    Decimal(coupon.max_discount_amount)
+                )
+
+            coupon_grand_total = total_price - discount_amount
+
+            # Safety check (should not go negative)
+            if coupon_grand_total <= 0:
+                return JsonResponse({
+                    'error': 'Invalid discount amount.'
+                }, status=400)
+
+            valid_until_str = coupon.valid_until.strftime('%B %d, %Y')
+
+            # Store in session
             request.session['applied_coupon'] = {
                 'coupon_code': coupon.code,
                 'discount_value': coupon.discount_value,
                 'valid_until': valid_until_str,
-                'discount_amount': str(discount_amount_float),  # Convert to str for consistent formatting
-                'coupon_grand_total': str(coupon_grand_total_float),  # Convert to str for consistent formatting
+                'discount_amount': str(discount_amount),
+                'coupon_grand_total': str(coupon_grand_total),
             }
-          
+
             return JsonResponse({
                 'message': f'Coupon applied! You saved {discount_amount:.2f} ₹',
                 'coupon_code': coupon.code,
                 'discount_value': coupon.discount_value,
                 'valid_until': valid_until_str,
-                'coupon_grand_total':f'{coupon_grand_total:.2f}',
-                'discount_amount':f'-{discount_amount:.2f}',
+                'coupon_grand_total': f'{coupon_grand_total:.2f}',
+                'discount_amount': f'-{discount_amount:.2f}',
             })
 
         except Coupon.DoesNotExist:
-            return JsonResponse({'error': 'Invalid or inactive coupon code, Check the available coupon'}, status=400)
+            return JsonResponse({
+                'error': 'Invalid or inactive coupon code. Check available coupons.'
+            }, status=400)
 
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
 

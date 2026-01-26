@@ -31,6 +31,20 @@
 			label {
 				cursor: pointer; /* Changes cursor to pointer when hovering over labels */
 			}
+            .coupon-rules {
+                font-size: 0.85rem;
+                line-height: 1.5;
+                color: #555;
+            }
+
+            .coupon-rules span {
+                color: #777;
+            }
+
+            .coupon-rules b {
+                color: #000;
+                font-weight: 600;
+            }
 
 		</style>
 
@@ -290,133 +304,140 @@
 
 						<style>
 							.applied-coupon-container {
-								width: 220px;
-								margin-top: 35px;
-								position: relative;
-							}
-							
-							.applied-coupon {
-								width: 100%;
-								height: 100px;
-								border-radius: 10px;
-								overflow: hidden;
-								display: flex;
-								align-items: stretch;
-								position: relative;
-								text-transform: uppercase;
-								font-family: Arial, sans-serif;
-								filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
-							}
-							
-							.applied-coupon::before,
-							.applied-coupon::after {
-								content: "";
-								position: absolute;
-								top: 0;
-								width: 50%;
-								height: 100%;
-								z-index: 1;
-							}
-							
-							.applied-coupon::before {
-								left: 0;
-								background-image: radial-gradient(
-									circle at 0 50%,
-									transparent 25px,
-									gold 26px
-								);
-							}
-							
-							.applied-coupon::after {
-								right: 0;
-								background-image: radial-gradient(
-									circle at 100% 50%,
-									transparent 25px,
-									gold 26px
-								);
-							}
-							
-							.applied-coupon > div {
-								display: flex;
-								align-items: center;
-								justify-content: center;
-								z-index: 2;
-							}
-							
-							.coupon-left {
-								width: 20%;
-								border-right: 2px dashed rgba(0, 0, 0, 0.13);
-								background: gold;
-							}
-							
-							.coupon-left div {
-								transform: rotate(-90deg);
-								white-space: nowrap;
-								font-weight: bold;
-								font-size: 1rem;
-							}
-							
-							.coupon-center {
-								flex-grow: 1;
-								text-align: center;
-								background: gold;
-								padding: 5px;
-							}
-							
-							.coupon-right {
-								width: 60px;
-								background-image: radial-gradient(
-									circle at 103% 51%,
-									transparent 23px,
-									#fff -2px
-								);
-							}
-							
-							.coupon-right div {
-								font-family: "Libre Barcode 128", cursive;
-								margin-left: -23px;
-								font-size: 0.7rem;
-								transform: rotate(-90deg);
-							}
-							
-							.coupon-center h2 {
-								background: #000;
-								color: gold;
-								padding: 0 5px;
-								font-size: 2.2rem;
-								display: inline-block;
-								margin-bottom: 2px;
-							}
-							
-							.coupon-center h3 {
-								font-size: 1.5rem;
-								margin-bottom: 2px;
-							}
-							
-							.coupon-center small {
-								font-size: 0.8rem;    
-								font-weight: 800;
-							}
-							
-							.coupon-cancel {
-								position: absolute;
-								top: -10px;
-								right: -10px;
-								width: 24px;
-								height: 24px;
-								background-color: #ee0505bb;
-								border-radius: 40%;
-								display: flex;
-								justify-content: center;
-								align-items: center;
-								color: white;
-								font-size: 14px;
-								font-weight: bold;
-								cursor: pointer;
-								z-index: 1;
-							}
-							
-							</style>
+                                width: 240px; /* slightly bigger */
+                                margin-top: 35px;
+                                position: relative;
+                                font-family: Arial, sans-serif;
+                            }
+
+                            .applied-coupon {
+                                width: 100%;
+                                height: 120px; /* taller for spacing */
+                                border-radius: 10px;
+                                overflow: hidden;
+                                display: flex;
+                                position: relative;
+                                text-transform: uppercase;
+                                filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
+                            }
+
+                            .applied-coupon::before,
+                            .applied-coupon::after {
+                                content: "";
+                                position: absolute;
+                                top: 0;
+                                width: 50%;
+                                height: 100%;
+                                z-index: 1;
+                            }
+
+                            .applied-coupon::before {
+                                left: 0;
+                                background-image: radial-gradient(circle at 0 50%, transparent 25px, gold 26px);
+                            }
+
+                            .applied-coupon::after {
+                                right: 0;
+                                background-image: radial-gradient(circle at 100% 50%, transparent 25px, gold 26px);
+                            }
+
+                            .applied-coupon > div {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                z-index: 2;
+                            }
+
+                            /* Left "Applied" part */
+                            .coupon-left {
+                                width: 25%; /* slightly more room */
+                                border-right: 2px dashed rgba(0, 0, 0, 0.13);
+                                background: gold;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                            }
+
+                            .coupon-left div {
+                                transform: rotate(-90deg);
+                                white-space: nowrap;
+                                font-weight: bold;
+                                font-size: 1rem;
+                            }
+
+                            /* Center: main info */
+                            .coupon-center {
+                                flex-grow: 1;
+                                text-align: center;
+                                background: gold;
+                                padding: 8px 5px; /* extra vertical padding */
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                            }
+
+                            .coupon-center h2 {
+                                background: #000;
+                                color: gold;
+                                padding: 5px 10px;
+                                font-size: 2rem;
+                                display: inline-block;
+                                margin: 2px 0;
+                            }
+
+                            .coupon-center h3 {
+                                font-size: 1.2rem;
+                                margin: 2px 0;
+                            }
+
+                            .coupon-center small {
+                                font-size: 0.75rem;    
+                                font-weight: 700;
+                            }
+
+                           
+                            /* Right barcode / ticket cut */
+                            .coupon-right {
+                                width: 40px; /* smaller so it doesn't stick out */
+                                background-image: radial-gradient(
+                                    circle at 100% 50%,
+                                    transparent 20px,
+                                    #fff 0
+                                );
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                position: relative;
+                            }
+
+                            .coupon-right div {
+                                font-family: "Libre Barcode 128", cursive;
+                                font-size: 0.65rem;
+                                transform: rotate(-90deg);
+                                white-space: nowrap;
+                                margin-left: -10px; /* adjust to center inside the cut */
+                            }
+
+
+                            /* Close button */
+                            .coupon-cancel {
+                                position: absolute;
+                                top: -8px;
+                                right: -8px;
+                                width: 24px;
+                                height: 24px;
+                                background-color: #ee0505bb;
+                                border-radius: 40%;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                color: white;
+                                font-size: 14px;
+                                font-weight: bold;
+                                cursor: pointer;
+                                z-index: 1;
+                            }
+						</style>
 							
 							<div class="applied-coupon-container" style="display: none;">
 								<div class="applied-coupon">
@@ -426,7 +447,7 @@
 									<div class="coupon-center">
 										<div>
 											<h3>Coupon</h3>
-											<h2>0% OFF</h2>
+											<h2 id="appliedCouponAmount">₹0.00 OFF</h2>
 											<small>Valid until May, 2023</small>
 										</div>
 									</div>
@@ -497,8 +518,7 @@
 								.then(data => {
 									if (data.message) {
 										Swal.fire({
-											title: 'Success',
-											text: data.message,
+											title: data.message,
 											icon: 'success',
 											confirmButtonText: 'OK'
 										});
@@ -509,7 +529,7 @@
 						
 										// Update the coupon details in the HTML
 										document.querySelector('.coupon-left div').innerText = 'Applied';
-										document.querySelector('.coupon-center h2').innerText = `${data.discount_value}% OFF`;
+										document.getElementById('appliedCouponAmount').innerText = `₹${parseFloat(data.discount_amount).toFixed(2)} OFF`;
 										document.querySelector('.coupon-center small').innerHTML = `Valid until<br>${data.valid_until}`;
 										document.querySelector('.coupon-right div').innerText = data.coupon_code;
 
@@ -521,8 +541,7 @@
 										
 									} else {
 										Swal.fire({
-											title: 'Error',
-											text: data.error,
+											title: data.error,
 											icon: 'error',
 											confirmButtonText: 'OK'
 										});
@@ -581,7 +600,11 @@
 													<span class="coupon-status"></span>
 												</h2>
 												<h1>{{ coupon.discount_value }}% <span>Coupon</span></h1>
-												<p>Valid till {{ coupon.valid_until|date:"d F Y" }}</p>
+												<p class="coupon-rules">
+                                                    Get up to <b>₹{{ coupon.max_discount_amount }}</b> off on orders above
+                                                    <b>₹{{ coupon.min_purchase_amount }}</b>.
+                                                    Valid till <b>{{ coupon.valid_until|date:"d F Y" }}</b>.
+                                                </p>
 											</div>
 										</div>
 
@@ -594,6 +617,7 @@
 									</div>
 									{% endfor %}
 								</div>
+
 							</div>
 
 							<script>
@@ -951,6 +975,29 @@
 		<!-- Bootstrap and jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+// Close coupon sidebar when clicking outside
+document.addEventListener('click', function(event) {
+    const couponCanvas = document.getElementById('couponCanvas');
+    const showBtn = document.getElementById('showCouponsBtn');
+
+    // Only run if the sidebar is currently open
+    if (couponCanvas.classList.contains('show')) {
+        // If click is NOT inside the sidebar or the "Show Coupons" button
+        if (!couponCanvas.contains(event.target) && event.target !== showBtn) {
+            couponCanvas.classList.remove('show'); // Close sidebar
+        }
+    }
+});
+
+//Close sidebar when pressing ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        document.getElementById('couponCanvas').classList.remove('show');
+    }
+});
+</script>
 
 </body>
 
