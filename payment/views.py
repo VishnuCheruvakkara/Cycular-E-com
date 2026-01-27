@@ -21,6 +21,7 @@ from django.db import transaction
 from django.views.decorators.http import require_POST
 from user_side.validation import validate_address_data
 from django.contrib.messages import get_messages
+from django.views.decorators.csrf import csrf_exempt
 
 
 #####################  check out page  #################
@@ -133,7 +134,7 @@ def check_out(request):
                     payment_method=payment_method,
                     total_price=total_price,
                     coupon_discount_total=context['discount_amount'],
-                    order_status=order_status
+                    order_status=order_status,
                 )
 
                 OrderAddress.objects.create(
@@ -284,145 +285,178 @@ def order_success_page(request,order_id):
 @login_required(login_url='user_side:sign-in')
 @never_cache
 def create_razorpay_order(request, order_id):
- 
-    order = get_object_or_404(Order, id=order_id,user=request.user)
+
+    order = get_object_or_404(Order, id=order_id, user=request.user)
 
     if order.order_status == 'Order placed':
         messages.info(request, 'This order is already paid.')
         return redirect('payment:order-success-page', order.id)
 
-    client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
+    if order.is_razorpay_in_progress and order.razorpay_order_id:
+        messages.info(
+            request,
+            'Payment is already in progress. Please complete it.'
+        )
+        return render(request, 'payment/razorpay_payment.html', {
+            'razorpay_key_id': settings.RAZORPAY_API_KEY,
+            'razorpay_order_id': order.razorpay_order_id,
+            'razorpay_amount': int(order.paid_amount() * 100),
+            'order_id': order.id,
+        })
 
-    payment_amount = int(order.paid_amount() * 100)  # Convert to paisa
-    payment_currency = 'INR'
+    with transaction.atomic():
+        order = Order.objects.select_for_update().get(id=order.id)
 
-    razorpay_order = client.order.create({
-        'amount': payment_amount,
-        'currency': payment_currency,
-        'payment_capture': '1'  # Auto-capture payment
-    })
+        if order.is_razorpay_in_progress:
+            return render(request, 'payment/razorpay_payment.html', {
+                'razorpay_key_id': settings.RAZORPAY_API_KEY,
+                'razorpay_order_id': order.razorpay_order_id,
+                'razorpay_amount': int(order.paid_amount() * 100),
+                'order_id': order.id,
+            })
 
-    order.razorpay_order_id = razorpay_order['id']
-    order.save()
-  
-    context = {
-        'razorpay_key_id': settings.RAZORPAY_API_KEY,
-        'razorpay_order_id': razorpay_order['id'],
-        'razorpay_amount': payment_amount,
-        'order_id': order.id,
-    }
-    return render(request, 'payment/razorpay_payment.html', context)
-
-###################  payment success page by razor pay  #####################
-
-@login_required(login_url='user_side:sign-in')
-def payment_success(request):
-    razorpay_payment_id = request.GET.get('razorpay_payment_id')
-    order_id = request.GET.get('order_id')
+        order.is_razorpay_in_progress = True
+        order.save()
 
     client = razorpay.Client(
         auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY)
     )
 
+    payment_amount = int(order.paid_amount() * 100)
+
+    razorpay_order = client.order.create({
+        'amount': payment_amount,
+        'currency': 'INR',
+        'payment_capture': 1
+    })
+
+    order.razorpay_order_id = razorpay_order['id']
+    order.save()
+
+    return render(request, 'payment/razorpay_payment.html', {
+        'razorpay_key_id': settings.RAZORPAY_API_KEY,
+        'razorpay_order_id': razorpay_order['id'],
+        'razorpay_amount': payment_amount,
+        'order_id': order.id,
+    })
+
+################## Verify Razor pay payment ###########################
+
+
+@login_required
+def verify_razorpay_payment(request):
+    data = json.loads(request.body)
+
+    client = razorpay.Client(auth=(
+        settings.RAZORPAY_API_KEY,
+        settings.RAZORPAY_API_SECRET_KEY
+    ))
+
+    try:
+        client.utility.verify_payment_signature({
+            'razorpay_order_id': data['razorpay_order_id'],
+            'razorpay_payment_id': data['razorpay_payment_id'],
+            'razorpay_signature': data['razorpay_signature'],
+        })
+
+        order = get_object_or_404(
+            Order,
+            razorpay_order_id=data['razorpay_order_id'],
+            user=request.user
+        )
+        
+        payment = client.payment.fetch(data['razorpay_payment_id'])
+
+        if payment['order_id'] != data['razorpay_order_id']:
+            return JsonResponse({'status': 'order_mismatch'})
+        
+        expected_amount = int(order.paid_amount() * 100)
+
+        if payment['amount'] != expected_amount:
+            return JsonResponse({'status': 'amount_mismatch'})
+
+        if payment['status'] != 'captured':
+            return JsonResponse({'status': 'failed'})
+        
+    except razorpay.errors.SignatureVerificationError:
+        return JsonResponse({'status': 'failed'})
+
     try:
         with transaction.atomic():
 
-            # LOCK ORDER ROW
             order = Order.objects.select_for_update().get(
-                id=order_id,
+                razorpay_order_id=data['razorpay_order_id'],
                 user=request.user
             )
 
-            order_items = order.items.all()
-            cart = get_object_or_404(Cart, user=request.user)
 
             # BLOCK DOUBLE PAYMENT
             if order.razorpay_payment_id:
-                messages.warning(
-                    request,
-                    'This order was already paid. Extra payment attempt detected.'
+                return JsonResponse({'status': 'already_paid'})
+
+            order_items = order.items.all()
+            cart = Cart.objects.get(user=request.user)
+
+            # REDUCE STOCK
+            for order_item in order_items:
+                pv = order_item.product_variant
+                if pv.stock < order_item.quantity:
+                    return JsonResponse({'status': 'out_of_stock'})
+                pv.stock -= order_item.quantity
+                pv.save()
+
+            # LOCK ORDER
+            order.razorpay_payment_id = data['razorpay_payment_id']
+            order.order_status = 'Order placed'
+            order.is_razorpay_in_progress = False
+            order.save()
+
+            # CLEAR CART
+            cart.items.all().delete()
+
+            # HANDLE COUPON
+            applied_coupon = request.session.get('applied_coupon')
+            if applied_coupon:
+                coupon = Coupon.objects.get(code=applied_coupon['coupon_code'])
+                usage, _ = CouponUsage.objects.get_or_create(
+                    user=request.user,
+                    coupon=coupon
                 )
-                return render(
-                    request,
-                    'payment/razorpay-success-page.html',
-                    {'order': order}
-                )
+                usage.is_used = True
+                usage.save()
+                del request.session['applied_coupon']
 
-            payment = client.payment.fetch(razorpay_payment_id)
-
-            if payment['status'] == 'captured':
-                # Clear all message 
-                storage = get_messages(request)
-                for _ in storage:
-                        pass
-
-                # REDUCE STOCK
-                for order_item in order_items:
-                    product_variant = order_item.product_variant
-
-                    if product_variant.stock < order_item.quantity:
-                        messages.error(
-                            request,
-                            f"Sorry, {product_variant.product.name} is out of stock. Payment cannot be processed."
-                        )
-                        return render(
-                            request,
-                            'payment/razorpay-success-page.html',
-                            {'order': order}
-                        )
-
-                    product_variant.stock -= order_item.quantity
-                    product_variant.save()
-
-                # LOCK THE ORDER
-                order.razorpay_payment_id = razorpay_payment_id
-                order.order_status = 'Order placed'
-                order.save()
-
-                # CLEAR CART
-                cart.items.all().delete()
-
-                # HANDLE COUPON USAGE
-                applied_coupon = request.session.get('applied_coupon')
-                if applied_coupon:
-                    coupon = Coupon.objects.get(
-                        code=applied_coupon['coupon_code']
-                    )
-                    coupon_usage, _ = CouponUsage.objects.get_or_create(
-                        user=request.user,
-                        coupon=coupon
-                    )
-                    coupon_usage.is_used = True
-                    coupon_usage.save()
-                    del request.session['applied_coupon']
-
-                # WALLET TRANSACTION LOG
-                wallet = request.user.wallet
-                for order_item in order_items:
-                    Transaction.objects.create(
-                        wallet=wallet,
-                        transaction_type='null',
-                        transaction_purpose='purchase',
-                        transaction_amount=order_item.effective_price(),
-                        description=(
-                            f"{order_item.product_variant.product.name} "
-                            f"Purchase via Razorpay"
-                        )
-                    )
-
-                messages.success(
-                    request,
-                    'Payment successful and order placed successfully!'
+            # WALLET TRANSACTION LOG
+            wallet = request.user.wallet
+            for item in order_items:
+                Transaction.objects.create(
+                    wallet=wallet,
+                    transaction_type='null',
+                    transaction_purpose='purchase',
+                    transaction_amount=item.effective_price(),
+                    description=f"{item.product_variant.product.name} Purchase via Razorpay"
                 )
 
-            else:
-                messages.error(request, 'Payment failed.')
+    except Exception:
+        return JsonResponse({'status': 'error'})
 
-    except Exception as e:
-        messages.error(
-            request,
-            'An error occurred while verifying the payment.'
-        )
+    return JsonResponse({
+        'status': 'success',
+        'redirect_url': reverse('payment:order-success-page', args=[order.id])
+    })
+
+###################  payment success page by razor pay  #####################
+
+
+@login_required(login_url='user_side:sign-in')
+def payment_success(request):
+    order_id = request.GET.get('order_id')
+
+    order = get_object_or_404(
+        Order,
+        id=order_id,
+        user=request.user
+    )
 
     return render(
         request,
@@ -439,7 +473,7 @@ def payment_cancel(request):
     order_id = request.GET.get('order_id')
 
     # Retrieve the order using the order ID
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Order, id=order_id,user=request.user)
 
     # Clear old messages
     storage = get_messages(request)
@@ -450,6 +484,7 @@ def payment_cancel(request):
 
     # Update the order status to 'Cancelled'
     order.order_status = 'Payment Failed'
+    order.is_razorpay_in_progress = False
     order.save()
     cart.items.all().delete()
     # Handle coupon usage if applied

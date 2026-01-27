@@ -119,18 +119,29 @@ document.getElementById('pay-button').onclick = function () {
         "name": "Cycular",
         "description": "Test Transaction", 
         "order_id": document.getElementById('razorpay_order_id').value,
-        "handler": function (response) {
-            // Handle payment success
-            Swal.fire({
-                title: 'Payment Successful!',
-                text: 'Your order has been placed successfully.',
-                icon: 'success',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                // Redirect to the success page after clicking OK
-                window.location.href = "{% url 'payment:payment-success' %}?razorpay_payment_id=" + response.razorpay_payment_id + "&order_id={{ order_id }}";
-            });
-        },
+        handler: function (response) {
+            fetch("{% url 'payment:verify-razorpay-payment' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    window.location.href = data.redirect_url
+                } else {
+                    alert("Payment verification failed")
+                }
+            })
+        }
+        ,
         "prefill": {
             "name": "{{ request.user.username }}",
             "email": "{{ request.user.email }}",
