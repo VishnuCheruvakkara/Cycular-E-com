@@ -68,7 +68,8 @@ class OrderItem(models.Model):
     ('Cancelled', 'Cancelled'),           # Order was cancelled by the customer or seller
     ('Return Requested', 'Return Requested'),  # New choice for return request      
     ('Returned', 'Returned'),  # New choice for returned item   
-    ('Pending Payment', 'Pending Payment'),       
+    ('Pending Payment', 'Pending Payment'),
+    ('Payment Failed','Payment Failed')       
     ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
@@ -78,6 +79,8 @@ class OrderItem(models.Model):
     coupon_discount_price=models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,default=0.00)
     coupon_info=models.CharField(max_length=250,default="Not Available")
     cancelled_message = models.CharField(max_length=255, default="Order Cancelled by Cycular-Admin", blank=True)
+    razorpay_order_id = models.CharField(max_length=255, null=True, blank=True)
+    is_razorpay_in_progress = models.BooleanField(default=False, help_text="True when Razorpay payment is currently in progress for this item")
     
     def __str__(self):
         return f"{self.product_variant.product.name} (x{self.quantity}) - Order {self.order.id}"

@@ -103,9 +103,6 @@
                 </form>
             </div>
         </div>
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 Library -->
-
 <script>
 
 document.getElementById('pay-button').onclick = function () {
@@ -120,7 +117,12 @@ document.getElementById('pay-button').onclick = function () {
         "description": "Test Transaction", 
         "order_id": document.getElementById('razorpay_order_id').value,
         handler: function (response) {
-            fetch("{% url 'payment:verify-razorpay-payment' %}", {
+            let verifyUrl = "{% url 'payment:verify-razorpay-payment' %}";
+            {% if order_item %}
+                verifyUrl = "{% url 'payment:verify-razorpay-payment-item' %}";
+            {% endif %}
+
+            fetch(verifyUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -135,13 +137,22 @@ document.getElementById('pay-button').onclick = function () {
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    window.location.href = data.redirect_url
+                    window.location.href = data.redirect_url;
+                } else if(data.status === "out_of_stock") {
+                    Swal.fire({
+                        title: 'Out of Stock',
+                        text: 'This item is out of stock. Payment cannot be completed.',
+                        icon: 'error'
+                    });
                 } else {
-                    alert("Payment verification failed")
+                    Swal.fire({
+                        title: 'Payment Failed',
+                        text: 'Something went wrong during payment.',
+                        icon: 'error'
+                    });
                 }
             })
-        }
-        ,
+        },
         "prefill": {
             "name": "{{ request.user.username }}",
             "email": "{{ request.user.email }}",
@@ -150,23 +161,31 @@ document.getElementById('pay-button').onclick = function () {
         "theme": { "color": "#3399cc" },
         
         // Event when the Razorpay modal is closed without completing payment
+        
         "modal": {
-            "ondismiss": function() {
-                // Re-enable the button if the user dismisses the Razorpay modal
+            "ondismiss": function () {
                 document.getElementById('pay-button').disabled = false;
 
-                // Show SweetAlert when user closes the modal
                 Swal.fire({
                     title: 'Payment Failed',
-                    text: 'It seems you have not completed the payment. Your order is marked as pending.',
+                    text: 'It seems you have not completed the payment.',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    // Redirect to a payment failure page after user closes the alert
-                    window.location.href = "{% url 'payment:payment-cancel' %}?order_id={{ order_id }}";
+
+                    {% if order_item %}
+                        window.location.href =
+                            "{% url 'payment:payment-cancel-item' %}" +
+                            "?order_id={{ order_item.order.id }}&order_item_id={{ order_item.id }}";
+                    {% else %}
+                        window.location.href =
+                            "{% url 'payment:payment-cancel' %}?order_id={{ order_id }}";
+                    {% endif %}
+
                 });
             }
-        },
+        }
+
     };
 
     var rzp = new Razorpay(options);

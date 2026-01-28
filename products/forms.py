@@ -195,8 +195,6 @@ class ProductVariantForm(forms.ModelForm):
                
         return cleaned_data
     
-  
-
 
             
 #####################  Category form #######################

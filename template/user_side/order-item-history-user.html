@@ -71,87 +71,134 @@
             <main class="container text-center">
 
                 <div class="success-message" style="margin-top: 0px;">
-                    <h4>Pending Payments</h4>
+                    <h4 class="text-center">Pending Payments</h4>
+
                     {% if orders %}
-                    <div class="table-container">
-                        <table class="table responsive-table text-center"> <!-- Add text-center to the table -->
-                            <thead>
-                                <tr>
-                                    <th class="text-center">Sl No</th> <!-- Center header content -->
-                                    <th class="text-center">Products</th>
-                                    <th class="text-center">Payment Method</th>
-                                    <th class="text-center">Order Date</th>
-                                    <th class="text-center">Total Price</th>
-                                    <th class="text-center">Status</th>
-                                    <th class="text-center">Action</th>
-                                
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order in orders %}
-                                    <tr>
-                                        <td data-label="Sl No" class="align-middle">{{ forloop.counter }}</td> <!-- Align vertically middle -->
-                                        <td data-label="Products" class="align-middle">
-                                            <ul class="list-unstyled">
-                                                {% for item in order.items.all %}
-                                                <li class="d-flex justify-content-center align-items-center mb-2">
-                                                    <!-- Image on the left -->
-                                                    <div class="me-3">
-                                                        <a href="{% url 'products:single-product-view' item.product_variant.id %}">
-                                                            <img src="{{ item.product_variant.image1.url }}" alt="{{ item.product_variant.product.name }}" class="img-thumbnail" style="width: 50px; height: 50px;">
-                                                        </a>
-                                                    </div>
-                
-                                                    <!-- Product details on the right -->
-                                                    <div>
+                        {% for order in orders %}
+                        <div class="order-section mb-4 p-3" style="border:1px solid #ddd; border-radius:5px;">
+
+                            <h5 class="text-center mb-3">
+                                Order #{{ order.id }} - {{ order.order_date }} - Total: {{ order.paid_amount }} ₹
+                            </h5>
+
+                            <div class="table-container">
+                                <table class="table table-bordered responsive-table text-center align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="text-center">Sl No</th>
+                                            <th class="text-center">Product</th>
+                                            <th class="text-center">Qty</th>
+                                            <th class="text-center">Payment Method</th>
+                                            <th class="text-center">Status</th>
+                                            <th class="text-center">Price</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for item in order.items.all %}
+                                        <tr>
+                                            <td class="text-center align-middle">
+                                                {{ forloop.counter }}
+                                            </td>
+
+                                            <td class="align-middle">
+                                                <div class="d-flex justify-content-center align-items-center gap-2 text-center">
+                                                    <a href="{% url 'products:single-product-view' item.product_variant.id %}">
+                                                        <img src="{{ item.product_variant.image1.url }}"
+                                                            alt="{{ item.product_variant.product.name }}"
+                                                            class="img-thumbnail"
+                                                            style="width:50px; height:50px;">
+                                                    </a>
+
+                                                    <div class="text-center">
                                                         <strong>{{ item.product_variant.product.name }}</strong>
-                                                        <div>
+
+                                                        <div style="font-size:13px;">
                                                             ({{ item.product_variant.color.name }} - {{ item.product_variant.size.name }})
                                                         </div>
+
+                                                        {% with stock=item.product_variant.stock %}
+                                                            {% if stock == 0 %}
+                                                                <div style="color:red; font-size:13px; font-weight:600;">
+                                                                    Out of stock
+                                                                </div>
+
+                                                            {% elif stock < item.quantity %}
+                                                                <div style="color:red; font-size:13px; font-weight:600;">
+                                                                    Only {{ stock }} left
+                                                                </div>
+
+                                                            {% elif stock < 5 %}
+                                                                <div style="color:red; font-size:13px; font-weight:600;">
+                                                                    Only {{ stock }} left
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endwith %}
                                                     </div>
-                                                </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </td>
-                                        <td data-label="Payment Method" class="align-middle">{{ order.get_payment_method_display }}</td>
-                                        <td data-label="Order Date" class="align-middle">{{ order.order_date }}</td>
-                                        <td data-label="Total Price" class="align-middle">{{ order.paid_amount }} ₹</td>
-                                        <td data-label="Status" class="align-middle">{{ order.get_order_status_display }}</td>
-                                        <td data-label="Action" class="align-middle">
-                                            <a href="{% url 'payment:razorpay-order' order.id %}" 
-                                            style="display: inline-block; width: 90px; color: white; background-color: rgb(34, 139, 34); border: none; border-radius: 5px; text-align: center; padding: 10px 0; text-decoration: none;" 
-                                            class="complete-payment-btn">
-                                            Complete Payment
-                                            </a>
-                                        
-                                        </td>
-                                    
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="6" class="text-center">No pending payments found.</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center align-middle">
+                                                {{ item.quantity }}
+                                            </td>
+
+                                            <td class="text-center align-middle">
+                                                {{ order.get_payment_method_display }}
+                                            </td>
+
+                                            <td class="text-center align-middle">
+                                                {{ item.order_item_status }}
+                                            </td>
+
+                                            <td class="text-center align-middle">
+                                                {{ item.effective_price }} ₹
+                                            </td>
+
+                                            <td class="text-center align-middle">
+                                                {% if item.order_item_status == 'Pending Payment' or item.order_item_status == 'Payment Failed' %}
+                                                    {% if item.product_variant.stock >= item.quantity %}
+                                                        <a href="{% url 'payment:razorpay-order-item' item.id %}"
+                                                        class="btn btn-success btn-sm"
+                                                        style="width:90px;">
+                                                            Pay Now
+                                                        </a>
+                                                    {% else %}
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-danger btn-sm"
+                                                            style="width:90px;"
+                                                            onclick="outOfStockAlert(
+                                                                '{{ item.product_variant.product.name|escapejs }}',
+                                                                {{ item.product_variant.stock }},
+                                                                {{ item.quantity }}
+                                                            )">
+                                                            Not available
+                                                        </button>
+                                                    {% endif %}
+
+                                                {% else %}
+                                                    <span class="text-muted">N/A</span>
+                                                {% endif %}
+                                            </td>
+
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% empty %}
+                            <div class="alert alert-success text-center mt-3">
+                                <strong>No pending payments found.</strong>
+                            </div>
+                        {% endfor %}
                     {% else %}
-                    <!-- Light green message box for no pending payments -->
-                    <div class="alert alert-success mt-3" style="background-color:#f2f2f2; color:#1cc0a0; padding: 15px; border-radius: 5px; text-align: center;">
-                        <strong>No pending payments found.</strong>
-                    </div>
+                        <div class="alert alert-success text-center mt-3">
+                            <strong>No pending payments found.</strong>
+                        </div>
                     {% endif %}
                 </div>
-                
-
-
-
-
-
-
-
-
-
 
 
 
@@ -788,11 +835,6 @@
             });
         });
     </script>
-
-
-
-
-            
         
     <script>
     {% for message in messages %}
@@ -849,6 +891,39 @@
 	document.addEventListener('DOMContentLoaded', updateCartCount);
 
 </script>
+<script>
+function outOfStockAlert(productName) {
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: `Cannot Complete Payment`,
+        html: `
+            <div style="font-size: 14px; line-height: 1.5;">
+                Payment for <strong>${productName}</strong> cannot be completed because this item is out of stock.<br><br>
+                Please <strong>contact support</strong> for further assistance.
+            </div>
+        `,
+        showConfirmButton: true,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#d33',
+        customClass: {
+            confirmButton: 'swal2-confirm-large'
+        },
+        width: '400px',
+        timer: 30000,
+        timerProgressBar: true,
+    });
+}
+</script>
+
+<style>
+.swal2-confirm-large {
+    font-size: 12px !important;
+    padding: 5px 25px !important;
+}
+</style>
+
 
 
 </body>

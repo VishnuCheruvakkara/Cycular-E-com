@@ -194,8 +194,27 @@
             <div class="details-box">
                 <h2 class="details-heading">Order Details</h2>
                 <p><strong>Order ID:</strong> {{ order.id }}</p>
-                <p><strong>Total Amount:</strong> {{ order.paid_amount|floatformat:2 }} ₹</p>
-                <p><strong>Status:</strong> Your order is still pending.</p>
+                {% if is_item_payment %}
+                    <p>
+                        <strong>Product:</strong>
+                        {{ order_item.product_variant.product.name }}
+                    </p>
+                    <p>
+                        <strong>Amount:</strong>
+                        {{ order_item.effective_price|floatformat:2 }} ₹
+                    </p>
+                    <p>
+                        <strong>Status:</strong> Payment failed for this item.
+                    </p>
+                {% else %}
+                    <p>
+                        <strong>Total Amount:</strong>
+                        {{ order.paid_amount|floatformat:2 }} ₹
+                    </p>
+                    <p>
+                        <strong>Status:</strong> Order payment failed.
+                    </p>
+                {% endif %}
             </div>
 
             <a href="{% url 'user_side:order-item-details' %}" class="action-button">
