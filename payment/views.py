@@ -68,13 +68,9 @@ def check_out(request):
     if context['total_price'] == 0:
         messages.info(
             request,
-            'Your cart is empty. Please add products to the cart before proceeding to checkout.'
+            'Your cart is empty. Please add products to the cart or complete pending orders from order history.'
         )
-        return render(request, 'payment/check-out.html', {
-            'cart_items': context['cart_items'],
-            'total_price': context['total_price'],
-            'addresses': context['addresses'],
-        })
+        return redirect('user_side:order-item-details')
 
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
@@ -168,6 +164,7 @@ def check_out(request):
                         * context['discount_amount']
                     ) if total_price else Decimal('0')
 
+                    item_status = ( 'Pending Payment' if payment_method == 'razorpay' else 'Order placed' )
 
                     OrderItem.objects.create(
                         order=order,
@@ -179,7 +176,8 @@ def check_out(request):
                             f"{context['discount_value']}% of "
                             f"{context['coupon_code']} coupon applied. "
                             f"Discount {item_discount:.2f} ₹"
-                        )
+                        ),
+                        order_item_status = item_status
                     )
 
                 # Wallet payment
@@ -200,6 +198,9 @@ def check_out(request):
 
             # Razorpay redirect 
             if payment_method == 'razorpay':
+                cart = Cart.objects.get(user=request.user)
+                cart.items.all().delete()
+
                 return redirect(
                     reverse('payment:razorpay-order', args=[order.id])
                 )
@@ -395,7 +396,6 @@ def verify_razorpay_payment(request):
                 return JsonResponse({'status': 'already_paid'})
 
             order_items = order.items.all()
-            cart = Cart.objects.get(user=request.user)
 
             # REDUCE STOCK
             for order_item in order_items:
@@ -405,14 +405,15 @@ def verify_razorpay_payment(request):
                 pv.stock -= order_item.quantity
                 pv.save()
 
+            for item in order_items:
+                item.order_item_status = 'Order placed'
+                item.save(update_fields=['order_item_status'])
+
             # LOCK ORDER
             order.razorpay_payment_id = data['razorpay_payment_id']
             order.order_status = 'Order placed'
             order.is_razorpay_in_progress = False
             order.save()
-
-            # CLEAR CART
-            cart.items.all().delete()
 
             # HANDLE COUPON
             applied_coupon = request.session.get('applied_coupon')
@@ -436,6 +437,7 @@ def verify_razorpay_payment(request):
                     transaction_amount=item.effective_price(),
                     description=f"{item.product_variant.product.name} Purchase via Razorpay"
                 )
+            
 
     except Exception:
         return JsonResponse({'status': 'error'})
@@ -480,13 +482,10 @@ def payment_cancel(request):
     for _ in storage:
         pass
 
-    cart=get_object_or_404(Cart,user=request.user)
-
     # Update the order status to 'Cancelled'
     order.order_status = 'Payment Failed'
     order.is_razorpay_in_progress = False
     order.save()
-    cart.items.all().delete()
     # Handle coupon usage if applied
     applied_coupon = request.session.get('applied_coupon', None)
     if applied_coupon:

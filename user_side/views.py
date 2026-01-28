@@ -777,11 +777,11 @@ def forget_password_set(request):
 def order_item_details(request):
     if request.user.is_authenticated:
         order_items = OrderItem.objects.filter(order__user=request.user).order_by('-order__order_date')
-         # Fetch all orders for the logged-in user
+        # Fetch all orders for the logged-in user
         orders = Order.objects.filter(user=request.user)
 
         # Filter to only include orders where the order status is pending
-        pending_orders = orders.filter(order_status='Payment Failed')
+        pending_orders = orders.filter(user=request.user,order_status__in=['Pending Payment','Payment Failed']).order_by('-order_date')
 
         context={
             'order_items':order_items,
