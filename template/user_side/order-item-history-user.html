@@ -399,7 +399,7 @@
                             </thead>
                             <tbody>
                                 {% for order_item in order_items %}
-                                {% if order_item.order.order_status != 'Payment Failed' %}
+                                {% if order_item.order.order_status != 'Payment Failed' and order_item.order.order_status != 'Pending Payment' %}
                                 <tr>
                                     <td data-label="Sl No">{{ forloop.counter }}</td>
                                     <td data-label="Product" class="product-cell">
@@ -947,9 +947,9 @@
                 icon: 'error',
                 title: `Cannot Complete Payment`,
                 html: `
-                    <div style="font-size: 14px; line-height: 1.5;">
-                        Payment for <strong>${productName}</strong> cannot be completed because this item is out of stock.<br><br>
-                        Please <strong>contact support</strong> for further assistance.
+                    <div style="font-size: 14px; line-height: 1.6;">
+                        Some products in this order are not available at the moment.<br><br>
+                        Please try again later or <strong>contact customer support</strong> for assistance.
                     </div>
                 `,
                 showConfirmButton: true,

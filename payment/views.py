@@ -487,10 +487,16 @@ def payment_cancel(request):
     for _ in storage:
         pass
 
-    # Update the order status to 'Cancelled'
-    order.order_status = 'Payment Failed'
-    order.is_razorpay_in_progress = False
-    order.save()
+    with transaction.atomic():
+        order.order_status = 'Payment Failed'
+        order.is_razorpay_in_progress = False
+        order.save(update_fields=['order_status', 'is_razorpay_in_progress'])
+        
+        order.items.update(
+            order_item_status='Payment Failed',
+            is_razorpay_in_progress=False
+        )
+
     
     # Handle coupon usage if applied
     applied_coupon = request.session.get('applied_coupon', None)

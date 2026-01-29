@@ -136,9 +136,25 @@ document.getElementById('pay-button').onclick = function () {
             })
             .then(res => res.json())
             .then(data => {
-                if (data.status === "success") {
-                    window.location.href = data.redirect_url;
-                } else if(data.status === "out_of_stock") {
+            if (data.status === "success") {
+
+                Swal.fire({
+                    title: 'Order Placed 🎉',
+                    text: 'Your payment was successful.',
+                    icon: 'success',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Redirect AFTER alert animation
+                setTimeout(() => {
+                    window.location.replace(data.redirect_url);
+                }, 1500);
+            }else if(data.status === "out_of_stock") {
                     Swal.fire({
                         title: 'Out of Stock',
                         text: 'This item is out of stock. Payment cannot be completed.',
