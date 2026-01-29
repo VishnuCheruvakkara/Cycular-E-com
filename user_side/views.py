@@ -783,6 +783,14 @@ def order_item_details(request):
         # Filter to only include orders where the order status is pending
         pending_orders = orders.filter(user=request.user,order_status__in=['Pending Payment','Payment Failed']).order_by('-order_date')
 
+        for order in pending_orders:
+            order.can_pay = True
+
+            for item in order.items.all():
+                if item.product_variant.stock < item.quantity:
+                    order.can_pay = False
+                    break
+
         context={
             'order_items':order_items,
             'orders': pending_orders,

@@ -10,200 +10,375 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    
     <style>
         /* Custom width for modal */
         .custom-modal-width .modal-dialog {
-            max-width: 450px; /* Adjust as needed */
-            margin: 30px auto; /* Adjust vertical margin if necessary */
+            max-width: 450px;
+            margin: 30px auto;
+        }
+        
+        /* modal for invoice show */
+        .modal-content {
+            padding: 20px;
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Tab Slider Styles */
+        .tab-slider-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 4px;
+            margin: 20px auto;
+            max-width: 500px;
+            position: sticky;
+            top: 10px ;
+            z-index: 1000;
+        }
+
+        .tab-slider {
+            display: flex;
+            position: relative;
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .tab-option {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            font-weight: 500;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-option:hover {
+            color: #333;
+        }
+
+        .tab-option.active {
+            color: #fff;
+        }
+
+        .tab-slider-indicator {
+            position: absolute;
+            height: calc(100% - 8px);
+            width: calc(50% - 6px);
+            background: linear-gradient(135deg, #1cc0a0 0%, #53ab9a 100%);
+            border-radius: 8px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            top: 4px;
+            left: 4px;
+            z-index: 1;
+            box-shadow: 0 2px 8px #46dcbe;
+        }
+
+        .tab-slider-indicator.pending {
+            transform: translateX(calc(100% + 4px));
+        }
+
+        .pending-count {
+            background: #fff;
+            color: #1cc0a0;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            min-width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-option.active .pending-count {
+            background: rgba(255,255,255,0.3);
+            color: #fff;
+        }
+
+        /* Content Sections */
+        .tab-content-section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .tab-content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .tab-slider-container {
+                margin: 15px;
+                max-width: calc(100% - 30px);
+                top: 10px !important;
+                padding: 4px;
+            }
+
+            .tab-slider {
+                padding: 3px;
+            }
+
+            .tab-option {
+                padding: 8px 6px;
+                font-size: 11px;
+                flex-direction: row;
+                gap: 4px;
+                white-space: nowrap;
+            }
+
+            .tab-option i {
+                font-size: 12px;
+            }
+
+            .tab-option span:not(.pending-count) {
+                font-size: 11px;
+            }
+
+            .pending-count {
+                font-size: 9px;
+                padding: 2px 5px;
+                min-width: 18px;
+                height: 18px;
+            }
+        }
+
+        /* Existing table styles */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .responsive-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .responsive-table th, .responsive-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .responsive-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .product-cell {
+            min-width: 250px;
+        }
+        
+        .product-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .product-image img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        
+        .product-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .quantity {
+            color: #fd4f4f;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .variant-info {
+            color: #6c757d;
+        }
+        
+        .cancel-order-item-btn, .invoice-btn {
+            width: 90px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+        }
+        
+        .cancel-order-item-btn {
+            background-color: rgb(253, 79, 79);
+        }
+        
+        .cancelled-btn {
+            width: 90px;
+            color: white;
+            background-color: gray;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin: 2px;
+        }
+        
+        .return-btn {
+            background-color: yellow;
+            border: none;
+            color: black;
+            cursor: pointer;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin: 2px;
+        }
+        
+        .return-requested, .returned {
+            color: rgb(255, 255, 255);
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 2px;
+        }
+        
+        .return-requested {
+            background-color: gray;
+        }
+        
+        .returned {
+            background-color: rgba(11, 165, 31, 0.79);
+        }
+        
+        .invoice-btn {
+            background-color: rgb(79, 145, 253);
+        }
+        
+        @media screen and (max-width: 768px) {
+            .responsive-table thead {
+                display: none;
+            }
+            .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+                display: block;
+                width: 100%;
+            }
+            .responsive-table tr {
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+            }
+            .responsive-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+            .responsive-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+            }
+            .product-info {
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+            .product-image {
+                order: 2;
+                margin-left: 10px;
+            }
+            .product-details {
+                order: 1;
+                text-align: right;
+            }
+        }
+
+        .swal2-confirm-large {
+            font-size: 12px !important;
+            padding: 5px 25px !important;
         }
     </style>
-    <!-- modal for invoice show -->
-    <style>
-    .modal-content {
-        padding: 20px;
-    }
-    
-    .modal-header {
-        border-bottom: 1px solid #e9ecef;
-    }
-    
-    .modal-footer {
-        border-top: 1px solid #e9ecef;
-    }
-    </style>
-    
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-        <main class="main mt-2 ">
-
-            <div class="page-header text-center" style="background-image: url('{% static 'assets/images/page-header-bg.jpg' %}')">
-        		<div class="container">
-        			<h1 class="page-title">Order History<span>Overview</span></h1>
-        		</div><!-- End .container -->
-        	</div><!-- End .page-header -->
-            <nav aria-label="breadcrumb" class="breadcrumb-nav">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item">
-                                    <a href="{% url 'core:index' %}">Home</a>
-                                </li>
-                                <li class="breadcrumb-item">
-                                    <a  href="{% url 'user_side:user-dash-board' %}" >My Account</a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">Order History</li>
-                            </ol>
-                        </div>
-                        <div class="col text-right">
-                            <a href="{% url 'wallet:wallet-page' %}"  style=" cursor: pointer;">
-                                Go to Wallet
-                                <i class="bi bi-arrow-right ms-2 transition"></i>
-                            </a>
-                        </div>
+    <main class="main mt-2">
+        <div class="page-header text-center" style="background-image: url('{% static 'assets/images/page-header-bg.jpg' %}')">
+            <div class="container">
+                <h1 class="page-title">Order Management<span>Overview</span></h1>
+            </div>
+        </div>
+        
+        <nav aria-label="breadcrumb" class="breadcrumb-nav">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'core:index' %}">Home</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'user_side:user-dash-board' %}">My Account</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Orders</li>
+                        </ol>
+                    </div>
+                    <div class="col text-right">
+                        <a href="{% url 'wallet:wallet-page' %}" style="cursor: pointer;">
+                            Go to Wallet
+                            <i class="bi bi-arrow-right ms-2 transition"></i>
+                        </a>
                     </div>
                 </div>
-            </nav>
+            </div>
+        </nav>
 
-
-            <main class="container text-center">
-
-                <div class="success-message" style="margin-top: 0px;">
-                    <h4 class="text-center">Pending Payments</h4>
-
-                    {% if orders %}
-                        {% for order in orders %}
-                        <div class="order-section mb-4 p-3" style="border:1px solid #ddd; border-radius:5px;">
-
-                            <h5 class="text-center mb-3">
-                                Order #{{ order.id }} - {{ order.order_date }} - Total: {{ order.paid_amount }} ₹
-                            </h5>
-
-                            <div class="table-container">
-                                <table class="table table-bordered responsive-table text-center align-middle">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th class="text-center">Sl No</th>
-                                            <th class="text-center">Product</th>
-                                            <th class="text-center">Qty</th>
-                                            <th class="text-center">Payment Method</th>
-                                            <th class="text-center">Status</th>
-                                            <th class="text-center">Price</th>
-                                            <th class="text-center">Action</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        {% for item in order.items.all %}
-                                        <tr>
-                                            <td class="text-center align-middle">
-                                                {{ forloop.counter }}
-                                            </td>
-
-                                            <td class="align-middle">
-                                                <div class="d-flex justify-content-center align-items-center gap-2 text-center">
-                                                    <a href="{% url 'products:single-product-view' item.product_variant.id %}">
-                                                        <img src="{{ item.product_variant.image1.url }}"
-                                                            alt="{{ item.product_variant.product.name }}"
-                                                            class="img-thumbnail"
-                                                            style="width:50px; height:50px;">
-                                                    </a>
-
-                                                    <div class="text-center">
-                                                        <strong>{{ item.product_variant.product.name }}</strong>
-
-                                                        <div style="font-size:13px;">
-                                                            ({{ item.product_variant.color.name }} - {{ item.product_variant.size.name }})
-                                                        </div>
-
-                                                        {% with stock=item.product_variant.stock %}
-                                                            {% if stock == 0 %}
-                                                                <div style="color:red; font-size:13px; font-weight:600;">
-                                                                    Out of stock
-                                                                </div>
-
-                                                            {% elif stock < item.quantity %}
-                                                                <div style="color:red; font-size:13px; font-weight:600;">
-                                                                    Only {{ stock }} left
-                                                                </div>
-
-                                                            {% elif stock < 5 %}
-                                                                <div style="color:red; font-size:13px; font-weight:600;">
-                                                                    Only {{ stock }} left
-                                                                </div>
-                                                            {% endif %}
-                                                        {% endwith %}
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                {{ item.quantity }}
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                {{ order.get_payment_method_display }}
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                {{ item.order_item_status }}
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                {{ item.effective_price }} ₹
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                {% if item.order_item_status == 'Pending Payment' or item.order_item_status == 'Payment Failed' %}
-                                                    {% if item.product_variant.stock >= item.quantity %}
-                                                        <a href="{% url 'payment:razorpay-order-item' item.id %}"
-                                                        class="btn btn-success btn-sm"
-                                                        style="width:90px;">
-                                                            Pay Now
-                                                        </a>
-                                                    {% else %}
-                                                        <button
-                                                            type="button"
-                                                            class="btn btn-danger btn-sm"
-                                                            style="width:90px;"
-                                                            onclick="outOfStockAlert(
-                                                                '{{ item.product_variant.product.name|escapejs }}',
-                                                                {{ item.product_variant.stock }},
-                                                                {{ item.quantity }}
-                                                            )">
-                                                            Not available
-                                                        </button>
-                                                    {% endif %}
-
-                                                {% else %}
-                                                    <span class="text-muted">N/A</span>
-                                                {% endif %}
-                                            </td>
-
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        {% empty %}
-                            <div class="alert alert-success text-center mt-3">
-                                <strong>No pending payments found.</strong>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="alert alert-success text-center mt-3">
-                            <strong>No pending payments found.</strong>
-                        </div>
-                    {% endif %}
+        <div class="container">
+            <!-- Tab Slider -->
+            <div class="tab-slider-container">
+                <div class="tab-slider">
+                    <div class="tab-slider-indicator" id="tabIndicator"></div>
+                    <div class="tab-option active" data-tab="order-history">
+                        <i class="fas fa-history"></i>
+                        <span>Order History</span>
+                    </div>
+                    <div class="tab-option" data-tab="pending-payments">
+                        <i class="fas fa-clock"></i>
+                        <span>Pending Payments</span>
+                        <span class="pending-count" id="pendingCount">{{ orders|length }}</span>
+                    </div>
                 </div>
+            </div>
 
-
-
+            <!-- Order History Section -->
+            <div class="tab-content-section active" id="order-history-section">
                 <div class="success-message" style="margin-top: 30px;">
-                    <h4>Order History</h4>
+                    <h4 class="text-center mb-4">Order History</h4>
                     <div class="table-container">
                         <table class="table responsive-table">
                             <thead>
@@ -292,9 +467,8 @@
                                 </tr>
                                 {% endif %}
 
-                                
-                                  <!-- Bootstrap Modal for invoice of each order item -->
-                                  <div class="modal fade ml-4 mt-1" id="invoiceModal-{{ order_item.id }}" tabindex="-1" aria-labelledby="invoiceModalLabel-{{ order_item.id }}" aria-hidden="true">
+                                <!-- Bootstrap Modal for invoice of each order item -->
+                                <div class="modal fade ml-4 mt-1" id="invoiceModal-{{ order_item.id }}" tabindex="-1" aria-labelledby="invoiceModalLabel-{{ order_item.id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -366,484 +540,464 @@
                                                 <span class="text-muted">&copy; {{ current_year }} Cycular. All rights reserved.</span>
                                                 <!-- Button to download the invoice -->
                                                 <a href="{% url 'user_side:download-invoice-item' order_item.id %}" class="btn btn-primary download-invoice-button">Download Invoice</a>
-
-
-
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                             </div>
                                         </div>
                                     </div>
-                                  </div>
-
-
-                                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                                <script>
-                                    document.querySelectorAll(".download-invoice-button").forEach(button => {
-                                        button.addEventListener("click", function(e) {
-                                            e.preventDefault();  // Prevent immediate navigation
-                                
-                                            let timerInterval;
-                                            Swal.fire({
-                                                title: "Invoice is downloading...",
-                                                html: "Please wait...",
-                                                timer: 3000,  // Set the time as per your preference (6 seconds here)
-                                                width: "300px",
-                                                timerProgressBar: true,
-                                                didOpen: () => {
-                                                    Swal.showLoading();
-                                                },
-                                                willClose: () => {
-                                                    clearInterval(timerInterval);
-                                                }
-                                            }).then((result) => {
-                                                if (result.dismiss === Swal.DismissReason.timer) {
-                                                    // Redirect to download URL after the SweetAlert closes
-                                                    const downloadUrl = this.href;  // Use the href of the clicked button
-                                                    window.location.href = downloadUrl;
-                                                }
-                                            });
-                                        });
-                                    });
-                                </script>
-                                
+                                </div>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
-                
-                <style>
-                .table-container {
-                    overflow-x: auto;
-                }
-                .responsive-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-                .responsive-table th, .responsive-table td {
-                    padding: 10px;
-                    text-align: left;
-                    border-bottom: 1px solid #ddd;
-                }
-                .responsive-table th {
-                    background-color: #f2f2f2;
-                    font-weight: bold;
-                }
-                .product-cell {
-                    min-width: 250px;
-                }
-                .product-info {
-                    display: flex;
-                    align-items: center;
-                }
-                .product-image img {
-                    width: 50px;
-                    height: 50px;
-                    object-fit: cover;
-                    margin-right: 10px;
-                }
-                .product-details {
-                    display: flex;
-                    flex-direction: column;
-                }
-                .quantity {
-                    color: #fd4f4f;
-                    font-size: 10px;
-                    font-weight: bold;
-                }
-                .variant-info {
-                    color: #6c757d;
-                }
-                .cancel-order-item-btn, .invoice-btn {
-                    width: 90px;
-                    color: white;
-                    border: none;
-                    border-radius: 5px;
-                    padding: 5px 10px;
-                    margin: 2px;
-                    cursor: pointer;
-                }
-                .cancel-order-item-btn {
-                    background-color: rgb(253, 79, 79);
-                }
-                .cancelled-btn {
-                    width: 90px;
-                    color: white;
-                    background-color: gray;
-                    border: none;
-                    border-radius: 5px;
-                    padding: 5px 10px;
-                    margin: 2px;
-                }
-                .return-btn {
-                    background-color: yellow;
-                    border: none;
-                    color: black;
-                    cursor: pointer;
-                    border-radius: 5px;
-                    padding: 5px 10px;
-                    margin: 2px;
-                }
-                .return-requested, .returned {
-                    color: rgb(255, 255, 255);
-                    padding: 5px 10px;
-                    border-radius: 5px;
-                    display: inline-block;
-                    margin: 2px;
-                }
-                .return-requested {
-                    background-color: gray;
-                }
-                .returned {
-                    background-color: rgba(11, 165, 31, 0.79);
-                }
-                .invoice-btn {
-                    background-color: rgb(79, 145, 253);
-                }
-                
-                @media screen and (max-width: 768px) {
-                    .responsive-table thead {
-                        display: none;
-                    }
-                    .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
-                        display: block;
-                        width: 100%;
-                    }
-                    .responsive-table tr {
-                        margin-bottom: 15px;
-                        border: 1px solid #ddd;
-                    }
-                    .responsive-table td {
-                        text-align: right;
-                        padding-left: 50%;
-                        position: relative;
-                    }
-                    .responsive-table td::before {
-                        content: attr(data-label);
-                        position: absolute;
-                        left: 6px;
-                        width: 45%;
-                        padding-right: 10px;
-                        white-space: nowrap;
-                        text-align: left;
-                        font-weight: bold;
-                    }
-                    .product-info {
-                        flex-direction: row;
-                        justify-content: flex-end;
-                    }
-                    .product-image {
-                        order: 2;
-                        margin-left: 10px;
-                    }
-                    .product-details {
-                        order: 1;
-                        text-align: right;
-                    }
-                }
-                </style>
+            </div>
 
+            <!-- Pending Payments Section -->
+            <div class="tab-content-section" id="pending-payments-section">
+                <div class="success-message" style="margin-top: 30px;">
+                    <h4 class="text-center mb-4">Pending Payments</h4>
 
+                    {% if orders %}
+                        {% for order in orders %}
+                        <div class="order-section mb-4 p-3" style="border:1px solid #ddd; border-radius:5px;">
+                            <h5 class="text-center mb-3">
+                                Order #{{ order.id }} - {{ order.order_date }} - Total: {{ order.paid_amount }} ₹
+                            </h5>
 
+                            <div class="table-container">
+                                <table class="table table-bordered responsive-table text-center align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Sl No</th>
+                                            <th>Product</th>
+                                            <th>Qty</th>
+                                            <th>Payment Method</th>
+                                            <th>Status</th>
+                                            <th>Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
 
+                                    <tbody>
+                                        {% for item in order.items.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
 
+                                            <td class="align-middle">
+                                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                                    <a href="{% url 'products:single-product-view' item.product_variant.id %}">
+                                                        <img src="{{ item.product_variant.image1.url }}"
+                                                            alt="{{ item.product_variant.product.name }}"
+                                                            class="img-thumbnail"
+                                                            style="width:50px;height:50px;">
+                                                    </a>
 
+                                                    <div>
+                                                        <strong>{{ item.product_variant.product.name }}</strong>
+                                                        <div style="font-size:13px;">
+                                                            ({{ item.product_variant.color.name }} - {{ item.product_variant.size.name }})
+                                                        </div>
 
-
-
-                
-                
-            </main>
-            
-
-            <!-- Include SweetAlert CSS and JS in your HTML -->
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-            
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    const returnButtons = document.querySelectorAll('.return-btn');
-            
-                    returnButtons.forEach(button => {
-                        button.addEventListener('click', function(event) {
-                            event.preventDefault();  // Prevent default form behavior
-            
-                            const orderItemId = button.getAttribute('data-order-item-id');  // Get order item ID
-            
-                            // Show confirmation SweetAlert
-                            Swal.fire({
-                                title: 'Confirm Return',
-                                text: 'Are you sure you want to return this product?',
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonText: 'Yes, return it!',
-                                cancelButtonText: 'No, cancel!'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    // Show reason input SweetAlert
-                                    Swal.fire({
-                                        title: 'Reason for Return',
-                                        html: `
-                                            <p style="color:#fd4f4f;">Please select a reason:</p><br>
-                                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                                <div>
-                                                    <input type="radio" id="wrong-item" name="reason" value="Product is not the same">
-                                                    <label for="wrong-item">Product is not the same</label>
+                                                        {% with stock=item.product_variant.stock %}
+                                                            {% if stock == 0 %}
+                                                                <div class="text-danger fw-bold" style="font-size:13px;">
+                                                                    Out of stock
+                                                                </div>
+                                                            {% elif stock < item.quantity %}
+                                                                <div class="text-danger fw-bold" style="font-size:13px;">
+                                                                    Only {{ stock }} left
+                                                                </div>
+                                                            {% elif stock < 5 %}
+                                                                <div class="text-danger fw-bold" style="font-size:13px;">
+                                                                    Only {{ stock }} left
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <input type="radio" id="defective" name="reason" value="Product is defective">
-                                                    <label for="defective">Product is defective</label>
-                                                </div>
-                                                <div>
-                                                    <input type="radio" id="changed-mind" name="reason" value="Changed my mind">
-                                                    <label for="changed-mind">Changed my mind</label>
-                                                </div>
-                                                <div>
-                                                    <input type="radio" id="other" name="reason" value="Other">
-                                                    <label for="other">Other:</label>
-                                                    <input type="text" id="other-reason" placeholder="Enter your reason here" style="margin-left: 5px; padding: 5px; border-radius: 5px; border: 1px solid #ccc; width: 100%;">
-                                                </div>
-                                            </div>
-                                        `,
-                                        showCancelButton: true,
-                                        confirmButtonText: 'Submit',
-                                        cancelButtonText: 'Cancel',
-                                        preConfirm: () => {
-                                            const reasonInputs = document.getElementsByName('reason');
-                                            let reasonSelected = false;
-                                            let reasonText = '';
-            
-                                            // Check if a reason is selected
-                                            for (const input of reasonInputs) {
-                                                if (input.checked) {
-                                                    reasonSelected = true;
-                                                    reasonText = input.value;
-            
-                                                    // If 'Other' is selected, validate the text input
-                                                    if (input.id === 'other') {
-                                                        const customReason = document.getElementById('other-reason').value.trim();
-                                                        if (!customReason) {
-                                                            Swal.showValidationMessage('Please enter a reason for the return.');
-                                                            return false;  // Prevent submission
-                                                        }
-                                                        reasonText = customReason;  // Use the custom reason provided by the user
-                                                    }
-                                                    break;
-                                                }
-                                            }
-            
-                                            // If no reason is selected
-                                            if (!reasonSelected) {
-                                                Swal.showValidationMessage('You need to select a reason for the return.');
-                                                return false;  // Prevent submission
-                                            }
-            
-                                            return { reason: reasonText };  // Return the reason for the fetch request
-                                        }
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            const reason = result.value.reason;  // Get the reason provided by the user
-            
-                                            // Dynamically construct the URL using Django reverse URL pattern
-                                            const requestReturnUrl = "{% url 'user_side:request-return' 0 %}".replace('0', orderItemId);
-            
-                                            // Make the fetch request to the server to update the return status
-                                            fetch(requestReturnUrl, {
-                                                method: 'POST',  // Use POST method
-                                                headers: {
-                                                    'Content-Type': 'application/json',  // Set the content type as JSON
-                                                    'X-CSRFToken': '{{ csrf_token }}',  // Send CSRF token for security
-                                                },
-                                                body: JSON.stringify({ status: 'Return Requested', reason: reason })  // Send status and reason as payload
-                                            })
-                                            .then(response => {
-                                                if (!response.ok) {
-                                                    throw new Error('Network response was not ok');
-                                                }
-                                                return response.json();  // Parse JSON response
-                                            })
-                                            .then(data => {
-                                                if (data.success) {
-                                                    // Show success message using SweetAlert
-                                                    Swal.fire({
-                                                        title: 'Success!',
-                                                        text: 'Return request has been submitted.We will reach out you with in few days...',
-                                                        icon: 'success',
-                                                        confirmButtonText: 'OK'
-                                                    });
-            
-                                                    // Dynamically change the button's color and status to indicate return request
-                                                    button.style.backgroundColor = 'gray';  // Change color to gray
-                                                    button.textContent = 'Requested';  // Change button text
-                                                    button.style.color = 'white'; 
-                                                    button.disabled = true;  // Disable the button to prevent multiple clicks
-                                                    button.style.cursor = 'default'; 
-                                                } else {
-                                                    // Show error message using SweetAlert
-                                                    Swal.fire({
-                                                        title: 'Error!',
-                                                        text: 'Could not process the return request.',
-                                                        icon: 'error',
-                                                        confirmButtonText: 'OK'
-                                                    });
-                                                }
-                                            })
-                                            .catch(error => {
-                                                console.error('Error:', error);
-                                                // Show error message using SweetAlert
-                                                Swal.fire({
-                                                    title: 'Oops!',
-                                                    text: 'An error occurred while requesting the return.',
-                                                    icon: 'error',
-                                                    confirmButtonText: 'OK'
-                                                });
-                                            });
-                                        }
-                                    });
-                                }
-                            });
-                        });
-                    });
-                });
-            </script>
-            
+                                            </td>
 
-            
-            <style>
-            @media screen and (max-width: 767px) {
-                .responsive-table thead {
-                    display: none;
-                }
-                .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
-                    display: block;
-                    width: 100%;
-                }
-                .responsive-table tr {
-                    margin-bottom: 15px;
-                }
-                .responsive-table td {
-                    text-align: right;
-                    padding-left: 50%;
-                    position: relative;
-                }
-                .responsive-table td::before {
-                    content: attr(data-label);
-                    position: absolute;
-                    left: 6px;
-                    width: 45%;
-                    padding-right: 10px;
-                    white-space: nowrap;
-                    text-align: left;
-                    font-weight: bold;
-                }
-                .responsive-table td img {
-                    max-width: 100%;
-                    height: auto;
-                }
-            }
-            </style>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>{{ order.get_payment_method_display }}</td>
+                                            <td>{{ item.order_item_status }}</td>
+                                            <td>{{ item.effective_price }} ₹</td>
 
+                                            {% if forloop.first %}
+                                            <td rowspan="{{ order.items.count }}" class="align-middle">
+                                                {% if order.can_pay %}
+                                                    <a href="{% url 'payment:razorpay-order' order.id %}"
+                                                    class="btn btn-success btn-sm"
+                                                    style="width:120px;">
+                                                        Pay Now
+                                                    </a>
+                                                {% else %}
+                                                    <button type="button"
+                                                            class="btn btn-danger btn-sm"
+                                                            style="width:120px;"
+                                                            onclick="outOfStockAlert('One or more products in this order')">
+                                                        Not Available
+                                                    </button>
+                                                {% endif %}
+                                            </td>
+                                            {% endif %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-success text-center mt-3">
+                            <strong>No pending payments found.</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>      
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const cancelButtons = document.querySelectorAll('.cancel-order-item-btn');
-    
-        cancelButtons.forEach(button => {
-            button.addEventListener('click', function(event) {
-                event.preventDefault(); // Prevent default button behavior
-                const cancelUrl = this.getAttribute('data-url');
-    
-                // Show SweetAlert confirmation with CAPTCHA
-                Swal.fire({
-                    title: 'Are you sure to cancell this product ?',
-                    text: "Please confirm the cancellation!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, Cancel!',
-                    html: `
-                    <div>Enter CAPTCHA to confirm:</div>
-                    <div id="captcha-container" style="text-align: center; margin-bottom: 10px;">
-                        <img src="" id="captcha-image" alt="CAPTCHA Image" 
-                             style="display: block; max-width: 100%; height: auto; margin: 0 auto;">
-                    </div>
-                    <input type="text" id="captcha-input" placeholder="Enter CAPTCHA" class="swal2-input">
-                     `,
-                    didOpen: () => {
-                        // Load CAPTCHA from Django when the modal opens
-                        loadCaptcha();
-                    },
-                    preConfirm: () => {
-                        // Get the entered CAPTCHA value
-                        const captchaResponse = document.getElementById('captcha-input').value;
-                        const captchaKey = document.getElementById('captcha-container').getAttribute('data-captcha-key');
+    <!-- Tab Switching JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabOptions = document.querySelectorAll('.tab-option');
+            const tabIndicator = document.getElementById('tabIndicator');
+            const orderHistorySection = document.getElementById('order-history-section');
+            const pendingPaymentsSection = document.getElementById('pending-payments-section');
 
-                        if (!captchaResponse) {
-                            Swal.showValidationMessage('Please enter the CAPTCHA');
-                            return false;
-                        }
-    
-                        // Return the CAPTCHA input value to the `then` part of the promise
-                        return { captchaResponse: captchaResponse,captchaKey: captchaKey };
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Send cancellation request along with CAPTCHA to the server
-                        fetch(cancelUrl, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRFToken': '{{ csrf_token }}',
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                'captcha_response': result.value.captchaResponse,  // Send the CAPTCHA response
-                                'captcha_key': result.value.captchaKey  
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.error) {
-                                Swal.fire('Error', data.error, 'error');
-                            } else {
-                                Swal.fire('Success', data.message, 'success');
-                                button.setAttribute('disabled', 'true');
-                                button.innerText = 'Cancelled';
-                                button.style.backgroundColor = 'gray';
-                            }
-                        })
-                        .catch(error => console.error('Error:', error));
+            tabOptions.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabOptions.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+
+                    // Move indicator
+                    const tabType = this.getAttribute('data-tab');
+                    if (tabType === 'pending-payments') {
+                        tabIndicator.classList.add('pending');
+                        orderHistorySection.classList.remove('active');
+                        pendingPaymentsSection.classList.add('active');
+                    } else {
+                        tabIndicator.classList.remove('pending');
+                        orderHistorySection.classList.add('active');
+                        pendingPaymentsSection.classList.remove('active');
                     }
                 });
-            });
-    
-            // Function to load the CAPTCHA from Django
-            function loadCaptcha() {
-                fetch("{% url 'wallet:captcha-image-url' %}")
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('captcha-image').src = data.captcha_image_url; // Set CAPTCHA image source
-                        document.getElementById('captcha-container').setAttribute('data-captcha-key', data.captcha_key);
-                    });
-            }
-        });
-    });
-
-     // custom tooltip
-     $(document).ready(function(){
-            $('[data-toggle="tooltip"]').tooltip({
-                delay: { "show": 500, "hide": 100 },  // Delay before showing and hiding the tooltip
-                placement: 'top'  // Placement can be adjusted as needed
             });
         });
     </script>
-        
+
+    <!-- Download Invoice Script -->
     <script>
-    {% for message in messages %}
-        swal.fire({
-            icon:"{{message.tags}}",
-            title:"{{message}}",
-            text:"{{message.tags}}",
-        })
-    {% endfor %}
+        document.querySelectorAll(".download-invoice-button").forEach(button => {
+            button.addEventListener("click", function(e) {
+                e.preventDefault();
+
+                let timerInterval;
+                Swal.fire({
+                    title: "Invoice is downloading...",
+                    html: "Please wait...",
+                    timer: 3000,
+                    width: "300px",
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                    willClose: () => {
+                        clearInterval(timerInterval);
+                    }
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        const downloadUrl = this.href;
+                        window.location.href = downloadUrl;
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Return Request Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const returnButtons = document.querySelectorAll('.return-btn');
+    
+            returnButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+    
+                    const orderItemId = button.getAttribute('data-order-item-id');
+    
+                    Swal.fire({
+                        title: 'Confirm Return',
+                        text: 'Are you sure you want to return this product?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, return it!',
+                        cancelButtonText: 'No, cancel!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: 'Reason for Return',
+                                html: `
+                                    <p style="color:#fd4f4f;">Please select a reason:</p><br>
+                                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                                        <div>
+                                            <input type="radio" id="wrong-item" name="reason" value="Product is not the same">
+                                            <label for="wrong-item">Product is not the same</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" id="defective" name="reason" value="Product is defective">
+                                            <label for="defective">Product is defective</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" id="changed-mind" name="reason" value="Changed my mind">
+                                            <label for="changed-mind">Changed my mind</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" id="other" name="reason" value="Other">
+                                            <label for="other">Other:</label>
+                                            <input type="text" id="other-reason" placeholder="Enter your reason here" style="margin-left: 5px; padding: 5px; border-radius: 5px; border: 1px solid #ccc; width: 100%;">
+                                        </div>
+                                    </div>
+                                `,
+                                showCancelButton: true,
+                                confirmButtonText: 'Submit',
+                                cancelButtonText: 'Cancel',
+                                preConfirm: () => {
+                                    const reasonInputs = document.getElementsByName('reason');
+                                    let reasonSelected = false;
+                                    let reasonText = '';
+    
+                                    for (const input of reasonInputs) {
+                                        if (input.checked) {
+                                            reasonSelected = true;
+                                            reasonText = input.value;
+    
+                                            if (input.id === 'other') {
+                                                const customReason = document.getElementById('other-reason').value.trim();
+                                                if (!customReason) {
+                                                    Swal.showValidationMessage('Please enter a reason for the return.');
+                                                    return false;
+                                                }
+                                                reasonText = customReason;
+                                            }
+                                            break;
+                                        }
+                                    }
+    
+                                    if (!reasonSelected) {
+                                        Swal.showValidationMessage('You need to select a reason for the return.');
+                                        return false;
+                                    }
+    
+                                    return { reason: reasonText };
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    const reason = result.value.reason;
+                                    const requestReturnUrl = "{% url 'user_side:request-return' 0 %}".replace('0', orderItemId);
+    
+                                    fetch(requestReturnUrl, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRFToken': '{{ csrf_token }}',
+                                        },
+                                        body: JSON.stringify({ status: 'Return Requested', reason: reason })
+                                    })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error('Network response was not ok');
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        if (data.success) {
+                                            Swal.fire({
+                                                title: 'Success!',
+                                                text: 'Return request has been submitted. We will reach out to you within few days...',
+                                                icon: 'success',
+                                                confirmButtonText: 'OK'
+                                            });
+    
+                                            button.style.backgroundColor = 'gray';
+                                            button.textContent = 'Requested';
+                                            button.style.color = 'white'; 
+                                            button.disabled = true;
+                                            button.style.cursor = 'default'; 
+                                        } else {
+                                            Swal.fire({
+                                                title: 'Error!',
+                                                text: 'Could not process the return request.',
+                                                icon: 'error',
+                                                confirmButtonText: 'OK'
+                                            });
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                        Swal.fire({
+                                            title: 'Oops!',
+                                            text: 'An error occurred while requesting the return.',
+                                            icon: 'error',
+                                            confirmButtonText: 'OK'
+                                        });
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
+    <!-- Cancel Order Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cancelButtons = document.querySelectorAll('.cancel-order-item-btn');
+        
+            cancelButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const cancelUrl = this.getAttribute('data-url');
+        
+                    Swal.fire({
+                        title: 'Are you sure to cancel this product?',
+                        text: "Please confirm the cancellation!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, Cancel!',
+                        html: `
+                        <div>Enter CAPTCHA to confirm:</div>
+                        <div id="captcha-container" style="text-align: center; margin-bottom: 10px;">
+                            <img src="" id="captcha-image" alt="CAPTCHA Image" 
+                                 style="display: block; max-width: 100%; height: auto; margin: 0 auto;">
+                        </div>
+                        <input type="text" id="captcha-input" placeholder="Enter CAPTCHA" class="swal2-input">
+                         `,
+                        didOpen: () => {
+                            loadCaptcha();
+                        },
+                        preConfirm: () => {
+                            const captchaResponse = document.getElementById('captcha-input').value;
+                            const captchaKey = document.getElementById('captcha-container').getAttribute('data-captcha-key');
+
+                            if (!captchaResponse) {
+                                Swal.showValidationMessage('Please enter the CAPTCHA');
+                                return false;
+                            }
+        
+                            return { captchaResponse: captchaResponse, captchaKey: captchaKey };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(cancelUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': '{{ csrf_token }}',
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    'captcha_response': result.value.captchaResponse,
+                                    'captcha_key': result.value.captchaKey  
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.error) {
+                                    Swal.fire('Error', data.error, 'error');
+                                } else {
+                                    Swal.fire('Success', data.message, 'success');
+                                    button.setAttribute('disabled', 'true');
+                                    button.innerText = 'Cancelled';
+                                    button.style.backgroundColor = 'gray';
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                        }
+                    });
+                });
+        
+                function loadCaptcha() {
+                    fetch("{% url 'wallet:captcha-image-url' %}")
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('captcha-image').src = data.captcha_image_url;
+                            document.getElementById('captcha-container').setAttribute('data-captcha-key', data.captcha_key);
+                        });
+                }
+            });
+
+            $('[data-toggle="tooltip"]').tooltip({
+                delay: { "show": 500, "hide": 100 },
+                placement: 'top'
+            });
+        });
+    </script>
+
+    <!-- Out of Stock Alert -->
+    <script>
+        function outOfStockAlert(productName) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: `Cannot Complete Payment`,
+                html: `
+                    <div style="font-size: 14px; line-height: 1.5;">
+                        Payment for <strong>${productName}</strong> cannot be completed because this item is out of stock.<br><br>
+                        Please <strong>contact support</strong> for further assistance.
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33',
+                customClass: {
+                    confirmButton: 'swal2-confirm-large'
+                },
+                width: '400px',
+                timer: 30000,
+                timerProgressBar: true,
+            });
+        }
+    </script>
+
+    <!-- Messages Script -->
+    <script>
+        {% for message in messages %}
+            Swal.fire({
+                icon: "{{message.tags}}",
+                title: "{{message}}",
+                text: "{{message.tags}}",
+            })
+        {% endfor %}
+    </script>
+
+    <!-- Cart Count Update -->
+    <script>
+        function updateCartCount() {
+            fetch('{% url "cart:cart-count" %}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.querySelector('.cart-count').textContent = data.count;
+                } else {
+                    console.error('Failed to fetch cart count:', data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', updateCartCount);
     </script>
 
     <!-- Plugins JS File -->
@@ -853,84 +1007,12 @@
     <script src="{% static 'assets/js/jquery.waypoints.min.js' %}"></script>
     <script src="{% static 'assets/js/superfish.min.js' %}"></script>
     <script src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
-    
-
-    <!-- Main JS File -->
     <script src="{% static 'assets/js/main.js' %}"></script>
-   
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-
-    <!-- for the sweet alert  -->
- 
-    
-<script>
-	// Function to update cart count
-	function updateCartCount() {
-		fetch('{% url "cart:cart-count" %}', {
-			method: 'GET',
-			headers: {
-				'X-Requested-With': 'XMLHttpRequest',
-				'X-CSRFToken': '{{ csrf_token }}'
-			}
-		})
-		.then(response => response.json())
-		.then(data => {
-			if (data.status === 'success') {
-				document.querySelector('.cart-count').textContent = data.count;
-			} else {
-				console.error('Failed to fetch cart count:', data.message);
-			}
-		})
-		.catch(error => console.error('Error:', error));
-	}
-
-	// Call the updateCartCount function when the page loads
-	document.addEventListener('DOMContentLoaded', updateCartCount);
-
-</script>
-<script>
-function outOfStockAlert(productName) {
-    Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'error',
-        title: `Cannot Complete Payment`,
-        html: `
-            <div style="font-size: 14px; line-height: 1.5;">
-                Payment for <strong>${productName}</strong> cannot be completed because this item is out of stock.<br><br>
-                Please <strong>contact support</strong> for further assistance.
-            </div>
-        `,
-        showConfirmButton: true,
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#d33',
-        customClass: {
-            confirmButton: 'swal2-confirm-large'
-        },
-        width: '400px',
-        timer: 30000,
-        timerProgressBar: true,
-    });
-}
-</script>
-
-<style>
-.swal2-confirm-large {
-    font-size: 12px !important;
-    padding: 5px 25px !important;
-}
-</style>
-
-
-
 </body>
-
-
-<!-- molla/dashboard.html  22 Nov 2019 10:03:13 GMT -->
 </html>
 
 {% endblock %}
-

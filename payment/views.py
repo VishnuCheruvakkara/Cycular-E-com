@@ -347,77 +347,6 @@ def create_razorpay_order(request, order_id):
         'order_id': order.id,
     })
 
-################## Razor pay payment logic per orderitems #################
-
-@login_required(login_url='user_side:sign-in')
-def create_razorpay_order_item(request, order_item_id):
-    
-    order_item = get_object_or_404(OrderItem, id=order_item_id, order__user=request.user)
-
-    variant = order_item.product_variant
-
-    if variant.stock < order_item.quantity:
-        messages.error(
-            request,
-            f"'{variant.product.name}' is out of stock for the selected quantity."
-        )
-        return redirect('user_side:order-item-details')
-
-    if order_item.order_item_status in ['Cancelled', 'Delivered']:
-        messages.error(request, "This item cannot be paid for.")
-        return redirect('user_side:order-item-details')
-
-    # Prevent duplicate payment attempts
-    if order_item.is_razorpay_in_progress and order_item.razorpay_order_id:
-        messages.info(request, "Payment is already in progress for this item.")
-        return render(request, 'payment/razorpay_payment.html', {
-            'order_item': order_item,
-            'order': order_item.order,
-            'razorpay_order_id': order_item.razorpay_order_id,
-            'razorpay_amount': int(order_item.effective_price() * 100),
-            'razorpay_key_id': settings.RAZORPAY_API_KEY,
-            'order_id': order_item.order.id 
-        })
-
-    # Calculate amount in paisa
-    amount = int(order_item.effective_price() * 100)  
-
-    # Initialize Razorpay client
-    client = razorpay.Client(
-        auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY)
-    )
-
-    try:
-        with transaction.atomic():
-            razorpay_order = client.order.create({
-                'amount': amount,
-                'currency': 'INR',
-                'payment_capture': 1
-            })
-
-            # Lock the order item for update
-            order_item = OrderItem.objects.select_for_update().get(id=order_item.id)
-
-            # Update order item with Razorpay details
-            order_item.razorpay_order_id = razorpay_order['id']
-            order_item.is_razorpay_in_progress = True
-            order_item.save()
-
-    except razorpay.errors.RazorpayError:
-        messages.error(request, "Unable to create payment. Please try again.")
-        return redirect('user_side:order-item-details')
-
-    return render(request, 'payment/razorpay_payment.html', {
-        'order_item': order_item,
-        'order': order_item.order,
-        'razorpay_order_id': razorpay_order['id'],
-        'razorpay_amount': amount,
-        'razorpay_key_id': settings.RAZORPAY_API_KEY,
-        'order_id': order_item.order.id  
-    })
-
-
-
 ################## Verify Razor pay payment ###########################
 
 @login_required
@@ -522,65 +451,6 @@ def verify_razorpay_payment(request):
         'status': 'success',
         'redirect_url': reverse('payment:order-success-page', args=[order.id])
     })
-################### Verify razoprpay payemtn for a single orderitem ####################
-
-@login_required
-def verify_razorpay_payment_item(request):
-    """
-    Verify Razorpay payment for a single OrderItem.
-    """
-    data = json.loads(request.body)
-    client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
-
-    try:
-        # Verify signature
-        client.utility.verify_payment_signature({
-            'razorpay_order_id': data['razorpay_order_id'],
-            'razorpay_payment_id': data['razorpay_payment_id'],
-            'razorpay_signature': data['razorpay_signature'],
-        })
-
-        order_item = get_object_or_404(
-            OrderItem,
-            razorpay_order_id=data['razorpay_order_id'],
-            order__user=request.user
-        )
-
-        if order_item.razorpay_payment_id:
-            return JsonResponse({'status': 'already_paid'})
-
-        payment = client.payment.fetch(data['razorpay_payment_id'])
-        if payment['status'] != 'captured':
-            return JsonResponse({'status': 'failed'})
-
-        with transaction.atomic():
-            # Reduce stock
-            pv = order_item.product_variant
-            if pv.stock < order_item.quantity:
-                return JsonResponse({'status': 'out_of_stock'})
-            pv.stock -= order_item.quantity
-            pv.save()
-
-            # Update order item
-            order_item.order_item_status = 'Order placed'
-            order_item.razorpay_payment_id = data['razorpay_payment_id']
-            order_item.is_razorpay_in_progress = False
-            order_item.save()
-
-            # Update parent order status if all items paid
-            order = order_item.order
-            if not order.items.filter(order_item_status='Pending Payment').exists():
-                order.order_status = 'Order placed'
-            order.save()
-
-    except razorpay.errors.SignatureVerificationError:
-        return JsonResponse({'status': 'failed'})
-
-    return JsonResponse({
-        'status': 'success',
-        'redirect_url': reverse('user_side:order-item-details')
-    })
-
 
 ###################  payment success page by razor pay  #####################
 
@@ -639,51 +509,8 @@ def payment_cancel(request):
     # Render the cancellation template with order details
     return render(request, 'payment/razorpay-cancell-page.html', {'order': order,'is_item_payment': False})
 
-####################### Payment cancell for orderitem level ##################
-
-@login_required(login_url='user_side:sign-in')
-def payment_cancel_item(request):
-    order_id = request.GET.get('order_id')
-    order_item_id = request.GET.get('order_item_id')
-
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    order_item = get_object_or_404(
-        OrderItem,
-        id=order_item_id,
-        order=order
-    )
-
-    storage = get_messages(request)
-    for _ in storage:
-        pass
-
-    order_item.order_item_status = 'Payment Failed'
-    order_item.is_razorpay_in_progress = False
-    order_item.save()
-
-    active_items = order.items.filter(
-    order_item_status__in=['Pending Payment', 'Payment Failed']
-    )
-
-    # Check if all order items payment failed
-    if not active_items.exclude(order_item_status='Payment Failed').exists():
-        order.order_status = 'Payment Failed'
-        order.is_razorpay_in_progress = False
-        order.save()
-
-    messages.info(
-        request,
-        'Payment for this item was not completed. You can retry payment.'
-    )
-
-    return render(
-        request,
-        'payment/razorpay-cancell-page.html',
-        {'order': order, 'order_item': order_item,'is_item_payment':True}
-    )
-
-
 ####################### apply coupon logic  #######################
+
 @login_required(login_url='user_side:sign-in')
 def apply_coupon_view(request):
 
