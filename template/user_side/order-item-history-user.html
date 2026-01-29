@@ -560,7 +560,7 @@
                     {% if orders %}
                         {% for order in orders %}
                         <div class="order-section mb-4 p-3" style="border:1px solid #ddd; border-radius:5px;">
-                            <h5 class="text-center mb-3">
+                            <h5 class="text-center mb-3" style="font-size: 1.5rem;">
                                 Order #{{ order.id }} - {{ order.order_date }} - Total: {{ order.paid_amount }} ₹
                             </h5>
 
@@ -648,9 +648,20 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="alert alert-success text-center mt-3">
-                            <strong>No pending payments found.</strong>
-                        </div>
+                        <div class="text-center mt-3" 
+                            style="background-color: #fff; color: #000; border-radius: 12px; 
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+                                font-size: 1.1rem; 
+                                width: 400px; 
+                                margin: 20px auto; 
+                                padding: 15px 20px; 
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center;">
+                        <i class="icon-check-circle me-2" style="font-size: 1.5rem;"></i>
+                        <strong>No pending payments found.</strong>
+                    </div>
+
                     {% endif %}
                 </div>
             </div>

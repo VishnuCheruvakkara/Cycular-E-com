@@ -24,8 +24,6 @@ class Order(models.Model):
     ('Cancelled', 'Cancelled'),           # Order was cancelled by the customer or seller
     ('Refunded', 'Refunded'),             # Payment has been refunded to the customer
     ('Pending Payment', 'Pending Payment'),
-
-
    
 ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')

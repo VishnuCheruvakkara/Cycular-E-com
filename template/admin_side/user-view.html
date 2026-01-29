@@ -1,14 +1,9 @@
 {% load static %}
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 
-
-
 <head>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/img/cycular-favicon.ico' %}">
@@ -18,89 +13,587 @@
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/style.css' %}">
     <!--[if lt IE 9]>
-		<script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
-		<script src="{% static 'admin/js/respond.min.js' %}"></script>
-	<![endif]-->
+        <script src="{% static 'admin/js/html5shiv.min.js' %}"></script>
+        <script src="{% static 'admin/js/respond.min.js' %}"></script>
+    <![endif]-->
+    <style>
+        .profile-header {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 40px;
+            margin-top: 20px;
+        }
+        
+        .profile-top-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .profile-img-wrap {
+            margin-right: 30px;
+            flex-shrink: 0;
+        }
+        
+        .profile-img .avatar {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 4px solid #f0f0f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .user-name-section {
+            flex-grow: 1;
+        }
+        
+        .user-name-header {
+            font-size: 32px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .user-email {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .user-email a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .user-email a:hover {
+            text-decoration: underline;
+        }
+        
+        .info-section {
+            margin-bottom: 35px;
+        }
+        
+        .info-section h5 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .info-row {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid #f5f5f5;
+            align-items: center;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            width: 180px;
+            flex-shrink: 0;
+            font-size: 15px;
+        }
+        
+        .info-value {
+            color: #333;
+            flex-grow: 1;
+            font-size: 15px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-verified {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-unverified {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .address-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .address-card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .default-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .address-line {
+            font-size: 15px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .address-phone {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        .address-phone i {
+            margin-right: 5px;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .no-data i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+            display: block;
+        }
+        
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-size: 26px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        /* Payment Orders Styles */
+        .payment-order-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .order-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .order-meta {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .order-id {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .order-date {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .order-summary {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .payment-method {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .payment-method i {
+            margin-right: 5px;
+        }
+        
+        .order-total {
+            font-weight: 700;
+            font-size: 16px;
+            color: #28a745;
+        }
+        
+        .order-items-table {
+            overflow-x: auto;
+        }
+        
+        .order-items-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .order-items-table thead {
+            background: #f8f9fa;
+        }
+        
+        .order-items-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .order-items-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        
+        .order-items-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .product-info {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .product-thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .product-details {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .product-variant {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .stock-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .out-of-stock {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .low-stock {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .item-status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        
+        .item-status-badge.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .item-status-badge.failed {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .profile-top-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-img-wrap {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+            
+            .info-label {
+                width: 140px;
+            }
+            
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .order-summary {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
 </head>
-<body>
-    
 
+<body>
     {% block sidebar %}
-    {% include 'partials/side-bar-admin.html' %}
+        {% include 'partials/side-bar-admin.html' %}
     {% endblock %}
 
-<div class="page-wrapper">
-    <div class="content">
-          <!-- breadcrumbs -->
-            <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home'%}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'admin_side:user-management' %}">User Management</a></li>
-                <li class="breadcrumb-item active" aria-current="page">User View</li>
-            </ol>
+    <div class="page-wrapper">
+        <div class="content">
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_side:seller-home'%}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'admin_side:user-management' %}">User Management</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">User Profile</li>
+                </ol>
             </nav>
-        <div class="row">
-            <div class="col-sm-7 col-6">
-                <h4 class="page-title">User Profile</h4>
-            </div>
-        </div>
-        <div class="card-box profile-header">
+
+            <!-- Page Title -->
             <div class="row">
-                <div class="col-md-12">
-                    <div class="profile-view">
-                        <div class="profile-img-wrap">
-                            <div class="profile-img">
-                                <a href="#"><img class="avatar" src="" alt=""></a>
-                            </div>
+                <div class="col-12">
+                    <h4 class="page-title">User Profile</h4>
+                </div>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="card-box profile-header">
+            
+
+                <div class="profile-top-section">
+                    <div class="user-name-section">
+                        <h5 class="user-name-header" style="font-size:1.5rem ;">{{ user.username }}</h5>
+                        <p class="user-email">
+                            <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Basic Information Section -->
+                <div class="info-section">
+                    <h5>Account Information</h5>
+                    
+                    <div class="info-row">
+                        <div class="info-label">Joined On:</div>
+                        <div class="info-value">{{ user.date_joined|date:"d M Y" }}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">Account Status:</div>
+                        <div class="info-value">
+                            {% if user.is_active %}
+                                <span class="status-badge status-active">Active</span>
+                            {% else %}
+                                <span class="status-badge status-inactive">Inactive</span>
+                            {% endif %}
                         </div>
-                        
-                        <div class="profile-basic">
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <div class="profile-info-left">
-                                        <h3 class="user-name m-t-0 mb-0">Name : {{user.username}}</h3>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">Verification Status:</div>
+                        <div class="info-value">
+                            {% if user.is_verified %}
+                                <span class="status-badge status-verified">Verified</span>
+                            {% else %}
+                                <span class="status-badge status-unverified">Not Verified</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Addresses Section -->
+                <div class="info-section">
+                    <h5>Saved Addresses</h5>
+                    
+                    {% if user.addresses.exists %}
+                        {% for address in user.addresses.all %}
+                            <div class="address-card">
+                                {% if address.is_default %}
+                                    <span class="default-badge">DEFAULT</span>
+                                {% endif %}
+                                
+                                <div class="address-line">
+                                    {{ address.address_line }}<br>
+                                    {{ address.city }}, {{ address.state }}<br>
+                                    {{ address.country }} - {{ address.postal_code }}
+                                </div>
+                                
+                                {% if address.phone_number %}
+                                    <div class="address-phone">
+                                        <i class="fa fa-phone"></i> {{ address.phone_number }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-data">
+                            <i class="fa fa-map-marker"></i>
+                            <p>No addresses available</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Pending/Failed Payments Section -->
+                <div class="info-section">
+                    <h5>Pending & Failed Payments</h5>
+                    
+                    {% if pending_orders %}
+                        {% for order in pending_orders %}
+                            <div class="payment-order-card">
+                                <div class="order-header">
+                                    <div class="order-meta">
+                                        <span class="order-id">Order #{{ order.id }}</span>
+                                        <span class="order-date">{{ order.order_date|date:"d M Y, h:i A" }}</span>
+                                    </div>
+                                    <div class="order-summary">
+                                        <span class="payment-method">
+                                            <i class="fa fa-credit-card"></i> {{ order.get_payment_method_display }}
+                                        </span>
+                                        <span class="order-total">Total: ₹{{ order.paid_amount }}</span>
                                     </div>
                                 </div>
-                                <div class="col-md-7">
-                                    <ul class="personal-info">
-                                        <li>
-                                            <span class="title">Phone:</span>
-                                            <span class="text"><a href="#">770-889-6484</a></span>
-                                        </li>
-                                        <li>
-                                            <span class="title">Email:</span>
-                                            <span class="text"><a href="#">{{user.email}}</a></span>
-                                        </li>
-                                        <li>
-                                            <span class="title">Birthday:</span>
-                                            <span class="text">3rd March</span>
-                                        </li>
-                                        <li>
-                                            <span class="title">Address:</span>
-                                            <span class="text">714 Burwell Heights Road, Bridge City, TX, 77611</span>
-                                        </li>
-                                        <li>
-                                            <span class="title">Gender:</span>
-                                            <span class="text">Female</span>
-                                        </li>
-                                        <li>
-                                            <span class="title">Status:</span>
-                                            <span class="text">{{ user.is_active|yesno:'Active,Inactive' }}</span>
-                                        </li>
-                                    </ul>
+
+                                <div class="order-items-table">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50px;">#</th>
+                                                <th>Product</th>
+                                                <th style="width: 80px;">Qty</th>
+                                                <th style="width: 140px;">Status</th>
+                                                <th style="width: 100px;">Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in order.items.all %}
+                                                {% if item.order_item_status == 'Pending Payment' or item.order_item_status == 'Payment Failed' %}
+                                                <tr>
+                                                    <td>{{ forloop.counter }}</td>
+                                                    <td>
+                                                        <div class="product-info">
+                                                            <img src="{{ item.product_variant.image1.url }}" 
+                                                                 alt="{{ item.product_variant.product.name }}"
+                                                                 class="product-thumb">
+                                                            <div class="product-details">
+                                                                <div class="product-name">{{ item.product_variant.product.name }}</div>
+                                                                <div class="product-variant">
+                                                                    {{ item.product_variant.color.name }} - {{ item.product_variant.size.name }}
+                                                                </div>
+                                                                {% with stock=item.product_variant.stock %}
+                                                                    {% if stock == 0 %}
+                                                                        <span class="stock-badge out-of-stock">Out of Stock</span>
+                                                                    {% elif stock < item.quantity %}
+                                                                        <span class="stock-badge low-stock">Only {{ stock }} left</span>
+                                                                    {% elif stock < 5 %}
+                                                                        <span class="stock-badge low-stock">Only {{ stock }} left</span>
+                                                                    {% endif %}
+                                                                {% endwith %}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">{{ item.quantity }}</td>
+                                                    <td>
+                                                        {% if item.order_item_status == 'Pending Payment' %}
+                                                            <span class="item-status-badge pending">Pending Payment</span>
+                                                        {% elif item.order_item_status == 'Payment Failed' %}
+                                                            <span class="item-status-badge failed">Payment Failed</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-right">₹{{ item.effective_price }}</td>
+                                                </tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-data">
+                            <i class="fa fa-check-circle"></i>
+                            <p>No pending or failed payments</p>
                         </div>
-                    </div>                        
+                    {% endif %}
                 </div>
+
             </div>
         </div>
     </div>
-</div>
-<script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
-<script src="{% static 'admin/js/popper.min.js' %}"></script>
-<script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
-<script src="{% static 'admin/js/app.js' %}"></script>
+
+    <!-- Scripts -->
+    <script src="{% static 'admin/js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'admin/js/popper.min.js' %}"></script>
+    <script src="{% static 'admin/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'admin/js/jquery.slimscroll.js' %}"></script>
+    <script src="{% static 'admin/js/app.js' %}"></script>
 </body>
 </html>

@@ -178,46 +178,110 @@ def otp_view(request):
 
 ###########################   generating otp   ########################################
 
-OTP_EXPIRY_SECONDS=60
+OTP_EXPIRY_SECONDS=300
 
 def generate_otp():
     return str(random.randint(100000,999999))
 
 ###########################   send otp to user email   ########################################
 
-def send_otp_email(email,otp,username):
-    subject = "Your OTP for Sign-Up"
-    message=f"Dear {username},\n\nThank you for registering with Cycular! Your One-Time Password (OTP) to complete the sign-up process is {otp}. Please keep this code confidential and do not share it with anyone.\n\nIf you did not request this code, please disregard this message.\n\nBest regards,\nThe Cycular Team"
-    email_form=settings.EMAIL_HOST_USER
-    recipient_list=[email]
-    send_mail(subject,message,email_form,recipient_list)
+def send_otp_email(email, otp, username):
+    subject = "Your OTP for Cycular Sign-Up"
+
+    html_message = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; background-color: #f6f8fa; padding: 20px;">
+        <div style="max-width: 500px; margin: auto; background-color: #ffffff; padding: 25px; border-radius: 8px;">
+            
+            <h2 style="color: #1cc0a0; text-align: center;">
+                Cycular Verification Code
+            </h2>
+
+            <p style="font-size: 15px; color: #333;">
+                Dear <strong>{username}</strong>,
+            </p>
+
+            <p style="font-size: 15px; color: #333;">
+                Thank you for registering with <strong>Cycular</strong>.
+                Please use the following One-Time Password (OTP) to complete your sign-up process:
+            </p>
+
+            <div style="
+                text-align: center;
+                font-size: 28px;
+                letter-spacing: 4px;
+                font-weight: bold;
+                color: #1cc0a0;
+                margin: 20px 0;
+                padding: 12px;
+                border: 2px dashed #1cc0a0;
+                border-radius: 6px;
+            ">
+                {otp}
+            </div>
+
+            <p style="font-size: 14px; color: #555;">
+                This OTP is valid for <strong>5 minutes</strong>.
+                Please do not share this code with anyone.
+            </p>
+
+            <p style="font-size: 14px; color: #555;">
+                If you did not request this OTP, you can safely ignore this email.
+            </p>
+
+            <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;">
+
+            <p style="font-size: 13px; color: #777; text-align: center;">
+                Regards,<br>
+                <strong style="color:#1cc0a0;">The Cycular Team</strong>
+            </p>
+
+        </div>
+    </body>
+    </html>
+    """
+
+    send_mail(
+        subject=subject,
+        message="",  # Plain-text fallback (optional)
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email],
+        html_message=html_message,
+        fail_silently=False,
+    )
+
 
 ###########################   resend otp   ########################################
 
 def resend_otp(request):
+    if request.headers.get('x-requested-with') != 'XMLHttpRequest':
+        return JsonResponse({'status': 'error'}, status=400)
+
     session_key = request.session.get('user_registration_data')
     if not session_key or session_key not in request.session:
-        messages.error(request, "Session expired. Please sign up again.")
-        return redirect('user_side:sign-up')  # Redirect to signup if no session data
-    
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Session expired. Please sign up again.'
+        }, status=400)
+
     session_data = request.session.get(session_key)
-    if not session_data:
-        messages.error(request, "Session data not found. Please sign up again.")
-        return redirect('user_side:sign-up')  # Redirect to signup if session data is empty
-    
+
     email = session_data.get('email')
     username = session_data.get('username')
+
     new_otp = generate_otp()
     send_otp_email(email, new_otp, username)
-    
+
     session_data['otp'] = new_otp
     session_data['otp_created_at'] = timezone.now().isoformat()
     request.session[session_key] = session_data
     request.session.modified = True
 
-    messages.success(request, f"OTP successfully resent to {email}. Please check your inbox.")
-    # Redirect back to the OTP input page with a success message
-    return redirect('user_side:otp')
+    return JsonResponse({
+        'status': 'success',
+        'message': f'OTP successfully resent to {email}'
+    })
+
 
 ###############################  to handle the user status through admin page  ##########################
 

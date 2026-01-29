@@ -9,11 +9,6 @@
             <div class="intro-section pt-lg-2">
                
                 <div class="container">
-                    <div style="margin-bottom:20px;">
-                        {% block user-messages%}
-                        {% include 'partials/user-message.html' %}
-                        {% endblock %}
-                    </div>
                    
                     <div class="row">
                         <div class="col-md-12 col-lg-6" >
@@ -241,25 +236,35 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    
         <script>
-            {% for message in messages %}
-                swal.fire({
-                    icon:"{{message.tags}}",
-                    title:"{{message}}",
-                    text:"{{message.tags}}",
-                })
-            {% endfor %}
+            document.addEventListener('DOMContentLoaded', function () {
+                {% for message in messages %}
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}",
+                        title: "{{ message|escapejs }}",
+                        showConfirmButton: false,
+                        timer: 5000,
+                        timerProgressBar: true,
+                        customClass: {
+                            title: 'swal-toast-title'
+                        },
+                    });
+                {% endfor %}
+            });
         </script>
 
         <script>
             // Common SweetAlert function
             function showAlert(title, message, icon = 'info', buttonText = 'OK') {
                 swal.fire({
-                    title: title,
-                    text: message,
+                    title: message,
                     icon: icon, // can be 'success', 'error', 'warning', or 'info'
                     confirmButtonText: buttonText,
                 });
             }
+
+            
 
             // Function to update the button state and style
             function updateButtonState(button, isAdded) {
@@ -388,7 +393,12 @@
     });
 </script>
 
-
+ <style>
+    .swal2-toast .swal2-title {
+        font-size: 15px;
+        font-weight: 600;
+    }
+</style>
 
 
 

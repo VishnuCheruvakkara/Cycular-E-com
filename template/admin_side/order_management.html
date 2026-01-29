@@ -123,7 +123,11 @@
                                         <td>{{ order_item.order.get_payment_method_display }}</td>
                                         <td>{{ order_item.quantity }}</td>
                                         <td>{{ order_item.product_variant.size }}</td>
-                                        <td>{{ order_item.order.user }}</td>
+                                        <td>
+                                            <a href="{% url 'admin_side:user-view' order_item.order.user.id %}">
+                                                {{ order_item.order.user.username }}
+                                            </a>
+                                        </td>
                                         <td>{{ order_item.order.order_date|date:"d-m-Y H:i:s A" }}</td>
                                         
                                         <td>{{ order_item.order_item_status }}</td>

@@ -3,7 +3,6 @@
 {% load static %}
 {% block content %}
 
-
 <main class="main">
     <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
         <div class="container">
@@ -11,9 +10,9 @@
                 <li class="breadcrumb-item"><a href="{% url 'core:index'%}">Home</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Sign In </li>
             </ol>
-        </div><!-- End .container -->
-    </nav><!-- End .breadcrumb-nav -->
-   
+        </div>
+    </nav>
+
     <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('{% static 'assets/images/cycle-sign-in-up - Copy.jpg' %}')">
         <div class="container">
             <div class="form-box">
@@ -26,25 +25,20 @@
                             <a class="nav-link" href="{% url 'user_side:sign-up' %}">Register</a>
                         </li>
                     </ul>
-                    <div style="margin-top:20px;">
-                        {% block admin-messages%}
-                        {% include 'partials/user-message.html' %}
-                        {% endblock %}
-                    </div>
-                   
+
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="signin" role="tabpanel" aria-labelledby="signin-tab">
                             <form action="" method="POST">
-                            {% csrf_token %}
+                                {% csrf_token %}
                                 <div class="form-group">
                                     <label for="signin-email">Email address *</label>
-                                    <input type="email" class="form-control"  name="signin-email" required>
-                                </div><!-- End .form-group -->
+                                    <input type="email" class="form-control" name="signin-email" required>
+                                </div>
 
                                 <div class="form-group">
                                     <label for="signin-password">Password *</label>
-                                    <input type="password" class="form-control"  name="signin-password" required>
-                                </div><!-- End .form-group -->
+                                    <input type="password" class="form-control" name="signin-password" required>
+                                </div>
 
                                 <div class="form-footer">
                                     <button type="submit" class="btn btn-outline-primary-2">
@@ -53,7 +47,7 @@
                                     </button>
 
                                     <a href="{% url 'user_side:forget-password' %}" class="forgot-link">Forgot Your Password?</a>
-                                </div><!-- End .form-footer -->
+                                </div>
                             </form>
 
                             <div class="form-choice">
@@ -64,25 +58,65 @@
                                             <i class="icon-google"></i>
                                             Login With Google
                                         </a>
-                                    </div><!-- End .col-6 -->
-                                </div><!-- End .row -->
-                            </div><!-- End .form-choice -->
-                        </div><!-- End .tab-pane -->
-                    </div><!-- End .tab-content -->
-                </div><!-- End .form-tab -->
-            </div><!-- End .form-box -->
-        </div><!-- End .container -->
-    </div><!-- End .login-page -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        {% for message in messages %}
-            swal.fire({
-                icon:"{{message.tags}}",
-                title:"{{message}}",
-                text:"{{message.tags}}",
-            })
-        {% endfor %}
+        document.addEventListener('DOMContentLoaded', function () {
+            {% if messages %}
+                {% for message in messages %}
+
+                // Map Django message tags to SweetAlert2 icons
+                let icon = 'info';  // default
+                if ("{{ message.tags }}".includes('success')) {
+                    icon = 'success';
+                } else if ("{{ message.tags }}".includes('error')) {
+                    icon = 'error';
+                } else if ("{{ message.tags }}".includes('warning')) {
+                    icon = 'warning';
+                } else if ("{{ message.tags }}".includes('info')) {
+                    icon = 'info';
+                }
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: icon,
+                    title: "{{ message|escapejs }}",
+                    showConfirmButton: false,
+                    timer: 10000,
+                    timerProgressBar: true,
+                    customClass: {
+                        title: 'swal-toast-title'
+                    },
+                    // Optional: click outside to close
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        toast.addEventListener('click', () => { Swal.close(); })
+                    }
+                });
+                {% endfor %}
+            {% endif %}
+        });
     </script>
+
+    <!-- Optional Toast CSS -->
+    <style>
+    .swal2-toast .swal2-title {
+        font-size: 15px;
+        font-weight: 600;
+    }
+    </style>
 
     <!-- Plugins JS File -->
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>

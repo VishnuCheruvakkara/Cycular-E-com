@@ -295,18 +295,37 @@ def UserManagement(request):
     }
     return render(request,'admin_side/user_management.html',context)
 
-#############################   category management  ########################################################
+#############################   User details management  ########################################################
+
+
+User = get_user_model()
 
 @login_required(login_url='admin_side:seller-login')
 @never_cache
-def UserView(request,user_id):
+def UserView(request, user_id):
+    """
+    Admin view to display user profile with pending/failed payment orders
+    """
     if not request.user.is_superuser:
         return redirect('core:index')
+    
     user = get_object_or_404(User, id=user_id)
-    context={
-        'user':user
+    
+    # Get orders with 'Pending Payment' or 'Payment Failed' status
+    pending_orders = user.orders.filter(
+        order_status__in=['Pending Payment', 'Payment Failed']
+    ).prefetch_related(
+        'items__product_variant__product',
+        'items__product_variant__color',
+        'items__product_variant__size'
+    ).order_by('-order_date')
+    
+    context = {
+        'user': user,
+        'pending_orders': pending_orders,
     }
-    return render(request,'admin_side/user-view.html',context)
+    
+    return render(request, 'admin_side/user-view.html', context)
 
 ############################  order management  ###################
 
@@ -318,7 +337,7 @@ def OrderManagement(request):
     # Check if there is a search term
     search_term = request.GET.get('search', '')
     if search_term:
-        order_items = order_items.filter(product_variant__product__name__icontains=search_term)
+        order_items = order_items.filter(Q(product_variant__product__name__icontains=search_term) | Q(order__user__username__icontains=search_term) | Q(order__user__email__icontains=search_term))
 
     paginator = Paginator(order_items, 5)
     page_number = request.GET.get('page', 1)  # Default to page 1 if no page number provided
