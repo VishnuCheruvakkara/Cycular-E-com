@@ -22,7 +22,7 @@ from django.views.decorators.http import require_POST
 from user_side.validation import validate_address_data
 from django.contrib.messages import get_messages
 from django.views.decorators.csrf import csrf_exempt
-
+import uuid
 
 #####################  check out page  #################
 
@@ -63,16 +63,17 @@ def get_checkout_context(request, errors=None,form_data=None):
 @login_required(login_url='user_side:sign-in')
 def check_out(request):
     context = get_checkout_context(request)
-    
+
     # Empty cart check
     if context['total_price'] == 0:
         messages.info(
             request,
-            'Your cart is empty. Please add products to the cart or complete pending orders from order history.'
+            'Your cart is empty or this checkout session is no longer valid.'
         )
-        return redirect('user_side:order-item-details')
-
+        return render(request, 'payment/checkout_blocked.html')
+    
     if request.method == 'POST':
+    
         payment_method = request.POST.get('payment_method')
 
         if not payment_method:
