@@ -1231,7 +1231,7 @@ $(document).ready(function () {
     
         // Perform the AJAX call if the product is not yet added to wishlist
         $.ajax({
-            url: "/wishlist/add-to-wishlist",
+            url: "{% url 'wishlist:add-to-wishlist' %}",
             data: { 
                 "id": product_variant_id 
             },

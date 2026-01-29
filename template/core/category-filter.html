@@ -11,8 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Cycular products page</title>
     <meta name="keywords" content="HTML5 Template">
-    <meta name="description" content="Molla - Bootstrap eCommerce Template">
-    <meta name="author" content="p-themes">
+   
     <!-- Favicon -->
     <link rel="shortcut icon" href="{% static 'assets/images/cycular/favicon-cycular-user.ico' %}">
    
@@ -35,6 +34,7 @@
    <link rel="stylesheet" href="{% static 'assets/css/skins/skin-demo-20.css' %}">
    <link rel="stylesheet" href="{% static 'assets/css/demos/demo-20.css' %}">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 
    <style>
     .slider-container {
@@ -891,7 +891,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
         // Perform the AJAX call if the product is not yet added to wishlist
         $.ajax({
-            url: "/wishlist/add-to-wishlist",
+            url: "{% url 'wishlist:add-to-wishlist' %}",
             data: { 
                 "id": product_variant_id 
             },
