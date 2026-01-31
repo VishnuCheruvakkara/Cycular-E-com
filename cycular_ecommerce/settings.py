@@ -195,15 +195,13 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
 #Email-backend configuration...
+# Google gmail api setup to send otp to users email
 
-# settings.py
+GMAIL_CLIENT_ID = env("GMAIL_CLIENT_ID")
+GMAIL_CLIENT_SECRET = env("GMAIL_CLIENT_SECRET")
+GMAIL_REFRESH_TOKEN = env("GMAIL_REFRESH_TOKEN")
+GMAIL_SENDER_EMAIL = env("GMAIL_SENDER_EMAIL")
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_PORT = env('EMAIL_PORT')
-EMAIL_USE_TLS =env.bool('EMAIL_USE_TLS',default=True)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER') # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # Replace with your Gmail app password
 
 # Ensure session cookies are only sent over HTTPS
 SESSION_COOKIE_SECURE = True
