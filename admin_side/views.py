@@ -388,7 +388,7 @@ def OrderManagement(request):
             order_item.product_variant.save()
 
             wallet, created = Wallet.objects.get_or_create(user=order.user)
-            wallet.balance += Decimal(order_item.price)
+            wallet.balance += Decimal(order_item.effective_price())
             wallet.save()
 
             Transaction.objects.create(
