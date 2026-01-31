@@ -5,7 +5,7 @@ from django.contrib.auth import login,authenticate,logout
 from django.contrib import messages
 from django.conf import settings
 import random
-from django.core.mail import send_mail
+from .utils.gmail import send_otp_email
 from django.utils import timezone
 from datetime import timedelta,datetime
 from django.contrib.auth.decorators import login_required
@@ -183,74 +183,6 @@ OTP_EXPIRY_SECONDS=300
 def generate_otp():
     return str(random.randint(100000,999999))
 
-###########################   send otp to user email   ########################################
-
-def send_otp_email(email, otp, username):
-    subject = "Your OTP for Cycular Sign-Up"
-
-    html_message = f"""
-    <html>
-    <body style="font-family: Arial, sans-serif; background-color: #f6f8fa; padding: 20px;">
-        <div style="max-width: 500px; margin: auto; background-color: #ffffff; padding: 25px; border-radius: 8px;">
-            
-            <h2 style="color: #1cc0a0; text-align: center;">
-                Cycular Verification Code
-            </h2>
-
-            <p style="font-size: 15px; color: #333;">
-                Dear <strong>{username}</strong>,
-            </p>
-
-            <p style="font-size: 15px; color: #333;">
-                Thank you for registering with <strong>Cycular</strong>.
-                Please use the following One-Time Password (OTP) to complete your sign-up process:
-            </p>
-
-            <div style="
-                text-align: center;
-                font-size: 28px;
-                letter-spacing: 4px;
-                font-weight: bold;
-                color: #1cc0a0;
-                margin: 20px 0;
-                padding: 12px;
-                border: 2px dashed #1cc0a0;
-                border-radius: 6px;
-            ">
-                {otp}
-            </div>
-
-            <p style="font-size: 14px; color: #555;">
-                This OTP is valid for <strong>5 minutes</strong>.
-                Please do not share this code with anyone.
-            </p>
-
-            <p style="font-size: 14px; color: #555;">
-                If you did not request this OTP, you can safely ignore this email.
-            </p>
-
-            <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;">
-
-            <p style="font-size: 13px; color: #777; text-align: center;">
-                Regards,<br>
-                <strong style="color:#1cc0a0;">The Cycular Team</strong>
-            </p>
-
-        </div>
-    </body>
-    </html>
-    """
-
-    send_mail(
-        subject=subject,
-        message="",  # Plain-text fallback (optional)
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[email],
-        html_message=html_message,
-        fail_silently=False,
-    )
-
-
 ###########################   resend otp   ########################################
 
 def resend_otp(request):
@@ -377,12 +309,11 @@ def email_change_view(request):
         otp = random.randint(100000, 999999)  # Generate a random OTP
 
         # Send OTP to the new email address
-        send_mail(
-            'Your OTP Code',
-            f'Dear User,\n\nTo complete your email change request, please use the following OTP code: {otp}. This code is valid for 2 minutes.\n\nThank you!\n\n Greetings from Cycular...',
-            settings.EMAIL_HOST_USER,  # Replace with your actual sender email
-            [new_email],
-            fail_silently=False,
+        send_otp_email(
+            to_email=new_email,
+            otp=otp,
+            username=request.user.username,
+            purpose="Email Change"
         )
 
         context_data['otp']=otp
@@ -410,7 +341,7 @@ def email_change_otp_view(request):
 
         if  entered_otp == str(context_data.get('otp')) and otp_generated_time:
             #check for otp is expired or not (timer is set to be 2 seconds.)
-            if (current_time-otp_generated_time).total_seconds() <= 120 :
+            if (current_time-otp_generated_time).total_seconds() <= OTP_EXPIRY_SECONDS :
                 user=request.user
                 user.email=context_data.get('new_email')
                 user.save()
@@ -439,13 +370,13 @@ def email_change_resend_otp_view(request):
         
         otp = random.randint(100000, 999999)
 
-        send_mail(
-            'Your OTP code',
-            f'Dear User,\n\nTo complete your email change request, please use the following OTP code: {otp}. This code is valid for only 2 minutes.\n\nThank you!\n\nGreetings from Cycular...',
-            settings.EMAIL_HOST_USER,  # Replace with your actual sender email
-            [new_email],
-            fail_silently=False,
+        send_otp_email(
+            to_email=new_email,
+            otp=otp,
+            username=request.user.username,
+            purpose="Email Change"
         )
+        
         context_data['otp'] = otp
         context_data['otp-generated-time'] = timezone.now()
 
@@ -509,13 +440,13 @@ def password_change_view(request):
         password_context['otp_generated_time'] = timezone.now()
         password_context['new_password'] = new_password
         
-        send_mail(
-            'Your OTP Code',
-            f'Dear User,\n\nTo complete your password change request, please use the following OTP code: {otp}. This code is valid for 2 minutes.\n\nThank you!\n\nGreetings from Cycular...',
-            settings.EMAIL_HOST_USER,
-            [user.email],
-            fail_silently=False,
+        send_otp_email(
+            to_email=user.email,
+            otp=otp,
+            username=user.username,
+            purpose="Password Change"
         )
+
         
         messages.info(request, 'An OTP has been sent to your email address.')
         return redirect('user_side:password-change-otp-view')
@@ -539,7 +470,7 @@ def password_change_otp_view(request):
         if not otp_pattern.match(entered_otp):
             error_message_password = "Please enter a valid 6-digit OTP."
         elif entered_otp == str(password_context.get('otp')) and otp_generated_time:
-            if (current_time - otp_generated_time).total_seconds() <= 120:
+            if (current_time - otp_generated_time).total_seconds() <= OTP_EXPIRY_SECONDS:
                 user = request.user
                 user.set_password(new_password)
                 user.save()
@@ -567,12 +498,11 @@ def password_change_resend_otp_view(request):
     otp = random.randint(100000, 999999)
 
     # Send the OTP to the user's email
-    send_mail(
-        'Your OTP Code',
-        f'Dear User,\n\nTo complete your password change request, please use the following OTP code: {otp}. This code is valid for only 2 minutes.\n\nThank you!\n\nGreetings from Cycular...',
-        settings.EMAIL_HOST_USER,  # Replace with your actual sender email
-        [user.email],  # Send OTP to the user's email
-        fail_silently=False,
+    send_otp_email(
+        to_email=user.email,
+        otp=otp,
+        username=user.username,
+        purpose="Password Change"
     )
 
     # Update the context with the new OTP and its generation time
@@ -691,12 +621,11 @@ def forget_password(request):
 
         # Generate and send OTP
         otp = random.randint(100000, 999999)
-        send_mail(
-            'Your OTP Code',
-            f'Dear User,\n\nYour OTP code is: {otp}. Please use this code to reset your password within 2 minutes.\n\nThank you!\n\nBest Regards,\nThe Cycular Team',
-            settings.EMAIL_HOST_USER,
-            [current_email],
-            fail_silently=False,
+        send_otp_email(
+            to_email=current_email,
+            otp=otp,
+            username="User",
+            purpose="Forget Password"
         )
 
         # Store the OTP and generation time in the context
@@ -728,7 +657,7 @@ def forget_password_otp(request):
 
         # Check OTP correctness and expiration
         if entered_otp == str(forget_context.get('otp')) and otp_generated_time:
-            if (current_time - otp_generated_time).total_seconds() <= 120:
+            if (current_time - otp_generated_time).total_seconds() <= OTP_EXPIRY_SECONDS:
                 messages.success(request, "OTP is verified.Enter a new password...")
                 return redirect('user_side:forget-password-set')
             else:
@@ -754,12 +683,11 @@ def forget_password_resend_otp(request):
     new_otp = random.randint(100000, 999999)
 
     # Send the new OTP to the user's email
-    send_mail(
-        'Your New OTP Code',
-        f'Dear User,\n\nYour new OTP code is: {new_otp}. Please use this code to reset your password within 2 minutes.\n\nThank you!\n\nBest Regards,\nThe Cycular Team',
-        settings.EMAIL_HOST_USER,
-        [current_email],
-        fail_silently=False,
+    send_otp_email(
+        to_email=current_email,
+        otp=new_otp,
+        username="User",
+        purpose="Forget Password"
     )
 
     # Update the forget_context with the new OTP and generation time
