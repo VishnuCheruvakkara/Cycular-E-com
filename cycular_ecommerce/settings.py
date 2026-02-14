@@ -238,7 +238,8 @@ SOCIAL_AUTH_PIPELINE = (
 
 
 # Set this to the desired value in bytes
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # 20MB total request
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # 20MB per file
 
 #Payment section by razorpay configuaration 
 
