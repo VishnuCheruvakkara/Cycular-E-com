@@ -15,7 +15,7 @@
     <img alt="Watch Demo Video" src="https://img.shields.io/badge/%20Demo%20Video%20User%20Side-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
   </a>
     &nbsp;
-  <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank">
+  <a href="https://youtu.be/GXnTIChSjzo" target="_blank">
     <img alt="Watch Demo Video" src="https://img.shields.io/badge/%20Demo%20Video%20Admin%20Side-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
   </a>
   &nbsp;
