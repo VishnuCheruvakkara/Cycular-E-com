@@ -247,15 +247,15 @@ RAZORPAY_API_KEY=env('RAZORPAY_API_KEY')
 RAZORPAY_API_SECRET_KEY=env('RAZORPAY_API_SECRET_KEY')
 
 # For railway set up 
-SECURE_PROXY_SSL_HEADER = (
-    None
-    if env("SECURE_PROXY_SSL_HEADER") == "NONE"
-    else tuple(env("SECURE_PROXY_SSL_HEADER").split(","))
-)
+# SECURE_PROXY_SSL_HEADER = (
+#     None
+#     if env("SECURE_PROXY_SSL_HEADER") == "NONE"
+#     else tuple(env("SECURE_PROXY_SSL_HEADER").split(","))
+# )
 
-SOCIAL_AUTH_REDIRECT_IS_HTTPS = env.bool(
-    "SOCIAL_AUTH_REDIRECT_IS_HTTPS", default=True
-)
+# SOCIAL_AUTH_REDIRECT_IS_HTTPS = env.bool(
+#     "SOCIAL_AUTH_REDIRECT_IS_HTTPS", default=True
+# )
 
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
