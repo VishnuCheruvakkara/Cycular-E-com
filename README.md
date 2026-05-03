@@ -11,8 +11,12 @@
     <img alt="View Live Project" src="https://img.shields.io/badge/%20Live%20Demo-1dc0a0?style=for-the-badge&logo=vercel&logoColor=white" />
   </a>
   &nbsp;
-  <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank">
-    <img alt="Watch Demo Video" src="https://img.shields.io/badge/%20Demo%20Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
+    <a href="https://youtu.be/PBZLvdn7fs8" target="_blank">
+    <img alt="Watch Demo Video" src="https://img.shields.io/badge/%20Demo%20Video%20User%20Side-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
+  </a>
+    &nbsp;
+  <a href="https://youtu.be/GXnTIChSjzo" target="_blank">
+    <img alt="Watch Demo Video" src="https://img.shields.io/badge/%20Demo%20Video%20Admin%20Side-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
   </a>
   &nbsp;
    <a href="https://www.linkedin.com/posts/vishnu-cheruvakkara-231b8b235_webdevelopment-ecommerce-python-activity-7264316221553020928-oIZA?utm_source=share&utm_medium=member_desktop&rcm=ACoAADq6p4UB7yZEvBWQ6nbkRJlURS5jqlFv_yI" target="_blank">
