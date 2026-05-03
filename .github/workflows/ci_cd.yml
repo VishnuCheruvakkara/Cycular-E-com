@@ -39,7 +39,7 @@ jobs:
             cd /home/tradeclov/Cycular-E-com
             git fetch origin
             git reset --hard origin/production   # Forcefully match GitHub
-            source venv/bin/activate
+            source /home/tradeclov/env/bin/activate
             pip install --cache-dir=/home/tradeclov/.cache/pip -r requirements.txt
             python manage.py migrate --noinput
             python manage.py collectstatic --noinput
