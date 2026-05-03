@@ -31,7 +31,7 @@ User = get_user_model()
 from .validation import validate_address_data
 
 
-###########################  user sign-up  #####################################
+###########################  user sign-up  ####################################
 
 import uuid
 
